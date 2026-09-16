@@ -113,6 +113,7 @@ de kana es un `card_group`.
 | `id` | PK | |
 | `deck_id` | FK → deck | ON DELETE CASCADE |
 | `name` | text | "か行", "Pescado" |
+| `section` | text NULL | Encabezado en la grilla: `Básicos`, `Dakuten`, `Contracciones`, `Extendidos`. NULL en mazos propios |
 | `sort_order` | int | |
 
 ### card
@@ -197,6 +198,10 @@ Una fila por cada Enter, acierte o no. No una por carta resuelta.
 > - `session.mode` — hace falta para distinguir una ronda normal de una de
 >   repaso dirigido, y para poder excluir las de repaso de las estadísticas
 >   generales si alguna vez sesgan el promedio.
+> - `card_group.section` — apareció al planificar la implementación. La grilla
+>   de la pantalla 01 va seccionada por Básicos / Dakuten / Contracciones, y sin
+>   esta columna la única forma de armar esos encabezados sería inferirlos del
+>   orden y los conteos del seed, que se rompe apenas alguien agrega un grupo.
 
 Índices: `(card_id, created_at)` para el ranking de peores, `(session_id)` para
 el resumen de ronda.
