@@ -240,7 +240,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 }
 ```
 
-`app/page.tsx` (provisorio, se reemplaza en la Task 10):
+`app/page.tsx` (provisorio, se reemplaza en la Task 11):
 
 ```tsx
 import { Title, Text, Stack } from '@mantine/core';
