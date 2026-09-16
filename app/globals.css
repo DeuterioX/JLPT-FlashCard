@@ -3,3 +3,30 @@
 * {
   box-sizing: border-box;
 }
+
+html, body { height: 100%; }
+body { margin: 0; }
+
+/* Zen Kaku Gothic New para todo kana: es una tipografía japonesa real,
+   así que ぬ y め se distinguen de verdad. */
+.kana { font-family: "Zen Kaku Gothic New", sans-serif; }
+.romaji { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* La barra de pestañas de móvil tiene que despejar el indicador de inicio. */
+.safe-bottom { padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+
+/* Navegación responsive sin JavaScript: el breakpoint de diseño es 640px,
+   que no coincide con ningún breakpoint por defecto de Mantine (576/768/...),
+   así que en vez de useMediaQuery (que devuelve un valor distinto en el
+   servidor y en el cliente y puede parpadear o desincronizar la hidratación)
+   se resuelve con dos bloques que se muestran u ocultan por CSS puro. */
+.knd-nav-desktop { display: flex; }
+.knd-nav-mobile { display: none; }
+.knd-main-pb { padding-bottom: 0; }
+
+@media (max-width: 640px) {
+  .knd-nav-desktop { display: none; }
+  .knd-nav-mobile { display: flex; }
+  .knd-main-pb { padding-bottom: 72px; }
+}

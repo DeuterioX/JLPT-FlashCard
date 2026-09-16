@@ -2,6 +2,7 @@ import '@mantine/core/styles.css';
 import './globals.css';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 import { theme } from '../theme';
+import { AppShell } from '../components/AppShell';
 
 export const metadata = { title: 'Kana Drill' };
 
@@ -19,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body>
         <MantineProvider theme={theme} defaultColorScheme="dark">
-          {children}
+          <AppShell>{children}</AppShell>
         </MantineProvider>
       </body>
     </html>
