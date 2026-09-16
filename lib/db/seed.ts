@@ -1,12 +1,20 @@
-import { eq } from 'drizzle-orm';
+import { and, eq } from 'drizzle-orm';
 import type { Db } from './client';
 import { deck, cardGroup, card, cardAnswer } from './schema';
 import { HIRAGANA, KATAKANA, type KanaGroup } from '../kana/tables';
 import { normalizeAnswer } from '../kana/normalize';
 
 function seedDeck(db: Db, name: string, sortOrder: number, groups: KanaGroup[]) {
-  // Idempotencia por nombre: si ya está, no se toca.
-  const existing = db.select().from(deck).where(eq(deck.name, name)).all();
+  // Idempotencia por nombre, pero solo entre mazos propios de la app
+  // (is_builtin = 1). Desde Task 8 el usuario puede crear un mazo con
+  // cualquier nombre, incluido "Hiragana"; si el guard no filtrara por
+  // is_builtin, ese mazo de usuario haría que este seed se saltee el mazo
+  // real y la app se quedaría sin hiragana, en silencio.
+  const existing = db
+    .select()
+    .from(deck)
+    .where(and(eq(deck.name, name), eq(deck.isBuiltin, true)))
+    .all();
   if (existing.length > 0) return;
 
   const [d] = db

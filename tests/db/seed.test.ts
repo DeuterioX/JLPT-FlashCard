@@ -76,4 +76,23 @@ describe('seedKana', () => {
     expect(db.select().from(cardGroup).all()).toHaveLength(26 + 33);
     expect(db.select().from(card).all()).toHaveLength(104 + 131);
   });
+
+  it('no se deja engañar por un mazo de usuario que se llama igual que uno propio', () => {
+    // Un mazo de usuario (Task 8) puede llamarse "Hiragana" sin ser el builtin.
+    db.insert(deck).values({ name: 'Hiragana', isBuiltin: false, sortOrder: 0 }).run();
+
+    seedKana(db);
+
+    const decksNamedHiragana = db.select().from(deck).where(eq(deck.name, 'Hiragana')).all();
+    expect(decksNamedHiragana).toHaveLength(2);
+
+    const builtin = decksNamedHiragana.find((d) => d.isBuiltin);
+    expect(builtin).toBeDefined();
+
+    const groups = groupsOf(builtin!.id);
+    expect(groups).toHaveLength(26);
+    const ids = new Set(groups.map((g) => g.id));
+    const cards = db.select().from(card).all().filter((c) => ids.has(c.groupId));
+    expect(cards).toHaveLength(104);
+  });
 });
