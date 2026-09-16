@@ -1,9 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { createDb, migrate, type Db } from '../../lib/db/client';
 import { seedKana } from '../../lib/db/seed';
+import { cardAnswer } from '../../lib/db/schema';
 import {
   listDecks, getDeck, createDeck, renameDeck, deleteDeck,
-  createGroup, deleteGroup, createCard, updateCard, deleteCard,
+  createGroup, renameGroup, deleteGroup, createCard, updateCard, deleteCard,
 } from '../../lib/services/decks';
 import { AppError } from '../../lib/services/errors';
 
@@ -90,6 +92,48 @@ describe('cartas', () => {
     expect(getDeck(db, d.id).cardCount).toBe(1);
   });
 
+  it('normaliza y deduplica las romanizaciones, y la primera normalizada queda primaria', () => {
+    const d = createDeck(db, { name: 'Prestamos' });
+    const { id } = createCard(db, d.groups[0].id, {
+      prompt: 'し', answers: ['  SHI  ', 'shi', 'si'],
+    });
+    const rows = db.select().from(cardAnswer).where(eq(cardAnswer.cardId, id)).all();
+    expect(rows.map((r) => r.romaji).sort()).toEqual(['shi', 'si']);
+    expect(rows.find((r) => r.isPrimary)?.romaji).toBe('shi');
+  });
+
+  it('al actualizar las respuestas reemplaza las anteriores en vez de sumarlas', () => {
+    const d = createDeck(db, { name: 'Prestamos' });
+    const { id } = createCard(db, d.groups[0].id, { prompt: 'パン', answers: ['pan'] });
+    updateCard(db, id, { answers: ['pang'] });
+    const rows = db.select().from(cardAnswer).where(eq(cardAnswer.cardId, id)).all();
+    expect(rows.map((r) => r.romaji)).toEqual(['pang']);
+  });
+
+  it('rechaza una carta sin ninguna romanización válida y no la crea', () => {
+    const d = createDeck(db, { name: 'Prestamos' });
+    expect(() => createCard(db, d.groups[0].id, { prompt: 'x', answers: ['   ', ''] }))
+      .toThrow(AppError);
+    expect(getDeck(db, d.id).cardCount).toBe(0);
+  });
+
+  it('rechaza dejar el prompt en blanco al actualizar', () => {
+    const d = createDeck(db, { name: 'Comidas' });
+    const { id } = createCard(db, d.groups[0].id, { prompt: 'えび', answers: ['ebi'] });
+    expect(() => updateCard(db, id, { prompt: '   ' })).toThrow(AppError);
+  });
+
+  it('rechaza mover una carta a un grupo que no existe', () => {
+    const d = createDeck(db, { name: 'Comidas' });
+    const { id } = createCard(db, d.groups[0].id, { prompt: 'えび', answers: ['ebi'] });
+    expect(() => updateCard(db, id, { groupId: 9999 })).toThrow(AppError);
+    try {
+      updateCard(db, id, { groupId: 9999 });
+    } catch (e) {
+      expect((e as AppError).status).toBe(404);
+    }
+  });
+
   it('mover una carta de grupo no la borra', () => {
     const d = createDeck(db, { name: 'Comidas', groups: ['Pescado', 'Verdura'] });
     const { id } = createCard(db, d.groups[1].id, { prompt: 'まぐろ', answers: ['maguro'] });
@@ -121,6 +165,38 @@ describe('grupos', () => {
     deleteGroup(db, d.groups[0].id);
     expect(getDeck(db, d.id).cardCount).toBe(0);
   });
+
+  it('renombra un grupo existente', () => {
+    const d = createDeck(db, { name: 'Comidas', groups: ['Pescado'] });
+    renameGroup(db, d.groups[0].id, 'Mariscos');
+    expect(getDeck(db, d.id).groups[0].name).toBe('Mariscos');
+  });
+
+  it('404 al renombrar un grupo que no existe', () => {
+    expect(() => renameGroup(db, 9999, 'x')).toThrow(AppError);
+  });
+});
+
+describe('preview de seis cartas', () => {
+  it('un grupo con exactamente 6 cartas se previsualiza completo', () => {
+    const d = createDeck(db, { name: 'Seis' });
+    for (let i = 0; i < 6; i++) {
+      createCard(db, d.groups[0].id, { prompt: `p${i}`, answers: [`r${i}`] });
+    }
+    const group = getDeck(db, d.id).groups[0];
+    expect(group.cardCount).toBe(6);
+    expect(group.preview).toEqual(['p0', 'p1', 'p2', 'p3', 'p4', 'p5']);
+  });
+
+  it('un grupo con 7 cartas no se previsualiza, solo se cuenta', () => {
+    const d = createDeck(db, { name: 'Siete' });
+    for (let i = 0; i < 7; i++) {
+      createCard(db, d.groups[0].id, { prompt: `p${i}`, answers: [`r${i}`] });
+    }
+    const group = getDeck(db, d.id).groups[0];
+    expect(group.cardCount).toBe(7);
+    expect(group.preview).toEqual([]);
+  });
 });
 
 describe('errores', () => {
@@ -130,5 +206,14 @@ describe('errores', () => {
 
   it('404 al renombrar un mazo que no existe', () => {
     expect(() => renameDeck(db, 9999, 'x')).toThrow(AppError);
+  });
+
+  it('el mensaje de "no encontrado" concuerda en género con sustantivos femeninos', () => {
+    expect(() => deleteCard(db, 9999)).toThrow(AppError);
+    try {
+      deleteCard(db, 9999);
+    } catch (e) {
+      expect((e as AppError).message).toBe('No se encontró la carta');
+    }
   });
 });

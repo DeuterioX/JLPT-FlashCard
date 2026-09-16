@@ -62,7 +62,7 @@ export function listDecks(db: Db): DeckSummary[] {
 
 export function getDeck(db: Db, id: number): DeckSummary {
   const rows = db.select().from(deck).where(eq(deck.id, id)).all();
-  if (rows.length === 0) throw notFound('El mazo');
+  if (rows.length === 0) throw notFound('el mazo');
   return buildSummaries(db, rows)[0];
 }
 
@@ -95,12 +95,12 @@ export function renameDeck(db: Db, id: number, name: string): void {
   const trimmed = name.trim();
   if (!trimmed) throw badRequest('El mazo necesita un nombre');
   const res = db.update(deck).set({ name: trimmed }).where(eq(deck.id, id)).run();
-  if (res.changes === 0) throw notFound('El mazo');
+  if (res.changes === 0) throw notFound('el mazo');
 }
 
 export function deleteDeck(db: Db, id: number): void {
   const rows = db.select().from(deck).where(eq(deck.id, id)).all();
-  if (rows.length === 0) throw notFound('El mazo');
+  if (rows.length === 0) throw notFound('el mazo');
   if (rows[0].isBuiltin) {
     throw forbidden('Hiragana y Katakana vienen con la app y no se pueden borrar');
   }
@@ -126,12 +126,12 @@ export function renameGroup(db: Db, id: number, name: string): void {
   const trimmed = name.trim();
   if (!trimmed) throw badRequest('El grupo necesita un nombre');
   const res = db.update(cardGroup).set({ name: trimmed }).where(eq(cardGroup.id, id)).run();
-  if (res.changes === 0) throw notFound('El grupo');
+  if (res.changes === 0) throw notFound('el grupo');
 }
 
 export function deleteGroup(db: Db, id: number): void {
   const res = db.delete(cardGroup).where(eq(cardGroup.id, id)).run();
-  if (res.changes === 0) throw notFound('El grupo');
+  if (res.changes === 0) throw notFound('el grupo');
 }
 
 function writeAnswers(db: Db, cardId: number, answers: string[]) {
@@ -154,7 +154,7 @@ export function createCard(
   if (!prompt) throw badRequest('La carta necesita un texto en japonés');
 
   const groups = db.select().from(cardGroup).where(eq(cardGroup.id, groupId)).all();
-  if (groups.length === 0) throw notFound('El grupo');
+  if (groups.length === 0) throw notFound('el grupo');
 
   let id = 0;
   db.transaction((tx) => {
@@ -176,7 +176,15 @@ export function updateCard(
   input: { prompt?: string; meaning?: string | null; answers?: string[]; groupId?: number },
 ): void {
   const rows = db.select().from(card).where(eq(card.id, id)).all();
-  if (rows.length === 0) throw notFound('La carta');
+  if (rows.length === 0) throw notFound('la carta');
+
+  if (input.prompt !== undefined && !input.prompt.trim()) {
+    throw badRequest('La carta necesita un texto en japonés');
+  }
+  if (input.groupId !== undefined) {
+    const target = db.select().from(cardGroup).where(eq(cardGroup.id, input.groupId)).all();
+    if (target.length === 0) throw notFound('el grupo');
+  }
 
   db.transaction((tx) => {
     const t = tx as Db;
@@ -195,5 +203,5 @@ export function updateCard(
 
 export function deleteCard(db: Db, id: number): void {
   const res = db.delete(card).where(eq(card.id, id)).run();
-  if (res.changes === 0) throw notFound('La carta');
+  if (res.changes === 0) throw notFound('la carta');
 }
