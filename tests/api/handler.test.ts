@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { route } from '../../lib/api/handler';
+import { z } from 'zod';
+import { route, readJson } from '../../lib/api/handler';
 import { AppError } from '../../lib/services/errors';
 
 describe('route', () => {
@@ -38,14 +39,59 @@ describe('route', () => {
     expect(await res.json()).toEqual({ ok: true });
   });
 
-  it('convierte un body con JSON malformado en 400, no en 500', async () => {
+  it('un SyntaxError genuino de un handler (no de parsear el body) sigue siendo un 500', async () => {
+    // route() ya no atrapa SyntaxError como caso especial: ese atajo vivía
+    // en el catch de toda la función y hubiera convertido en 400 (y sin
+    // loguear) un bug interno real que por casualidad tira un SyntaxError,
+    // por ejemplo un JSON.parse roto en medio de la lógica del service.
+    const res = await route(() => { throw new SyntaxError('bug interno, no del body'); });
+    expect(res.status).toBe(500);
+    const body = await res.json();
+    expect(body.error).toBe('Error interno');
+  });
+
+  it('los mensajes de Zod que caen en route() salen en castellano', async () => {
+    // Sin `.min()` propio: el mensaje que dispara es el de "tipo inválido"
+    // por defecto de Zod, que tiene que quedar en castellano gracias al
+    // locale configurado en lib/api/zod.ts (importado por handler.ts).
+    const schema = z.object({ name: z.string() });
+    const res = await route(() => schema.parse({}));
+    expect(res.status).toBe(400);
+    const body = await res.json();
+    const message = body.issues[0] as string;
+    expect(message).not.toMatch(/Invalid input|expected/i);
+    expect(message).toContain('inválid');
+  });
+});
+
+describe('readJson', () => {
+  it('devuelve el body parseado cuando es JSON válido', async () => {
+    const req = new Request('http://localhost/api/decks', {
+      method: 'POST',
+      body: JSON.stringify({ name: 'Comidas' }),
+    });
+    await expect(readJson(req)).resolves.toEqual({ name: 'Comidas' });
+  });
+
+  it('convierte un body que no es JSON en un AppError 400', async () => {
     const req = new Request('http://localhost/api/decks', {
       method: 'POST',
       body: 'esto no es json',
     });
-    const res = await route(async () => req.json());
+    await expect(readJson(req)).rejects.toMatchObject({
+      status: 400,
+      message: 'El cuerpo de la solicitud no es JSON válido',
+    });
+  });
+
+  it('el 400 de readJson llega intacto a través de route()', async () => {
+    const req = new Request('http://localhost/api/decks', {
+      method: 'POST',
+      body: 'esto no es json',
+    });
+    const res = await route(async () => readJson(req));
     expect(res.status).toBe(400);
     const body = await res.json();
-    expect(body.error).toBeTypeOf('string');
+    expect(body.error).toBe('El cuerpo de la solicitud no es JSON válido');
   });
 });
