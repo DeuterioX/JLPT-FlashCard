@@ -83,15 +83,6 @@ describe('cartas', () => {
     expect(id).toBeGreaterThan(0);
   });
 
-  it('acepta varias romanizaciones y la primera es la primaria', () => {
-    const d = createDeck(db, { name: 'Prestamos' });
-    const { id } = createCard(db, d.groups[0].id, {
-      prompt: 'スーパー', meaning: 'supermercado', answers: ['suupaa', 'sūpā'],
-    });
-    updateCard(db, id, { meaning: 'súper' });
-    expect(getDeck(db, d.id).cardCount).toBe(1);
-  });
-
   it('normaliza y deduplica las romanizaciones, y la primera normalizada queda primaria', () => {
     const d = createDeck(db, { name: 'Prestamos' });
     const { id } = createCard(db, d.groups[0].id, {
@@ -114,6 +105,11 @@ describe('cartas', () => {
     const d = createDeck(db, { name: 'Prestamos' });
     expect(() => createCard(db, d.groups[0].id, { prompt: 'x', answers: ['   ', ''] }))
       .toThrow(AppError);
+    try {
+      createCard(db, d.groups[0].id, { prompt: 'x', answers: ['   ', ''] });
+    } catch (e) {
+      expect((e as AppError).status).toBe(400);
+    }
     expect(getDeck(db, d.id).cardCount).toBe(0);
   });
 
