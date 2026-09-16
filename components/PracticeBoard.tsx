@@ -15,11 +15,18 @@ export function PracticeBoard({
   const [pending, start] = useTransition();
   const [deckId, setDeckId] = useState(String(decks[0]?.id ?? ''));
   const [selected, setSelected] = useState(new Set(initialSelection));
+  // `busy` cubre el tramo del fetch en sí: `pending` (de useTransition) solo
+  // se prende durante el router.push posterior, así que sin `busy` el botón
+  // quedaba clickeable mientras la request estaba en vuelo y un doble tap
+  // abría dos sesiones.
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const deck = decks.find((d) => String(d.id) === deckId) ?? decks[0];
 
   function persist(next: Set<number>) {
     setSelected(next);
+    setError(null);
     // Un año. La lee el servidor en el próximo render: sin parpadeo.
     document.cookie =
       `${SELECTION_COOKIE}=${serializeSelection([...next])}; path=/; max-age=31536000; samesite=lax`;
@@ -46,15 +53,38 @@ export function PracticeBoard({
   const cardCount = chosen.reduce((n, g) => n + g.cardCount, 0);
 
   async function begin() {
-    const res = await fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ groupIds: chosen.map((g) => g.id) }),
-    });
-    if (!res.ok) return;
-    const round = await res.json();
-    sessionStorage.setItem('ronda', JSON.stringify(round));
-    start(() => router.push('/practicar'));
+    // Guarda extra contra un doble click rápido: cierra la ventana entre el
+    // primer tap y el próximo render, que es cuando `disabled` recién se
+    // refleja en el DOM.
+    if (busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const res = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ groupIds: chosen.map((g) => g.id) }),
+      });
+      if (!res.ok) {
+        let message = 'No se pudo empezar la ronda. Probá de nuevo.';
+        try {
+          const body = await res.json();
+          if (typeof body?.error === 'string') message = body.error;
+        } catch {
+          // El body no vino como JSON: se muestra el mensaje genérico.
+        }
+        setError(message);
+        setBusy(false);
+        return;
+      }
+      const round = await res.json();
+      sessionStorage.setItem('ronda', JSON.stringify(round));
+      start(() => router.push('/practicar'));
+    } catch {
+      // fetch tiró (sin red, DNS, CORS, etc.): no hubo respuesta que leer.
+      setError('No hay conexión con el servidor. Probá de nuevo.');
+      setBusy(false);
+    }
   }
 
   if (!deck) {
@@ -87,11 +117,16 @@ export function PracticeBoard({
         <Text size="sm" c="dimmed">
           <b>{chosen.length}</b> grupos · <b>{cardCount}</b> cartas
         </Text>
+        {error && (
+          <Text size="sm" c="shu.6">
+            {error}
+          </Text>
+        )}
         <Button
           ml="auto"
           onClick={begin}
-          loading={pending}
-          disabled={chosen.length === 0}
+          loading={busy || pending}
+          disabled={chosen.length === 0 || busy || pending}
         >
           Empezar ronda →
         </Button>
