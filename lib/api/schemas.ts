@@ -21,3 +21,7 @@ export const updateCardSchema = z.object({
   answers: z.array(z.string().min(1)).min(1).optional(),
   groupId: z.number().int().positive().optional(),
 });
+
+export const openRoundSchema = z.object({
+  groupIds: z.array(z.number().int().positive()).min(1, 'Elegí al menos un grupo'),
+});
