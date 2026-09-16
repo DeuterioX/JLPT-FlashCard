@@ -100,4 +100,38 @@ describe('ronda', () => {
   it('accuracy es 1 antes del primer intento, no NaN', () => {
     expect(accuracy(startRound(DECK, seeded(1)))).toBe(1);
   });
+
+  it('submit en una ronda terminada no altera los contadores', () => {
+    // Conducir la ronda a su fin respondiendo correctamente todas las cartas.
+    let s = startRound([card(1, 'か', 'ka')], seeded(1));
+    while (!isFinished(s)) s = submit(s, currentCard(s)!.primary).state;
+
+    // En este punto, la ronda está terminada.
+    expect(isFinished(s)).toBe(true);
+    const finishedState = s;
+
+    // Intentar submit en una ronda terminada: no debe cambiar nada.
+    const r = submit(finishedState, 'cualquier respuesta');
+    expect(r.state.correct).toBe(finishedState.correct);
+    expect(r.state.incorrect).toBe(finishedState.incorrect);
+    expect(r.state.queue).toEqual(finishedState.queue);
+    expect(r.state.queue).toHaveLength(0);
+  });
+
+  it('reveal en una ronda terminada no altera los contadores', () => {
+    // Conducir la ronda a su fin respondiendo correctamente todas las cartas.
+    let s = startRound([card(1, 'か', 'ka'), card(2, 'し', 'shi')], seeded(1));
+    while (!isFinished(s)) s = submit(s, currentCard(s)!.primary).state;
+
+    // En este punto, la ronda está terminada.
+    expect(isFinished(s)).toBe(true);
+    const finishedState = s;
+
+    // Intentar reveal en una ronda terminada: no debe cambiar nada.
+    const r = reveal(finishedState);
+    expect(r.state.correct).toBe(finishedState.correct);
+    expect(r.state.incorrect).toBe(finishedState.incorrect);
+    expect(r.state.queue).toEqual(finishedState.queue);
+    expect(r.state.queue).toHaveLength(0);
+  });
 });
