@@ -1,6 +1,6 @@
 'use client';
 
-import { Stack, SimpleGrid, Group, Text, Divider } from '@mantine/core';
+import { Stack, Box, Group, Text, Divider } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 import { GroupCard } from './GroupCard';
 
@@ -34,8 +34,11 @@ export function GroupGrid({
               <Divider style={{ flex: 1 }} />
             </Group>
           )}
-          {/* 8 columnas en escritorio, 3 en teléfono. */}
-          <SimpleGrid cols={{ base: 3, sm: 5, md: 8 }} spacing="xs">
+          {/* 8 columnas en escritorio, 5 en tablet, 3 en teléfono (ver
+              `.knd-group-grid` en app/globals.css). No se usa `SimpleGrid`
+              porque sus breakpoints de tema (`sm`/`md`) no coinciden con el
+              breakpoint fijo de 640px del resto de la navegación. */}
+          <Box className="knd-group-grid">
             {section.items.map((g) => (
               <GroupCard
                 key={g.id}
@@ -44,7 +47,7 @@ export function GroupGrid({
                 onToggle={onToggle}
               />
             ))}
-          </SimpleGrid>
+          </Box>
         </Stack>
       ))}
     </Stack>

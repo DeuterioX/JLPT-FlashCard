@@ -19,6 +19,11 @@ const LINKS = [
  * esos breakpoints del tema) sirven tal cual. En cambio, los dos bloques de
  * navegación se renderizan siempre y `app/globals.css` decide cuál se ve con
  * un `@media (max-width: 640px)` puro: servidor y cliente arrancan iguales.
+ *
+ * La altura de la barra de pestañas (con su safe-area incluida) también vive
+ * en `app/globals.css`, en la variable `--knd-bottom-offset`: `ActionBar` y
+ * `.knd-main-pb` la leen para no quedar tapados por esta barra ni duplicar
+ * el padding de la zona segura.
  */
 export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
@@ -58,8 +63,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         bottom={0}
         left={0}
         right={0}
-        className="safe-bottom knd-nav-mobile"
-        pt={6}
+        className="knd-nav-mobile"
         style={{
           background: 'var(--mantine-color-dark-6)',
           borderTop: '1px solid var(--mantine-color-default-border)',
