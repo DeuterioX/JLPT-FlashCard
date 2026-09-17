@@ -25,3 +25,12 @@ export const updateCardSchema = z.object({
 export const openRoundSchema = z.object({
   groupIds: z.array(z.number().int().positive()).min(1, 'Elegí al menos un grupo'),
 });
+
+export const recordAttemptSchema = z.object({
+  sessionId: z.number().int().positive(),
+  cardId: z.number().int().positive(),
+  typed: z.string(),
+  isCorrect: z.boolean(),
+  revealed: z.boolean(),
+  ms: z.number().int().nonnegative(),
+});
