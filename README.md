@@ -20,6 +20,10 @@ npm run db:seed      # carga los mazos de Hiragana y Katakana
 npm run dev          # http://localhost:3000
 ```
 
+En Windows sin las herramientas de C++ de Visual Studio, `npm install` puede
+fallar porque npm intenta compilar `better-sqlite3` con node-gyp. El paquete ya
+trae binarios precompilados, así que alcanza con `npm install --ignore-scripts`.
+
 La base es `kana-drill.db` en la raíz del proyecto; se puede usar otra con la
 variable de entorno `DATABASE_PATH`.
 
