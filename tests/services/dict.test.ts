@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb, migrate, type Db } from '../../lib/db/client';
-import { searchDict } from '../../lib/services/dict';
+import { isDictionaryLoaded, searchDict } from '../../lib/services/dict';
 import { dictEntry, dictGloss } from '../../lib/db/schema';
 
 let db: Db;
@@ -21,6 +21,15 @@ beforeEach(() => {
   add('ぎょるい', '魚類', 'gyorui', [['spa', 'peces, ictiofauna']]);
   add('つりざお', '釣り竿', 'tsurizao', [['spa', 'caña de pescar']]);
   add('しらす', '白子', 'shirasu', [['eng', 'whitebait, young fish']]);
+});
+
+describe('isDictionaryLoaded', () => {
+  it('es true con entradas importadas y false con la tabla vacía', () => {
+    expect(isDictionaryLoaded(db)).toBe(true);
+    const empty = createDb(':memory:');
+    migrate(empty);
+    expect(isDictionaryLoaded(empty)).toBe(false);
+  });
 });
 
 describe('searchDict', () => {
@@ -60,6 +69,13 @@ describe('searchDict', () => {
     // Comillas y asteriscos sueltos romperían la query si no se escapan.
     expect(() => searchDict(db, 'pes"cado')).not.toThrow();
     expect(() => searchDict(db, '*')).not.toThrow();
+  });
+
+  it('devuelve un array sin tirar con entradas que FTS5 leería como operadores', () => {
+    for (const q of ['AND', 'NEAR(', 'a OR b', '-', '"', '**', '()', '¿?', '...', 'NOT pescado', 'pes*cado', '"pescado"']) {
+      expect(() => searchDict(db, q), q).not.toThrow();
+      expect(Array.isArray(searchDict(db, q)), q).toBe(true);
+    }
   });
 
   it('respeta el límite', () => {

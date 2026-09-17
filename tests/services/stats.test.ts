@@ -171,6 +171,19 @@ describe('overview', () => {
     expect(overview(db, 'all').attempts).toBe(1);
   });
 
+  it('rotula el historial con "1 grupo" en singular y "N grupos" en plural', () => {
+    const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
+    const saGroupId = hira.groups.find((g) => g.name === 'さ行')!.id;
+    const one = openRound(db, [kaGroupId]);
+    closeRound(db, one.sessionId);
+    const two = openRound(db, [kaGroupId, saGroupId]);
+    closeRound(db, two.sessionId);
+
+    const labels = new Map(overview(db, 'all').history.map((h) => [h.id, h.label]));
+    expect(labels.get(one.sessionId)).toMatch(/^1 grupo · 5 cartas/);
+    expect(labels.get(two.sessionId)).toMatch(/^2 grupos · 10 cartas/);
+  });
+
   it('cuenta TODAS las rondas cerradas aunque el historial se recorte a 20', () => {
     // El fix Important: `rounds` no puede quedar pegado al tope de 20 del
     // historial, que solo existe para no mandar una lista infinita a la UI.

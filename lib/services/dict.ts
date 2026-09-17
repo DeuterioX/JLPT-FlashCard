@@ -20,6 +20,16 @@ function toMatchQuery(raw: string): string {
     .join(' ');
 }
 
+/**
+ * Si se importó algún diccionario (`npm run db:seed:dict`). Sin esto el
+ * buscador no puede distinguir "no hay coincidencias" de "no hay nada
+ * cargado" y le sugería al usuario que la palabra era poco común.
+ */
+export function isDictionaryLoaded(db: Db): boolean {
+  const [row] = db.all<{ loaded: number }>(sql`SELECT EXISTS (SELECT 1 FROM dict_entry) AS loaded`);
+  return row?.loaded === 1;
+}
+
 type Row = {
   id: number; kana: string; kanji: string | null; romaji: string;
   pos: string | null; gloss: string; lang: 'spa' | 'eng';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, SegmentedControl, Button, Text } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
@@ -25,6 +25,10 @@ export function PracticeBoard({
   // abría dos sesiones.
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Guarda contra reentrada con una ref, no con `busy`: el estado recién se
+  // ve en el render siguiente, así que dos taps en el mismo tick pasaban los
+  // dos. Mismo patrón que StatsBoard.
+  const busyRef = useRef(false);
 
   const deck = decks.find((d) => String(d.id) === deckId) ?? decks[0];
 
@@ -57,10 +61,8 @@ export function PracticeBoard({
   const cardCount = chosen.reduce((n, g) => n + g.cardCount, 0);
 
   async function begin() {
-    // Guarda extra contra un doble click rápido: cierra la ventana entre el
-    // primer tap y el próximo render, que es cuando `disabled` recién se
-    // refleja en el DOM.
-    if (busy) return;
+    if (busyRef.current) return;
+    busyRef.current = true;
     setBusy(true);
     setError(null);
     try {
@@ -71,6 +73,7 @@ export function PracticeBoard({
       });
       if (!res.ok) {
         setError(await errorFrom(res, START_ROUND_ERROR));
+        busyRef.current = false;
         setBusy(false);
         return;
       }
@@ -79,9 +82,13 @@ export function PracticeBoard({
       // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
       sessionStorage.removeItem(USED_ROUND_KEY);
       start(() => router.push('/practicar'));
+      // En el camino feliz la guarda queda tomada a propósito: el componente
+      // sigue montado mientras navega y un segundo tap abriría otra sesión.
+      // Se desmonta al llegar a /practicar.
     } catch {
       // fetch tiró (sin red, DNS, CORS, etc.): no hubo respuesta que leer.
       setError(NETWORK_ERROR);
+      busyRef.current = false;
       setBusy(false);
     }
   }

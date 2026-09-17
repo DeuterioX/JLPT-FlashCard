@@ -152,7 +152,7 @@ export function overview(db: Db, range: StatsRange): Overview {
       accuracy: n === 0 ? 0 : s.correct / n,
       label: s.mode === 'review'
         ? `Repaso · ${s.total} cartas`
-        : `${gids.length} grupos · ${s.total} cartas${names[0] ? ` (${names[0]}…)` : ''}`,
+        : `${gids.length} ${gids.length === 1 ? 'grupo' : 'grupos'} · ${s.total} cartas${names[0] ? ` (${names[0]}…)` : ''}`,
     };
   });
 

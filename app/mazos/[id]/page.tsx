@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db/client';
 import { getDeck, type DeckSummary } from '@/lib/services/decks';
 import { cardsForGroups } from '@/lib/services/sessions';
+import { isDictionaryLoaded } from '@/lib/services/dict';
 import { AppError } from '@/lib/services/errors';
 import { DeckEditor, type EditorCard } from '@/components/DeckEditor';
 
@@ -28,5 +29,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     })),
   );
 
-  return <DeckEditor deck={deck} cards={cards} />;
+  // Se resuelve acá, en el servidor, y baja como prop: el buscador avisa que
+  // no hay diccionario en vez de decir "sin resultados" (sin otra ruta de API).
+  return <DeckEditor deck={deck} cards={cards} dictionaryLoaded={isDictionaryLoaded(db)} />;
 }

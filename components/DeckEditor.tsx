@@ -13,8 +13,8 @@ export type EditorCard = {
 };
 
 export function DeckEditor({
-  deck, cards,
-}: { deck: DeckSummary; cards: EditorCard[] }) {
+  deck, cards, dictionaryLoaded,
+}: { deck: DeckSummary; cards: EditorCard[]; dictionaryLoaded: boolean }) {
   const router = useRouter();
 
   const [dictOpen, setDictOpen] = useState(false);
@@ -296,6 +296,7 @@ export function DeckEditor({
           onClose={() => setDictOpen(false)}
           groupId={groupId}
           groupName={deck.groups.find((g) => g.id === groupId)?.name ?? ''}
+          dictionaryLoaded={dictionaryLoaded}
         />
       )}
     </Stack>

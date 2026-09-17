@@ -1,12 +1,13 @@
 import { db } from '@/lib/db/client';
-import { overview, worstCards, type StatsRange } from '@/lib/services/stats';
+import { parseRange } from '@/lib/api/params';
+import { overview, worstCards } from '@/lib/services/stats';
 import { StatsBoard } from '@/components/StatsBoard';
 
 export default async function Page({
   searchParams,
 }: { searchParams: Promise<{ window?: string }> }) {
   const { window: raw } = await searchParams;
-  const range: StatsRange = raw === '7d' || raw === 'all' ? raw : '30d';
+  const range = parseRange(raw);
 
   return (
     <StatsBoard

@@ -11,8 +11,12 @@ const DEBOUNCE_MS = 200;
 const SEARCH_ERROR = 'No se pudo buscar en el diccionario.';
 
 export function DictSearchPanel({
-  opened, onClose, groupId, groupName,
-}: { opened: boolean; onClose: () => void; groupId: number; groupName: string }) {
+  opened, onClose, groupId, groupName, dictionaryLoaded,
+}: {
+  opened: boolean; onClose: () => void; groupId: number; groupName: string;
+  /** Si hay algún diccionario importado; lo calcula el servidor (ver app/mazos/[id]/page.tsx). */
+  dictionaryLoaded: boolean;
+}) {
   const router = useRouter();
   const [q, setQ] = useState('');
   const [rawHits, setRawHits] = useState<DictHit[]>([]);
@@ -107,6 +111,14 @@ export function DictSearchPanel({
 
         {searchError && <Text c="shu.6" size="sm">{searchError}</Text>}
 
+        {!dictionaryLoaded && (
+          <Text size="sm" c="dimmed">
+            El diccionario no está cargado, así que la búsqueda no va a
+            encontrar nada. Para importarlo, seguí la sección «Diccionario» del
+            README del proyecto.
+          </Text>
+        )}
+
         {hits.map((h, i) => (
           <div key={h.id}>
             {i > 0 && <Divider mb="sm" />}
@@ -134,7 +146,7 @@ export function DictSearchPanel({
           </div>
         ))}
 
-        {!tooShort && !loading && hits.length === 0 && !searchError && (
+        {dictionaryLoaded && !tooShort && !loading && hits.length === 0 && !searchError && (
           <Text size="sm" c="dimmed">
             Sin resultados. JMdict tiene unas 39.000 entradas con traducción al
             castellano; para términos poco comunes puede no haber.
