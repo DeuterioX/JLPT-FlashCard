@@ -122,6 +122,9 @@ test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cer
   await expect(page.getByText('Ronda completa')).toBeVisible();
   expect((await freshClosed).status()).toBe(200);
 
+  // La recarga no tiene que mandar a la home una ronda que sí existe (el
+  // render de hidratación no ve sessionStorage: ver app/practicar/page.tsx).
+  await expect(page).toHaveURL(/\/practicar$/);
   expect(statuses.filter((s) => s.status >= 400)).toEqual([]);
   expect(statuses.filter((s) => s.url.endsWith(`/api/sessions/${first}`))).toHaveLength(1);
 });

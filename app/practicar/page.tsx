@@ -36,18 +36,23 @@ function getSnapshot(): StoredRound | null {
   return cachedRound;
 }
 
-function getServerSnapshot(): StoredRound | null {
-  return null;
+// `undefined` = "todavía no se leyó" (el render del servidor y el de
+// hidratación, que usan este snapshot); `null` = "se leyó y no hay ronda
+// válida". Si los dos fueran `null`, el efecto de redirección corría con el
+// render de hidratación de una recarga -antes del re-render con la ronda
+// real- y mandaba a la home una ronda que sí existía.
+function getServerSnapshot(): StoredRound | null | undefined {
+  return undefined;
 }
 
 export default function Page() {
   const router = useRouter();
-  const round = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+  const round = useSyncExternalStore<StoredRound | null | undefined>(subscribe, getSnapshot, getServerSnapshot);
 
   useEffect(() => {
     // Sin ronda guardada, o con un JSON roto o incompleto, no hay nada que
     // practicar: se vuelve a la home en vez de romper la pantalla.
-    if (!round) router.replace('/');
+    if (round === null) router.replace('/');
   }, [round, router]);
 
   if (!round) return <Center h="100vh"><Loader /></Center>;
