@@ -3,6 +3,7 @@
 import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { APP_NAME } from '../lib/app-meta';
 
 const LINKS = [
   { href: '/', label: 'Práctica', glyph: 'あ' },
@@ -37,7 +38,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <Group h="100%" px="md" gap="xl">
           <Group gap={7}>
             <Text className="kana" fw={700} size="sm">あ</Text>
-            <Text fw={700} size="sm">Kana Drill</Text>
+            <Text fw={700} size="sm">{APP_NAME}</Text>
           </Group>
           <Group gap={4} className="knd-nav-desktop">
             {LINKS.map((l) => (

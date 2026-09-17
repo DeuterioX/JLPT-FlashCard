@@ -1,6 +1,6 @@
-# Kana Drill
+# Kitsune Cards
 
-App web para practicar hiragana y katakana escribiendo el romaji de cada
+Kitsune Cards — Japanese Flashcards. App web para practicar hiragana y katakana escribiendo el romaji de cada
 carta. Trae los mazos de kana cargados, deja armar mazos propios (con
 búsqueda opcional en el diccionario JMdict para agregar palabras) y guarda
 cada intento en una base SQLite local para mostrar estadísticas y un repaso
@@ -15,7 +15,7 @@ de las cartas que más te cuestan.
 
 ```bash
 npm install
-npm run db:migrate   # crea kana-drill.db con el esquema (y la tabla de búsqueda del diccionario)
+npm run db:migrate   # crea database.db con el esquema (y la tabla de búsqueda del diccionario)
 npm run db:seed      # carga los mazos de Hiragana y Katakana
 npm run dev          # http://localhost:3000
 ```
@@ -24,7 +24,7 @@ En Windows sin las herramientas de C++ de Visual Studio, `npm install` puede
 fallar porque npm intenta compilar `better-sqlite3` con node-gyp. El paquete ya
 trae binarios precompilados, así que alcanza con `npm install --ignore-scripts`.
 
-La base es `kana-drill.db` en la raíz del proyecto; se puede usar otra con la
+La base es `database.db` en la raíz del proyecto; se puede usar otra con la
 variable de entorno `DATABASE_PATH`.
 
 ### Diccionario (opcional)
@@ -55,7 +55,7 @@ npm run e2e     # end to end (Playwright), escritorio y teléfono
 
 `npm run e2e` levanta su propio servidor de Next en el puerto 3100 contra una
 base aparte, `e2e.db`, que se borra, migra y carga de cero en cada corrida:
-no toca `kana-drill.db`. La primera vez hace falta instalar el navegador con
+no toca `database.db`. La primera vez hace falta instalar el navegador con
 `npx playwright install chromium`.
 
 ## Estructura

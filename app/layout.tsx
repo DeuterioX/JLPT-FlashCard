@@ -3,8 +3,9 @@ import './globals.css';
 import { ColorSchemeScript, MantineProvider, mantineHtmlProps } from '@mantine/core';
 import { theme } from '../theme';
 import { AppShell } from '../components/AppShell';
+import { APP_NAME, APP_DESCRIPTION } from '../lib/app-meta';
 
-export const metadata = { title: 'Kana Drill' };
+export const metadata = { title: APP_NAME, description: APP_DESCRIPTION };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

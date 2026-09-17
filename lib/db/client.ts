@@ -40,7 +40,7 @@ export function migrate(db: Db) {
 const globalForDb = globalThis as unknown as { __db?: Db };
 
 function ensureDb(): Db {
-  return globalForDb.__db ?? (globalForDb.__db = createDb(process.env.DATABASE_PATH ?? 'kana-drill.db'));
+  return globalForDb.__db ?? (globalForDb.__db = createDb(process.env.DATABASE_PATH ?? 'database.db'));
 }
 
 // `db` tiene que ser perezoso: si se conectara al importar el módulo, el

@@ -12,6 +12,7 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
+import { APP_NAME } from '@/lib/app-meta';
 
 export type Round = StoredRound;
 
@@ -368,7 +369,7 @@ function QuizPlay({
   return (
     <Stack gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
       <Group px="md" py="xs" justify="space-between">
-        <Text size="xs" c="dimmed">Kana Drill</Text>
+        <Text size="xs" c="dimmed">{APP_NAME}</Text>
         <Text size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
       </Group>
 

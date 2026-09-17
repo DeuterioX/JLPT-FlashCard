@@ -4,5 +4,5 @@ export default defineConfig({
   dialect: 'sqlite',
   schema: './lib/db/schema.ts',
   out: './lib/db/migrations',
-  dbCredentials: { url: process.env.DATABASE_PATH ?? 'kana-drill.db' },
+  dbCredentials: { url: process.env.DATABASE_PATH ?? 'database.db' },
 });

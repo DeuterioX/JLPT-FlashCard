@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 import { E2E_BASE_URL, E2E_DATABASE_PATH, E2E_PORT } from './e2e/constants';
 
 // Las pruebas end to end corren contra su propio servidor y su propia base:
-// nunca contra el `next dev` ni la `kana-drill.db` del día a día. El puerto
+// nunca contra el `next dev` ni la `database.db` del día a día. El puerto
 // es otro (3100) para no chocar con el de un `npm run dev` abierto, y la base
 // (`e2e.db`) la borra, migra y carga de cero `e2e/global-setup.ts`.
 export default defineConfig({

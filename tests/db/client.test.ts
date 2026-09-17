@@ -10,7 +10,7 @@ describe('cliente perezoso', () => {
   const originalDatabasePath = process.env.DATABASE_PATH;
 
   beforeEach(() => {
-    dbPath = path.join(os.tmpdir(), `kana-drill-lazy-${Date.now()}-${Math.random().toString(36).slice(2)}.db`);
+    dbPath = path.join(os.tmpdir(), `database-lazy-${Date.now()}-${Math.random().toString(36).slice(2)}.db`);
     process.env.DATABASE_PATH = dbPath;
     vi.resetModules();
   });
