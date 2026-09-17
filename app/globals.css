@@ -1,0 +1,106 @@
+/* El tema de Mantine controla colores y tipografías (ver theme.ts). */
+
+:root {
+  /* Cuánto espacio hay que reservar sobre el borde inferior real de la
+     ventana. En escritorio es 0 (no hay barra de pestañas); en teléfono pasa
+     a ser la altura completa de la barra de pestañas, safe-area incluida.
+     ActionBar y .knd-main-pb leen esta misma variable, así que nunca pueden
+     desincronizarse entre sí. */
+  --knd-bottom-offset: 0px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body { height: 100%; }
+body { margin: 0; }
+
+/* Zen Kaku Gothic New para todo kana: es una tipografía japonesa real,
+   así que ぬ y め se distinguen de verdad. */
+.kana { font-family: "Zen Kaku Gothic New", sans-serif; }
+.romaji { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.tabular { font-variant-numeric: tabular-nums; }
+
+/* Navegación responsive sin JavaScript: el breakpoint de diseño es 640px,
+   que no coincide con ningún breakpoint por defecto de Mantine (576/768/...),
+   así que en vez de useMediaQuery (que devuelve un valor distinto en el
+   servidor y en el cliente y puede parpadear o desincronizar la hidratación)
+   se resuelve con dos bloques que se muestran u ocultan por CSS puro. */
+.knd-nav-desktop { display: flex; }
+.knd-nav-mobile {
+  display: none;
+  /* 56px de contenido; el padding-bottom con la safe-area se agrega solo
+     cuando la barra está visible (ver el media query de abajo), para no
+     contarla dos veces en el layout de escritorio. */
+  height: 56px;
+  padding-top: 6px;
+}
+.knd-main-pb { padding-bottom: 0; }
+
+@media (max-width: 640px) {
+  .knd-nav-desktop { display: none; }
+  .knd-nav-mobile {
+    display: flex;
+    height: calc(56px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* La altura real de la barra de pestañas: la misma barra fija esta
+     variable a su propia altura, así que nunca se desincronizan. */
+  :root { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
+  .knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + 16px); }
+}
+
+/* Métricas del pie del quiz (aciertos, restantes, errores): en teléfono no
+   entran junto al input, así que se ocultan con el mismo corte de 640px. */
+@media (max-width: 640px) {
+  .knd-quiz-metrics { display: none; }
+}
+
+/* Grilla de grupos: 8 columnas en escritorio, 5 en tablet, 3 en teléfono.
+   No se usa SimpleGrid porque sus breakpoints (`sm`/`md` del tema) no
+   coinciden con el breakpoint fijo de 640px del resto de la navegación. */
+.knd-group-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--mantine-spacing-xs);
+}
+
+@media (max-width: 991px) {
+  .knd-group-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (max-width: 640px) {
+  .knd-group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Foco visible por teclado en la tarjeta de grupo, que ahora es el control
+   interactivo completo (rol switch) en vez del Switch interno. */
+.knd-group-card:focus-visible {
+  outline: 2px solid var(--mantine-color-jade-6);
+  outline-offset: 2px;
+}
+
+/* Editor de mazo: columna de grupos en escritorio, tira horizontal en
+   teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
+   bloques se renderizan siempre y CSS puro decide cuál se ve, para no
+   depender de `useMediaQuery` y su desincronización servidor/cliente. */
+.knd-editor-groups-desktop { display: flex; }
+.knd-editor-groups-mobile { display: none; }
+
+@media (max-width: 640px) {
+  .knd-editor-layout { flex-direction: column; }
+  .knd-editor-groups-desktop { display: none; }
+  .knd-editor-groups-mobile {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+  }
+  /* En fila, `flex: 1` alcanza para estirar la columna de cartas. En
+     columna (acá arriba), el ítem ya no compite por espacio con nada más
+     en el eje principal, así que `flex: 1` no la lleva a 100%: queda
+     encogida a su `minWidth: 280` y sobra un margen vacío a la derecha.
+     `min-width: 0` evita que el propio contenido (una glosa larga, por
+     ejemplo) empuje el ancho más allá del contenedor. */
+  .knd-editor-cards { width: 100%; min-width: 0; }
+}
