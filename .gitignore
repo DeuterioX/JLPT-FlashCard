@@ -47,3 +47,7 @@ next-env.d.ts
 # datos de diccionario (JMdict, CC BY-SA): se descargan, no se commitean.
 # Ver el header de scripts/seed-dict.ts para dónde conseguirlos.
 /data/
+
+# playwright
+/test-results/
+/playwright-report/
