@@ -46,3 +46,21 @@ describe('cliente perezoso', () => {
     expect(fs.existsSync(dbPath)).toBe(true);
   });
 });
+
+describe('migrate', () => {
+  it('crea la tabla FTS del diccionario y se puede correr dos veces', async () => {
+    const { sql } = await import('drizzle-orm');
+    const { createDb, migrate } = await import('../../lib/db/client');
+    const { searchDict } = await import('../../lib/services/dict');
+    const db = createDb(':memory:');
+    migrate(db);
+    migrate(db);
+
+    const rows = db.all<{ name: string }>(
+      sql`SELECT name FROM sqlite_master WHERE name IN ('dict_fts', 'dict_gloss_ai', 'dict_gloss_ad') ORDER BY name`,
+    );
+    expect(rows.map((r) => r.name)).toEqual(['dict_fts', 'dict_gloss_ad', 'dict_gloss_ai']);
+    // Sin diccionario importado, buscar devuelve vacío en vez de tirar.
+    expect(searchDict(db, 'pescado')).toEqual([]);
+  });
+});

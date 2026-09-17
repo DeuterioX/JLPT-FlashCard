@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { createDb, migrate, type Db } from '../../lib/db/client';
-import { createDictFts } from '../../lib/db/dict-fts';
 import { searchDict } from '../../lib/services/dict';
 import { dictEntry, dictGloss } from '../../lib/db/schema';
 
@@ -17,7 +16,6 @@ function add(kana: string, kanji: string | null, romaji: string, glosses: [('spa
 beforeEach(() => {
   db = createDb(':memory:');
   migrate(db);
-  createDictFts(db);
 
   add('さかな', '魚', 'sakana', [['spa', 'pescado, pez'], ['eng', 'fish']]);
   add('ぎょるい', '魚類', 'gyorui', [['spa', 'peces, ictiofauna']]);

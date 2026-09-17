@@ -17,7 +17,6 @@
  */
 import { readFileSync } from 'node:fs';
 import { db, migrate } from '../lib/db/client';
-import { createDictFts } from '../lib/db/dict-fts';
 import { importJmdict, type JmdictFile } from '../lib/db/dict-import';
 
 const [file, lang] = process.argv.slice(2);
@@ -26,8 +25,8 @@ if (!file || (lang !== 'spa' && lang !== 'eng')) {
   process.exit(1);
 }
 
+// Incluye la tabla FTS5 y sus triggers (ver lib/db/client.ts).
 migrate(db);
-createDictFts(db);
 
 const data = JSON.parse(readFileSync(file, 'utf8')) as JmdictFile;
 

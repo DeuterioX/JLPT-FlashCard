@@ -2,6 +2,9 @@ import Database from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { migrate as drizzleMigrate } from 'drizzle-orm/better-sqlite3/migrator';
 import * as schema from './schema';
+// Sin ciclo en runtime: dict-fts.ts solo importa el TIPO `Db` de este archivo
+// (`import type`, que se borra al compilar).
+import { createDictFts } from './dict-fts';
 
 export type Db = BetterSQLite3Database<typeof schema>;
 
@@ -26,6 +29,11 @@ export function createDb(path: string): Db {
 
 export function migrate(db: Db) {
   drizzleMigrate(db, { migrationsFolder: 'lib/db/migrations' });
+  // La tabla FTS5 del diccionario no sale de drizzle-kit (no modela tablas
+  // virtuales ni triggers). Se crea acá, idempotente, para que TODA base
+  // migrada -db:migrate, db:seed, db:seed:dict, los tests- la tenga y
+  // /api/dict/search nunca falle con "no such table: dict_fts".
+  createDictFts(db);
 }
 
 // Next recarga módulos en dev; sin el singleton se abren decenas de conexiones.

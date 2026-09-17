@@ -8,9 +8,9 @@ import type { Db } from './client';
  * glosa existente, siempre borra e inserta de nuevo).
  *
  * Idempotente (`IF NOT EXISTS` en todo) para poder llamarse siempre desde
- * `scripts/migrate.ts`: así `dict_fts` existe en cualquier base, se haya
- * importado el diccionario o no, y `/api/dict/search` nunca falla con
- * "no such table: dict_fts".
+ * `migrate()` en `lib/db/client.ts`: así `dict_fts` existe en cualquier
+ * base, se haya importado el diccionario o no, y `/api/dict/search` nunca
+ * falla con "no such table: dict_fts".
  */
 export function createDictFts(db: Db): void {
   db.run(sql`

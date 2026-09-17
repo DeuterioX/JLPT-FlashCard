@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { sql } from 'drizzle-orm';
 import { createDb, migrate, type Db } from '../../lib/db/client';
-import { createDictFts } from '../../lib/db/dict-fts';
 import { importJmdict, type JmdictFile } from '../../lib/db/dict-import';
 import { searchDict } from '../../lib/services/dict';
 
@@ -10,7 +9,6 @@ let db: Db;
 beforeEach(() => {
   db = createDb(':memory:');
   migrate(db);
-  createDictFts(db);
 });
 
 function fixture(gloss: { lang: string; text: string }[]): JmdictFile {
