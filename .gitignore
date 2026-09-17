@@ -49,5 +49,7 @@ next-env.d.ts
 /data/
 
 # playwright
+# base propia de las pruebas end to end (ver e2e/global-setup.ts)
+e2e.db*
 /test-results/
 /playwright-report/
