@@ -1,7 +1,8 @@
 import { eq, inArray, asc } from 'drizzle-orm';
 import type { Db } from '../db/client';
 import { cardGroup, card, cardAnswer, session, sessionGroup, attempt } from '../db/schema';
-import { badRequest, notFound } from './errors';
+import { normalizeAnswer } from '../kana/normalize';
+import { AppError, badRequest, notFound } from './errors';
 
 export type RoundCard = {
   id: number; prompt: string; meaning: string | null;
@@ -69,15 +70,39 @@ export function openRound(
   return { sessionId, groupIds: [...new Set(groupIds)], cards, mode };
 }
 
+/**
+ * Una ronda que ya se cerró no acepta más escrituras. Un `sessionStorage`
+ * viejo re-jugado (Back, recarga, pestaña restaurada) podía seguir mandando
+ * intentos y un segundo PATCH a una sesión terminada, pisándole
+ * `finished_at` y sumándole la segunda jugada a sus totales. El cliente ya
+ * no reusa una ronda consumida (ver lib/quiz/stored-round.ts), pero el
+ * server lo rechaza igual: defensa en profundidad.
+ */
+const roundFinished = () => new AppError('La ronda ya terminó', 409);
+
+function openSession(db: Db, sessionId: number) {
+  const [s] = db.select().from(session).where(eq(session.id, sessionId)).all();
+  if (!s) throw notFound('la ronda');
+  if (s.finishedAt !== null) throw roundFinished();
+  return s;
+}
+
 /** Una fila por cada Enter. Se llama fire-and-forget desde el cliente. */
 export function recordAttempt(db: Db, input: {
   sessionId: number; cardId: number; typed: string;
   isCorrect: boolean; revealed: boolean; ms: number;
 }): void {
+  openSession(db, input.sessionId);
+  // Sin este chequeo, una carta borrada (o un id cualquiera) llegaba al
+  // INSERT y la foreign key lo rechazaba como un 500 genérico.
+  const [c] = db.select({ id: card.id }).from(card).where(eq(card.id, input.cardId)).all();
+  if (!c) throw notFound('la carta');
+
   db.insert(attempt).values({
     sessionId: input.sessionId,
     cardId: input.cardId,
-    typed: input.typed,
+    // El spec guarda lo tipeado normalizado (misma forma que card_answer).
+    typed: normalizeAnswer(input.typed),
     isCorrect: input.isCorrect,
     revealed: input.revealed,
     ms: input.ms,
@@ -86,14 +111,13 @@ export function recordAttempt(db: Db, input: {
 
 /** Consolida desde attempt, que es la fuente de verdad, no desde números que mande el cliente. */
 export function closeRound(db: Db, sessionId: number): void {
+  openSession(db, sessionId);
   const rows = db.select().from(attempt).where(eq(attempt.sessionId, sessionId)).all();
   const correct = rows.filter((r) => r.isCorrect).length;
 
-  const res = db.update(session).set({
+  db.update(session).set({
     finishedAt: new Date().toISOString(),
     correct,
     incorrect: rows.length - correct,
   }).where(eq(session.id, sessionId)).run();
-
-  if (res.changes === 0) throw notFound('la ronda');
 }

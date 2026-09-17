@@ -105,4 +105,47 @@ describe('recordAttempt y closeRound', () => {
     expect(s.incorrect).toBe(1);
     expect(s.finishedAt).not.toBeNull();
   });
+
+  it('guarda lo tipeado normalizado', () => {
+    const r = openRound(db, [kaGroupId]);
+    recordAttempt(db, { sessionId: r.sessionId, cardId: r.cards[0].id, typed: '  KA  ', isCorrect: true, revealed: false, ms: 1 });
+    const row = db.select().from(attempt).where(eq(attempt.sessionId, r.sessionId)).all()[0];
+    expect(row.typed).toBe('ka');
+  });
+
+  it('recordAttempt rechaza con 409 una ronda ya terminada', () => {
+    const r = openRound(db, [kaGroupId]);
+    closeRound(db, r.sessionId);
+    const call = () => recordAttempt(db, { sessionId: r.sessionId, cardId: r.cards[0].id, typed: 'ka', isCorrect: true, revealed: false, ms: 1 });
+    expect(call).toThrow(expect.objectContaining({ status: 409, message: 'La ronda ya terminó' }));
+    expect(db.select().from(attempt).where(eq(attempt.sessionId, r.sessionId)).all()).toHaveLength(0);
+  });
+
+  it('recordAttempt da 404 si la ronda no existe', () => {
+    const r = openRound(db, [kaGroupId]);
+    const call = () => recordAttempt(db, { sessionId: 999999, cardId: r.cards[0].id, typed: 'ka', isCorrect: true, revealed: false, ms: 1 });
+    expect(call).toThrow(expect.objectContaining({ status: 404 }));
+  });
+
+  it('recordAttempt da 404 (no un error de foreign key) si la carta no existe', () => {
+    const r = openRound(db, [kaGroupId]);
+    const call = () => recordAttempt(db, { sessionId: r.sessionId, cardId: 999999, typed: 'ka', isCorrect: true, revealed: false, ms: 1 });
+    expect(call).toThrow(AppError);
+    expect(call).toThrow(expect.objectContaining({ status: 404, message: 'No se encontró la carta' }));
+  });
+
+  it('closeRound rechaza con 409 una ronda ya cerrada y no le pisa los totales', () => {
+    const r = openRound(db, [kaGroupId]);
+    recordAttempt(db, { sessionId: r.sessionId, cardId: r.cards[0].id, typed: 'ka', isCorrect: true, revealed: false, ms: 1 });
+    closeRound(db, r.sessionId);
+    const first = db.select().from(session).where(eq(session.id, r.sessionId)).all()[0];
+
+    expect(() => closeRound(db, r.sessionId)).toThrow(expect.objectContaining({ status: 409 }));
+    const after = db.select().from(session).where(eq(session.id, r.sessionId)).all()[0];
+    expect(after).toEqual(first);
+  });
+
+  it('closeRound da 404 si la ronda no existe', () => {
+    expect(() => closeRound(db, 999999)).toThrow(expect.objectContaining({ status: 404 }));
+  });
 });
