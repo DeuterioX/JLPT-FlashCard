@@ -93,4 +93,11 @@ body { margin: 0; }
     width: 100%;
     overflow-x: auto;
   }
+  /* En fila, `flex: 1` alcanza para estirar la columna de cartas. En
+     columna (acá arriba), el ítem ya no compite por espacio con nada más
+     en el eje principal, así que `flex: 1` no la lleva a 100%: queda
+     encogida a su `minWidth: 280` y sobra un margen vacío a la derecha.
+     `min-width: 0` evita que el propio contenido (una glosa larga, por
+     ejemplo) empuje el ancho más allá del contenedor. */
+  .knd-editor-cards { width: 100%; min-width: 0; }
 }

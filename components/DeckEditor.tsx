@@ -206,7 +206,7 @@ export function DeckEditor({
           </>
         )}
 
-        <Stack gap="sm" style={{ flex: 1, minWidth: 280 }}>
+        <Stack gap="sm" className="knd-editor-cards" style={{ flex: 1, minWidth: 280 }}>
           <Paper withBorder>
             {visible.map((c, i) => (
               <Box key={c.id}>
