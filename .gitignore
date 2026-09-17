@@ -43,3 +43,7 @@ next-env.d.ts
 *.db
 *.db-wal
 *.db-shm
+
+# datos de diccionario (JMdict, CC BY-SA): se descargan, no se commitean.
+# Ver el header de scripts/seed-dict.ts para dónde conseguirlos.
+/data/

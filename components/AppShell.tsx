@@ -56,7 +56,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Group>
       </MantineShell.Header>
 
-      <MantineShell.Main className="knd-main-pb">{children}</MantineShell.Main>
+      <MantineShell.Main className="knd-main-pb">
+        {children}
+        <Text size="xs" c="dimmed" ta="center" mt="xl">
+          Datos de diccionario de JMdict · © EDRDG · CC BY-SA
+        </Text>
+      </MantineShell.Main>
 
       <Box
         pos="fixed"

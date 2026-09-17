@@ -5,6 +5,16 @@ import * as schema from './schema';
 
 export type Db = BetterSQLite3Database<typeof schema>;
 
+// `drizzle(...)` en runtime siempre devuelve el cliente crudo de
+// better-sqlite3 bajo `$client`, pero al tiparlo como `Db` (para que calce
+// con el resto del código, incluido `tx as Db` dentro de las transacciones)
+// esa propiedad desaparece del tipo. `lib/db/dict-import.ts` la necesita para
+// sentencias preparadas a mano, así que este helper hace el cast puntual sin
+// tocar el tipo `Db` que usa todo lo demás.
+export function rawClient(db: Db): Database.Database {
+  return (db as unknown as { $client: Database.Database }).$client;
+}
+
 export function createDb(path: string): Db {
   const sqlite = new Database(path);
   // SQLite trae las foreign keys APAGADAS. Sin esto los ON DELETE CASCADE

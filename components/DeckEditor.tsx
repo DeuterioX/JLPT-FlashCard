@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, Button, Paper, TextInput, Divider, Box, Modal } from '@mantine/core';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { DictSearchPanel } from '@/components/dict/DictSearchPanel';
 import type { DeckSummary } from '@/lib/services/decks';
 
 export type EditorCard = {
@@ -16,10 +17,7 @@ export function DeckEditor({
 }: { deck: DeckSummary; cards: EditorCard[] }) {
   const router = useRouter();
 
-  // El panel de diccionario se conecta en la Task 16: por ahora solo hace
-  // falta el setter para dejar el botón enchufado (queda deshabilitado, así
-  // que nunca se dispara todavía).
-  const [, setDictOpen] = useState(false);
+  const [dictOpen, setDictOpen] = useState(false);
 
   const [selectedGroupId, setSelectedGroupId] = useState(deck.groups[0]?.id ?? 0);
   // Si el grupo elegido ya no existe (se borró desde otro lado y llegó un
@@ -148,8 +146,6 @@ export function DeckEditor({
               variant="default"
               size="compact-sm"
               onClick={() => setDictOpen(true)}
-              disabled
-              title="Disponible pronto"
             >
               Buscar en el diccionario
             </Button>
@@ -262,6 +258,15 @@ export function DeckEditor({
           </Button>
         </Stack>
       </Modal>
+
+      {!deck.isBuiltin && (
+        <DictSearchPanel
+          opened={dictOpen}
+          onClose={() => setDictOpen(false)}
+          groupId={groupId}
+          groupName={deck.groups.find((g) => g.id === groupId)?.name ?? ''}
+        />
+      )}
     </Stack>
   );
 }
