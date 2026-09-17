@@ -16,6 +16,8 @@ function parseRound(raw: string): Round | null {
     !parsed || typeof parsed !== 'object'
     || typeof (parsed as Round).sessionId !== 'number'
     || !Array.isArray((parsed as Round).cards)
+    || !Array.isArray((parsed as Round).groupIds)
+    || !(parsed as Round).groupIds.every((g) => typeof g === 'number')
   ) {
     return null;
   }
