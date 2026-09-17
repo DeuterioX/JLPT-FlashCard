@@ -2,17 +2,18 @@
 
 import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd } from '@mantine/core';
+import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
 import {
   startRound, submit, reveal, currentCard, isFinished, accuracy,
-  type QuizCard, type RoundState,
+  type RoundState,
 } from '@/lib/quiz/engine';
 import { createRoundRecorder, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
+import {
+  decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
+} from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 
-export type Round = {
-  sessionId: number; groupIds: number[]; cards: QuizCard[]; mode: 'normal' | 'review';
-};
+export type Round = StoredRound;
 
 const MEANING_MS = 1200;
 const WRONG_FLASH_MS = 600;
@@ -44,7 +45,45 @@ function getViewportHeightServer(): number | null {
   return null;
 }
 
+function readUsedRound(): string | null {
+  try {
+    return sessionStorage.getItem(USED_ROUND_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Una ronda guardada en `sessionStorage` se juega UNA sola vez contra su
+ * sesión: la decisión (reusar la sesión, abrir una nueva o volver a
+ * estadísticas) se toma acá, en el inicializador de `useState`, que corre
+ * una única vez por montaje -con la marca `ronda-usada` tal como estaba
+ * ANTES de que este montaje la escriba- y después nunca se recalcula. Así:
+ * - en la próxima visita a /practicar (Back, recarga, pestaña restaurada)
+ *   el componente se monta de nuevo y ve la marca;
+ * - en ESTE montaje, que la marca se escriba (en un efecto de `QuizPlay`)
+ *   no cambia nada: nadie la observa, no hay redirección ni cambio de
+ *   recorder a mitad de ronda;
+ * - en StrictMode el inicializador puede llamarse dos veces en el mismo
+ *   render, pero las dos antes de cualquier efecto (misma marca, mismo
+ *   resultado), y el doble efecto de montaje conserva el estado.
+ */
 export function QuizRunner({ round }: { round: Round }) {
+  const [start] = useState(() => decideRoundStart(round, readUsedRound()));
+  if (start.kind === 'redirect') return <ReplaceTo href={start.to} />;
+  return <QuizPlay round={round} start={start} />;
+}
+
+/** Un repaso ya jugado no se reabre con las mismas cartas: se vuelve a estadísticas. */
+function ReplaceTo({ href }: { href: string }) {
+  const router = useRouter();
+  useEffect(() => { router.replace(href); }, [router, href]);
+  return <Center h="100vh"><Loader /></Center>;
+}
+
+function QuizPlay({
+  round, start,
+}: { round: Round; start: Exclude<RoundStart, { kind: 'redirect' }> }) {
   const viewportH = useSyncExternalStore(subscribeViewport, getViewportHeight, getViewportHeightServer);
   const router = useRouter();
   const [state, setState] = useState<RoundState>(() => startRound(round.cards));
@@ -77,13 +116,28 @@ export function QuizRunner({ round }: { round: Round }) {
   // viceversa). Con un recorder propio por ronda eso es estructuralmente
   // imposible: no hay estado compartido que pisar. El primer recorder se
   // arma una sola vez, de forma perezosa (no en el argumento de `useRef`,
-  // que se evaluaría en cada render) con la sesión que ya vino en `round`.
+  // que se evaluaría en cada render): con la sesión que ya vino en `round`
+  // si es la primera vez que se juega, o abriendo una sesión nueva para los
+  // mismos grupos si la ronda guardada ya se usó (ver `QuizRunner`). Como
+  // en ese segundo caso crear el recorder dispara un POST, no se hace en el
+  // render sino en `recorder()`, que llaman el efecto de montaje y los
+  // manejadores; la ref hace que el doble efecto de StrictMode no abra dos
+  // sesiones.
   const recorderRef = useRef<RoundRecorder | null>(null);
-  if (recorderRef.current === null) {
-    recorderRef.current = createRoundRecorder({
-      fetch: (u, i) => fetch(u, i),
-      sessionId: round.sessionId,
-    });
+  function recorder(): RoundRecorder {
+    if (recorderRef.current === null) {
+      const r: RoundRecorder = start.kind === 'reuse'
+        ? createRoundRecorder({ fetch: (u, i) => fetch(u, i), sessionId: start.sessionId })
+        : createRoundRecorder({
+          fetch: (u, i) => fetch(u, i),
+          groupIds: start.groupIds,
+          onFailure: () => {
+            if (recorderRef.current === r) setSessionError(SESSION_ERROR_MSG);
+          },
+        });
+      recorderRef.current = r;
+    }
+    return recorderRef.current;
   }
   // Evita que el timer de 6s y una tecla disparen `nextRound` dos veces. Un
   // estado de React llegaría un render tarde para esto; un ref no.
@@ -100,6 +154,20 @@ export function QuizRunner({ round }: { round: Round }) {
   // Arranque del cronómetro de la ronda. Las rondas siguientes lo reinician
   // en `nextRound` (un manejador, no el render).
   useEffect(() => { roundStart.current = Date.now(); }, []);
+  // Marca la ronda guardada como usada en esta pestaña: la PRÓXIMA vez que
+  // se monte /practicar con este mismo `sessionStorage['ronda']` ya no se
+  // escribe en su sesión. Idempotente (el doble efecto de StrictMode escribe
+  // el mismo valor). La sesión abierta ya se pide acá si hacía falta una
+  // nueva, en vez de esperar al primer intento.
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(USED_ROUND_KEY, String(round.sessionId));
+    } catch {
+      // sin sessionStorage no hay replay posible que evitar
+    }
+    recorder();
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
+  }, []);
 
   // Cualquier timer pendiente (flash de error o de significado) se cancela al
   // desmontar: si no, un setState de un timer viejo puede llegar después de
@@ -112,7 +180,20 @@ export function QuizRunner({ round }: { round: Round }) {
   function send(body: AttemptBody) {
     // Fire-and-forget hacia la UI: el recorder de la ronda vigente decide
     // solo si lo manda ya, lo guarda en buffer o lo descarta.
-    recorderRef.current!.record(body);
+    recorder().record(body);
+  }
+
+  /**
+   * `ms` de un intento: desde que apareció la carta o, si ya hubo un intento
+   * sobre esta misma carta (error o revelar), desde ese intento anterior
+   * (spec, tabla `attempt`). Al pasar de carta el efecto de `card?.id`
+   * vuelve a fijar `shownAt`.
+   */
+  function msSinceLast(): number {
+    const now = Date.now();
+    const ms = now - shownAt.current;
+    shownAt.current = now;
+    return ms;
   }
 
   function onSubmit(e: FormEvent) {
@@ -122,7 +203,7 @@ export function QuizRunner({ round }: { round: Round }) {
     const r = submit(state, typed);
     send({
       cardId: card.id, typed, isCorrect: r.outcome === 'correct',
-      revealed: false, ms: Date.now() - shownAt.current,
+      revealed: false, ms: msSinceLast(),
     });
 
     if (r.outcome === 'correct') {
@@ -153,7 +234,7 @@ export function QuizRunner({ round }: { round: Round }) {
         // estaba en vuelo) y los intentos pendientes antes de mandar el
         // PATCH: ver lib/quiz/recorder.ts. No hace falta -ni se puede, ya
         // que el estado es interno al recorder- distinguir acá esos casos.
-        void recorderRef.current!.finish();
+        void recorder().finish();
       }
     } else {
       // La carta se queda: solo se limpia el input y se marca el error. No se
@@ -168,14 +249,16 @@ export function QuizRunner({ round }: { round: Round }) {
   }
 
   function onReveal() {
-    if (!card) return;
+    // Ya revelada: un segundo Espacio (o Tab a "Revelar" + Espacio) no
+    // registra otro error sobre la misma carta.
+    if (!card || state.revealedCurrent) return;
     const r = reveal(state);
     setState(r.state);
     setShown(r.answer);
     // Revelar cuenta como error: se registra igual que un error tipeado, y
     // suma al conteo de "las que te costaron".
     setMisses((m) => ({ ...m, [card.id]: (m[card.id] ?? 0) + 1 }));
-    send({ cardId: card.id, typed: '', isCorrect: false, revealed: true, ms: 0 });
+    send({ cardId: card.id, typed: '', isCorrect: false, revealed: true, ms: msSinceLast() });
     inputRef.current?.focus();
   }
 
@@ -197,7 +280,9 @@ export function QuizRunner({ round }: { round: Round }) {
       // que llamarlo de nuevo acá no dispara un segundo PATCH. Si la
       // apertura de la sesión hubiera fallado, `finish()` resuelve enseguida
       // y se navega igual.
-      void recorderRef.current!.finish().finally(() => router.push('/estadisticas'));
+      // `replace` y no `push`: con Back no se tiene que volver a caer en un
+      // /practicar ya terminado.
+      void recorder().finish().finally(() => router.replace('/estadisticas'));
       return;
     }
 
@@ -223,16 +308,16 @@ export function QuizRunner({ round }: { round: Round }) {
     // PATCH- aunque `recorderRef` ya apunte a este nuevo. Pendiente (fuera
     // de alcance de este fix): si se auto-continúa y después se sale con
     // Esc antes de terminar la ronda siguiente, esa sesión queda abierta.
-    const recorder = createRoundRecorder({
+    const next = createRoundRecorder({
       fetch: (u, i) => fetch(u, i),
       groupIds: round.groupIds,
       onFailure: () => {
         // Solo toca la UI si todavía es la ronda vigente: si para cuando
         // esto falla ya se encadenó otra ronda más, no le pisa el estado.
-        if (recorderRef.current === recorder) setSessionError(SESSION_ERROR_MSG);
+        if (recorderRef.current === next) setSessionError(SESSION_ERROR_MSG);
       },
     });
-    recorderRef.current = recorder;
+    recorderRef.current = next;
   }
 
   // `useEffectEvent` da una función estable (no dispara el efecto de abajo al
@@ -243,7 +328,8 @@ export function QuizRunner({ round }: { round: Round }) {
     if (e.key === 'Escape') {
       // Única navegación por Esc, tanto en juego como con el resumen
       // encima: no hay un segundo listener en RoundSummary que compita.
-      router.push('/');
+      // `replace`: Back desde la home no vuelve a una ronda abandonada.
+      router.replace('/');
       return;
     }
     if (isFinished(state)) {
@@ -326,7 +412,8 @@ export function QuizRunner({ round }: { round: Round }) {
 
       <Paper withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
         <Group gap="md" wrap="nowrap">
-          <Group gap="lg" visibleFrom="sm">
+          {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro, ver globals.css). */}
+          <Group gap="lg" className="knd-quiz-metrics">
             <Text size="xs" c="dimmed">Aciertos <b className="tabular">{Math.round(accuracy(state) * 100)}%</b></Text>
             <Text size="xs" c="dimmed">Restantes <b className="tabular">{remaining}</b></Text>
             <Text size="xs" c="dimmed">Errores <b className="tabular" style={{ color: 'var(--mantine-color-shu-6)' }}>{state.incorrect}</b></Text>

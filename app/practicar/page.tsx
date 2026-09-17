@@ -3,30 +3,8 @@
 import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { Center, Loader } from '@mantine/core';
-import { QuizRunner, type Round } from '@/components/quiz/QuizRunner';
-
-function parseRound(raw: string): Round | null {
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(raw);
-  } catch {
-    return null;
-  }
-  if (
-    !parsed || typeof parsed !== 'object'
-    || typeof (parsed as Round).sessionId !== 'number'
-    || !Array.isArray((parsed as Round).cards)
-    || !Array.isArray((parsed as Round).groupIds)
-    || !(parsed as Round).groupIds.every((g) => typeof g === 'number')
-  ) {
-    return null;
-  }
-  // `mode` es nuevo (Task 15, sección B): un `sessionStorage` viejo de antes
-  // de este cambio no lo trae, así que su ausencia se toma como 'normal' en
-  // vez de invalidar la ronda entera.
-  const withMode = parsed as Round & { mode?: unknown };
-  return { ...withMode, mode: withMode.mode === 'review' ? 'review' : 'normal' };
-}
+import { QuizRunner } from '@/components/quiz/QuizRunner';
+import { parseStoredRound, ROUND_KEY, type StoredRound } from '@/lib/quiz/stored-round';
 
 // `sessionStorage` es un sistema externo al render de React: se lee con
 // `useSyncExternalStore` en vez de leerla en un efecto y volcarla a un
@@ -40,19 +18,25 @@ function subscribe() {
   return () => {};
 }
 
+// El cache de abajo vive a nivel de módulo y sobrevive a la navegación del
+// lado del cliente, así que su clave tiene que incluir TODO lo que cambia su
+// resultado: acá eso es solo el `raw` de la ronda. A propósito NO se mezcla
+// la marca de "ronda ya usada" (`ronda-usada`): esa la lee `QuizRunner` una
+// sola vez al montarse (ver ahí), y si la página la cacheara o la observara
+// podría quedar vieja tras un Back o, peor, cambiar a mitad de ronda.
 let cachedRaw: string | null | undefined;
-let cachedRound: Round | null = null;
+let cachedRound: StoredRound | null = null;
 
-function getSnapshot(): Round | null {
-  const raw = sessionStorage.getItem('ronda');
+function getSnapshot(): StoredRound | null {
+  const raw = sessionStorage.getItem(ROUND_KEY);
   if (raw !== cachedRaw) {
     cachedRaw = raw;
-    cachedRound = raw ? parseRound(raw) : null;
+    cachedRound = raw ? parseStoredRound(raw) : null;
   }
   return cachedRound;
 }
 
-function getServerSnapshot(): Round | null {
+function getServerSnapshot(): StoredRound | null {
   return null;
 }
 
@@ -67,5 +51,7 @@ export default function Page() {
   }, [round, router]);
 
   if (!round) return <Center h="100vh"><Loader /></Center>;
-  return <QuizRunner round={round} />;
+  // `key`: si alguna vez cambiara la ronda guardada con la página montada,
+  // se remonta QuizRunner y vuelve a decidir cómo arrancar (ver ahí).
+  return <QuizRunner key={round.sessionId} round={round} />;
 }

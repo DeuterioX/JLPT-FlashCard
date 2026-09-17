@@ -13,7 +13,12 @@ export type RoundState = {
   queue: QuizCard[];
   correct: number;
   incorrect: number;
-  /** Si se reveló la carta actual, para no premiar el acierto posterior. */
+  /**
+   * Si ya se reveló la carta actual. Solo evita que revelar dos veces la
+   * misma carta cuente dos errores (`reveal` no hace nada la segunda vez);
+   * no cambia cómo se cuenta el acierto que venga después, que suma como
+   * cualquier otro. Se apaga al acertar y pasar de carta.
+   */
   revealedCurrent: boolean;
 };
 
@@ -72,6 +77,8 @@ export function submit(
 export function reveal(state: RoundState): { state: RoundState; answer: string } {
   const card = currentCard(state);
   if (!card) return { state, answer: '' };
+  // Revelar dos veces la misma carta es un solo error.
+  if (state.revealedCurrent) return { state, answer: card.primary };
   return {
     state: { ...state, incorrect: state.incorrect + 1, revealedCurrent: true },
     answer: card.primary,

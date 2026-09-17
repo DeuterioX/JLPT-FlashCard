@@ -75,6 +75,15 @@ describe('ronda', () => {
     expect(r.state.queue).toHaveLength(1);
   });
 
+  it('revelar dos veces la misma carta cuenta un solo error', () => {
+    const s = startRound([card(1, 'か', 'ka')], seeded(1));
+    const once = reveal(s).state;
+    const twice = reveal(once);
+    expect(twice.state).toBe(once);
+    expect(twice.state.incorrect).toBe(1);
+    expect(twice.answer).toBe('ka');
+  });
+
   it('limpia la marca de revelado al pasar de carta', () => {
     let s = startRound([card(1, 'か', 'ka'), card(3, 'ね', 'ne')], seeded(1));
     s = reveal(s).state;

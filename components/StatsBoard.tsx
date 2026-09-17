@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress, Divider } from '@mantine/core';
 import { MetricTile } from './MetricTile';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
 
 /** Semáforo del spec: jade ≥85%, ámbar 60–85%, shu <60%. Único lugar de la
@@ -79,7 +80,9 @@ export function StatsBoard({
         setBusy(false);
         return;
       }
-      sessionStorage.setItem('ronda', JSON.stringify(await res.json()));
+      sessionStorage.setItem(ROUND_KEY, JSON.stringify(await res.json()));
+      // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
+      sessionStorage.removeItem(USED_ROUND_KEY);
       router.push('/practicar');
       // No se libera la guarda ni se apaga `busy` acá: `router.push` deja el
       // componente montado mientras navega, y un segundo click en esa

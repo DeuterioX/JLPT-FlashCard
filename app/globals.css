@@ -54,6 +54,12 @@ body { margin: 0; }
   .knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + 16px); }
 }
 
+/* Métricas del pie del quiz (aciertos, restantes, errores): en teléfono no
+   entran junto al input, así que se ocultan con el mismo corte de 640px. */
+@media (max-width: 640px) {
+  .knd-quiz-metrics { display: none; }
+}
+
 /* Grilla de grupos: 8 columnas en escritorio, 5 en tablet, 3 en teléfono.
    No se usa SimpleGrid porque sus breakpoints (`sm`/`md` del tema) no
    coinciden con el breakpoint fijo de 640px del resto de la navegación. */

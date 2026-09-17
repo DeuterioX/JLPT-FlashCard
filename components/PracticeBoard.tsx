@@ -7,6 +7,7 @@ import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { DeckSummary } from '@/lib/services/decks';
 
 const START_ROUND_ERROR = 'No se pudo empezar la ronda. Probá de nuevo.';
@@ -74,7 +75,9 @@ export function PracticeBoard({
         return;
       }
       const round = await res.json();
-      sessionStorage.setItem('ronda', JSON.stringify(round));
+      sessionStorage.setItem(ROUND_KEY, JSON.stringify(round));
+      // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
+      sessionStorage.removeItem(USED_ROUND_KEY);
       start(() => router.push('/practicar'));
     } catch {
       // fetch tiró (sin red, DNS, CORS, etc.): no hubo respuesta que leer.
