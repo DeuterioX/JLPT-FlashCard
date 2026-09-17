@@ -160,8 +160,17 @@ export function QuizRunner({ round }: { round: Round }) {
       // Un repaso es un lote cerrado de las peores cartas: encadenar acá
       // reabriría una ronda normal con esos mismos `groupIds`, convirtiendo
       // el repaso en una ronda completa de esos grupos. En vez de eso, se
-      // vuelve a la pantalla de estadísticas (Task 15, sección B).
-      router.push('/estadisticas');
+      // vuelve a la pantalla de estadísticas (Task 15, sección B) -pero
+      // recién después de que el recorder termine de mandar los intentos y
+      // el PATCH de cierre: si se navegara ya, /estadisticas podría montarse
+      // y leer los números ANTES de que esta ronda quedara guardada, y es
+      // justamente para mostrar el repaso recién jugado que se vuelve ahí.
+      // `finish()` ya se llamó en `onSubmit` al detectar que la ronda
+      // terminó: es idempotente (devuelve la misma promesa cacheada), así
+      // que llamarlo de nuevo acá no dispara un segundo PATCH. Si la
+      // apertura de la sesión hubiera fallado, `finish()` resuelve enseguida
+      // y se navega igual.
+      void recorderRef.current!.finish().finally(() => router.push('/estadisticas'));
       return;
     }
 

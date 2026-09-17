@@ -6,5 +6,5 @@ import { openReviewRound } from '@/lib/services/stats';
 export const POST = async (req: Request) =>
   route(async () => {
     const body = reviewRoundSchema.parse(await readOptionalJson(req));
-    return openReviewRound(db, body.limit);
+    return openReviewRound(db, body.limit, body.range);
   }, 201);

@@ -28,6 +28,10 @@ export const openRoundSchema = z.object({
 
 export const reviewRoundSchema = z.object({
   limit: z.number().int().positive().max(100).default(20),
+  // La pantalla de estadísticas manda el rango que está mirando: el repaso
+  // tiene que armarse sobre las mismas cartas que el botón le prometió al
+  // usuario, no siempre sobre los últimos 30 días.
+  range: z.enum(['7d', '30d', 'all']).default('30d'),
 });
 
 export const recordAttemptSchema = z.object({

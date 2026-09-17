@@ -84,7 +84,11 @@ export type Overview = {
 export function overview(db: Db, range: StatsRange): Overview {
   const rows = attemptsIn(db, range);
   const correct = rows.filter((r) => r.isCorrect).length;
-  const totalCards = db.select().from(card).all().length;
+
+  // Una sola consulta a `card`, reusada para el total y para el mapa
+  // carta → grupo de más abajo (antes eran dos consultas idénticas).
+  const allCards = db.select().from(card).all();
+  const totalCards = allCards.length;
 
   // Dominio por carta.
   const perCard = new Map<number, { n: number; ok: number }>();
@@ -98,8 +102,7 @@ export function overview(db: Db, range: StatsRange): Overview {
     .filter((a) => a.n >= MASTERY_MIN_ATTEMPTS && a.ok / a.n >= MASTERY_ACCURACY).length;
 
   // Accuracy por grupo: attempt → card → card_group.
-  const cards = db.select().from(card).all();
-  const groupOf = new Map(cards.map((c) => [c.id, c.groupId]));
+  const groupOf = new Map(allCards.map((c) => [c.id, c.groupId]));
   const perGroup = new Map<number, { n: number; ok: number }>();
   for (const r of rows) {
     const gid = groupOf.get(r.cardId);
@@ -111,31 +114,33 @@ export function overview(db: Db, range: StatsRange): Overview {
   }
 
   const groupIds = [...perGroup.keys()];
-  const groups = groupIds.length
-    ? db.select().from(cardGroup).where(inArray(cardGroup.id, groupIds)).all()
-    : [];
+  // Una sola consulta a `cardGroup` (todos los grupos), reusada para los
+  // nombres de `byGroup` y para los del historial más abajo (antes eran dos
+  // consultas: una filtrada por `groupIds` y otra de todos los grupos).
+  const allGroups = db.select().from(cardGroup).all();
 
   const byGroup: GroupAccuracy[] = groupIds.map((gid) => {
     const a = perGroup.get(gid)!;
     return {
       groupId: gid,
-      name: groups.find((g) => g.id === gid)?.name ?? '',
+      name: allGroups.find((g) => g.id === gid)?.name ?? '',
       accuracy: a.ok / a.n,
       attempts: a.n,
     };
   }).sort((x, y) => x.accuracy - y.accuracy);
 
-  // Historial: solo rondas cerradas.
+  // Historial: solo rondas cerradas. `rounds` cuenta TODAS las cerradas del
+  // rango -no las 20 que se recortan para no mandar una lista infinita al
+  // cliente-: contar sobre `closed` después del `.slice` pegaba el tile de
+  // "Rondas" a un tope de 20 apenas alguien jugaba más que eso.
   const from = since(range);
   const all = db.select().from(session).orderBy(desc(session.startedAt)).all();
-  const closed = all
-    .filter((s) => s.finishedAt !== null && (!from || s.startedAt >= from))
-    .slice(0, 20);
+  const closedAll = all.filter((s) => s.finishedAt !== null && (!from || s.startedAt >= from));
+  const closed = closedAll.slice(0, 20);
 
   const links = closed.length
     ? db.select().from(sessionGroup).where(inArray(sessionGroup.sessionId, closed.map((s) => s.id))).all()
     : [];
-  const allGroups = db.select().from(cardGroup).all();
 
   const history = closed.map((s) => {
     const n = s.correct + s.incorrect;
@@ -156,7 +161,7 @@ export function overview(db: Db, range: StatsRange): Overview {
     correct,
     incorrect: rows.length - correct,
     accuracy: rows.length === 0 ? 0 : correct / rows.length,
-    rounds: closed.length,
+    rounds: closedAll.length,
     mastered,
     totalCards,
     byGroup,
@@ -165,14 +170,17 @@ export function overview(db: Db, range: StatsRange): Overview {
 }
 
 /**
- * Arma una ronda con las peores cartas. Es el repaso dirigido: siempre mira
- * los últimos 30 días (no el `range` que esté mirando la pantalla), porque
- * repasar "todo lo que alguna vez erraste en meses" no es un repaso útil.
- * Devuelve `mode: 'review'`: la Task 15 (sección B) exige que una ronda de
- * repaso no encadene otra ronda normal de esos mismos grupos al terminar.
+ * Arma una ronda con las peores cartas. Es el repaso dirigido: por defecto
+ * mira los últimos 30 días, pero recibe el `range` que esté mirando la
+ * pantalla de estadísticas -si no, "Practicar mis N peores" puede prometer
+ * N cartas calculadas sobre "Siempre" y armar la ronda sobre otras 30 días,
+ * o quedar habilitado en "Siempre" y tirar un 400 porque en 30 días no hay
+ * nada que repasar-. Devuelve `mode: 'review'`: la Task 15 (sección B)
+ * exige que una ronda de repaso no encadene otra ronda normal de esos
+ * mismos grupos al terminar.
  */
-export function openReviewRound(db: Db, limit: number): RoundPayload {
-  const worst = worstCards(db, '30d', limit);
+export function openReviewRound(db: Db, limit: number, range: StatsRange = '30d'): RoundPayload {
+  const worst = worstCards(db, range, limit);
   if (worst.length === 0) throw badRequest('Todavía no hay errores suficientes para repasar');
 
   const ids = new Set(worst.map((w) => w.cardId));

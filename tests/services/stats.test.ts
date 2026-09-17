@@ -1,9 +1,12 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { eq } from 'drizzle-orm';
 import { createDb, migrate, type Db } from '../../lib/db/client';
 import { seedKana } from '../../lib/db/seed';
 import { listDecks } from '../../lib/services/decks';
 import { openRound, recordAttempt, closeRound } from '../../lib/services/sessions';
 import { worstCards, overview, openReviewRound } from '../../lib/services/stats';
+import { attempt, session } from '../../lib/db/schema';
+import { AppError } from '../../lib/services/errors';
 
 let db: Db;
 let kaGroupId: number;
@@ -23,6 +26,16 @@ function drill(sessionId: number, cardId: number, n: number, errs: number) {
       sessionId, cardId, typed: i < errs ? 'zz' : 'ok',
       isCorrect: i >= errs, revealed: false, ms: 100,
     });
+  }
+}
+
+/** Inserta un intento con una fecha explícita, para probar las ventanas 7d/30d. */
+function drillAt(sessionId: number, cardId: number, n: number, errs: number, createdAt: string) {
+  for (let i = 0; i < n; i++) {
+    db.insert(attempt).values({
+      sessionId, cardId, typed: i < errs ? 'zz' : 'ok',
+      isCorrect: i >= errs, revealed: false, ms: 100, createdAt,
+    }).run();
   }
 }
 
@@ -70,6 +83,32 @@ describe('worstCards', () => {
     closeRound(db, r.sessionId);
     expect(worstCards(db, 'all', 2)).toHaveLength(2);
   });
+
+  it('una carta con exactamente 5 apariciones (el mínimo) SÍ entra al ranking', () => {
+    const r = openRound(db, [kaGroupId]);
+    drill(r.sessionId, r.cards[0].id, 5, 1);
+    closeRound(db, r.sessionId);
+
+    expect(worstCards(db, 'all').map((w) => w.cardId)).toContain(r.cards[0].id);
+  });
+
+  it('una carta vista 5+ veces pero sin ningún error NO entra al ranking', () => {
+    const r = openRound(db, [kaGroupId]);
+    drill(r.sessionId, r.cards[0].id, 5, 0);
+    closeRound(db, r.sessionId);
+
+    expect(worstCards(db, 'all')).toHaveLength(0);
+  });
+
+  it('un intento viejo queda afuera de la ventana 7d pero adentro de "all"', () => {
+    const r = openRound(db, [kaGroupId]);
+    const hace40dias = new Date(Date.now() - 40 * 86_400_000).toISOString();
+    drillAt(r.sessionId, r.cards[0].id, 6, 6, hace40dias);
+    closeRound(db, r.sessionId);
+
+    expect(worstCards(db, '7d')).toHaveLength(0);
+    expect(worstCards(db, 'all')).toHaveLength(1);
+  });
 });
 
 describe('overview', () => {
@@ -96,6 +135,14 @@ describe('overview', () => {
     expect(overview(db, 'all').mastered).toBe(1);
   });
 
+  it('una carta con exactamente 5 intentos (el mínimo) y 100% de aciertos SÍ es dominada', () => {
+    const r = openRound(db, [kaGroupId]);
+    drill(r.sessionId, r.cards[0].id, 5, 0);
+    closeRound(db, r.sessionId);
+
+    expect(overview(db, 'all').mastered).toBe(1);
+  });
+
   it('calcula accuracy por grupo', () => {
     const r = openRound(db, [kaGroupId]);
     drill(r.sessionId, r.cards[0].id, 10, 2);
@@ -113,10 +160,33 @@ describe('overview', () => {
     expect(o.byGroup).toEqual([]);
     expect(o.history).toEqual([]);
   });
+
+  it('un intento viejo queda afuera de la ventana 7d pero adentro de "all"', () => {
+    const r = openRound(db, [kaGroupId]);
+    const hace40dias = new Date(Date.now() - 40 * 86_400_000).toISOString();
+    drillAt(r.sessionId, r.cards[0].id, 1, 1, hace40dias);
+    closeRound(db, r.sessionId);
+
+    expect(overview(db, '7d').attempts).toBe(0);
+    expect(overview(db, 'all').attempts).toBe(1);
+  });
+
+  it('cuenta TODAS las rondas cerradas aunque el historial se recorte a 20', () => {
+    // El fix Important: `rounds` no puede quedar pegado al tope de 20 del
+    // historial, que solo existe para no mandar una lista infinita a la UI.
+    for (let i = 0; i < 21; i++) {
+      const r = openRound(db, [kaGroupId]);
+      closeRound(db, r.sessionId);
+    }
+
+    const o = overview(db, 'all');
+    expect(o.rounds).toBe(21);
+    expect(o.history).toHaveLength(20);
+  });
 });
 
 describe('openReviewRound', () => {
-  it('arma una ronda con las peores cartas y la marca como repaso', () => {
+  it('arma una ronda con las peores cartas, la marca como repaso y así queda guardada', () => {
     const r = openRound(db, [kaGroupId]);
     drill(r.sessionId, r.cards[0].id, 10, 6);
     drill(r.sessionId, r.cards[1].id, 10, 5);
@@ -129,9 +199,33 @@ describe('openReviewRound', () => {
     // Es un repaso, no una ronda normal: la ronda no debería encadenar otra
     // ronda con groupIds al terminar (Task 15, sección B).
     expect(review.mode).toBe('review');
+
+    const row = db.select().from(session).where(eq(session.id, review.sessionId)).all()[0];
+    expect(row.mode).toBe('review');
   });
 
-  it('falla si todavía no hay errores que repasar', () => {
-    expect(() => openReviewRound(db, 20)).toThrow();
+  it('falla con un AppError 400 si todavía no hay errores que repasar', () => {
+    expect.assertions(2);
+    try {
+      openReviewRound(db, 20);
+    } catch (e) {
+      expect(e).toBeInstanceOf(AppError);
+      expect((e as AppError).status).toBe(400);
+    }
+  });
+
+  it('con range "all" incluye cartas cuyos intentos son de hace más de 30 días', () => {
+    const r = openRound(db, [kaGroupId]);
+    const hace40dias = new Date(Date.now() - 40 * 86_400_000).toISOString();
+    drillAt(r.sessionId, r.cards[0].id, 6, 6, hace40dias);
+    closeRound(db, r.sessionId);
+
+    // Con la ventana por defecto (30d) esa carta ya no cuenta: no hay nada
+    // que repasar.
+    expect(() => openReviewRound(db, 20)).toThrow(AppError);
+
+    // Pero si se pide el repaso sobre "todo", sí entra.
+    const review = openReviewRound(db, 20, 'all');
+    expect(review.cards.map((c) => c.id)).toContain(r.cards[0].id);
   });
 });

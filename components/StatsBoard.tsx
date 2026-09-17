@@ -63,17 +63,31 @@ export function StatsBoard({
       const res = await fetch('/api/sessions/review', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ limit: REVIEW_LIMIT }),
+        // Se manda el `range` que está mirando la pantalla: si el botón
+        // prometió "N peores" calculadas sobre "Siempre", la ronda tiene
+        // que armarse sobre ese mismo rango y no sobre los 30 días por
+        // defecto del service.
+        body: JSON.stringify({ limit: REVIEW_LIMIT, range }),
       });
       if (!res.ok) {
+        // Falló: se libera la guarda acá (y en el catch de abajo) para que
+        // un reintento sea posible. En el camino feliz la guarda NO se
+        // libera -se queda tomada a propósito, ver el comentario después
+        // del `router.push`-.
         setError(await errorFrom(res));
+        busyRef.current = false;
+        setBusy(false);
         return;
       }
       sessionStorage.setItem('ronda', JSON.stringify(await res.json()));
       router.push('/practicar');
+      // No se libera la guarda ni se apaga `busy` acá: `router.push` deja el
+      // componente montado mientras navega, y un segundo click en esa
+      // ventana abriría una segunda sesión de repaso que nunca se cierra
+      // (la clase de bug de las Tasks 11 y 13). El componente se desmonta
+      // al llegar a /practicar, así que no hace falta un reset explícito.
     } catch {
       setError(NETWORK_ERROR);
-    } finally {
       busyRef.current = false;
       setBusy(false);
     }
