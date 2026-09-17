@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { Overlay, Paper, Stack, Group, Text, Progress, Kbd } from '@mantine/core';
 import { accuracy, type RoundState } from '@/lib/quiz/engine';
 
 const AUTO_CONTINUE_MS = 6000;
 
-export type MissEntry = { prompt: string; primary: string; count: number };
+export type MissEntry = { cardId: number; prompt: string; primary: string; count: number };
 
 /**
  * Resumen de la ronda. No tiene listener de teclado propio: QuizRunner ya
@@ -23,15 +23,22 @@ export function RoundSummary({
   misses: MissEntry[];
   onContinue: () => void;
 }) {
-  // Si no se toca nada, arranca sola: el requisito es que el flujo no se corte.
+  // `useEffectEvent`, no `onContinue` en las deps: si no, cualquier re-render
+  // del padre (por ejemplo el flash de significado de la última carta)
+  // recrearía `onContinue` y este efecto se limpiaría y volvería a montar,
+  // reiniciando los 6s desde cero en vez de contarlos desde que se mostró
+  // el resumen.
+  const onAutoContinue = useEffectEvent(() => onContinue());
   useEffect(() => {
-    const t = setTimeout(onContinue, AUTO_CONTINUE_MS);
+    // Si no se toca nada, arranca sola: el requisito es que el flujo no se corte.
+    const t = setTimeout(onAutoContinue, AUTO_CONTINUE_MS);
     return () => clearTimeout(t);
-  }, [onContinue]);
+  }, []);
 
+  const sorted = [...misses].sort((a, b) => b.count - a.count).slice(0, 5);
   const mins = Math.floor(elapsedMs / 60000);
   const secs = Math.floor((elapsedMs % 60000) / 1000);
-  const worst = misses[0]?.count ?? 1;
+  const worst = sorted[0]?.count ?? 1;
 
   return (
     <Overlay color="var(--mantine-color-dark-7)" backgroundOpacity={0.93} zIndex={10} center>
@@ -58,11 +65,11 @@ export function RoundSummary({
             </Stack>
           </Group>
 
-          {misses.length > 0 && (
+          {sorted.length > 0 && (
             <Stack gap={5}>
               <Text size="xs" tt="uppercase" c="dimmed">Las que te costaron</Text>
-              {misses.slice(0, 5).map((m) => (
-                <Group key={m.prompt} gap="sm" wrap="nowrap">
+              {sorted.map((m) => (
+                <Group key={m.cardId} gap="sm" wrap="nowrap">
                   <Text className="kana" w={34}>{m.prompt}</Text>
                   <Text className="romaji" size="xs" c="dimmed" w={46}>{m.primary}</Text>
                   <Progress value={(m.count / worst) * 100} color="shu.6" size="xs" style={{ flex: 1 }} />

@@ -7,7 +7,8 @@ import {
   startRound, submit, reveal, currentCard, isFinished, accuracy,
   type QuizCard, type RoundState,
 } from '@/lib/quiz/engine';
-import { RoundSummary } from './RoundSummary';
+import { createRoundRecorder, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
+import { RoundSummary, type MissEntry } from './RoundSummary';
 
 export type Round = { sessionId: number; groupIds: number[]; cards: QuizCard[] };
 
@@ -37,23 +38,24 @@ export function QuizRunner({ round }: { round: Round }) {
   const roundStart = useRef(0);
   const meaningTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrongTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  // Id de la sesión donde se registran los intentos. Empieza en la de
-  // `round`, pero cambia cuando se encadena la ronda siguiente (Task 13). Es
-  // un ref -no estado- porque `send()` lo necesita leer al instante en que se
-  // llama, sin esperar a que un re-render propague un valor nuevo.
-  const sessionIdRef = useRef(round.sessionId);
-  // 'ready': sessionIdRef apunta a una sesión abierta y se puede mandar ahí.
-  // 'pending': se está abriendo la sesión de la ronda siguiente; los intentos
-  // se guardan en pendingAttempts hasta que se resuelva.
-  // 'failed': la apertura falló; no hay dónde guardar y no hay que reintentar
-  // contra la sesión anterior (ya está cerrada).
-  const sessionStatus = useRef<'ready' | 'pending' | 'failed'>('ready');
-  const pendingAttempts = useRef<Record<string, unknown>[]>([]);
-  // Caso límite: la ronda termina mientras todavía se está abriendo SU PROPIA
-  // sesión (sessionStatus === 'pending'). sessionIdRef.current en ese momento
-  // sigue apuntando a la sesión anterior, ya cerrada: cerrarla de nuevo
-  // cerraría la sesión equivocada. Se pospone el cierre hasta que resuelva.
-  const closePending = useRef(false);
+  // Un `RoundRecorder` por ronda (lib/quiz/recorder.ts), con todo su estado
+  // -sesión, buffer de intentos en vuelo, si falló- en SU PROPIO closure.
+  // Antes esto vivía en refs compartidas del componente (sessionIdRef,
+  // sessionStatus, pendingAttempts, closePending): si la apertura de la
+  // sesión de la ronda N tardaba más que la ronda N entera -algo que pasa
+  // de verdad con los 6s de auto-continuación de por medio-, la ronda N+1
+  // pisaba esas refs y los intentos de N terminaban en la sesión de N+1 (o
+  // viceversa). Con un recorder propio por ronda eso es estructuralmente
+  // imposible: no hay estado compartido que pisar. El primer recorder se
+  // arma una sola vez, de forma perezosa (no en el argumento de `useRef`,
+  // que se evaluaría en cada render) con la sesión que ya vino en `round`.
+  const recorderRef = useRef<RoundRecorder | null>(null);
+  if (recorderRef.current === null) {
+    recorderRef.current = createRoundRecorder({
+      fetch: (u, i) => fetch(u, i),
+      sessionId: round.sessionId,
+    });
+  }
   // Evita que el timer de 6s y una tecla disparen `nextRound` dos veces. Un
   // estado de React llegaría un render tarde para esto; un ref no.
   const continued = useRef(false);
@@ -78,29 +80,10 @@ export function QuizRunner({ round }: { round: Round }) {
     if (wrongTimer.current) clearTimeout(wrongTimer.current);
   }, []);
 
-  function postAttempt(sessionId: number, body: Record<string, unknown>) {
-    // Fire-and-forget: no bloquea el tipeo. Si se cierra la pestaña a mitad de
-    // ronda, lo ya respondido quedó guardado.
-    void fetch('/api/attempts', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ sessionId, ...body }),
-    }).catch(() => {});
-  }
-
-  function send(body: Record<string, unknown>) {
-    // Mientras se abre la sesión de la ronda siguiente ('pending'), el intento
-    // se guarda y se manda recién cuando se conoce el id nuevo: así nunca cae
-    // en la sesión vieja, que para entonces ya se cerró (Task 13, trampa 5).
-    if (sessionStatus.current === 'pending') {
-      pendingAttempts.current.push(body);
-      return;
-    }
-    // 'failed': no se pudo abrir sesión para esta ronda. No hay id válido
-    // donde guardar y mandarlo a la sesión anterior (cerrada) sería un dato
-    // mal atribuido, así que se descarta: la ronda sigue local nomás.
-    if (sessionStatus.current === 'failed') return;
-    postAttempt(sessionIdRef.current, body);
+  function send(body: AttemptBody) {
+    // Fire-and-forget hacia la UI: el recorder de la ronda vigente decide
+    // solo si lo manda ya, lo guarda en buffer o lo descarta.
+    recorderRef.current!.record(body);
   }
 
   function onSubmit(e: FormEvent) {
@@ -137,14 +120,11 @@ export function QuizRunner({ round }: { round: Round }) {
         // Nueva ronda por terminar: el guardia de "continuar una sola vez"
         // vuelve a estar disponible.
         continued.current = false;
-        if (sessionStatus.current === 'ready') {
-          void fetch(`/api/sessions/${sessionIdRef.current}`, { method: 'PATCH' }).catch(() => {});
-        } else if (sessionStatus.current === 'pending') {
-          // La sesión de esta ronda todavía se está abriendo: cerrarla
-          // ahora cerraría la anterior (stale). Se cierra cuando resuelva.
-          closePending.current = true;
-        }
-        // 'failed': nunca hubo sesión para esta ronda, no hay nada que cerrar.
+        // El recorder se encarga solo de esperar la apertura (si todavía
+        // estaba en vuelo) y los intentos pendientes antes de mandar el
+        // PATCH: ver lib/quiz/recorder.ts. No hace falta -ni se puede, ya
+        // que el estado es interno al recorder- distinguir acá esos casos.
+        void recorderRef.current!.finish();
       }
     } else {
       // La carta se queda: solo se limpia el input y se marca el error. No se
@@ -174,12 +154,13 @@ export function QuizRunner({ round }: { round: Round }) {
     if (continued.current) return;
     continued.current = true;
 
-    // Todo lo síncrono va ANTES del fetch: si el reset de `typed` llegara
-    // después de un await, borraría la letra que el usuario ya tipeó para
-    // continuar (esa letra tiene que sobrevivir como primera letra de la
-    // carta nueva). Las cartas son las de siempre (`round.cards`): no se
-    // vuelven a barajar contra el usuario a mitad de tecleo; el id de sesión
-    // nuevo se suma cuando el POST resuelva, sin tocar estas cartas.
+    // Todo lo síncrono va ANTES de crear el recorder (que dispara el POST
+    // de apertura): si el reset de `typed` llegara después de un await,
+    // borraría la letra que el usuario ya tipeó para continuar (esa letra
+    // tiene que sobrevivir como primera letra de la carta nueva). Las
+    // cartas son las de siempre (`round.cards`): no se vuelven a barajar
+    // contra el usuario a mitad de tecleo; el id de sesión nuevo llega
+    // aparte, encapsulado en el recorder de esta ronda.
     setState(startRound(round.cards));
     setMisses({});
     setTyped('');
@@ -188,40 +169,23 @@ export function QuizRunner({ round }: { round: Round }) {
     setMeaning(null);
     setSessionError(null);
     roundStart.current = Date.now();
-    sessionStatus.current = 'pending';
-    pendingAttempts.current = [];
-    closePending.current = false;
     inputRef.current?.focus();
 
-    // Abrir la sesión de la ronda siguiente en segundo plano, con los mismos
-    // grupos. Recién cuando resuelve se cambia el id de sesión: hasta
-    // entonces los intentos quedan en el buffer (ver `send`).
-    void fetch('/api/sessions', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ groupIds: round.groupIds }),
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject(new Error('open failed'))))
-      .then((next: { sessionId: number }) => {
-        sessionIdRef.current = next.sessionId;
-        sessionStatus.current = 'ready';
-        const buffered = pendingAttempts.current;
-        pendingAttempts.current = [];
-        for (const body of buffered) postAttempt(next.sessionId, body);
-        // Si esta ronda ya había terminado mientras se abría (caso límite),
-        // el cierre había quedado pospuesto: se dispara recién ahora, contra
-        // el id correcto.
-        if (closePending.current) {
-          closePending.current = false;
-          void fetch(`/api/sessions/${next.sessionId}`, { method: 'PATCH' }).catch(() => {});
-        }
-      })
-      .catch(() => {
-        sessionStatus.current = 'failed';
-        pendingAttempts.current = [];
-        closePending.current = false;
-        setSessionError(SESSION_ERROR_MSG);
-      });
+    // El recorder viejo NO se descarta: `finish()` ya se le pidió en la rama
+    // de arriba y sigue corriendo solo -flush de su buffer y su propio
+    // PATCH- aunque `recorderRef` ya apunte a este nuevo. Pendiente (fuera
+    // de alcance de este fix): si se auto-continúa y después se sale con
+    // Esc antes de terminar la ronda siguiente, esa sesión queda abierta.
+    const recorder = createRoundRecorder({
+      fetch: (u, i) => fetch(u, i),
+      groupIds: round.groupIds,
+      onFailure: () => {
+        // Solo toca la UI si todavía es la ronda vigente: si para cuando
+        // esto falla ya se encadenó otra ronda más, no le pisa el estado.
+        if (recorderRef.current === recorder) setSessionError(SESSION_ERROR_MSG);
+      },
+    });
+    recorderRef.current = recorder;
   }
 
   // `useEffectEvent` da una función estable (no dispara el efecto de abajo al
@@ -240,7 +204,11 @@ export function QuizRunner({ round }: { round: Round }) {
       // atajos como Ctrl+R) arranca la ronda siguiente sin tocar nada más;
       // como no se le hace preventDefault, el propio carácter cae en el
       // input ya enfocado y queda como primera letra de la carta nueva.
+      // Espacio es la excepción: sí se previene, porque si no dejaría un
+      // ' ' suelto en el input y eso desactiva "espacio revela" en la
+      // carta que recién está arrancando.
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        if (e.key === ' ') e.preventDefault();
         nextRound();
       }
       return;
@@ -291,12 +259,11 @@ export function QuizRunner({ round }: { round: Round }) {
             state={state}
             elapsedMs={elapsedMs}
             misses={Object.entries(misses)
-              .map(([id, count]) => {
+              .map(([id, count]): MissEntry | null => {
                 const c = round.cards.find((x) => x.id === Number(id));
-                return c ? { prompt: c.prompt, primary: c.primary, count } : null;
+                return c ? { cardId: c.id, prompt: c.prompt, primary: c.primary, count } : null;
               })
-              .filter((m): m is { prompt: string; primary: string; count: number } => m !== null)
-              .sort((a, b) => b.count - a.count)}
+              .filter((m): m is MissEntry => m !== null)}
             onContinue={nextRound}
           />
         )}
