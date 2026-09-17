@@ -7,7 +7,9 @@ export type RoundCard = {
   id: number; prompt: string; meaning: string | null;
   answers: string[]; primary: string;
 };
-export type RoundPayload = { sessionId: number; groupIds: number[]; cards: RoundCard[] };
+export type RoundPayload = {
+  sessionId: number; groupIds: number[]; cards: RoundCard[]; mode: 'normal' | 'review';
+};
 
 /**
  * Arma las cartas de un conjunto de grupos, con todas sus romanizaciones.
@@ -64,7 +66,7 @@ export function openRound(
     }
   });
 
-  return { sessionId, groupIds: [...new Set(groupIds)], cards };
+  return { sessionId, groupIds: [...new Set(groupIds)], cards, mode };
 }
 
 /** Una fila por cada Enter. Se llama fire-and-forget desde el cliente. */

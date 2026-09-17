@@ -26,6 +26,10 @@ export const openRoundSchema = z.object({
   groupIds: z.array(z.number().int().positive()).min(1, 'Elegí al menos un grupo'),
 });
 
+export const reviewRoundSchema = z.object({
+  limit: z.number().int().positive().max(100).default(20),
+});
+
 export const recordAttemptSchema = z.object({
   sessionId: z.number().int().positive(),
   cardId: z.number().int().positive(),

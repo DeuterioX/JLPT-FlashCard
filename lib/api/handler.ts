@@ -58,3 +58,21 @@ export async function readJson(req: Request): Promise<unknown> {
     throw new AppError('El cuerpo de la solicitud no es JSON válido', 400);
   }
 }
+
+/**
+ * Como `readJson`, pero para rutas cuyo body es opcional (p. ej. el repaso
+ * dirigido, que puede pedirse sin body y usar el límite por defecto). Un
+ * body ausente o en blanco se trata como "no mandó nada" y devuelve `{}`;
+ * uno mal formado sigue siendo un 400 en castellano, y no se confunde con el
+ * caso anterior tragándoselo con un `.catch(() => ({}))` -eso ocultaría
+ * errores de un cliente que sí mandó basura-.
+ */
+export async function readOptionalJson(req: Request): Promise<unknown> {
+  const text = await req.text();
+  if (text.trim() === '') return {};
+  try {
+    return JSON.parse(text);
+  } catch {
+    throw new AppError('El cuerpo de la solicitud no es JSON válido', 400);
+  }
+}

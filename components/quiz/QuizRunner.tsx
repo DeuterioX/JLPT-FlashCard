@@ -10,7 +10,9 @@ import {
 import { createRoundRecorder, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 
-export type Round = { sessionId: number; groupIds: number[]; cards: QuizCard[] };
+export type Round = {
+  sessionId: number; groupIds: number[]; cards: QuizCard[]; mode: 'normal' | 'review';
+};
 
 const MEANING_MS = 1200;
 const WRONG_FLASH_MS = 600;
@@ -154,6 +156,15 @@ export function QuizRunner({ round }: { round: Round }) {
     if (continued.current) return;
     continued.current = true;
 
+    if (round.mode === 'review') {
+      // Un repaso es un lote cerrado de las peores cartas: encadenar acá
+      // reabriría una ronda normal con esos mismos `groupIds`, convirtiendo
+      // el repaso en una ronda completa de esos grupos. En vez de eso, se
+      // vuelve a la pantalla de estadísticas (Task 15, sección B).
+      router.push('/estadisticas');
+      return;
+    }
+
     // Todo lo síncrono va ANTES de crear el recorder (que dispara el POST
     // de apertura): si el reset de `typed` llegara después de un await,
     // borraría la letra que el usuario ya tipeó para continuar (esa letra
@@ -258,6 +269,7 @@ export function QuizRunner({ round }: { round: Round }) {
           <RoundSummary
             state={state}
             elapsedMs={elapsedMs}
+            mode={round.mode}
             misses={Object.entries(misses)
               .map(([id, count]): MissEntry | null => {
                 const c = round.cards.find((x) => x.id === Number(id));

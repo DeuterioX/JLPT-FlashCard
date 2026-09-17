@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { z } from 'zod';
-import { route, readJson } from '../../lib/api/handler';
+import { route, readJson, readOptionalJson } from '../../lib/api/handler';
 import { AppError } from '../../lib/services/errors';
 
 describe('route', () => {
@@ -93,5 +93,39 @@ describe('readJson', () => {
     expect(res.status).toBe(400);
     const body = await res.json();
     expect(body.error).toBe('El cuerpo de la solicitud no es JSON válido');
+  });
+});
+
+describe('readOptionalJson', () => {
+  it('sin body devuelve un objeto vacío', async () => {
+    const req = new Request('http://localhost/api/sessions/review', { method: 'POST' });
+    await expect(readOptionalJson(req)).resolves.toEqual({});
+  });
+
+  it('un body en blanco también devuelve un objeto vacío', async () => {
+    const req = new Request('http://localhost/api/sessions/review', {
+      method: 'POST',
+      body: '   ',
+    });
+    await expect(readOptionalJson(req)).resolves.toEqual({});
+  });
+
+  it('un body JSON válido se parsea', async () => {
+    const req = new Request('http://localhost/api/sessions/review', {
+      method: 'POST',
+      body: JSON.stringify({ limit: 5 }),
+    });
+    await expect(readOptionalJson(req)).resolves.toEqual({ limit: 5 });
+  });
+
+  it('un body mal formado se convierte en un AppError 400, no se traga en silencio', async () => {
+    const req = new Request('http://localhost/api/sessions/review', {
+      method: 'POST',
+      body: 'esto no es json',
+    });
+    await expect(readOptionalJson(req)).rejects.toMatchObject({
+      status: 400,
+      message: 'El cuerpo de la solicitud no es JSON válido',
+    });
   });
 });

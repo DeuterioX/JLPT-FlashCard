@@ -52,6 +52,16 @@ describe('openRound', () => {
     expect(s.mode).toBe('normal');
   });
 
+  it('devuelve el modo normal por defecto en el payload', () => {
+    const r = openRound(db, [kaGroupId]);
+    expect(r.mode).toBe('normal');
+  });
+
+  it('acepta un modo explícito, para el repaso dirigido de la Task 15', () => {
+    const r = openRound(db, [kaGroupId], 'review');
+    expect(r.mode).toBe('review');
+  });
+
   it('rechaza una ronda sin grupos', () => {
     expect(() => openRound(db, [])).toThrow(AppError);
   });

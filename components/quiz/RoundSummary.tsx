@@ -16,11 +16,12 @@ export type MissEntry = { cardId: number; prompt: string; primary: string; count
  * tecla que tiene que llegar al input.
  */
 export function RoundSummary({
-  state, elapsedMs, misses, onContinue,
+  state, elapsedMs, misses, mode, onContinue,
 }: {
   state: RoundState;
   elapsedMs: number;
   misses: MissEntry[];
+  mode: 'normal' | 'review';
   onContinue: () => void;
 }) {
   // `useEffectEvent`, no `onContinue` en las deps: si no, cualquier re-render
@@ -80,7 +81,9 @@ export function RoundSummary({
           )}
 
           <Text size="xs" c="dimmed">
-            <Kbd>escribí</Kbd> para seguir con otra ronda · <Kbd>Esc</Kbd> para salir
+            <Kbd>escribí</Kbd> {mode === 'review'
+              ? 'para volver a estadísticas'
+              : 'para seguir con otra ronda'} · <Kbd>Esc</Kbd> para salir
           </Text>
         </Stack>
       </Paper>

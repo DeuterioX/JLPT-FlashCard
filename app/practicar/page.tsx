@@ -21,7 +21,11 @@ function parseRound(raw: string): Round | null {
   ) {
     return null;
   }
-  return parsed as Round;
+  // `mode` es nuevo (Task 15, sección B): un `sessionStorage` viejo de antes
+  // de este cambio no lo trae, así que su ausencia se toma como 'normal' en
+  // vez de invalidar la ronda entera.
+  const withMode = parsed as Round & { mode?: unknown };
+  return { ...withMode, mode: withMode.mode === 'review' ? 'review' : 'normal' };
 }
 
 // `sessionStorage` es un sistema externo al render de React: se lee con
