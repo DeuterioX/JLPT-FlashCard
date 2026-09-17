@@ -6,7 +6,10 @@ import { Stack, Group, SegmentedControl, Button, Text } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
+import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
+
+const START_ROUND_ERROR = 'No se pudo empezar la ronda. Probá de nuevo.';
 
 export function PracticeBoard({
   decks, initialSelection,
@@ -66,14 +69,7 @@ export function PracticeBoard({
         body: JSON.stringify({ groupIds: chosen.map((g) => g.id) }),
       });
       if (!res.ok) {
-        let message = 'No se pudo empezar la ronda. Probá de nuevo.';
-        try {
-          const body = await res.json();
-          if (typeof body?.error === 'string') message = body.error;
-        } catch {
-          // El body no vino como JSON: se muestra el mensaje genérico.
-        }
-        setError(message);
+        setError(await errorFrom(res, START_ROUND_ERROR));
         setBusy(false);
         return;
       }
@@ -82,7 +78,7 @@ export function PracticeBoard({
       start(() => router.push('/practicar'));
     } catch {
       // fetch tiró (sin red, DNS, CORS, etc.): no hubo respuesta que leer.
-      setError('No hay conexión con el servidor. Probá de nuevo.');
+      setError(NETWORK_ERROR);
       setBusy(false);
     }
   }

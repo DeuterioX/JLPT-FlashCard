@@ -4,25 +4,12 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, Button, Paper, TextInput, Divider, Box, Modal } from '@mantine/core';
 import { toRomaji } from '@/lib/kana/transliterate';
+import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
 
 export type EditorCard = {
   id: number; prompt: string; meaning: string | null; primary: string; groupId: number;
 };
-
-const GENERIC_ERROR = 'No se pudo completar la acción. Probá de nuevo.';
-const NETWORK_ERROR = 'No hay conexión con el servidor. Probá de nuevo.';
-
-/** Lee el `error` del body de una respuesta no-OK; si no vino como JSON, el genérico. */
-async function errorFrom(res: Response): Promise<string> {
-  try {
-    const body = await res.json();
-    if (typeof body?.error === 'string') return body.error;
-  } catch {
-    // el body no vino como JSON: se usa el mensaje genérico
-  }
-  return GENERIC_ERROR;
-}
 
 export function DeckEditor({
   deck, cards,
