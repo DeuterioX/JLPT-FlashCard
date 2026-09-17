@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useEffectEvent, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd } from '@mantine/core';
 import {
@@ -18,7 +18,34 @@ const MEANING_MS = 1200;
 const WRONG_FLASH_MS = 600;
 const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
 
+// El teclado virtual se come la mitad inferior de la pantalla. Con 100vh (o
+// 100dvh sin más) el input queda tapado abajo del teclado y la app es
+// inusable en el teléfono. `visualViewport.height` sí refleja el espacio que
+// queda libre una vez que el teclado empujó el layout visual.
+//
+// Se lee con `useSyncExternalStore` (no con un `useEffect` + `setState`
+// síncrono, que `react-hooks/set-state-in-effect` rechaza) siguiendo el
+// mismo patrón que ya usan `app/practicar/page.tsx` y `HistoryDate` en
+// `StatsBoard.tsx` para valores que solo existen en el navegador.
+function subscribeViewport(onChange: () => void) {
+  const vv = window.visualViewport;
+  if (!vv) return () => {};
+  vv.addEventListener('resize', onChange);
+  vv.addEventListener('scroll', onChange);
+  return () => {
+    vv.removeEventListener('resize', onChange);
+    vv.removeEventListener('scroll', onChange);
+  };
+}
+function getViewportHeight(): number | null {
+  return window.visualViewport?.height ?? null;
+}
+function getViewportHeightServer(): number | null {
+  return null;
+}
+
 export function QuizRunner({ round }: { round: Round }) {
+  const viewportH = useSyncExternalStore(subscribeViewport, getViewportHeight, getViewportHeightServer);
   const router = useRouter();
   const [state, setState] = useState<RoundState>(() => startRound(round.cards));
   const [typed, setTyped] = useState('');
@@ -253,7 +280,7 @@ export function QuizRunner({ round }: { round: Round }) {
   const finished = isFinished(state);
 
   return (
-    <Stack gap={0} h="100%">
+    <Stack gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
       <Group px="md" py="xs" justify="space-between">
         <Text size="xs" c="dimmed">Kana Drill</Text>
         <Text size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
@@ -264,6 +291,7 @@ export function QuizRunner({ round }: { round: Round }) {
           <Stack align="center" gap="xs">
             <Text
               className="kana"
+              data-testid="quiz-prompt"
               style={{ fontSize: 'clamp(64px, 18vw, 108px)', lineHeight: 1 }}
               c={flash === 'wrong' ? 'shu.6' : undefined}
             >

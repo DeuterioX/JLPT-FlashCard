@@ -77,3 +77,20 @@ body { margin: 0; }
   outline: 2px solid var(--mantine-color-jade-6);
   outline-offset: 2px;
 }
+
+/* Editor de mazo: columna de grupos en escritorio, tira horizontal en
+   teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
+   bloques se renderizan siempre y CSS puro decide cuál se ve, para no
+   depender de `useMediaQuery` y su desincronización servidor/cliente. */
+.knd-editor-groups-desktop { display: flex; }
+.knd-editor-groups-mobile { display: none; }
+
+@media (max-width: 640px) {
+  .knd-editor-layout { flex-direction: column; }
+  .knd-editor-groups-desktop { display: none; }
+  .knd-editor-groups-mobile {
+    display: flex;
+    width: 100%;
+    overflow-x: auto;
+  }
+}

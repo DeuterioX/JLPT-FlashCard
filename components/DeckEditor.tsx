@@ -153,26 +153,57 @@ export function DeckEditor({
         </Group>
       </Group>
 
-      <Group align="flex-start" wrap="wrap" gap="md">
+      <Group align="flex-start" wrap="wrap" gap="md" className="knd-editor-layout">
         {showGroups && (
-          <Stack gap={3} w={180}>
-            <Text size="xs" tt="uppercase" c="dimmed">Grupos</Text>
-            {deck.groups.map((g) => (
-              <Button
-                key={g.id}
-                variant={g.id === groupId ? 'light' : 'subtle'}
-                justify="space-between"
-                rightSection={<Text size="xs" c="dimmed" className="tabular">{g.cardCount}</Text>}
-                onClick={() => setSelectedGroupId(g.id)}
-                fullWidth
-              >
-                {g.name}
+          <>
+            {/* Columna vertical: escritorio. Tira horizontal: teléfono. Los
+                dos se renderizan siempre y `app/globals.css` decide cuál se
+                ve con el mismo `@media (max-width: 640px)` puro que ya usa
+                la navegación (ver AppShell.tsx) -así no hace falta
+                `useMediaQuery`, que devuelve un valor distinto en el
+                servidor y podría desincronizar la hidratación. */}
+            <Stack gap={3} w={180} className="knd-editor-groups-desktop">
+              <Text size="xs" tt="uppercase" c="dimmed">Grupos</Text>
+              {deck.groups.map((g) => (
+                <Button
+                  key={g.id}
+                  variant={g.id === groupId ? 'light' : 'subtle'}
+                  justify="space-between"
+                  rightSection={<Text size="xs" c="dimmed" className="tabular">{g.cardCount}</Text>}
+                  onClick={() => setSelectedGroupId(g.id)}
+                  fullWidth
+                >
+                  {g.name}
+                </Button>
+              ))}
+              <Button variant="subtle" c="dimmed" onClick={openGroupModal} fullWidth>
+                + Nuevo grupo
               </Button>
-            ))}
-            <Button variant="subtle" c="dimmed" onClick={openGroupModal} fullWidth>
-              + Nuevo grupo
-            </Button>
-          </Stack>
+            </Stack>
+
+            <Group gap={6} wrap="nowrap" className="knd-editor-groups-mobile">
+              {deck.groups.map((g) => (
+                <Button
+                  key={g.id}
+                  variant={g.id === groupId ? 'light' : 'subtle'}
+                  size="compact-sm"
+                  onClick={() => setSelectedGroupId(g.id)}
+                  style={{ flex: 'none', minHeight: 44 }}
+                >
+                  {g.name} ({g.cardCount})
+                </Button>
+              ))}
+              <Button
+                variant="subtle"
+                c="dimmed"
+                size="compact-sm"
+                onClick={openGroupModal}
+                style={{ flex: 'none', minHeight: 44 }}
+              >
+                + Nuevo grupo
+              </Button>
+            </Group>
+          </>
         )}
 
         <Stack gap="sm" style={{ flex: 1, minWidth: 280 }}>
