@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Switch, Stack, Text } from '@mantine/core';
+import { Card, Switch, Stack, Text, useMantineTheme } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 
 /**
@@ -24,11 +24,18 @@ export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
+  const { other } = useMantineTheme();
+  // `.gcard.off .gk, .gcard.off .gname { color: var(--a-dimmer) }` del
+  // diseño: nombre Y kana pasan los dos al mismo gris apagado (`dark.3`)
+  // cuando la tarjeta está apagada. Prendida, cada uno tiene SU propio
+  // color -el nombre queda `dimmed` (`dark.2`), el kana queda en el color
+  // de texto normal (`dark.0`, bien brillante)-, así que acá solo hace
+  // falta la rama del apagado.
+  const offColor = checked ? undefined : 'dark.3';
 
   return (
     <Card
       withBorder
-      padding="xs"
       role="switch"
       aria-checked={checked}
       aria-label={`Practicar ${group.name}`}
@@ -42,31 +49,81 @@ export function GroupCard({
         }
       }}
       className="knd-group-card"
+      // Colores del diseño para el estado prendido: no son un tinte
+      // genérico de la escala jade, son los valores puntuales que fija
+      // el sistema visual ("esta tarjeta está activa"), nombrados en
+      // `theme.other` -nunca hex sueltos acá-. Van por el prop `bg` de
+      // Mantine -no por `style`-: Card ya trae `defaultProps.bg` (ver
+      // theme.ts) y ese `bg` se resuelve como la propiedad `background`
+      // (shorthand), que pisa un `style.backgroundColor` (longhand) puesto
+      // a mano apenas el componente se remonta desde cero -pasó de verdad,
+      // al cambiar de Hiragana a Katakana y volver-. Pasando todo por `bg`
+      // no hay dos mecanismos compitiendo por la misma propiedad CSS.
+      bg={checked ? other.groupCardActiveBg : undefined}
       style={{
         cursor: 'pointer',
         minHeight: 44,
-        borderColor: checked ? 'var(--mantine-color-jade-8)' : undefined,
+        // `--card-padding` a mano -8px 6px, el del diseño, asimétrico- en
+        // vez del prop `padding`: Card resuelve ese prop a la misma
+        // variable por su propio `varsResolver`, y ahí gana el que se
+        // calcula último (mismo problema que `bg` vs `style` de arriba).
+        // Sin pasar `padding` como prop, ese resolver no escribe nada y
+        // este valor queda como el único.
+        '--card-padding': '8px 6px',
+        // Sin seleccionar usa el borde "suave" del diseño
+        // (`groupCardBorder`), no el `dark.4` -"default"- que trae
+        // Mantine solo con `withBorder`: son dos tonos distintos.
+        borderColor: checked ? other.groupCardActiveBorder : other.groupCardBorder,
       }}
     >
       <Stack gap={6} align="center">
+        {/* Tamaño, riel y color de la bolita salen enteros de
+            `theme.components.Switch` -incluido el estado prendido, que
+            ese `styles` lee directo del `checked` que se le pasa acá-. */}
         <Switch
-          size="xs"
           checked={checked}
           readOnly
           tabIndex={-1}
           aria-hidden
           style={{ pointerEvents: 'none' }}
         />
-        <Text size="xs" c="dimmed" className="kana">{group.name}</Text>
+        {/* El nombre va en la misma tipografía que el kana -Zen Kaku
+            Gothic New-, como en el diseño original (ahí decía "あ行" con
+            esta letra): que ahora diga "Serie A" no cambia la fuente.
+            `wordBreak` cubre un mazo propio con un nombre de grupo o una
+            palabra sin espacios más larga que la tarjeta -en el grid de
+            3 columnas de teléfono desbordaba de verdad, pasó probando
+            con "arigatougozaimasu"-. */}
+        {/* `lh` explícito: al pasarle a `size` un string libre ("11px")
+            en vez de un nombre de la escala, Mantine no encuentra en qué
+            entrada de `theme.lineHeights` buscar y termina devolviendo un
+            line-height MENOR que el propio tamaño de letra (11px de alto
+            de línea con 11px de fuente) -las líneas se pisaban de
+            verdad-. Con un múltiplo sin unidad escala bien con cualquier
+            tamaño. */}
+        {/* Mismo color que el kana grande de abajo -brillante cuando está
+            prendida, `dark.3` cuando está apagada-, ya no el "dimmed"
+            genérico: así queda igual de vivo que el resto de la
+            tarjeta, no más apagado que ella. */}
+        <Text size="11px" lh={1.4} c={offColor} className="kana" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+          {group.name}
+        </Text>
 
         {group.preview.length > 0 ? (
-          <Stack gap={0} align="center">
+          <Stack gap={2} align="center" style={{ maxWidth: '100%' }}>
             {group.preview.map((p) => (
-              <Text key={p} className="kana" size="md" lh={1.5}>{p}</Text>
+              <Stack key={p.prompt} gap={0} align="center" style={{ maxWidth: '100%' }}>
+                <Text className="kana" size="15px" lh={1.5} c={offColor} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                  {p.prompt}
+                </Text>
+                <Text className="romaji" size="10px" c="dimmed" lh={1.2} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                  {p.romaji}
+                </Text>
+              </Stack>
             ))}
           </Stack>
         ) : (
-          <Text size="xs" c="dimmed" className="tabular">{group.cardCount} palabras</Text>
+          <Text size="xs" c={offColor ?? 'dimmed'} className="tabular">{group.cardCount} palabras</Text>
         )}
       </Stack>
     </Card>

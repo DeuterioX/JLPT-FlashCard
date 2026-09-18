@@ -212,9 +212,19 @@ export function DeckEditor({
               <Box key={c.id}>
                 {i > 0 && <Divider />}
                 <Group px="sm" py="xs" wrap="nowrap">
-                  <Text className="kana" w={90}>{c.prompt}</Text>
-                  <Text className="romaji" size="sm" c="dimmed" w={80}>{c.primary}</Text>
-                  <Text size="sm" c="dimmed" style={{ flex: 1 }}>{c.meaning ?? ''}</Text>
+                  {/* Una palabra sin espacios (el romaji siempre es una:
+                      "arigatougozaimasu") no tiene dónde cortar para el
+                      navegador -a diferencia del kana o una `meaning` con
+                      varias palabras, que sí envuelven solos- y se
+                      desbordaba encima de la columna siguiente en vez de
+                      quedarse en su ancho. `wordBreak` fuerza el corte
+                      igual. `minWidth: 0` es necesario en un hijo `flex`
+                      -por default un flex item no se achica más allá del
+                      ancho de su contenido, así que sin esto la fila
+                      entera se desbordaba para hacerle lugar-. */}
+                  <Text className="kana" c="dimmed" w={90} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
+                  <Text className="romaji" size="sm" c="dimmed" w={80} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
+                  <Text size="sm" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{c.meaning ?? ''}</Text>
                   {!deck.isBuiltin && (
                     <Button
                       variant="subtle"
