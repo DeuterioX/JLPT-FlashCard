@@ -26,7 +26,7 @@ test.describe('sin scroll horizontal en teléfono', () => {
 
   test('/', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('switch', { name: 'Practicar か行' })).toBeVisible();
+    await expect(page.getByRole('switch', { name: 'Practicar Serie K' })).toBeVisible();
     expect(await hasNoHorizontalScroll(page)).toBe(true);
   });
 

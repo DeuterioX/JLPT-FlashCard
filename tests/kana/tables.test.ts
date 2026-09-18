@@ -20,7 +20,7 @@ describe('hiragana', () => {
   });
 
   it('trata きゃ como una sola carta', () => {
-    const kya = HIRAGANA.find((g) => g.name === 'きゃ行')!;
+    const kya = HIRAGANA.find((g) => g.name === 'Serie KY')!;
     expect(kya.cards.map((c) => c.prompt)).toEqual(['きゃ', 'きゅ', 'きょ']);
     expect(kya.cards[0].romaji[0]).toBe('kya');
   });

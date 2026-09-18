@@ -7,9 +7,11 @@ import { notFound, forbidden, badRequest } from './errors';
 /** Un grupo con 6 cartas o menos se previsualiza; con más, se muestra el conteo. */
 const PREVIEW_LIMIT = 6;
 
+export type GroupPreviewCard = { prompt: string; romaji: string };
+
 export type GroupSummary = {
   id: number; name: string; section: string | null;
-  sortOrder: number; cardCount: number; preview: string[];
+  sortOrder: number; cardCount: number; preview: GroupPreviewCard[];
 };
 
 export type DeckSummary = {
@@ -31,6 +33,18 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
         .orderBy(asc(card.sortOrder)).all()
     : [];
 
+  // Solo hace falta el romaji de las cartas que van a mostrarse en la vista
+  // previa (grupos de ≤6 cartas): pedirlo para las demás sería trabajo de
+  // más. is_primary=1 es la que se muestra, la única que le interesa a la
+  // grilla.
+  const cardIds = cards.map((c) => c.id);
+  const answers = cardIds.length
+    ? db.select().from(cardAnswer)
+        .where(inArray(cardAnswer.cardId, cardIds)).all()
+        .filter((a) => a.isPrimary)
+    : [];
+  const romajiByCard = new Map(answers.map((a) => [a.cardId, a.romaji]));
+
   const byGroup = new Map<number, typeof cards>();
   for (const c of cards) {
     const list = byGroup.get(c.groupId) ?? [];
@@ -44,7 +58,9 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
       return {
         id: g.id, name: g.name, section: g.section, sortOrder: g.sortOrder,
         cardCount: list.length,
-        preview: list.length <= PREVIEW_LIMIT ? list.map((c) => c.prompt) : [],
+        preview: list.length <= PREVIEW_LIMIT
+          ? list.map((c) => ({ prompt: c.prompt, romaji: romajiByCard.get(c.id) ?? '' }))
+          : [],
       };
     });
     return {

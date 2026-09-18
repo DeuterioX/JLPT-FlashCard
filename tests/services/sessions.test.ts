@@ -16,8 +16,8 @@ beforeEach(() => {
   migrate(db);
   seedKana(db);
   const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
-  kaGroupId = hira.groups.find((g) => g.name === 'か行')!.id;
-  saGroupId = hira.groups.find((g) => g.name === 'さ行')!.id;
+  kaGroupId = hira.groups.find((g) => g.name === 'Serie K')!.id;
+  saGroupId = hira.groups.find((g) => g.name === 'Serie S')!.id;
 });
 
 describe('openRound', () => {

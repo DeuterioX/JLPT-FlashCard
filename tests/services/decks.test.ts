@@ -27,9 +27,15 @@ describe('listDecks', () => {
 
   it('previsualiza los grupos de 6 cartas o menos y deja vacío el resto', () => {
     const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
-    // か行 tiene 5 cartas: se previsualiza.
-    expect(hira.groups.find((g) => g.name === 'か行')!.preview)
-      .toEqual(['か', 'き', 'く', 'け', 'こ']);
+    // Serie K tiene 5 cartas: se previsualiza.
+    expect(hira.groups.find((g) => g.name === 'Serie K')!.preview)
+      .toEqual([
+        { prompt: 'か', romaji: 'ka' },
+        { prompt: 'き', romaji: 'ki' },
+        { prompt: 'く', romaji: 'ku' },
+        { prompt: 'け', romaji: 'ke' },
+        { prompt: 'こ', romaji: 'ko' },
+      ]);
   });
 });
 
@@ -181,7 +187,14 @@ describe('preview de seis cartas', () => {
     }
     const group = getDeck(db, d.id).groups[0];
     expect(group.cardCount).toBe(6);
-    expect(group.preview).toEqual(['p0', 'p1', 'p2', 'p3', 'p4', 'p5']);
+    expect(group.preview).toEqual([
+      { prompt: 'p0', romaji: 'r0' },
+      { prompt: 'p1', romaji: 'r1' },
+      { prompt: 'p2', romaji: 'r2' },
+      { prompt: 'p3', romaji: 'r3' },
+      { prompt: 'p4', romaji: 'r4' },
+      { prompt: 'p5', romaji: 'r5' },
+    ]);
   });
 
   it('un grupo con 7 cartas no se previsualiza, solo se cuenta', () => {

@@ -12,9 +12,9 @@ async function toggleGroup(page: Page, name: string) {
 
 test.beforeEach(async ({ page }) => {
   await page.goto('/');
-  // El mazo por defecto es Hiragana (PracticeBoard abre en decks[0]); か行
+  // El mazo por defecto es Hiragana (PracticeBoard abre en decks[0]); Serie K
   // tiene que estar visible antes de interactuar con él.
-  await expect(page.getByRole('switch', { name: 'Practicar か行' })).toBeVisible();
+  await expect(page.getByRole('switch', { name: 'Practicar Serie K' })).toBeVisible();
   // Cada test arranca desde "Ninguno" y prende lo que necesita, así el orden
   // de ejecución no importa aunque compartan la cookie `grupos` y la DB.
   await page.getByRole('button', { name: 'Ninguno' }).click();
@@ -54,7 +54,7 @@ async function answerAll(page: Page) {
 }
 
 test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
-  const card = await toggleGroup(page, 'か行');
+  const card = await toggleGroup(page, 'Serie K');
   await expect(card).toHaveAttribute('aria-checked', 'true');
 
   await expect(page.getByRole('button', { name: /Empezar ronda/ })).toBeEnabled();
@@ -72,7 +72,7 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
   await expect(prompt).toHaveText(before ?? '');
   await expect(input).toHaveValue('');
 
-  // Corregir: contestar bien todas las cartas de か行.
+  // Corregir: contestar bien todas las cartas de Serie K.
   await answerAll(page);
   const summary = page.getByText('Ronda completa');
   await expect(summary).toBeVisible();
@@ -86,7 +86,7 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
 });
 
 test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cerrada', async ({ page }) => {
-  await toggleGroup(page, 'か行');
+  await toggleGroup(page, 'Serie K');
   await page.getByRole('button', { name: /Empezar ronda/ }).click();
   await expect(page.locator('#respuesta')).toBeFocused();
   const { sessionId: first } = await storedRound(page);
@@ -130,7 +130,7 @@ test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cer
 });
 
 test('Esc sale del quiz sin dejar /practicar en el historial', async ({ page }) => {
-  await toggleGroup(page, 'か行');
+  await toggleGroup(page, 'Serie K');
   await page.getByRole('button', { name: /Empezar ronda/ }).click();
   await expect(page.locator('#respuesta')).toBeFocused();
 
@@ -145,7 +145,7 @@ test('el botón queda deshabilitado sin ningún grupo', async ({ page }) => {
 });
 
 test('el input del quiz no deja que el teléfono lo autocorrija', async ({ page }) => {
-  await toggleGroup(page, 'か行');
+  await toggleGroup(page, 'Serie K');
   await page.getByRole('button', { name: /Empezar ronda/ }).click();
 
   const input = page.locator('#respuesta');
@@ -161,7 +161,7 @@ test('el input del quiz no deja que el teléfono lo autocorrija', async ({ page 
 test('en teléfono el input queda visible con el teclado abierto', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'solo aplica al proyecto de teléfono');
 
-  await toggleGroup(page, 'か行');
+  await toggleGroup(page, 'Serie K');
   await page.getByRole('button', { name: /Empezar ronda/ }).click();
 
   const input = page.locator('#respuesta');

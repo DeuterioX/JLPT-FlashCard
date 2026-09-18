@@ -16,7 +16,7 @@ beforeEach(() => {
   migrate(db);
   seedKana(db);
   const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
-  kaGroupId = hira.groups.find((g) => g.name === 'か行')!.id;
+  kaGroupId = hira.groups.find((g) => g.name === 'Serie K')!.id;
 });
 
 /** Registra `n` intentos de una carta, `errs` de ellos fallados. */
@@ -149,7 +149,7 @@ describe('overview', () => {
     closeRound(db, r.sessionId);
 
     const g = overview(db, 'all').byGroup.find((x) => x.groupId === kaGroupId)!;
-    expect(g.name).toBe('か行');
+    expect(g.name).toBe('Serie K');
     expect(g.accuracy).toBeCloseTo(0.8);
   });
 
@@ -173,7 +173,7 @@ describe('overview', () => {
 
   it('rotula el historial con "1 grupo" en singular y "N grupos" en plural', () => {
     const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
-    const saGroupId = hira.groups.find((g) => g.name === 'さ行')!.id;
+    const saGroupId = hira.groups.find((g) => g.name === 'Serie S')!.id;
     const one = openRound(db, [kaGroupId]);
     closeRound(db, one.sessionId);
     const two = openRound(db, [kaGroupId, saGroupId]);

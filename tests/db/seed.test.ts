@@ -46,9 +46,9 @@ describe('seedKana', () => {
   it('guarda la sección de cada grupo para los encabezados de la grilla', () => {
     seedKana(db);
     const groups = groupsOf(deckByName('Hiragana').id);
-    expect(groups.find((g) => g.name === 'か行')!.section).toBe('Básicos');
-    expect(groups.find((g) => g.name === 'が行')!.section).toBe('Dakuten');
-    expect(groups.find((g) => g.name === 'きゃ行')!.section).toBe('Contracciones');
+    expect(groups.find((g) => g.name === 'Serie K')!.section).toBe('Básicos');
+    expect(groups.find((g) => g.name === 'Serie G')!.section).toBe('Dakuten');
+    expect(groups.find((g) => g.name === 'Serie KY')!.section).toBe('Contracciones');
   });
 
   it('guarda las alternativas con una sola primaria por carta', () => {
@@ -63,7 +63,7 @@ describe('seedKana', () => {
 
   it('respeta el orden de las cartas dentro del grupo', () => {
     seedKana(db);
-    const ka = groupsOf(deckByName('Hiragana').id).find((g) => g.name === 'か行')!;
+    const ka = groupsOf(deckByName('Hiragana').id).find((g) => g.name === 'Serie K')!;
     const cards = db.select().from(card).where(eq(card.groupId, ka.id)).all()
       .sort((a, b) => a.sortOrder - b.sortOrder);
     expect(cards.map((c) => c.prompt)).toEqual(['か', 'き', 'く', 'け', 'こ']);
