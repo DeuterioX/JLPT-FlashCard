@@ -2,7 +2,7 @@
 
 import { useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, SegmentedControl, Button, Text } from '@mantine/core';
+import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
@@ -103,25 +103,71 @@ export function PracticeBoard({
 
   return (
     <Stack gap="md">
-      <Group>
-        <SegmentedControl
-          value={deckId}
-          onChange={setDeckId}
-          data={decks.map((d) => ({ value: String(d.id), label: d.name }))}
-        />
-        <Button variant="subtle" size="compact-xs" ml="auto" onClick={() => setAll(true)}>
-          Todos
-        </Button>
-        <Button variant="subtle" size="compact-xs" onClick={() => setAll(false)}>
-          Ninguno
-        </Button>
+      {/* Fija arriba al scrollear -mismo pedido que la barra de abajo-,
+          pero acá alcanza con `position: sticky`: a diferencia de un
+          sticky pegado al FONDO (que recién se activa cuando el resto
+          del contenido ya llenó la pantalla, el problema real de
+          `ActionBar` antes de pasarla a `fixed`), uno pegado ARRIBA
+          funciona bien desde el primer render -ya está en la posición
+          a la que se queda pegado-, sin el lío del espaciador.
+          `top: 0` NO alcanza -pasó de verdad-: es relativo al viewport
+          de scroll, no al borde inferior del header fijo, así que la
+          barra se quedaba pegada DEBAJO del header (tapada, invisible)
+          en vez de justo a continuación suyo. `--app-shell-header-height`
+          es la misma variable que Mantine usa para posicionar su propio
+          header, así que quedan exactos sin repetir el 48 a mano acá.
+          `bg` es necesario para no dejar ver las tarjetas de atrás al
+          scrollear debajo. */}
+      <Group
+        wrap="wrap"
+        gap="sm"
+        pos="sticky"
+        top="var(--app-shell-header-height)"
+        bg="dark.7"
+        py="xs"
+        style={{ zIndex: 10 }}
+      >
+        {/* Con muchos mazos el SegmentedControl no entra en una pantalla
+            angosta: Mantine no lo hace, pero no puede hacer wrap a varias
+            líneas -el indicador animado asume una sola fila- ni hace
+            scroll solo. `min-width: 0` dentro de un `Group` es necesario
+            para que el `overflow-x` realmente pueda achicar la caja en
+            vez de empujar a los hermanos fuera de pantalla; mismo patrón
+            que ya usa `.knd-editor-groups-mobile` en el editor de mazo. */}
+        <Box className="knd-deck-switcher" style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
+          <SegmentedControl
+            value={deckId}
+            onChange={setDeckId}
+            data={decks.map((d) => ({ value: String(d.id), label: d.name }))}
+          />
+        </Box>
+        {/* "Seleccionar:" y los dos botones son una sola unidad -si no
+            entran al lado del selector de mazos, bajan los tres juntos a
+            la línea siguiente, nunca separados entre sí-. */}
+        <Group gap="xs" wrap="nowrap" ml="auto">
+          <Text size="xs" c="dimmed">Seleccionar:</Text>
+          {/* `.btn` en el diseño trae borde SIEMPRE (`.ghost` solo le saca
+              el fondo, no el borde). La variante `default` de Mantine es
+              la que ya viene con borde neutro sin depender del color
+              primario -`subtle` no tiene borde para nada-. */}
+          <Button variant="default" size="compact-xs" onClick={() => setAll(true)}>
+            Todos
+          </Button>
+          <Button variant="default" size="compact-xs" onClick={() => setAll(false)}>
+            Ninguno
+          </Button>
+        </Group>
       </Group>
 
       <GroupGrid groups={deck.groups} selected={selected} onToggle={toggle} />
 
       <ActionBar>
-        <Text size="sm" c="dimmed">
-          <b>{chosen.length}</b> grupos · <b>{cardCount}</b> cartas
+        {/* `.count` del diseño: la base va atenuada (`--a-dim`) y solo
+            los números en `--a-text` con peso 600 -no el 700 que el
+            navegador le pone a un `<b>` suelto-. */}
+        <Text size="12px" c="dimmed">
+          <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{chosen.length}</Text> grupos ·{' '}
+          <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{cardCount}</Text> cartas
         </Text>
         {error && (
           <Text size="sm" c="shu.6">
@@ -134,7 +180,7 @@ export function PracticeBoard({
           loading={busy || pending}
           disabled={chosen.length === 0 || busy || pending}
         >
-          Empezar ronda →
+          Comenzar ➜
         </Button>
       </ActionBar>
     </Stack>
