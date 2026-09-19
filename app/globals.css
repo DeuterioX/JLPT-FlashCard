@@ -167,6 +167,18 @@ body { margin: 0; }
   .knd-quiz-reveal { justify-self: end; }
 }
 
+/* El texto del input de respuesta va centrado (`.answer { text-align:
+   center }` del diseño). El prop `ta="center"` de Mantine NO alcanza:
+   centra el `<div>` contenedor (`mantine-TextInput-root`), pero el
+   `<input>` real trae su propio `text-align: var(--input-text-align,
+   start)` declarado directo en el CSS base de Mantine -gana por estar
+   puesto sobre el propio elemento, no por herencia, así que lo que se
+   herede del contenedor no lo pisa-. Hay que setear esa variable puntual,
+   no `text-align` a mano. */
+.knd-quiz-answer {
+  --input-text-align: center;
+}
+
 /* Fondo con tinte rojo en el input de respuesta al errar (`--a-shu-bg` del
    diseño): es un estado de juego -"la marcaste mal"-, no una validación de
    formulario común, así que se reserva a este input puntual y no al

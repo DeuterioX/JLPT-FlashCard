@@ -447,7 +447,11 @@ function QuizPlay({
                 }
               }}
               placeholder="escribí en romaji"
-              ta="center"
+              // `ta="center"` NO alcanza acá: centra el div contenedor de
+              // Mantine, no el <input> real -que trae su propio
+              // `text-align` fijado directo en el CSS base-. El centrado
+              // real sale de `--input-text-align` en `.knd-quiz-answer`
+              // (globals.css).
               error={flash === 'wrong'}
               // Sin esto iOS convierte "ka" en "Ka" y sugiere corregir "shi":
               // se contarían errores que nunca se cometieron.
