@@ -223,9 +223,31 @@ body { margin: 0; }
 @media (min-width: 641px) {
   .knd-quiz-footer {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    /* `minmax(0, 1fr)`, no `1fr` a secas: por default un ítem de grid no
+       encoge más allá del tamaño natural de su contenido, así que entre
+       641px y ~740px -ancho real de ventana de escritorio, no un caso raro-
+       la caja de métricas (necesita ~225px) no entraba en el tercio que le
+       tocaba y se superponía con el input de 300px fijo -pasó de verdad,
+       medido: "Errores" quedaba tapado a 700px-. */
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
-  .knd-quiz-metrics { justify-self: start; }
+  .knd-quiz-metrics {
+    justify-self: start;
+    min-width: 0;
+    /* `justify-self: start` -no `stretch`- deja al ítem con el ancho
+       natural de su contenido, y ESE es el que seguía desbordando la
+       columna: `min-width: 0` por sí solo no lo topa, porque acá el ítem
+       ni siquiera está tratando de encajar en el ancho del track (pasó de
+       verdad, medido: seguía superpuesto con el input después del primer
+       intento). `max-width: 100%` sí se resuelve contra el ancho real del
+       track así el ítem no haga stretch, y recién ahí `overflow-x` tiene
+       algo que recortar en vez de desbordar. */
+    max-width: 100%;
+    /* Si ni así entra completa (ventanas angostas de verdad), que se
+       pueda scrollear en vez de tapar al vecino -mismo criterio que ya
+       usan `.knd-deck-switcher`/`.knd-editor-groups-mobile`-. */
+    overflow-x: auto;
+  }
   .knd-quiz-answer-form {
     flex: none;
     /* 300px del diseño (`.answer { width: 300px }`), en rem para que
@@ -338,14 +360,17 @@ body { margin: 0; }
 
 /* Scroll horizontal sin la barra nativa a la vista -se puede seguir
    scrolleando con el dedo o la rueda, solo se esconde el widget-. La
-   comparten esta tira y el selector de mazos de Práctica. */
+   comparten esta tira, el selector de mazos de Práctica y las métricas
+   del quiz cuando no entran completas (ver el grid de `.knd-quiz-footer`). */
 .knd-editor-groups-mobile,
-.knd-deck-switcher {
+.knd-deck-switcher,
+.knd-quiz-metrics {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Edge legado */
 }
 .knd-editor-groups-mobile::-webkit-scrollbar,
-.knd-deck-switcher::-webkit-scrollbar {
+.knd-deck-switcher::-webkit-scrollbar,
+.knd-quiz-metrics::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
 
