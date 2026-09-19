@@ -154,6 +154,7 @@ export function PracticeBoard({
           falta remarcarla contra nada-. */}
       <Group
         ref={switcherRef}
+        id="deck-switcher-bar"
         wrap="wrap"
         gap="sm"
         pos="fixed"
@@ -180,8 +181,9 @@ export function PracticeBoard({
             para que el `overflow-x` realmente pueda achicar la caja en
             vez de empujar a los hermanos fuera de pantalla; mismo patrón
             que ya usa `.knd-editor-groups-mobile` en el editor de mazo. */}
-        <Box className="knd-deck-switcher" style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
+        <Box id="deck-picker" className="knd-deck-switcher" style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
           <SegmentedControl
+            id="deck-segmented-control"
             value={deckId}
             onChange={setDeckId}
             data={decks.map((d) => ({ value: String(d.id), label: d.name }))}
@@ -190,16 +192,16 @@ export function PracticeBoard({
         {/* "Seleccionar:" y los dos botones son una sola unidad -si no
             entran al lado del selector de mazos, bajan los tres juntos a
             la línea siguiente, nunca separados entre sí-. */}
-        <Group gap="xs" wrap="nowrap" ml="auto">
+        <Group id="select-all-controls" gap="xs" wrap="nowrap" ml="auto">
           <Text size="xs" c="dimmed">Seleccionar:</Text>
           {/* `.btn` en el diseño trae borde SIEMPRE (`.ghost` solo le saca
               el fondo, no el borde). La variante `default` de Mantine es
               la que ya viene con borde neutro sin depender del color
               primario -`subtle` no tiene borde para nada-. */}
-          <Button variant="default" size="compact-xs" onClick={() => setAll(true)}>
+          <Button id="select-all-btn" variant="default" size="compact-xs" onClick={() => setAll(true)}>
             Todos
           </Button>
-          <Button variant="default" size="compact-xs" onClick={() => setAll(false)}>
+          <Button id="select-none-btn" variant="default" size="compact-xs" onClick={() => setAll(false)}>
             Ninguno
           </Button>
         </Group>
@@ -217,6 +219,7 @@ export function PracticeBoard({
           verdad, y la altura sí incluye ahora, a propósito, el gap de
           16px hacia la grilla. */}
       <div
+        id="deck-switcher-spacer"
         style={{
           marginTop: 'calc(var(--mantine-spacing-md) * -1)',
           height: `calc(${switcherHeight}px + var(--mantine-spacing-md))`,
@@ -224,14 +227,14 @@ export function PracticeBoard({
         aria-hidden
       />
 
-      <Stack gap="md">
+      <Stack id="practice-content" gap="md">
         <GroupGrid groups={deck.groups} selected={selected} onToggle={toggle} />
 
         <ActionBar>
           {/* `.count` del diseño: la base va atenuada (`--a-dim`) y solo
               los números en `--a-text` con peso 600 -no el 700 que el
               navegador le pone a un `<b>` suelto-. */}
-          <Text size="12px" c="dimmed">
+          <Text id="selection-count" size="12px" c="dimmed">
             <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{chosen.length}</Text> grupos ·{' '}
             <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{cardCount}</Text> cartas
           </Text>
@@ -241,6 +244,7 @@ export function PracticeBoard({
             </Text>
           )}
           <Button
+            id="begin-round-btn"
             ml="auto"
             onClick={begin}
             loading={busy || pending}
