@@ -261,14 +261,26 @@ body { margin: 0; }
        700px con el corte viejo de 641px-. */
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
+  /* Posiciones de columna EXPLÍCITAS, no el orden de aparición en el DOM:
+     por debajo de 800px `#quiz-metrics` es `display: none` (arriba de
+     stage), y un ítem `display: none` queda afuera del auto-placement del
+     grid -no "ocupa su lugar en silencio", el grid vuelve a numerar
+     saltándoselo-. Sin esto, el input caía en la primera columna
+     (`minmax(0,1fr)`, pensada para las métricas) y "Revelar" en la del
+     medio (`auto`, pensada para el input) -pasó de verdad, medido: el
+     input quedaba pegado a la izquierda en vez de centrado-. Con columna
+     fija cada uno cae siempre donde tiene que cair, esté o no la caja de
+     métricas presente. */
+  #quiz-metrics { grid-column: 1; }
   .knd-quiz-answer-form {
+    grid-column: 2;
     flex: none;
     /* 300px del diseño (`.answer { width: 300px }`), en rem para que
        escale con el resto de la app en 2K/4K. */
     width: 18.75rem;
     justify-self: center;
   }
-  .knd-quiz-reveal { justify-self: end; }
+  .knd-quiz-reveal { grid-column: 3; justify-self: end; }
 }
 @media (min-width: 800px) {
   #quiz-metrics {
