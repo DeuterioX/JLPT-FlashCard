@@ -23,15 +23,13 @@ export function GroupGrid({
   onToggle: (id: number, on: boolean) => void;
 }) {
   return (
-    // Entre SECCIONES distintas (か行→さ行, etc.) va el `gap: 16px` del
-    // diseño (`.stage`, la misma escala `md`). El label de UNA sección con
-    // su propia grilla, en cambio, va pegado -0-: son la misma unidad
-    // visual, no dos cosas separadas, y con 16px ahí también se sumaba a
-    // los 16px de arriba y se veía como el doble de aire del que hay en
-    // el diseño entre la barra de mazos y las tarjetas.
+    // El diseño (`.stage { gap: 16px }`) usa el mismo espacio para TODO lo
+    // que se apila en la columna -entre secciones y entre el label de una
+    // sección y su propia grilla-, no uno más grande arriba que abajo.
+    // `md` es justo 16px en la escala default de Mantine.
     <Stack gap="md">
       {bySection(groups).map((section, i) => (
-        <Stack gap={0} key={section.label ?? `sin-seccion-${i}`}>
+        <Stack gap="md" key={section.label ?? `sin-seccion-${i}`}>
           {section.label && (
             <Group gap="sm" wrap="nowrap">
               <Text size="xs" tt="uppercase" c="dimmed" style={{ letterSpacing: '0.11em' }}>
