@@ -23,9 +23,15 @@ export function GroupGrid({
   onToggle: (id: number, on: boolean) => void;
 }) {
   return (
-    <Stack gap="lg">
+    // Entre SECCIONES distintas (か行→さ行, etc.) va el `gap: 16px` del
+    // diseño (`.stage`, la misma escala `md`). El label de UNA sección con
+    // su propia grilla, en cambio, va pegado -0-: son la misma unidad
+    // visual, no dos cosas separadas, y con 16px ahí también se sumaba a
+    // los 16px de arriba y se veía como el doble de aire del que hay en
+    // el diseño entre la barra de mazos y las tarjetas.
+    <Stack gap="md">
       {bySection(groups).map((section, i) => (
-        <Stack gap="xs" key={section.label ?? `sin-seccion-${i}`}>
+        <Stack gap={0} key={section.label ?? `sin-seccion-${i}`}>
           {section.label && (
             <Group gap="sm" wrap="nowrap">
               <Text size="xs" tt="uppercase" c="dimmed" style={{ letterSpacing: '0.11em' }}>
