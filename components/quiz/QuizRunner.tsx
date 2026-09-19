@@ -406,13 +406,6 @@ function QuizPlay({
         <Text id="quiz-esc-hint" size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
       </Group>
 
-      {/* <800px (ver globals.css): las métricas no entran junto al input de
-          ancho fijo en el pie sin apretarse, así que viven acá arriba en su
-          propia barra en vez de adentro de `quiz-footer`. */}
-      <Box id="quiz-metrics-top-bar" className="knd-quiz-metrics-top-bar">
-        {metricsBox('top')}
-      </Box>
-
       <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
         {card && (
           // `pos="relative"` acá, no solo en `quiz-stage`: el mockup posiciona
@@ -485,6 +478,13 @@ function QuizPlay({
       )}
 
       <Progress id="quiz-progress" value={progress} size="xs" radius={0} />
+
+      {/* <800px (ver globals.css): las métricas no entran junto al input de
+          ancho fijo en el pie sin apretarse, así que viven en su propia
+          barra pegada arriba de `quiz-footer` en vez de adentro. */}
+      <Box id="quiz-metrics-top-bar" className="knd-quiz-metrics-top-bar">
+        {metricsBox('top')}
+      </Box>
 
       <Paper id="quiz-footer" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
         {/* Grilla de 3 columnas en escritorio (métricas / input de ancho fijo
