@@ -173,6 +173,13 @@ export function PracticeBoard({
           // de nuevo-. Con los dos cancelados, arranca YA en los mismos
           // 48px en los que se queda fija, sin ningún salto que ver.
           marginTop: 'calc(var(--mantine-spacing-md) * -2)',
+          // `.stage { padding: 18px 16px }` del diseño: el aire entre el
+          // header y esta fila es 18px, no 0. Va como padding DENTRO de
+          // la fila -que sigue arrancando pegada a los 48px del header,
+          // sin reintroducir el salto de arriba- y no como espacio
+          // afuera, para no volver a separar la posición de reposo de la
+          // posición ya pegada.
+          paddingTop: '1.125rem',
           marginInline: 'calc(var(--mantine-spacing-md) * -1)',
           paddingInline: 'var(--mantine-spacing-md)',
           borderBottom: stuck ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent',
