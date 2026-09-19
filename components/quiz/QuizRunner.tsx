@@ -368,12 +368,50 @@ function QuizPlay({
   // tenga que moverse. Ver RoundSummary para el overlay en sí.
   const finished = isFinished(state);
 
+  // Se renderiza DOS veces -una arriba del stage, otra adentro del pie- y
+  // CSS puro decide cuál se ve según el ancho (ver `.knd-quiz-metrics-top`
+  // y el corte de 800px en globals.css): mismo patrón que ya usan
+  // `.knd-nav-desktop`/`.knd-nav-mobile`, para no depender de
+  // `useMediaQuery` y su desincronización servidor/cliente. `top` sufija
+  // los ids de la variante de arriba; la del pie conserva los ids
+  // originales (`quiz-metrics`, etc.), sin sufijo.
+  function metricsBox(suffix?: string) {
+    const withSuffix = (name: string) => (suffix ? `${name}-${suffix}` : name);
+    return (
+      <Box id={withSuffix('quiz-metrics')} className="knd-quiz-metrics">
+        <Box id={withSuffix('quiz-accuracy')} className="knd-quiz-metric">
+          <Text component="span" className="knd-quiz-metric-label">Aciertos</Text>
+          <Text component="span" className="knd-quiz-metric-value tabular">
+            {Math.round(accuracy(state) * 100)}%
+          </Text>
+        </Box>
+        <Box id={withSuffix('quiz-remaining')} className="knd-quiz-metric">
+          <Text component="span" className="knd-quiz-metric-label">Restantes</Text>
+          <Text component="span" className="knd-quiz-metric-value tabular">{remaining}</Text>
+        </Box>
+        <Box id={withSuffix('quiz-errors')} className="knd-quiz-metric">
+          <Text component="span" className="knd-quiz-metric-label">Errores</Text>
+          <Text component="span" className="knd-quiz-metric-value tabular" c="shu.6">
+            {state.incorrect}
+          </Text>
+        </Box>
+      </Box>
+    );
+  }
+
   return (
     <Stack id="quiz-screen" gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
       <Group id="quiz-header" px="md" py="xs" justify="space-between">
         <Text id="quiz-app-name" size="xs" c="dimmed">{APP_NAME}</Text>
         <Text id="quiz-esc-hint" size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
       </Group>
+
+      {/* <800px (ver globals.css): las métricas no entran junto al input de
+          ancho fijo en el pie sin apretarse, así que viven acá arriba en su
+          propia barra en vez de adentro de `quiz-footer`. */}
+      <Box id="quiz-metrics-top-bar" className="knd-quiz-metrics-top-bar">
+        {metricsBox('top')}
+      </Box>
 
       <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
         {card && (
@@ -454,29 +492,11 @@ function QuizPlay({
             en globals.css, mismo mockup que fija el input en 300px en vez de
             estirarlo a lo que sobre-. */}
         <Box className="knd-quiz-footer">
-          {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro,
-              ver globals.css). Caja con borde propio y celdas separadas por
-              líneas verticales (`.metrics` del mockup): no es un `Group` de
-              textos sueltos -era lo que había antes-, así que se arma con
-              `Box`/CSS puro en vez del layout de flex+gap que trae Group. */}
-          <Box id="quiz-metrics" className="knd-quiz-metrics">
-            <Box id="quiz-accuracy" className="knd-quiz-metric">
-              <Text component="span" className="knd-quiz-metric-label">Aciertos</Text>
-              <Text component="span" className="knd-quiz-metric-value tabular">
-                {Math.round(accuracy(state) * 100)}%
-              </Text>
-            </Box>
-            <Box id="quiz-remaining" className="knd-quiz-metric">
-              <Text component="span" className="knd-quiz-metric-label">Restantes</Text>
-              <Text component="span" className="knd-quiz-metric-value tabular">{remaining}</Text>
-            </Box>
-            <Box id="quiz-errors" className="knd-quiz-metric">
-              <Text component="span" className="knd-quiz-metric-label">Errores</Text>
-              <Text component="span" className="knd-quiz-metric-value tabular" c="shu.6">
-                {state.incorrect}
-              </Text>
-            </Box>
-          </Box>
+          {/* ≥800px (ver globals.css): acá adentro es donde viven las
+              métricas en pantallas anchas -por debajo de 800px se ocultan
+              (misma regla que ya escondía todo por debajo de 640px) porque
+              tienen su propia barra arriba del stage. */}
+          {metricsBox()}
 
           <form id="quiz-answer-form" className="knd-quiz-answer-form" onSubmit={onSubmit}>
             <TextInput
