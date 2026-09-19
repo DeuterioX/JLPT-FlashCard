@@ -38,7 +38,7 @@ describe('decideRoundStart', () => {
   });
 
   it('repaso ya usado: vuelve a estadísticas', () => {
-    expect(decideRoundStart(review, '9')).toEqual({ kind: 'redirect', to: '/estadisticas' });
+    expect(decideRoundStart(review, '9')).toEqual({ kind: 'redirect', to: '/stats' });
   });
 
   it('una marca de OTRA ronda no cuenta como usada', () => {

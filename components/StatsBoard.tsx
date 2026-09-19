@@ -28,20 +28,32 @@ function subscribeNoop() {
  * primer render del cliente (el que hidrata) usa `getServerSnapshot` (false,
  * igual que el servidor) y recién el siguiente render -ya hidratado- usa
  * `getSnapshot` (true) y muestra la fecha real. Mismo patrón que
- * `app/practicar/page.tsx` usa para leer `sessionStorage`.
+ * `app/quiz/page.tsx` usa para leer `sessionStorage`.
  */
 function useMounted(): boolean {
   return useSyncExternalStore(subscribeNoop, () => true, () => false);
 }
 
+const HOUR_24 = { hour: '2-digit', minute: '2-digit', hour12: false } as const;
+
+/** "Hoy 18:30", "Ayer 09:05" o "17/9/26 18:30" según qué tan lejos esté `iso`
+ * del día de hoy. Siempre en formato 24 horas -nunca a. m./p. m., en ningún
+ * lado de la app. */
+function formatRoundDate(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
+  const time = date.toLocaleTimeString('es-AR', HOUR_24);
+  if (days === 0) return `Hoy ${time}`;
+  if (days === 1) return `Ayer ${time}`;
+  return `${date.toLocaleDateString('es-AR')} ${time}`;
+}
+
 function HistoryDate({ iso }: { iso: string }) {
   const mounted = useMounted();
   if (!mounted) return <Text size="xs" c="dimmed" w={130}>&nbsp;</Text>;
-  return (
-    <Text size="xs" c="dimmed" w={130}>
-      {new Date(iso).toLocaleString('es-AR', { dateStyle: 'short', timeStyle: 'short' })}
-    </Text>
-  );
+  return <Text size="xs" c="dimmed" w={130}>{formatRoundDate(iso)}</Text>;
 }
 
 const REVIEW_LIMIT = 20;
@@ -83,12 +95,12 @@ export function StatsBoard({
       sessionStorage.setItem(ROUND_KEY, JSON.stringify(await res.json()));
       // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
       sessionStorage.removeItem(USED_ROUND_KEY);
-      router.push('/practicar');
+      router.push('/quiz');
       // No se libera la guarda ni se apaga `busy` acá: `router.push` deja el
       // componente montado mientras navega, y un segundo click en esa
       // ventana abriría una segunda sesión de repaso que nunca se cierra
       // (la clase de bug de las Tasks 11 y 13). El componente se desmonta
-      // al llegar a /practicar, así que no hace falta un reset explícito.
+      // al llegar a /quiz, así que no hace falta un reset explícito.
     } catch {
       setError(NETWORK_ERROR);
       busyRef.current = false;
@@ -100,31 +112,45 @@ export function StatsBoard({
 
   return (
     <Stack gap="md">
-      <Group align="flex-start">
-        <SegmentedControl
-          value={range}
-          onChange={(v) => router.push(`/estadisticas?window=${v}`)}
-          data={[
-            { value: '7d', label: '7 días' },
-            { value: '30d', label: '30 días' },
-            { value: 'all', label: 'Siempre' },
-          ]}
-        />
-        <Stack gap={4} ml="auto" align="flex-end">
-          <Button onClick={review} loading={busy} disabled={busy || worst.length === 0}>
-            {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores →`}
+      {/* En teléfono el orden real del documento es rango → tiles → botón
+          (así el botón queda debajo de las tiles y a lo ancho completo);
+          en escritorio `.knd-stats-top` los reacomoda con CSS Grid para que
+          el botón vuelva a estar al lado del selector de rango, como en el
+          diseño. Nada se duplica ni se oculta: es el mismo único botón en
+          los dos casos. */}
+      <div className="knd-stats-top">
+        <div className="knd-stats-range">
+          <SegmentedControl
+            value={range}
+            onChange={(v) => router.push(`/stats?window=${v}`)}
+            data={[
+              { value: '7d', label: '7 días' },
+              { value: '30d', label: '30 días' },
+              { value: 'all', label: 'Siempre' },
+            ]}
+          />
+        </div>
+
+        <SimpleGrid className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing="xs">
+          <MetricTile label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
+            hint={`${o.correct} de ${o.attempts}`} />
+          <MetricTile label="Errores" value={o.incorrect} tone="bad" />
+          <MetricTile label="Rondas" value={o.rounds} />
+          <MetricTile label="Dominadas" value={o.mastered} hint={`de ${o.totalCards} cartas`} />
+        </SimpleGrid>
+
+        <Stack gap={4} align="flex-end" className="knd-stats-review">
+          <Button
+            className="knd-review-btn"
+            onClick={review}
+            loading={busy}
+            disabled={busy || worst.length === 0}
+          >
+            {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
           {error && <Text size="xs" c="shu.6">{error}</Text>}
         </Stack>
-      </Group>
-
-      <SimpleGrid cols={{ base: 2, sm: 4 }} spacing="xs">
-        <MetricTile label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
-          hint={`${o.correct} de ${o.attempts}`} />
-        <MetricTile label="Errores" value={o.incorrect} tone="bad" />
-        <MetricTile label="Rondas" value={o.rounds} />
-        <MetricTile label="Dominadas" value={o.mastered} hint={`de ${o.totalCards} cartas`} />
-      </SimpleGrid>
+      </div>
 
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
         <Paper withBorder p="sm">
@@ -168,8 +194,8 @@ export function StatsBoard({
           {o.history.length === 0 && <Text size="sm" c="dimmed">Sin rondas terminadas.</Text>}
           {o.history.map((h, i) => (
             <div key={h.id}>
-              {i > 0 && <Divider mb={6} />}
-              <Group gap="sm" wrap="nowrap">
+              {i > 0 && <Divider my={10} />}
+              <Group gap="sm" wrap="nowrap" py={4}>
                 <HistoryDate iso={h.startedAt} />
                 <Text size="xs" c="dimmed" style={{ flex: 1 }}>{h.label}</Text>
                 <Text size="xs" className="tabular" w={44} ta="right">

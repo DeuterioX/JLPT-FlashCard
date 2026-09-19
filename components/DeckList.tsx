@@ -128,7 +128,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                       Borrar
                     </Button>
                   )}
-                  <Button variant="subtle" size="compact-xs" onClick={() => router.push(`/mazos/${d.id}`)}>
+                  <Button variant="subtle" size="compact-xs" onClick={() => router.push(`/decks/${d.id}`)}>
                     {d.isBuiltin ? 'Ver cartas' : 'Editar'}
                   </Button>
                   <Button variant="default" size="compact-xs" onClick={() => router.push('/')}>

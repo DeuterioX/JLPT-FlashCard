@@ -7,8 +7,8 @@ import { APP_NAME } from '../lib/app-meta';
 
 const LINKS = [
   { href: '/', label: 'Práctica', glyph: 'あ' },
-  { href: '/mazos', label: 'Mazos', glyph: '▤' },
-  { href: '/estadisticas', label: 'Estadísticas', glyph: '◷' },
+  { href: '/decks', label: 'Mazos', glyph: '▤' },
+  { href: '/stats', label: 'Estadísticas', glyph: '◷' },
 ];
 
 /**
@@ -30,16 +30,38 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
 
   // El quiz se muestra a pantalla completa: sin navegación que distraiga.
-  if (path === '/practicar') return <>{children}</>;
+  if (path === '/quiz') return <>{children}</>;
 
   return (
     <MantineShell header={{ height: 48 }} padding="md">
       <MantineShell.Header>
         <Group h="100%" px="md" gap="xl">
           <Group gap={7}>
-            <Text className="kana" fw={700} size="sm">あ</Text>
+            {/* `.brand i` del diseño: la marca va invertida -fondo claro,
+                texto oscuro- adentro de un cuadrado chico con las puntas
+                redondeadas, no como texto suelto. */}
+            <Box
+              className="kana"
+              style={{
+                width: '1.375rem',
+                height: '1.375rem',
+                display: 'grid',
+                placeItems: 'center',
+                borderRadius: '0.3125rem',
+                background: 'var(--mantine-color-text)',
+                color: 'var(--mantine-color-body)',
+                fontSize: '0.75rem',
+                fontWeight: 700,
+                flexShrink: 0,
+              }}
+            >
+              あ
+            </Box>
             <Text fw={700} size="sm">{APP_NAME}</Text>
           </Group>
+          {/* Cada link es su propia "píldora" (padding + radio + fondo en
+              el activo), como en el diseño -no solo un `gap` entre textos
+              sueltos, que es lo que los dejaba pegoteados. */}
           <Group gap={4} className="knd-nav-desktop">
             {LINKS.map((l) => (
               <Anchor
@@ -47,8 +69,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 component={Link}
                 href={l.href}
                 size="sm"
+                px="sm"
+                py={4}
                 c={path === l.href ? undefined : 'dimmed'}
+                bg={path === l.href ? 'dark.5' : undefined}
                 underline="never"
+                style={{ borderRadius: 'var(--mantine-radius-sm)' }}
               >
                 {l.label}
               </Anchor>
@@ -59,9 +85,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       <MantineShell.Main className="knd-main-pb">
         {children}
-        <Text size="xs" c="dimmed" ta="center" mt="xl">
-          Datos de diccionario de JMdict · © EDRDG · CC BY-SA
-        </Text>
       </MantineShell.Main>
 
       <Box
@@ -86,7 +109,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             c={path === l.href ? 'jade.6' : 'dimmed'}
           >
             <Text className="kana" size="lg" lh={1.2}>{l.glyph}</Text>
-            <Text size="9px">{l.label}</Text>
+            <Text size="11px">{l.label}</Text>
           </Anchor>
         ))}
       </Box>

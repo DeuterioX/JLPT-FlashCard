@@ -2,7 +2,7 @@ import type { QuizCard } from './engine';
 
 /**
  * La ronda que `PracticeBoard`/`StatsBoard` dejan en `sessionStorage` antes
- * de navegar a /practicar. Puro TypeScript, sin React ni `window`: todo lo
+ * de navegar a /quiz. Puro TypeScript, sin React ni `window`: todo lo
  * que decide qué hacer con una ronda guardada vive acá para poder testearlo.
  */
 export type StoredRound = {
@@ -14,7 +14,7 @@ export const ROUND_KEY = 'ronda';
 /**
  * Clave del `sessionId` de la ronda guardada que ya se empezó a jugar en
  * esta pestaña. `sessionStorage['ronda']` nunca se borra (una recarga de
- * /practicar la necesita), así que sin esta marca un Back, una recarga o una
+ * /quiz la necesita), así que sin esta marca un Back, una recarga o una
  * pestaña restaurada volvían a jugar la misma ronda escribiendo sobre una
  * sesión que ya se había cerrado.
  */
@@ -49,7 +49,7 @@ export type RoundStart =
   /** Ronda normal ya jugada: se abre una sesión nueva para los mismos grupos. */
   | { kind: 'fresh'; groupIds: number[] }
   /** Repaso ya jugado: no se puede reabrir con las mismas cartas. */
-  | { kind: 'redirect'; to: '/estadisticas' };
+  | { kind: 'redirect'; to: '/stats' };
 
 /**
  * Decide cómo arranca una ronda guardada según la marca de "ya usada".
@@ -63,6 +63,6 @@ export function decideRoundStart(
   if (usedSessionId !== String(round.sessionId)) {
     return { kind: 'reuse', sessionId: round.sessionId };
   }
-  if (round.mode === 'review') return { kind: 'redirect', to: '/estadisticas' };
+  if (round.mode === 'review') return { kind: 'redirect', to: '/stats' };
   return { kind: 'fresh', groupIds: round.groupIds };
 }

@@ -60,8 +60,8 @@ no toca `database.db`. La primera vez hace falta instalar el navegador con
 
 ## Estructura
 
-`app/` tiene las páginas del App Router (`/`, `/practicar`, `/mazos`,
-`/estadisticas`) y la API en `app/api/`, cuyas rutas son finas y delegan en
+`app/` tiene las páginas del App Router (`/`, `/quiz`, `/decks`,
+`/stats`) y la API en `app/api/`, cuyas rutas son finas y delegan en
 `lib/services/` (mazos, sesiones, estadísticas, diccionario). `lib/db/` tiene
 el esquema de Drizzle, las migraciones, el seed de kana y la importación de
 JMdict; `lib/quiz/` la lógica pura de la ronda (motor, registro de intentos,

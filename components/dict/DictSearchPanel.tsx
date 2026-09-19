@@ -14,7 +14,7 @@ export function DictSearchPanel({
   opened, onClose, groupId, groupName, dictionaryLoaded,
 }: {
   opened: boolean; onClose: () => void; groupId: number; groupName: string;
-  /** Si hay algún diccionario importado; lo calcula el servidor (ver app/mazos/[id]/page.tsx). */
+  /** Si hay algún diccionario importado; lo calcula el servidor (ver app/decks/[id]/page.tsx). */
   dictionaryLoaded: boolean;
 }) {
   const router = useRouter();

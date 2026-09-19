@@ -26,23 +26,23 @@ test.describe('sin scroll horizontal en teléfono', () => {
 
   test('/', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByRole('switch', { name: 'Practicar Serie K' })).toBeVisible();
+    await expect(page.getByRole('switch', { name: 'Practicar Serie K', exact: true })).toBeVisible();
     expect(await hasNoHorizontalScroll(page)).toBe(true);
   });
 
-  test('/mazos', async ({ page }) => {
-    await page.goto('/mazos');
+  test('/decks', async ({ page }) => {
+    await page.goto('/decks');
     expect(await hasNoHorizontalScroll(page)).toBe(true);
   });
 
-  test('/mazos/<hiragana>', async ({ page, request, baseURL }) => {
+  test('/decks/<hiragana>', async ({ page, request, baseURL }) => {
     const id = await hiraganaDeckId(request, baseURL);
-    await page.goto(`/mazos/${id}`);
+    await page.goto(`/decks/${id}`);
     expect(await hasNoHorizontalScroll(page)).toBe(true);
   });
 
-  test('/estadisticas', async ({ page }) => {
-    await page.goto('/estadisticas');
+  test('/stats', async ({ page }) => {
+    await page.goto('/stats');
     expect(await hasNoHorizontalScroll(page)).toBe(true);
   });
 });
@@ -58,7 +58,7 @@ test.describe('editor de mazo en teléfono', () => {
   // 640px, dejando un margen vacío a la derecha SIN que nada desborde.
   test('la columna de cartas ocupa todo el ancho del layout', async ({ page, request, baseURL }) => {
     const id = await hiraganaDeckId(request, baseURL);
-    await page.goto(`/mazos/${id}`);
+    await page.goto(`/decks/${id}`);
 
     const layout = page.locator('.knd-editor-layout');
     const cards = page.locator('.knd-editor-cards');
