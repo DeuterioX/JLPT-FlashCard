@@ -25,13 +25,13 @@ export function GroupCard({
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
   const { other } = useMantineTheme();
-  // `.gcard.off .gk, .gcard.off .gname { color: var(--a-dimmer) }` del
-  // diseño: nombre Y kana pasan los dos al mismo gris apagado (`dark.3`)
-  // cuando la tarjeta está apagada. Prendida, cada uno tiene SU propio
-  // color -el nombre queda `dimmed` (`dark.2`), el kana queda en el color
-  // de texto normal (`dark.0`, bien brillante)-, así que acá solo hace
-  // falta la rama del apagado.
-  const offColor = checked ? undefined : 'dark.3';
+  // Jerarquía de brillo de tres niveles -kana más brillante, nombre del
+  // grupo en el medio, romaji el más apagado- en los dos estados: apagada
+  // corre toda la escala un tono más oscuro, pero mantiene el mismo orden
+  // relativo entre los tres en vez de emparejarlos.
+  const kanaColor = checked ? undefined : 'dark.2';
+  const nameColor = checked ? 'dark.2' : 'dark.3';
+  const romajiColor = checked ? 'dark.3' : 'dark.4';
 
   return (
     <Card
@@ -105,7 +105,7 @@ export function GroupCard({
             prendida, `dark.3` cuando está apagada-, ya no el "dimmed"
             genérico: así queda igual de vivo que el resto de la
             tarjeta, no más apagado que ella. */}
-        <Text size="11px" lh={1.4} c={offColor} className="kana" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+        <Text size="11px" lh={1.4} c={nameColor} className="kana" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
           {group.name}
         </Text>
 
@@ -113,17 +113,17 @@ export function GroupCard({
           <Stack gap={2} align="center" style={{ maxWidth: '100%' }}>
             {group.preview.map((p) => (
               <Stack key={p.prompt} gap={0} align="center" style={{ maxWidth: '100%' }}>
-                <Text className="kana" size="15px" lh={1.5} c={offColor} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                <Text className="kana" size="15px" lh={1.5} c={kanaColor} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
                   {p.prompt}
                 </Text>
-                <Text className="romaji" size="10px" c="dimmed" lh={1.2} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+                <Text className="romaji" size="10px" c={romajiColor} lh={1.2} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
                   {p.romaji}
                 </Text>
               </Stack>
             ))}
           </Stack>
         ) : (
-          <Text size="xs" c={offColor ?? 'dimmed'} className="tabular">{group.cardCount} palabras</Text>
+          <Text size="xs" c={nameColor} className="tabular">{group.cardCount} palabras</Text>
         )}
       </Stack>
     </Card>
