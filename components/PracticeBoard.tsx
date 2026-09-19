@@ -161,6 +161,18 @@ export function PracticeBoard({
         bg="dark.7"
         style={{
           zIndex: 10,
+          // `MantineShell.Main` reserva 64px arriba (48 del header + 16
+          // del `padding="md"`): en reposo la barra arrancaba 16px más
+          // abajo de donde termina pegándose al scrollear -pasó de
+          // verdad, se veía como un salto apenas arrancaba el scroll-.
+          // Hacen falta DOS "md" de margen negativo, no uno: uno cancela
+          // el `gap` del `Stack` entre el centinela (altura 0) y esta
+          // fila, y el otro cancela el "md" extra que `padding="md"` le
+          // suma al alto del header en el padding-top de `Main` -son dos
+          // capas distintas, medí cada una por separado para no errarle
+          // de nuevo-. Con los dos cancelados, arranca YA en los mismos
+          // 48px en los que se queda fija, sin ningún salto que ver.
+          marginTop: 'calc(var(--mantine-spacing-md) * -2)',
           marginInline: 'calc(var(--mantine-spacing-md) * -1)',
           paddingInline: 'var(--mantine-spacing-md)',
           borderBottom: stuck ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent',
