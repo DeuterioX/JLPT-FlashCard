@@ -128,8 +128,38 @@ body { margin: 0; }
   .knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + 16px); }
 }
 
-/* Métricas del pie del quiz (aciertos, restantes, errores): en teléfono no
-   entran junto al input, así que se ocultan con el mismo corte de 640px. */
+/* Métricas del pie del quiz (aciertos, restantes, errores): caja con borde
+   propio y celdas separadas por líneas verticales (`.metrics` del mockup),
+   label chico en mayúscula arriba y valor grande abajo -no texto corrido
+   en una sola línea ("Aciertos 92%"), que es como estaba antes-. En
+   teléfono no entran junto al input, así que se ocultan con el mismo
+   corte de 640px de siempre. */
+.knd-quiz-metrics {
+  display: flex;
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: 0.5rem; /* 8px del diseño */
+  overflow: hidden;
+}
+.knd-quiz-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 0.0625rem; /* 1px del diseño */
+  padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
+  border-left: 1px solid var(--mantine-color-dark-4);
+}
+.knd-quiz-metric:first-child {
+  border-left: none;
+}
+.knd-quiz-metric-label {
+  font-size: 0.5625rem; /* 9px del diseño */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-3); /* --a-dimmer del diseño */
+}
+.knd-quiz-metric-value {
+  font-size: 0.875rem; /* 14px del diseño */
+  font-weight: 600;
+}
 @media (max-width: 640px) {
   .knd-quiz-metrics { display: none; }
 }

@@ -454,12 +454,29 @@ function QuizPlay({
             en globals.css, mismo mockup que fija el input en 300px en vez de
             estirarlo a lo que sobre-. */}
         <Box className="knd-quiz-footer">
-          {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro, ver globals.css). */}
-          <Group id="quiz-metrics" gap="lg" className="knd-quiz-metrics">
-            <Text id="quiz-accuracy" size="xs" c="dimmed">Aciertos <b className="tabular">{Math.round(accuracy(state) * 100)}%</b></Text>
-            <Text id="quiz-remaining" size="xs" c="dimmed">Restantes <b className="tabular">{remaining}</b></Text>
-            <Text id="quiz-errors" size="xs" c="dimmed">Errores <b className="tabular" style={{ color: 'var(--mantine-color-shu-6)' }}>{state.incorrect}</b></Text>
-          </Group>
+          {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro,
+              ver globals.css). Caja con borde propio y celdas separadas por
+              líneas verticales (`.metrics` del mockup): no es un `Group` de
+              textos sueltos -era lo que había antes-, así que se arma con
+              `Box`/CSS puro en vez del layout de flex+gap que trae Group. */}
+          <Box id="quiz-metrics" className="knd-quiz-metrics">
+            <Box id="quiz-accuracy" className="knd-quiz-metric">
+              <Text component="span" className="knd-quiz-metric-label">Aciertos</Text>
+              <Text component="span" className="knd-quiz-metric-value tabular">
+                {Math.round(accuracy(state) * 100)}%
+              </Text>
+            </Box>
+            <Box id="quiz-remaining" className="knd-quiz-metric">
+              <Text component="span" className="knd-quiz-metric-label">Restantes</Text>
+              <Text component="span" className="knd-quiz-metric-value tabular">{remaining}</Text>
+            </Box>
+            <Box id="quiz-errors" className="knd-quiz-metric">
+              <Text component="span" className="knd-quiz-metric-label">Errores</Text>
+              <Text component="span" className="knd-quiz-metric-value tabular" c="shu.6">
+                {state.incorrect}
+              </Text>
+            </Box>
+          </Box>
 
           <form id="quiz-answer-form" className="knd-quiz-answer-form" onSubmit={onSubmit}>
             <TextInput
