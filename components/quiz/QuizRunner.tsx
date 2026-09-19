@@ -444,7 +444,7 @@ function QuizPlay({
             en rem -no un número pelado, que Mantine interpreta en px y no
             escala en 2K/4K con el resto de la app-. */}
         <Group id="quiz-context" gap="0.5rem" wrap="nowrap">
-          {contextLabel && <Text size="xs" c="dimmed">{contextLabel} ·</Text>}
+          {contextLabel && <Text size="xs" c="dimmed">{`${contextLabel} ·`}</Text>}
           <Kbd>Esc</Kbd>
           <Text size="xs" c="dimmed">salir</Text>
         </Group>
