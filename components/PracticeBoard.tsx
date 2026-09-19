@@ -209,20 +209,18 @@ export function PracticeBoard({
       {/* Este div, en flujo normal, arranca donde arranca cualquier hijo
           normal de `MantineShell.Main` -en su borde de padding, 64px
           desde arriba (48 del header + 16 del `padding="md"`)-, NO donde
-          arranca la barra `fixed` de más arriba (48px). Sin corregir eso,
-          el espaciador quedaba 16px más abajo que la barra real, y su
-          altura iba a ciegas atrás de `switcherHeight` -el resultado
-          visible daba bien de pura casualidad, porque esos 16px de
-          diferencia son el mismo número que el gap que se quiere dejar
-          después de la barra, no porque estuviera armado bien-. El
-          `marginTop` negativo alinea su arranque con el de la barra de
-          verdad, y la altura sí incluye ahora, a propósito, el gap de
-          16px hacia la grilla. */}
+          arranca la barra `fixed` de más arriba (48px). El `marginTop`
+          negativo alinea su arranque con el de la barra de verdad.
+          La altura es SOLO `switcherHeight` -la altura real de la barra,
+          medida-, sin sumarle nada más: el gap hacia la grilla ya está
+          adentro de esa altura, es el `paddingBottom` de la barra. Sumar
+          un `+ md` acá arriba duplicaba ese gap (16px del padding de la
+          barra + 16px de más acá). */}
       <div
         id="deck-switcher-spacer"
         style={{
           marginTop: 'calc(var(--mantine-spacing-md) * -1)',
-          height: `calc(${switcherHeight}px + var(--mantine-spacing-md))`,
+          height: switcherHeight,
         }}
         aria-hidden
       />
