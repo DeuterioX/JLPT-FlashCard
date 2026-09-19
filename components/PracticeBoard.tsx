@@ -46,7 +46,13 @@ export function PracticeBoard({
   useLayoutEffect(() => {
     const el = switcherRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(() => setSwitcherHeight(el.offsetHeight));
+    // `offsetHeight` redondea a entero -a zoom normal (100%) esa fracción
+    // perdida es invisible, pero a 150% se nota: la barra real medía
+    // 100.89px y el espaciador reservaba 100.5px, así que el borde de la
+    // primera tarjeta quedaba tapado por esos ~0.4px de diferencia -pasó
+    // de verdad, reproducido con zoom simulado-. `getBoundingClientRect`
+    // no redondea.
+    const observer = new ResizeObserver(() => setSwitcherHeight(el.getBoundingClientRect().height));
     observer.observe(el);
     return () => observer.disconnect();
   }, []);

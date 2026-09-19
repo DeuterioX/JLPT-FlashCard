@@ -37,8 +37,12 @@ export function ActionBar({ children }: { children: React.ReactNode }) {
     // borde de la propia barra-, así que el espaciador reservaba de
     // menos exactamente por esa diferencia y la última fila de tarjetas
     // quedaba tapada -pasó de verdad, con Katakana: 43px reservados
-    // contra 73px reales-. `offsetHeight` sí incluye padding y borde.
-    const observer = new ResizeObserver(() => setHeight(el.offsetHeight));
+    // contra 73px reales-. `offsetHeight` sí incluye padding y borde,
+    // pero redondea a entero -a zoom no estándar (150%, etc.) esa
+    // fracción perdida alcanza a tapar un pixel de contenido, mismo bug
+    // que apareció en `PracticeBoard.tsx`-. `getBoundingClientRect` no
+    // redondea.
+    const observer = new ResizeObserver(() => setHeight(el.getBoundingClientRect().height));
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
