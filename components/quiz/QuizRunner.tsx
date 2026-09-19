@@ -410,15 +410,22 @@ function QuizPlay({
                 Esa no es, probá de nuevo
               </Text>
             )}
-            {/* "carta N de M" del mockup (`.under-glyph`), ausente hasta
-                ahora. N es la posición de la carta actual, no un contador
-                aparte: `remaining` ya es "cuántas faltan CONTANDO la
-                actual" (`state.queue.length`), así que `total - remaining
-                + 1` da la posición 1-based sin duplicar el estado. */}
-            <Text id="quiz-caption" className="knd-quiz-caption tabular">
-              carta {total - remaining + 1} de {total}
-            </Text>
           </Box>
+        )}
+        {/* "carta N de M" del mockup (`.under-glyph`), ausente hasta ahora.
+            Va anclada al borde inferior de TODO el stage -cerca de la
+            barra de progreso, que viene justo después-, no al wrapper del
+            kana de arriba: en el mockup original `.under-glyph` cuelga del
+            stage (`bottom: 26px` de sus 300px), y por eso queda pegada a
+            la barra de progreso; pegarla al kana como el toast de arriba
+            hubiera sido copiar mal la referencia. N es la posición de la
+            carta actual: `remaining` ya es "cuántas faltan CONTANDO la
+            actual" (`state.queue.length`), así que `total - remaining + 1`
+            da la posición 1-based sin duplicar el estado. */}
+        {card && (
+          <Text id="quiz-caption" className="knd-quiz-caption tabular">
+            carta {total - remaining + 1} de {total}
+          </Text>
         )}
         {finished && (
           <RoundSummary
