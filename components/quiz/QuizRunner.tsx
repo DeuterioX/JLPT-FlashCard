@@ -458,14 +458,21 @@ function QuizPlay({
           por canal, no hacia "este mismo color pero invisible", y esa
           diferencia de tono a mitad de camino se veía como un salto
           abrupto cerca del final del degradé -confirmado visualmente-.
-          Con el mismo color en las dos paradas, solo cambia el alpha, la
-          transición es pareja. */}
+          Con el mismo color en las dos paradas, solo cambia el alpha.
+          Centro en 50% vertical, no el 42% del mockup: ese valor está
+          calibrado contra SU stage fijo de 300px, donde el kana no queda
+          exactamente centrado; acá el kana sí se centra de verdad
+          (`place-items: center` en un `flex: 1`), así que el 42% quedaba
+          notoriamente arriba del kana real -confirmado visualmente-. El
+          corte también se estira a 100% del radio en vez de 70%: cortar
+          antes deja un borde perceptible (efecto de bandas de Mach) donde
+          el color todavía no llegó del todo a cero. */}
       <Box
         id="quiz-stage"
         pos="relative"
         style={{
           flex: 1, display: 'grid', placeItems: 'center',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(108,140,255,0.07), rgba(108,140,255,0) 70%), var(--mantine-color-dark-7)',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(108,140,255,0.07), rgba(108,140,255,0) 100%), var(--mantine-color-dark-7)',
         }}
         py="xl"
       >
@@ -517,7 +524,7 @@ function QuizPlay({
             da la posición 1-based sin duplicar el estado. */}
         {card && (
           <Text id="quiz-caption" className="knd-quiz-caption tabular">
-            carta {total - remaining + 1} de {total}
+            {`carta ${total - remaining + 1} de ${total}`}
           </Text>
         )}
         {finished && (
