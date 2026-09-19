@@ -122,6 +122,25 @@ export const theme = createTheme({
         header: { backgroundColor: 'var(--mantine-color-dark-6)' },
       },
     },
+    // Mantine pinta `Kbd` en negrita, con fondo `dark.6` y texto brillante
+    // `dark.0` en modo oscuro (ver node_modules/@mantine/core/styles/Kbd.css)
+    // -queda como una insignia blanca resaltada-. El diseño (`.kbd`) lo
+    // quiere sutil: sin fondo, texto apagado (`--a-dim`, dark.2), sin
+    // negrita, con un borde inferior un poco más grueso para un efecto de
+    // "tecla apretada" en vez del resaltado. `styles` acá son propiedades
+    // planas (sin `&:focus` ni selectores anidados), así que sí se
+    // aplican -a diferencia del intento fallido con TextInput más abajo-.
+    Kbd: {
+      styles: {
+        root: {
+          backgroundColor: 'transparent',
+          color: 'var(--mantine-color-dark-2)',
+          fontWeight: 400,
+          borderColor: 'var(--mantine-color-dark-4)',
+          borderBottomWidth: rem(2),
+        },
+      },
+    },
     // El foco de CUALQUIER TextInput (el de respuesta del quiz, los campos
     // del editor de mazo, el buscador de diccionario) usa el azul dedicado
     // del diseño (`--a-focus`), no el jade primario que Mantine usa por

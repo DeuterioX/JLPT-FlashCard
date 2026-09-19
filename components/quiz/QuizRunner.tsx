@@ -437,18 +437,18 @@ function QuizPlay({
           <Text id="quiz-app-name" fw={700} size="sm">{APP_NAME}</Text>
         </Group>
         <Text id="quiz-context" size="xs" c="dimmed">
-          {/* Sin espacio entre "·" y el Kbd -a diferencia del "·" entre mazo
-              y grupos-: geométricamente el hueco de cada lado del Kbd medía
-              lo mismo (2.84px), pero el punto pegado a un espacio se ve más
-              ancho que el propio padding del Kbd del otro lado -efecto
-              óptico de la tipografía, confirmado visualmente-.
-              `{' '}salir`, no `<Kbd>Esc</Kbd> salir` a secas: ese espacio
-              literal, texto JSX plano pegado al cierre del tag, quedaba
-              colapsado a ancho CERO -confirmado midiendo en vivo: el hueco
-              después del Kbd daba 0px, no el mismo 2.84px del otro lado,
-              aunque el string sí traía el espacio-. Como expresión JS
-              aparte, React lo preserva. */}
-          {contextLabel && `${contextLabel} ·`}<Kbd>Esc</Kbd>{' '}salir
+          {/* El mockup real usa `&nbsp;·&nbsp;` -espacio duro doble- antes
+              del Kbd (`Hiragana · 6 grupos &nbsp;·&nbsp; <span
+              class="kbd">Esc</span> salir`), un separador más ancho que el
+              espacio simple entre "Hiragana" y "6 grupos". Con un espacio
+              de texto normal ahí quedaba mucho más apretado que en el
+              diseño. Después del Kbd, `{' '}salir` -no un espacio de
+              texto JSX plano pegado al cierre del tag-: ese quedaba
+              colapsado a ancho CERO (confirmado midiendo en vivo), un nbsp
+              como expresión JS aparte no tiene ese problema. */}
+          {contextLabel}
+          {contextLabel && '  ·  '}
+          <Kbd>Esc</Kbd>{' '}salir
         </Text>
       </Group>
 
