@@ -172,12 +172,11 @@ body { margin: 0; }
 }
 
 /* Barra propia pegada arriba del pie del quiz: visible por debajo de
-   800px. Alineada a la izquierda -mismo padding horizontal (1rem) que
-   `quiz-header`- para que quede a plomo con la marca de arriba, no
-   centrada en el medio de la pantalla. */
+   800px. Centrada -se probaron alineada a la izquierda y estirada a todo
+   el ancho, ninguna de las dos convenció-. */
 .knd-quiz-metrics-top-bar {
   display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--mantine-color-dark-4);
 }
