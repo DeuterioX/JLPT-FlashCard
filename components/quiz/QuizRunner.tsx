@@ -452,13 +452,20 @@ function QuizPlay({
 
       {/* Degradé radial sutil del mockup (`.quiz-stage`), el mismo azul del
           borde de foco (`--a-focus`, #6C8CFF) casi invisible al 7% de
-          opacidad: hoy era un fondo plano, faltaba por completo. */}
+          opacidad: hoy era un fondo plano, faltaba por completo.
+          `rgba(...,0)` en la segunda parada, no la palabra `transparent`:
+          interpolar hacia `transparent` interpola hacia negro transparente
+          por canal, no hacia "este mismo color pero invisible", y esa
+          diferencia de tono a mitad de camino se veía como un salto
+          abrupto cerca del final del degradé -confirmado visualmente-.
+          Con el mismo color en las dos paradas, solo cambia el alpha, la
+          transición es pareja. */}
       <Box
         id="quiz-stage"
         pos="relative"
         style={{
           flex: 1, display: 'grid', placeItems: 'center',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(108,140,255,0.07), transparent 70%), var(--mantine-color-dark-7)',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(108,140,255,0.07), rgba(108,140,255,0) 70%), var(--mantine-color-dark-7)',
         }}
         py="xl"
       >
