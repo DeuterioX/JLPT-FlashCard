@@ -436,20 +436,18 @@ function QuizPlay({
           </Box>
           <Text id="quiz-app-name" fw={700} size="sm">{APP_NAME}</Text>
         </Group>
-        <Text id="quiz-context" size="xs" c="dimmed">
-          {/* El mockup real usa `&nbsp;·&nbsp;` -espacio duro doble- antes
-              del Kbd (`Hiragana · 6 grupos &nbsp;·&nbsp; <span
-              class="kbd">Esc</span> salir`), un separador más ancho que el
-              espacio simple entre "Hiragana" y "6 grupos". Con un espacio
-              de texto normal ahí quedaba mucho más apretado que en el
-              diseño. Después del Kbd, `{' '}salir` -no un espacio de
-              texto JSX plano pegado al cierre del tag-: ese quedaba
-              colapsado a ancho CERO (confirmado midiendo en vivo), un nbsp
-              como expresión JS aparte no tiene ese problema. */}
-          {contextLabel}
-          {contextLabel && '  ·  '}
-          <Kbd>Esc</Kbd>{' '}salir
-        </Text>
+        {/* `Group` con `gap`, no texto suelto con espacios/nbsp intercalados
+            a mano: un espacio de texto JSX pegado al cierre de un tag puede
+            colapsar a ancho CERO -pasó de verdad, confirmado midiendo en
+            vivo-, y ajustar "cuánto" espacio con más espacios o nbsp no es
+            un valor real, es adivinar. Con `gap` el espaciado es explícito,
+            en rem -no un número pelado, que Mantine interpreta en px y no
+            escala en 2K/4K con el resto de la app-. */}
+        <Group id="quiz-context" gap="0.5rem" wrap="nowrap">
+          {contextLabel && <Text size="xs" c="dimmed">{contextLabel} ·</Text>}
+          <Kbd>Esc</Kbd>
+          <Text size="xs" c="dimmed">salir</Text>
+        </Group>
       </Group>
 
       <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
