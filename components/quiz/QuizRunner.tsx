@@ -17,7 +17,6 @@ import { APP_NAME } from '@/lib/app-meta';
 export type Round = StoredRound;
 
 const MEANING_MS = 1200;
-const WRONG_FLASH_MS = 600;
 const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
 
 // El teclado virtual se come la mitad inferior de la pantalla. Con 100vh (o
@@ -106,7 +105,6 @@ function QuizPlay({
   const shownAt = useRef(0);
   const roundStart = useRef(0);
   const meaningTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const wrongTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Un `RoundRecorder` por ronda (lib/quiz/recorder.ts), con todo su estado
   // -sesión, buffer de intentos en vuelo, si falló- en SU PROPIO closure.
   // Antes esto vivía en refs compartidas del componente (sessionIdRef,
@@ -170,12 +168,12 @@ function QuizPlay({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
   }, []);
 
-  // Cualquier timer pendiente (flash de error o de significado) se cancela al
-  // desmontar: si no, un setState de un timer viejo puede llegar después de
-  // que el componente ya se fue.
+  // El timer del significado se cancela al desmontar: si no, un setState
+  // suyo puede llegar después de que el componente ya se fue. El flash de
+  // error no tiene timer propio -se queda hasta que el usuario escribe de
+  // nuevo (ver el `onChange` del input)-, así que no hay nada que cancelar.
   useEffect(() => () => {
     if (meaningTimer.current) clearTimeout(meaningTimer.current);
-    if (wrongTimer.current) clearTimeout(wrongTimer.current);
   }, []);
 
   function send(body: AttemptBody) {
@@ -244,8 +242,10 @@ function QuizPlay({
       setTyped('');
       setFlash('wrong');
       setMisses((m) => ({ ...m, [card.id]: (m[card.id] ?? 0) + 1 }));
-      if (wrongTimer.current) clearTimeout(wrongTimer.current);
-      wrongTimer.current = setTimeout(() => setFlash('none'), WRONG_FLASH_MS);
+      // Sin timer de auto-limpieza: el aviso se queda hasta que el usuario
+      // vuelve a escribir (ver el `onChange` del input más abajo), no a los
+      // 600ms fijos de antes -pedido explícito: no debería desaparecer
+      // solo mientras el usuario todavía está mirando el error-.
     }
   }
 
@@ -434,17 +434,9 @@ function QuizPlay({
               value={typed}
               onChange={(e) => {
                 setTyped(e.currentTarget.value);
-                // El aviso de error ("no es esa...") se apaga apenas se
-                // vuelve a escribir, no solo cuando expira su propio timer:
-                // si no, puede quedar visible sobre una respuesta que el
-                // usuario ya está corrigiendo.
-                if (flash === 'wrong') {
-                  setFlash('none');
-                  if (wrongTimer.current) {
-                    clearTimeout(wrongTimer.current);
-                    wrongTimer.current = null;
-                  }
-                }
+                // Único lugar donde se apaga el aviso de error: recién
+                // cuando el usuario vuelve a escribir, no antes.
+                if (flash === 'wrong') setFlash('none');
               }}
               placeholder="escribí en romaji"
               // `ta="center"` NO alcanza acá: centra el div contenedor de
