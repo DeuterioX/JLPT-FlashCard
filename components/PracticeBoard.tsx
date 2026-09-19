@@ -142,7 +142,16 @@ export function PracticeBoard({
           `bg` es necesario para no dejar ver las tarjetas de atrás al
           scrollear debajo. El borde inferior solo aparece con `stuck`
           -mientras la barra está en su posición normal, arriba de todo,
-          no hace falta remarcarla contra nada-. */}
+          no hace falta remarcarla contra nada-.
+          El diseño no le pone padding propio a esta fila -la separación
+          sale del `gap` del `Stack`, no de un padding acá-, así que no
+          hay que agregarle uno vertical (quedaba más grande que el
+          diseño). El borde y el fondo, en cambio, sí tienen que llegar
+          al borde real de la ventana, no solo al del contenido -esta
+          fila vive adentro del `padding="md"` de `MantineShell.Main`-:
+          mismo margen negativo que ya usa `ActionBar` para lo mismo, con
+          el padding propio compensándolo para que el contenido no se
+          pegue al borde real. */}
       <div ref={sentinelRef} style={{ height: 0 }} aria-hidden />
       <Group
         wrap="wrap"
@@ -150,9 +159,10 @@ export function PracticeBoard({
         pos="sticky"
         top="var(--app-shell-header-height)"
         bg="dark.7"
-        py="xs"
         style={{
           zIndex: 10,
+          marginInline: 'calc(var(--mantine-spacing-md) * -1)',
+          paddingInline: 'var(--mantine-spacing-md)',
           borderBottom: stuck ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent',
         }}
       >
