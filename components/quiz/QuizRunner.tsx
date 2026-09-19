@@ -414,7 +414,11 @@ function QuizPlay({
       <Progress id="quiz-progress" value={progress} size="xs" radius={0} />
 
       <Paper id="quiz-footer" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
-        <Group gap="md" wrap="nowrap">
+        {/* Grilla de 3 columnas en escritorio (métricas / input de ancho fijo
+            centrado / Revelar), flex simple en teléfono -ver `.knd-quiz-footer`
+            en globals.css, mismo mockup que fija el input en 300px en vez de
+            estirarlo a lo que sobre-. */}
+        <Box className="knd-quiz-footer">
           {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro, ver globals.css). */}
           <Group id="quiz-metrics" gap="lg" className="knd-quiz-metrics">
             <Text id="quiz-accuracy" size="xs" c="dimmed">Aciertos <b className="tabular">{Math.round(accuracy(state) * 100)}%</b></Text>
@@ -422,10 +426,11 @@ function QuizPlay({
             <Text id="quiz-errors" size="xs" c="dimmed">Errores <b className="tabular" style={{ color: 'var(--mantine-color-shu-6)' }}>{state.incorrect}</b></Text>
           </Group>
 
-          <form id="quiz-answer-form" onSubmit={onSubmit} style={{ flex: 1 }}>
+          <form id="quiz-answer-form" className="knd-quiz-answer-form" onSubmit={onSubmit}>
             <TextInput
               ref={inputRef}
               id="answer-input"
+              className="knd-quiz-answer"
               value={typed}
               onChange={(e) => {
                 setTyped(e.currentTarget.value);
@@ -454,8 +459,10 @@ function QuizPlay({
             />
           </form>
 
-          <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>Revelar</Button>
-        </Group>
+          <Button id="reveal-btn" className="knd-quiz-reveal" variant="default" size="compact-sm" onClick={onReveal}>
+            Revelar
+          </Button>
+        </Box>
       </Paper>
     </Stack>
   );

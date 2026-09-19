@@ -122,6 +122,16 @@ export const theme = createTheme({
         header: { backgroundColor: 'var(--mantine-color-dark-6)' },
       },
     },
+    // El foco de CUALQUIER TextInput (el de respuesta del quiz, los campos
+    // del editor de mazo, el buscador de diccionario) usa el azul dedicado
+    // del diseño (`--a-focus`), no el jade primario que Mantine usa por
+    // default. NO se resuelve acá: en Mantine 9 `styles` ya no compila
+    // selectores anidados (`'&:focus': {...}`) a una regla CSS real -se
+    // vuelca tal cual como `style` inline del elemento, así que esa clave
+    // quedaba como una propiedad inline inválida y no hacía nada- (probado
+    // en vivo: cero reglas con el color en toda la hoja de estilos). El fix
+    // real está en `app/globals.css`, contra la clase pública y estable
+    // `.mantine-TextInput-input` que Mantine expone justo para esto.
     // El header y el pie de la app (AppShell.Header/Main) no son Paper,
     // así que el fix de arriba no los alcanza: se repite acá.
     AppShellHeader: {
@@ -203,5 +213,12 @@ export const theme = createTheme({
     // dejar el borde "default" de Mantine en la tarjeta sin seleccionar.
     groupCardBorder: '#232840',
     switchThumbActiveBg: '#06231A',
+    // `--a-focus` del diseño: el borde de foco de CUALQUIER input es este
+    // azul dedicado, no el jade primario que Mantine usa por default para
+    // el foco de todo control (`--input-bd-focus: var(--mantine-primary-color-filled)`).
+    // Confirmado contra el mockup real: el mismo token aparece tanto en el
+    // input de respuesta del quiz (`.answer`) como en los campos del editor
+    // de mazo (`.field.focus`) -es compartido, no exclusivo del quiz-.
+    inputFocusBorder: '#6C8CFF',
   },
 });

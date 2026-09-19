@@ -1,5 +1,37 @@
 /* El tema de Mantine controla colores y tipografías (ver theme.ts). */
 
+/* Mantine construye casi todos sus tamaños en `rem`, relativos al
+   font-size del elemento raíz. Subir ESE valor por media query escala de
+   forma pareja toda la app -textos, paddings, gaps- sin tocar un tamaño
+   componente por componente. Por debajo de 2000px de ancho CSS real
+   (ojo: no es la resolución nominal del monitor, el escalado de Windows
+   la desvincula del `window.innerWidth` que ve el navegador -medido en
+   vivo-) queda en el 100% de fábrica; de ahí en adelante sube 20% cada
+   300px -el mismo paso que usa el grid de tarjetas más abajo-, hasta
+   llegar al doble justo a los 3200px:
+     <2000      → 100%
+     2000–2299  → 120%
+     2300–2599  → 140%
+     2600–2899  → 160%
+     2900–3199  → 180%
+     ≥3200      → 200% */
+html { font-size: 100%; }
+@media (min-width: 2000px) {
+  html { font-size: 120%; }
+}
+@media (min-width: 2300px) {
+  html { font-size: 140%; }
+}
+@media (min-width: 2600px) {
+  html { font-size: 160%; }
+}
+@media (min-width: 2900px) {
+  html { font-size: 180%; }
+}
+@media (min-width: 3200px) {
+  html { font-size: 200%; }
+}
+
 :root {
   /* Cuánto espacio hay que reservar sobre el borde inferior real de la
      ventana. En escritorio es 0 (no hay barra de pestañas); en teléfono pasa
@@ -7,6 +39,51 @@
      ActionBar y .knd-main-pb leen esta misma variable, así que nunca pueden
      desincronizarse entre sí. */
   --knd-bottom-offset: 0px;
+
+}
+
+/* Mantine resuelve el estado de error de CUALQUIER input contra
+   `--mantine-color-error` (ver node_modules/@mantine/core/styles/Input.css),
+   y trae un rojo de fábrica (`--mantine-color-red-6`) que no es el `shu`
+   del diseño -confirmado en vivo: el borde de error del quiz quedaba en
+   rgb(224,49,49), no el rgb(226,96,74) de `shu.6` que ya usa el resto de
+   los estados de error de la app-. Un solo `:root {...}` no alcanza: Mantine
+   la vuelve a fijar bajo `:root[data-mantine-color-scheme="dark"]`, un
+   selector más específico que gana aunque esta hoja cargue después -pasó
+   de verdad, medido: el `:root` solo no tenía ningún efecto-. Repetir el
+   mismo selector empata la especificidad, y ahí sí gana el orden de carga. */
+:root,
+:root[data-mantine-color-scheme='dark'] {
+  --mantine-color-error: var(--mantine-color-shu-6);
+}
+
+/* El fondo de CUALQUIER input es el fondo de la página (`--a-bg` del
+   diseño, dark.7), no el tono de superficie que trae Mantine por default
+   -mismo criterio que usa `.field` en el editor de mazo, no es exclusivo
+   del quiz-. El error (más abajo) es más específico y sigue ganando. */
+.mantine-TextInput-input {
+  background-color: var(--mantine-color-dark-7);
+}
+
+/* El borde de foco de CUALQUIER input (el de respuesta del quiz, los del
+   editor de mazo, el buscador) usa este azul dedicado del diseño
+   (`--a-focus`), no el jade primario que Mantine aplica por default a
+   todo foco. No se puede resolver desde `theme.ts`: en Mantine 9 el
+   `styles` de un componente ya no compila selectores anidados a una regla
+   CSS real (se vuelca como `style` inline, y `'&:focus'` ahí no es una
+   propiedad válida) -confirmado en vivo, sin usar esa vía-. Se ataca acá
+   directo contra `.mantine-TextInput-input`, la clase pública y estable
+   que Mantine deja para justo este caso.
+   `:not([data-error])` es necesario: sin él, este `border-color` fijo le
+   gana SIEMPRE al de Mantine así el input esté en foco Y en error a la
+   vez -el caso real del quiz, el input se queda enfocado después de un
+   envío-, porque acá se pisa la propiedad final `border-color` directo,
+   no la variable `--input-bd` de la que depende el propio mecanismo de
+   error de Mantine (confirmado en vivo: sin esta exclusión, el error
+   mostraba el azul de foco en vez del rojo `shu`). */
+.mantine-TextInput-input:focus:not([data-error]),
+.mantine-TextInput-input:focus-within:not([data-error]) {
+  border-color: #6c8cff;
 }
 
 * {
@@ -57,21 +134,111 @@ body { margin: 0; }
   .knd-quiz-metrics { display: none; }
 }
 
-/* Grilla de grupos: 8 columnas en escritorio, 5 en tablet, 3 en teléfono.
-   No se usa SimpleGrid porque sus breakpoints (`sm`/`md` del tema) no
-   coinciden con el breakpoint fijo de 640px del resto de la navegación. */
+/* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
+   columnas -métricas ancladas a la izquierda, input de ancho FIJO
+   centrado, "Revelar" anclado a la derecha-, no un flex donde el input se
+   estira a lo que sobre (eso hacía que en pantallas anchas el input
+   ocupara casi todo el ancho, medido en vivo: 1084px en un laptop de
+   1440px). En teléfono, sin métricas (arriba), se queda como un flex
+   simple donde el input sí llena el espacio libre -ahí no hay "sobra" que
+   evitar y el mockup no muestra una variante angosta con ancho fijo-. */
+.knd-quiz-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+}
+.knd-quiz-answer-form {
+  flex: 1;
+  min-width: 0;
+}
+@media (min-width: 641px) {
+  .knd-quiz-footer {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+  }
+  .knd-quiz-metrics { justify-self: start; }
+  .knd-quiz-answer-form {
+    flex: none;
+    /* 300px del diseño (`.answer { width: 300px }`), en rem para que
+       escale con el resto de la app en 2K/4K. */
+    width: 18.75rem;
+    justify-self: center;
+  }
+  .knd-quiz-reveal { justify-self: end; }
+}
+
+/* Fondo con tinte rojo en el input de respuesta al errar (`--a-shu-bg` del
+   diseño): es un estado de juego -"la marcaste mal"-, no una validación de
+   formulario común, así que se reserva a este input puntual y no al
+   `TextInput` en general (el editor de mazo, el buscador, no necesitan ese
+   peso visual por un campo vacío). `className` en un TextInput de Mantine
+   cae en el wrapper más externo (`.mantine-TextInput-root`), tres niveles
+   arriba del `<input>` real -que es el que de verdad pinta el fondo
+   visible-, así que hace falta el selector descendiente. */
+.knd-quiz-answer[data-error] input {
+  background-color: #3a2028;
+}
+
+/* Grilla de grupos: cortes a mano contra el ancho CSS real (no la
+   resolución nominal del monitor, que el escalado de Windows desvincula
+   del `window.innerWidth` que ve el navegador -medido en vivo con el
+   panel responsive de Chrome-. Escalera pareja: arranca en 3 columnas
+   hasta 800px, después suma 1 columna cada 300px hasta tocar 12 a los
+   3200px y se queda ahí:
+     <800      → 3    (incluye el teléfono, el mismo corte de siempre)
+     800–1099  → 4
+     1100–1399 → 5
+     1400–1699 → 6
+     1700–1999 → 7
+     2000–2299 → 8
+     2300–2599 → 9
+     2600–2899 → 10
+     2900–3199 → 11
+     ≥3200     → 12
+   Se define como una cascada de `min-width` ascendente -no `max-width`
+   por tramo- para que cada regla solo tenga que pisar a la anterior, sin
+   listar el rango completo de cada una. No se usa SimpleGrid porque sus
+   breakpoints (`sm`/`md` del tema) no coinciden con ninguno de estos. */
 .knd-group-grid {
   display: grid;
-  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--mantine-spacing-xs);
 }
 
-@media (max-width: 991px) {
+@media (min-width: 800px) {
+  .knd-group-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1100px) {
   .knd-group-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
-@media (max-width: 640px) {
-  .knd-group-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (min-width: 1400px) {
+  .knd-group-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1700px) {
+  .knd-group-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2000px) {
+  .knd-group-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2300px) {
+  .knd-group-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2600px) {
+  .knd-group-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2900px) {
+  .knd-group-grid { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+}
+
+@media (min-width: 3200px) {
+  .knd-group-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
 }
 
 /* Foco visible por teclado en la tarjeta de grupo, que ahora es el control
@@ -88,6 +255,19 @@ body { margin: 0; }
 .knd-editor-groups-desktop { display: flex; }
 .knd-editor-groups-mobile { display: none; }
 
+/* Scroll horizontal sin la barra nativa a la vista -se puede seguir
+   scrolleando con el dedo o la rueda, solo se esconde el widget-. La
+   comparten esta tira y el selector de mazos de Práctica. */
+.knd-editor-groups-mobile,
+.knd-deck-switcher {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Edge legado */
+}
+.knd-editor-groups-mobile::-webkit-scrollbar,
+.knd-deck-switcher::-webkit-scrollbar {
+  display: none; /* Chrome, Safari */
+}
+
 @media (max-width: 640px) {
   .knd-editor-layout { flex-direction: column; }
   .knd-editor-groups-desktop { display: none; }
@@ -103,4 +283,31 @@ body { margin: 0; }
      `min-width: 0` evita que el propio contenido (una glosa larga, por
      ejemplo) empuje el ancho más allá del contenedor. */
   .knd-editor-cards { width: 100%; min-width: 0; }
+}
+
+/* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único
+   contenedor. En el documento fluyen en orden -rango, tiles, botón-, que en
+   una pantalla angosta es exactamente lo que hace falta (botón debajo de
+   las tiles, a lo ancho completo). En escritorio, CSS Grid los reacomoda a
+   como está en el diseño (rango y botón en la misma fila, tiles debajo),
+   sin duplicar ni esconder nada. */
+.knd-stats-top {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+.knd-review-btn { width: 100%; }
+
+@media (min-width: 641px) {
+  .knd-stats-top {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "range review" "tiles tiles";
+    align-items: start;
+    column-gap: var(--mantine-spacing-md);
+  }
+  .knd-stats-range { grid-area: range; }
+  .knd-stats-tiles { grid-area: tiles; }
+  .knd-stats-review { grid-area: review; }
+  .knd-review-btn { width: auto; }
 }
