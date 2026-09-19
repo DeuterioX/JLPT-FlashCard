@@ -241,11 +241,18 @@ export function PracticeBoard({
         <ActionBar>
           {/* `.count` del diseño: la base va atenuada (`--a-dim`) y solo
               los números en `--a-text` con peso 600 -no el 700 que el
-              navegador le pone a un `<b>` suelto-. */}
-          <Text id="selection-count" size="12px" c="dimmed">
-            <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{chosen.length}</Text> grupos ·{' '}
-            <Text component="span" c="var(--mantine-color-text)" fw={600} inherit>{cardCount}</Text> cartas
-          </Text>
+              navegador le pone a un `<b>` suelto-. `Group` con `gap`, no
+              texto suelto con espacios intercalados a mano: un espacio de
+              texto JSX pegado al cierre de un tag puede colapsar a ancho
+              CERO (regla en CLAUDE.md, encontrado primero en el header
+              del quiz). */}
+          <Group id="selection-count" gap="0.25rem" wrap="wrap">
+            <Text component="span" size="12px" c="var(--mantine-color-text)" fw={600}>{chosen.length}</Text>
+            <Text component="span" size="12px" c="dimmed">grupos</Text>
+            <Text component="span" size="12px" c="dimmed">·</Text>
+            <Text component="span" size="12px" c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
+            <Text component="span" size="12px" c="dimmed">cartas</Text>
+          </Group>
           {error && (
             <Text size="sm" c="shu.6">
               {error}

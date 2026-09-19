@@ -98,11 +98,18 @@ export function RoundSummary({
             </Stack>
           )}
 
-          <Text id="round-summary-hint" size="xs" c="dimmed">
-            <Kbd>Enter</Kbd> {mode === 'review'
-              ? 'para volver a estadísticas'
-              : 'para seguir con otra ronda'} · <Kbd>Esc</Kbd> para salir
-          </Text>
+          {/* `Group` con `gap`, no texto suelto con Kbd/espacios intercalados
+              a mano -ver la regla en CLAUDE.md: siempre `gap`, nunca
+              caracteres de espacio como separador entre elementos-. */}
+          <Group id="round-summary-hint" gap="0.5rem">
+            <Kbd>Enter</Kbd>
+            <Text size="xs" c="dimmed">
+              {mode === 'review' ? 'para volver a estadísticas' : 'para seguir con otra ronda'}
+            </Text>
+            <Text size="xs" c="dimmed">·</Text>
+            <Kbd>Esc</Kbd>
+            <Text size="xs" c="dimmed">para salir</Text>
+          </Group>
         </Stack>
       </Paper>
     </Overlay>
