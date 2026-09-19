@@ -134,6 +134,27 @@ body { margin: 0; }
   .knd-quiz-metrics { display: none; }
 }
 
+/* Aviso de error del quiz (`.toast` del mockup): una pastilla flotante con
+   posición absoluta cerca del borde inferior del stage, no un texto más en
+   el flujo del `Stack` centrado que envuelve al kana -eso hacía que el
+   kana se corriera cada vez que el aviso aparecía o desaparecía, porque el
+   `Stack` entero cambia de alto y sigue centrado (pasó de verdad, era el
+   reclamo)-. Posición absoluta lo saca del flujo del todo: aparecer o
+   desaparecer no mueve nada más. */
+.knd-quiz-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 3.625rem; /* 58px del diseño */
+  transform: translateX(-50%);
+  background: #3a2028; /* --a-shu-bg del diseño */
+  border: 1px solid var(--mantine-color-shu-6);
+  color: var(--mantine-color-shu-6);
+  padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
+  border-radius: 100px;
+  font-size: 0.71875rem; /* 11.5px del diseño */
+  white-space: nowrap;
+}
+
 /* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
    columnas -métricas ancladas a la izquierda, input de ancho FIJO
    centrado, "Revelar" anclado a la derecha-, no un flex donde el input se

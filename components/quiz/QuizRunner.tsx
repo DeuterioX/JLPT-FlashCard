@@ -388,9 +388,17 @@ function QuizPlay({
               {card.prompt}
             </Text>
             {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
-            {flash === 'wrong' && <Text id="quiz-wrong-hint" size="sm" c="shu.6">no es esa, probá de nuevo</Text>}
             {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
           </Stack>
+        )}
+        {/* Fuera del Stack de arriba y con posición absoluta (mismo `.toast`
+            del mockup): si viviera adentro, el `Stack` centrado crece cuando
+            aparece y el kana se corre -pasó de verdad, era justo el reclamo-.
+            Como elemento aparte, aparecer/desaparecer no mueve nada más. */}
+        {flash === 'wrong' && (
+          <Text id="quiz-wrong-hint" className="knd-quiz-toast">
+            Esa no es, probá de nuevo
+          </Text>
         )}
         {finished && (
           <RoundSummary
