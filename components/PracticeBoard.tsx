@@ -204,7 +204,25 @@ export function PracticeBoard({
           </Button>
         </Group>
       </Group>
-      <div style={{ height: switcherHeight }} aria-hidden />
+      {/* Este div, en flujo normal, arranca donde arranca cualquier hijo
+          normal de `MantineShell.Main` -en su borde de padding, 64px
+          desde arriba (48 del header + 16 del `padding="md"`)-, NO donde
+          arranca la barra `fixed` de más arriba (48px). Sin corregir eso,
+          el espaciador quedaba 16px más abajo que la barra real, y su
+          altura iba a ciegas atrás de `switcherHeight` -el resultado
+          visible daba bien de pura casualidad, porque esos 16px de
+          diferencia son el mismo número que el gap que se quiere dejar
+          después de la barra, no porque estuviera armado bien-. El
+          `marginTop` negativo alinea su arranque con el de la barra de
+          verdad, y la altura sí incluye ahora, a propósito, el gap de
+          16px hacia la grilla. */}
+      <div
+        style={{
+          marginTop: 'calc(var(--mantine-spacing-md) * -1)',
+          height: `calc(${switcherHeight}px + var(--mantine-spacing-md))`,
+        }}
+        aria-hidden
+      />
 
       <Stack gap="md">
         <GroupGrid groups={deck.groups} selected={selected} onToggle={toggle} />
