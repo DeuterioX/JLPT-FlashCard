@@ -571,16 +571,17 @@ function QuizPlay({
             />
           </form>
 
-          {/* `.reveal` del diseño: el botón con el hint de "Espacio" en Kbd
-              debajo, alineado a la derecha -faltaba el hint entero-. */}
-          <Stack className="knd-quiz-reveal" gap="0.1875rem" align="flex-end">
-            <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>
-              Revelar
-            </Button>
+          {/* Prueba: hint "Espacio" a la izquierda del botón en vez de
+              debajo (el mockup lo pone debajo, `.reveal small {display:
+              block}`, pero se pidió probar esta variante). */}
+          <Group className="knd-quiz-reveal" gap="0.375rem" wrap="nowrap">
             <Text size="0.59375rem" c="dark.3">
               <Kbd>Espacio</Kbd>
             </Text>
-          </Stack>
+            <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>
+              Revelar
+            </Button>
+          </Group>
         </Box>
       </Paper>
     </Stack>
