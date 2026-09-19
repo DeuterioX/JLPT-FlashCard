@@ -68,8 +68,10 @@ export function GroupCard({
         // variable por su propio `varsResolver`, y ahí gana el que se
         // calcula último (mismo problema que `bg` vs `style` de arriba).
         // Sin pasar `padding` como prop, ese resolver no escribe nada y
-        // este valor queda como el único.
-        '--card-padding': '8px 6px',
+        // este valor queda como el único. En rem, no en px -era el único
+        // padding de toda la app que se quedaba clavado en 2K/4K
+        // mientras todo alrededor escalaba, confirmado en vivo-.
+        '--card-padding': '0.5rem 0.375rem',
         // Sin seleccionar usa el borde "suave" del diseño
         // (`groupCardBorder`), no el `dark.4` -"default"- que trae
         // Mantine solo con `withBorder`: son dos tonos distintos.
