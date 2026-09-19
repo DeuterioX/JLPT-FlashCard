@@ -571,9 +571,16 @@ function QuizPlay({
             />
           </form>
 
-          <Button id="reveal-btn" className="knd-quiz-reveal" variant="default" size="compact-sm" onClick={onReveal}>
-            Revelar
-          </Button>
+          {/* `.reveal` del diseño: el botón con el hint de "Espacio" en Kbd
+              debajo, alineado a la derecha -faltaba el hint entero-. */}
+          <Stack className="knd-quiz-reveal" gap="0.1875rem" align="flex-end">
+            <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>
+              Revelar
+            </Button>
+            <Text size="0.59375rem" c="dark.3">
+              <Kbd>Espacio</Kbd>
+            </Text>
+          </Stack>
         </Box>
       </Paper>
     </Stack>
