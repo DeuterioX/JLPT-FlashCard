@@ -453,26 +453,30 @@ function QuizPlay({
       {/* Degradé radial sutil del mockup (`.quiz-stage`), el mismo azul del
           borde de foco (`--a-focus`, #6C8CFF) casi invisible al 7% de
           opacidad: hoy era un fondo plano, faltaba por completo.
-          `rgba(...,0)` en la segunda parada, no la palabra `transparent`:
-          interpolar hacia `transparent` interpola hacia negro transparente
-          por canal, no hacia "este mismo color pero invisible", y esa
-          diferencia de tono a mitad de camino se veía como un salto
-          abrupto cerca del final del degradé -confirmado visualmente-.
-          Con el mismo color en las dos paradas, solo cambia el alpha.
           Centro en 50% vertical, no el 42% del mockup: ese valor está
           calibrado contra SU stage fijo de 300px, donde el kana no queda
           exactamente centrado; acá el kana sí se centra de verdad
           (`place-items: center` en un `flex: 1`), así que el 42% quedaba
-          notoriamente arriba del kana real -confirmado visualmente-. El
-          corte también se estira a 100% del radio en vez de 70%: cortar
-          antes deja un borde perceptible (efecto de bandas de Mach) donde
-          el color todavía no llegó del todo a cero. */}
+          notoriamente arriba del kana real -confirmado visualmente-.
+          Dos colores SÓLIDOS, sin alpha: `rgb(22,27,48)` es
+          `rgba(108,140,255,0.07)` ya compuesto a mano sobre el fondo
+          `dark.7` (`#0F1220`) -composición alfa estándar,
+          canal×0.07 + fondo×0.93-, y la segunda parada es directo ese
+          mismo `dark.7`. Interpolar color sólido a color sólido no tiene
+          el salto de tono que sí tenía interpolar hacia `transparent`
+          (negro transparente, no "este color pero invisible"), y con la
+          parada en 100% del radio de la elipse no queda un borde
+          perceptible (bandas de Mach) por cortar el degradé antes de que
+          el color llegue del todo a su destino. Como el último color YA
+          es el del fondo, no hace falta una segunda capa de `background`
+          aparte: fuera de la elipse el degradé sigue siendo ese mismo
+          color, sin costura. */}
       <Box
         id="quiz-stage"
         pos="relative"
         style={{
           flex: 1, display: 'grid', placeItems: 'center',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgba(108,140,255,0.07), rgba(108,140,255,0) 100%), var(--mantine-color-dark-7)',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgb(22,27,48), var(--mantine-color-dark-7) 100%)',
         }}
         py="xl"
       >
