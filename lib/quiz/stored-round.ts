@@ -7,6 +7,11 @@ import type { QuizCard } from './engine';
  */
 export type StoredRound = {
   sessionId: number; groupIds: number[]; cards: QuizCard[]; mode: 'normal' | 'review';
+  /** Nombre del mazo, para el contexto de la barra superior del quiz
+   * ("Hiragana · 6 grupos"). Ausente en un repaso (`mode: 'review'`): sus
+   * grupos pueden venir de mazos distintos, no hay un único nombre que
+   * mostrar. */
+  deckName?: string;
 };
 
 /** Clave de la ronda guardada. */
@@ -39,8 +44,12 @@ export function parseStoredRound(raw: string): StoredRound | null {
   // `mode` es nuevo (Task 15, sección B): un `sessionStorage` viejo de antes
   // de ese cambio no lo trae, así que su ausencia se toma como 'normal' en
   // vez de invalidar la ronda entera.
-  const withMode = parsed as StoredRound & { mode?: unknown };
-  return { ...withMode, mode: withMode.mode === 'review' ? 'review' : 'normal' };
+  const withMode = parsed as StoredRound & { mode?: unknown; deckName?: unknown };
+  return {
+    ...withMode,
+    mode: withMode.mode === 'review' ? 'review' : 'normal',
+    deckName: typeof withMode.deckName === 'string' ? withMode.deckName : undefined,
+  };
 }
 
 export type RoundStart =

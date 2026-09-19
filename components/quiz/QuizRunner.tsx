@@ -399,11 +399,46 @@ function QuizPlay({
     );
   }
 
+  // "Hiragana · 6 grupos" del mockup. `deckName` falta en un repaso (sus
+  // grupos pueden venir de mazos distintos, ver stored-round.ts) -ahí se
+  // muestra sin el nombre del mazo en vez de "undefined · 6 grupos".
+  const groupCount = round.groupIds.length;
+  const contextLabel = [round.deckName, `${groupCount} ${groupCount === 1 ? 'grupo' : 'grupos'}`]
+    .filter(Boolean)
+    .join(' · ');
+
   return (
     <Stack id="quiz-screen" gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
-      <Group id="quiz-header" px="md" py="xs" justify="space-between">
-        <Text id="quiz-app-name" size="xs" c="dimmed">{APP_NAME}</Text>
-        <Text id="quiz-esc-hint" size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
+      {/* Mismo fondo/borde que la barra superior del resto de la app
+          (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
+          no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
+          y acá faltaban -confirmado contra el mockup real, no solo el plan
+          de implementación que lo había simplificado de más al traducirlo-. */}
+      <Group
+        id="quiz-header"
+        px="md"
+        py="xs"
+        justify="space-between"
+        bg="dark.6"
+        style={{ borderBottom: '1px solid var(--mantine-color-dark-4)' }}
+      >
+        <Group id="quiz-brand" gap={7}>
+          <Box
+            id="quiz-brand-icon"
+            className="kana"
+            style={{
+              width: '1.375rem', height: '1.375rem', display: 'grid', placeItems: 'center',
+              borderRadius: '0.3125rem', background: 'var(--mantine-color-text)',
+              color: 'var(--mantine-color-body)', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
+            }}
+          >
+            あ
+          </Box>
+          <Text id="quiz-app-name" fw={700} size="sm">{APP_NAME}</Text>
+        </Group>
+        <Text id="quiz-context" size="xs" c="dimmed">
+          {contextLabel && `${contextLabel} · `}<Kbd>Esc</Kbd> salir
+        </Text>
       </Group>
 
       <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">

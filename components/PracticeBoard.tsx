@@ -119,7 +119,11 @@ export function PracticeBoard({
         return;
       }
       const round = await res.json();
-      sessionStorage.setItem(ROUND_KEY, JSON.stringify(round));
+      // `deckName` viaja aparte del `round` que devuelve el server: la API
+      // de sesiones no conoce el mazo, solo los `groupIds` -acá sí se sabe,
+      // es el mazo que se estaba mirando al arrancar-. Lo usa la barra
+      // superior del quiz ("Hiragana · 6 grupos").
+      sessionStorage.setItem(ROUND_KEY, JSON.stringify({ ...round, deckName: deck.name }));
       // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
       sessionStorage.removeItem(USED_ROUND_KEY);
       start(() => router.push('/quiz'));
