@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
@@ -29,6 +29,29 @@ export function PracticeBoard({
   // ve en el render siguiente, así que dos taps en el mismo tick pasaban los
   // dos. Mismo patrón que StatsBoard.
   const busyRef = useRef(false);
+
+  // El borde inferior del switcher solo tiene que verse cuando ya está
+  // pegado arriba -si no, se ve como un subrayado suelto flotando en medio
+  // de la página-. Un centinela sin altura, puesto justo antes de la barra,
+  // dice exactamente eso: mientras el centinela está a la vista, la barra
+  // todavía no se pegó; en el momento en que el centinela sale de vista
+  // (tapado por el header fijo al scrollear), la barra ya está en su
+  // posición `sticky`. `rootMargin` resta la altura del header (48px, la
+  // misma que `AppShell.tsx` le pasa a `MantineShell`) porque si no el
+  // centinela "sale de vista" recién debajo del header, no al llegar a él.
+  const [stuck, setStuck] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setStuck(!entry.isIntersecting),
+      { rootMargin: '-48px 0px 0px 0px', threshold: 0 },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const deck = decks.find((d) => String(d.id) === deckId) ?? decks[0];
 
@@ -117,7 +140,10 @@ export function PracticeBoard({
           es la misma variable que Mantine usa para posicionar su propio
           header, así que quedan exactos sin repetir el 48 a mano acá.
           `bg` es necesario para no dejar ver las tarjetas de atrás al
-          scrollear debajo. */}
+          scrollear debajo. El borde inferior solo aparece con `stuck`
+          -mientras la barra está en su posición normal, arriba de todo,
+          no hace falta remarcarla contra nada-. */}
+      <div ref={sentinelRef} style={{ height: 0 }} aria-hidden />
       <Group
         wrap="wrap"
         gap="sm"
@@ -125,7 +151,10 @@ export function PracticeBoard({
         top="var(--app-shell-header-height)"
         bg="dark.7"
         py="xs"
-        style={{ zIndex: 10 }}
+        style={{
+          zIndex: 10,
+          borderBottom: stuck ? '1px solid var(--mantine-color-default-border)' : '1px solid transparent',
+        }}
       >
         {/* Con muchos mazos el SegmentedControl no entra en una pantalla
             angosta: Mantine no lo hace, pero no puede hacer wrap a varias
