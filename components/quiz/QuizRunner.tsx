@@ -437,7 +437,13 @@ function QuizPlay({
           <Text id="quiz-app-name" fw={700} size="sm">{APP_NAME}</Text>
         </Group>
         <Text id="quiz-context" size="xs" c="dimmed">
-          {contextLabel && `${contextLabel} · `}<Kbd>Esc</Kbd> salir
+          {/* Sin espacio entre "·" y el Kbd -a diferencia del "·" entre mazo
+              y grupos-: geométricamente el hueco de cada lado del Kbd
+              medía lo mismo (2.84px), pero el punto pegado a un espacio
+              se ve más ancho que el propio padding del Kbd del otro lado
+              -efecto óptico de la tipografía, confirmado visualmente, no
+              una asimetría real de layout-. */}
+          {contextLabel && `${contextLabel} ·`}<Kbd>Esc</Kbd> salir
         </Text>
       </Group>
 
