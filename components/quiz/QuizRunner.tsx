@@ -27,7 +27,7 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 //
 // Se lee con `useSyncExternalStore` (no con un `useEffect` + `setState`
 // síncrono, que `react-hooks/set-state-in-effect` rechaza) siguiendo el
-// mismo patrón que ya usan `app/practicar/page.tsx` y `HistoryDate` en
+// mismo patrón que ya usan `app/quiz/page.tsx` y `HistoryDate` en
 // `StatsBoard.tsx` para valores que solo existen en el navegador.
 function subscribeViewport(onChange: () => void) {
   const vv = window.visualViewport;
@@ -60,7 +60,7 @@ function readUsedRound(): string | null {
  * estadísticas) se toma acá, en el inicializador de `useState`, que corre
  * una única vez por montaje -con la marca `ronda-usada` tal como estaba
  * ANTES de que este montaje la escriba- y después nunca se recalcula. Así:
- * - en la próxima visita a /practicar (Back, recarga, pestaña restaurada)
+ * - en la próxima visita a /quiz (Back, recarga, pestaña restaurada)
  *   el componente se monta de nuevo y ve la marca;
  * - en ESTE montaje, que la marca se escriba (en un efecto de `QuizPlay`)
  *   no cambia nada: nadie la observa, no hay redirección ni cambio de
@@ -156,7 +156,7 @@ function QuizPlay({
   // en `nextRound` (un manejador, no el render).
   useEffect(() => { roundStart.current = Date.now(); }, []);
   // Marca la ronda guardada como usada en esta pestaña: la PRÓXIMA vez que
-  // se monte /practicar con este mismo `sessionStorage['ronda']` ya no se
+  // se monte /quiz con este mismo `sessionStorage['ronda']` ya no se
   // escribe en su sesión. Idempotente (el doble efecto de StrictMode escribe
   // el mismo valor). La sesión abierta ya se pide acá si hacía falta una
   // nueva, en vez de esperar al primer intento.
@@ -273,7 +273,7 @@ function QuizPlay({
       // el repaso en una ronda completa de esos grupos. En vez de eso, se
       // vuelve a la pantalla de estadísticas (Task 15, sección B) -pero
       // recién después de que el recorder termine de mandar los intentos y
-      // el PATCH de cierre: si se navegara ya, /estadisticas podría montarse
+      // el PATCH de cierre: si se navegara ya, /stats podría montarse
       // y leer los números ANTES de que esta ronda quedara guardada, y es
       // justamente para mostrar el repaso recién jugado que se vuelve ahí.
       // `finish()` ya se llamó en `onSubmit` al detectar que la ronda
@@ -282,8 +282,8 @@ function QuizPlay({
       // apertura de la sesión hubiera fallado, `finish()` resuelve enseguida
       // y se navega igual.
       // `replace` y no `push`: con Back no se tiene que volver a caer en un
-      // /practicar ya terminado.
-      void recorder().finish().finally(() => router.replace('/estadisticas'));
+      // /quiz ya terminado.
+      void recorder().finish().finally(() => router.replace('/stats'));
       return;
     }
 
@@ -334,16 +334,18 @@ function QuizPlay({
       return;
     }
     if (isFinished(state)) {
-      // Cualquier tecla imprimible (sin modificadores, para no comerse
-      // atajos como Ctrl+R) arranca la ronda siguiente sin tocar nada más;
-      // como no se le hace preventDefault, el propio carácter cae en el
-      // input ya enfocado y queda como primera letra de la carta nueva.
-      // Espacio es la excepción: sí se previene, porque si no dejaría un
-      // ' ' suelto en el input y eso desactiva "espacio revela" en la
-      // carta que recién está arrancando.
-      if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-        if (e.key === ' ') e.preventDefault();
+      // El resumen se queda en pantalla hasta que el usuario decide seguir:
+      // solo Enter continúa (Esc, arriba, ya sale). Nada de auto-avance ni
+      // de "cualquier tecla arranca la próxima" -eso hacía que el resumen
+      // desapareciera solo, que es justo lo que no se quiere acá-.
+      if (e.key === 'Enter') {
+        e.preventDefault();
         nextRound();
+      } else if (e.key === ' ') {
+        // No hace nada mientras el resumen está arriba, pero igual se
+        // previene: si no, Espacio scrollearía la página que quedó debajo
+        // del overlay.
+        e.preventDefault();
       }
       return;
     }
@@ -367,16 +369,17 @@ function QuizPlay({
   const finished = isFinished(state);
 
   return (
-    <Stack gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
-      <Group px="md" py="xs" justify="space-between">
-        <Text size="xs" c="dimmed">{APP_NAME}</Text>
-        <Text size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
+    <Stack id="quiz-screen" gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
+      <Group id="quiz-header" px="md" py="xs" justify="space-between">
+        <Text id="quiz-app-name" size="xs" c="dimmed">{APP_NAME}</Text>
+        <Text id="quiz-esc-hint" size="xs" c="dimmed"><Kbd>Esc</Kbd> salir</Text>
       </Group>
 
-      <Box pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
+      <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
         {card && (
           <Stack align="center" gap="xs">
             <Text
+              id="quiz-kana"
               className="kana"
               data-testid="quiz-prompt"
               style={{ fontSize: 'clamp(64px, 18vw, 108px)', lineHeight: 1 }}
@@ -384,9 +387,9 @@ function QuizPlay({
             >
               {card.prompt}
             </Text>
-            {shown && <Text className="romaji" c="dimmed">es {shown}</Text>}
-            {flash === 'wrong' && <Text size="sm" c="shu.6">no es esa, probá de nuevo</Text>}
-            {meaning && <Text size="sm" c="jade.6">{meaning}</Text>}
+            {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
+            {flash === 'wrong' && <Text id="quiz-wrong-hint" size="sm" c="shu.6">no es esa, probá de nuevo</Text>}
+            {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
           </Stack>
         )}
         {finished && (
@@ -400,33 +403,45 @@ function QuizPlay({
                 return c ? { cardId: c.id, prompt: c.prompt, primary: c.primary, count } : null;
               })
               .filter((m): m is MissEntry => m !== null)}
-            onContinue={nextRound}
           />
         )}
       </Box>
 
       {sessionError && (
-        <Text size="xs" c="shu.6" ta="center" py={4}>{sessionError}</Text>
+        <Text id="quiz-session-error" size="xs" c="shu.6" ta="center" py={4}>{sessionError}</Text>
       )}
 
-      <Progress value={progress} size="xs" radius={0} />
+      <Progress id="quiz-progress" value={progress} size="xs" radius={0} />
 
-      <Paper withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
+      <Paper id="quiz-footer" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
         <Group gap="md" wrap="nowrap">
           {/* Se oculta en teléfono con el corte de 640px del proyecto (CSS puro, ver globals.css). */}
-          <Group gap="lg" className="knd-quiz-metrics">
-            <Text size="xs" c="dimmed">Aciertos <b className="tabular">{Math.round(accuracy(state) * 100)}%</b></Text>
-            <Text size="xs" c="dimmed">Restantes <b className="tabular">{remaining}</b></Text>
-            <Text size="xs" c="dimmed">Errores <b className="tabular" style={{ color: 'var(--mantine-color-shu-6)' }}>{state.incorrect}</b></Text>
+          <Group id="quiz-metrics" gap="lg" className="knd-quiz-metrics">
+            <Text id="quiz-accuracy" size="xs" c="dimmed">Aciertos <b className="tabular">{Math.round(accuracy(state) * 100)}%</b></Text>
+            <Text id="quiz-remaining" size="xs" c="dimmed">Restantes <b className="tabular">{remaining}</b></Text>
+            <Text id="quiz-errors" size="xs" c="dimmed">Errores <b className="tabular" style={{ color: 'var(--mantine-color-shu-6)' }}>{state.incorrect}</b></Text>
           </Group>
 
-          <form onSubmit={onSubmit} style={{ flex: 1 }}>
+          <form id="quiz-answer-form" onSubmit={onSubmit} style={{ flex: 1 }}>
             <TextInput
               ref={inputRef}
-              id="respuesta"
+              id="answer-input"
               value={typed}
-              onChange={(e) => setTyped(e.currentTarget.value)}
-              placeholder="escribí el romaji"
+              onChange={(e) => {
+                setTyped(e.currentTarget.value);
+                // El aviso de error ("no es esa...") se apaga apenas se
+                // vuelve a escribir, no solo cuando expira su propio timer:
+                // si no, puede quedar visible sobre una respuesta que el
+                // usuario ya está corrigiendo.
+                if (flash === 'wrong') {
+                  setFlash('none');
+                  if (wrongTimer.current) {
+                    clearTimeout(wrongTimer.current);
+                    wrongTimer.current = null;
+                  }
+                }
+              }}
+              placeholder="escribí en romaji"
               ta="center"
               error={flash === 'wrong'}
               // Sin esto iOS convierte "ka" en "Ka" y sugiere corregir "shi":
@@ -439,7 +454,7 @@ function QuizPlay({
             />
           </form>
 
-          <Button variant="default" size="compact-sm" onClick={onReveal}>Revelar</Button>
+          <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>Revelar</Button>
         </Group>
       </Paper>
     </Stack>

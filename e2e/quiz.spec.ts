@@ -5,7 +5,7 @@ import { test, expect, type Page } from '@playwright/test';
 // checkboxes/radios nativos y no sirve acá. En su lugar se hace click en la
 // tarjeta por su rol y se verifica `aria-checked`.
 async function toggleGroup(page: Page, name: string) {
-  const card = page.getByRole('switch', { name: `Practicar ${name}` });
+  const card = page.getByRole('switch', { name: `Practicar ${name}`, exact: true });
   await card.click();
   return card;
 }
@@ -14,7 +14,7 @@ test.beforeEach(async ({ page }) => {
   await page.goto('/');
   // El mazo por defecto es Hiragana (PracticeBoard abre en decks[0]); Serie K
   // tiene que estar visible antes de interactuar con él.
-  await expect(page.getByRole('switch', { name: 'Practicar Serie K' })).toBeVisible();
+  await expect(page.getByRole('switch', { name: 'Practicar Serie K', exact: true })).toBeVisible();
   // Cada test arranca desde "Ninguno" y prende lo que necesita, así el orden
   // de ejecución no importa aunque compartan la cookie `grupos` y la DB.
   await page.getByRole('button', { name: 'Ninguno' }).click();
@@ -38,7 +38,7 @@ async function storedRound(page: Page) {
 async function answerAll(page: Page) {
   const { cards } = await storedRound(page);
   const prompt = page.getByTestId('quiz-prompt');
-  const input = page.locator('#respuesta');
+  const input = page.locator('#answer-input');
   const pending = new Set(cards.map((c) => c.prompt));
 
   while (pending.size > 0) {
@@ -57,10 +57,10 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
   const card = await toggleGroup(page, 'Serie K');
   await expect(card).toHaveAttribute('aria-checked', 'true');
 
-  await expect(page.getByRole('button', { name: /Empezar ronda/ })).toBeEnabled();
-  await page.getByRole('button', { name: /Empezar ronda/ }).click();
+  await expect(page.getByRole('button', { name: /Comenzar/ })).toBeEnabled();
+  await page.getByRole('button', { name: /Comenzar/ }).click();
 
-  const input = page.locator('#respuesta');
+  const input = page.locator('#answer-input');
   await expect(input).toBeFocused();
 
   const prompt = page.getByTestId('quiz-prompt');
@@ -87,8 +87,8 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
 
 test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cerrada', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Empezar ronda/ }).click();
-  await expect(page.locator('#respuesta')).toBeFocused();
+  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await expect(page.locator('#answer-input')).toBeFocused();
   const { sessionId: first } = await storedRound(page);
 
   const statuses: { url: string; method: string; status: number }[] = [];
@@ -123,32 +123,32 @@ test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cer
   expect((await freshClosed).status()).toBe(200);
 
   // La recarga no tiene que mandar a la home una ronda que sí existe (el
-  // render de hidratación no ve sessionStorage: ver app/practicar/page.tsx).
-  await expect(page).toHaveURL(/\/practicar$/);
+  // render de hidratación no ve sessionStorage: ver app/quiz/page.tsx).
+  await expect(page).toHaveURL(/\/quiz$/);
   expect(statuses.filter((s) => s.status >= 400)).toEqual([]);
   expect(statuses.filter((s) => s.url.endsWith(`/api/sessions/${first}`))).toHaveLength(1);
 });
 
-test('Esc sale del quiz sin dejar /practicar en el historial', async ({ page }) => {
+test('Esc sale del quiz sin dejar /quiz en el historial', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Empezar ronda/ }).click();
-  await expect(page.locator('#respuesta')).toBeFocused();
+  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await expect(page.locator('#answer-input')).toBeFocused();
 
   await page.keyboard.press('Escape');
   await expect(page).toHaveURL(/\/$/);
   await page.goBack();
-  await expect(page).not.toHaveURL(/\/practicar/);
+  await expect(page).not.toHaveURL(/\/quiz/);
 });
 
 test('el botón queda deshabilitado sin ningún grupo', async ({ page }) => {
-  await expect(page.getByRole('button', { name: /Empezar ronda/ })).toBeDisabled();
+  await expect(page.getByRole('button', { name: /Comenzar/ })).toBeDisabled();
 });
 
 test('el input del quiz no deja que el teléfono lo autocorrija', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Empezar ronda/ }).click();
+  await page.getByRole('button', { name: /Comenzar/ }).click();
 
-  const input = page.locator('#respuesta');
+  const input = page.locator('#answer-input');
   // Sin esto iOS convierte "ka" en "Ka" y sugiere corregir "shi": se
   // contarían errores que nunca se cometieron.
   await expect(input).toHaveAttribute('autocapitalize', 'off');
@@ -162,9 +162,9 @@ test('en teléfono el input queda visible con el teclado abierto', async ({ page
   test.skip(!isMobile, 'solo aplica al proyecto de teléfono');
 
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Empezar ronda/ }).click();
+  await page.getByRole('button', { name: /Comenzar/ }).click();
 
-  const input = page.locator('#respuesta');
+  const input = page.locator('#answer-input');
   await input.click();
   // Playwright emula un teléfono pero no abre un teclado virtual real: esto
   // detecta un layout roto por 100vh, no el comportamiento exacto de iOS.
