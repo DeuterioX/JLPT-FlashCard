@@ -377,28 +377,48 @@ function QuizPlay({
 
       <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
         {card && (
-          <Stack align="center" gap="xs">
-            <Text
-              id="quiz-kana"
-              className="kana"
-              data-testid="quiz-prompt"
-              style={{ fontSize: 'clamp(64px, 18vw, 108px)', lineHeight: 1 }}
-              c={flash === 'wrong' ? 'shu.6' : undefined}
-            >
-              {card.prompt}
+          // `pos="relative"` acá, no solo en `quiz-stage`: el mockup posiciona
+          // el toast a una distancia fija del GLYPH (58px de un stage de
+          // 300px de alto), no del fondo de toda la pantalla. `quiz-stage`
+          // acá mide `flex:1` -todo el alto disponible, mucho más que
+          // 300px-, así que anclar el toast contra ESE borde lo dejaba
+          // lejísimos del kana (pasó de verdad, medido). Con este wrapper
+          // -del tamaño justo del contenido, no de la pantalla- el toast se
+          // ancla al borde inferior del kana (más el "shown"/"meaning" si
+          // hay), a una distancia fija, sea cual sea el alto real del stage.
+          <Box pos="relative">
+            <Stack align="center" gap="xs">
+              <Text
+                id="quiz-kana"
+                className="kana"
+                data-testid="quiz-prompt"
+                style={{ fontSize: 'clamp(64px, 18vw, 108px)', lineHeight: 1 }}
+                c={flash === 'wrong' ? 'shu.6' : undefined}
+              >
+                {card.prompt}
+              </Text>
+              {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
+              {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
+            </Stack>
+            {/* Posición absoluta (mismo `.toast` del mockup): si viviera
+                dentro del Stack de arriba, su alto cambia cuando el aviso
+                aparece o desaparece y, al seguir centrado, el kana se corre
+                -pasó de verdad, era justo el reclamo-. Como hermano aparte,
+                aparecer o desaparecer no mueve nada más. */}
+            {flash === 'wrong' && (
+              <Text id="quiz-wrong-hint" className="knd-quiz-toast">
+                Esa no es, probá de nuevo
+              </Text>
+            )}
+            {/* "carta N de M" del mockup (`.under-glyph`), ausente hasta
+                ahora. N es la posición de la carta actual, no un contador
+                aparte: `remaining` ya es "cuántas faltan CONTANDO la
+                actual" (`state.queue.length`), así que `total - remaining
+                + 1` da la posición 1-based sin duplicar el estado. */}
+            <Text id="quiz-caption" className="knd-quiz-caption tabular">
+              carta {total - remaining + 1} de {total}
             </Text>
-            {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
-            {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
-          </Stack>
-        )}
-        {/* Fuera del Stack de arriba y con posición absoluta (mismo `.toast`
-            del mockup): si viviera adentro, el `Stack` centrado crece cuando
-            aparece y el kana se corre -pasó de verdad, era justo el reclamo-.
-            Como elemento aparte, aparecer/desaparecer no mueve nada más. */}
-        {flash === 'wrong' && (
-          <Text id="quiz-wrong-hint" className="knd-quiz-toast">
-            Esa no es, probá de nuevo
-          </Text>
+          </Box>
         )}
         {finished && (
           <RoundSummary
