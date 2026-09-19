@@ -438,12 +438,17 @@ function QuizPlay({
         </Group>
         <Text id="quiz-context" size="xs" c="dimmed">
           {/* Sin espacio entre "·" y el Kbd -a diferencia del "·" entre mazo
-              y grupos-: geométricamente el hueco de cada lado del Kbd
-              medía lo mismo (2.84px), pero el punto pegado a un espacio
-              se ve más ancho que el propio padding del Kbd del otro lado
-              -efecto óptico de la tipografía, confirmado visualmente, no
-              una asimetría real de layout-. */}
-          {contextLabel && `${contextLabel} ·`}<Kbd>Esc</Kbd> salir
+              y grupos-: geométricamente el hueco de cada lado del Kbd medía
+              lo mismo (2.84px), pero el punto pegado a un espacio se ve más
+              ancho que el propio padding del Kbd del otro lado -efecto
+              óptico de la tipografía, confirmado visualmente-.
+              `{' '}salir`, no `<Kbd>Esc</Kbd> salir` a secas: ese espacio
+              literal, texto JSX plano pegado al cierre del tag, quedaba
+              colapsado a ancho CERO -confirmado midiendo en vivo: el hueco
+              después del Kbd daba 0px, no el mismo 2.84px del otro lado,
+              aunque el string sí traía el espacio-. Como expresión JS
+              aparte, React lo preserva. */}
+          {contextLabel && `${contextLabel} ·`}<Kbd>Esc</Kbd>{' '}salir
         </Text>
       </Group>
 
