@@ -450,7 +450,18 @@ function QuizPlay({
         </Group>
       </Group>
 
-      <Box id="quiz-stage" pos="relative" style={{ flex: 1, display: 'grid', placeItems: 'center' }} py="xl">
+      {/* Degradé radial sutil del mockup (`.quiz-stage`), el mismo azul del
+          borde de foco (`--a-focus`, #6C8CFF) casi invisible al 7% de
+          opacidad: hoy era un fondo plano, faltaba por completo. */}
+      <Box
+        id="quiz-stage"
+        pos="relative"
+        style={{
+          flex: 1, display: 'grid', placeItems: 'center',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 42%, rgba(108,140,255,0.07), transparent 70%), var(--mantine-color-dark-7)',
+        }}
+        py="xl"
+      >
         {card && (
           // `pos="relative"` acá, no solo en `quiz-stage`: el mockup posiciona
           // el toast a una distancia fija del GLYPH (58px de un stage de
