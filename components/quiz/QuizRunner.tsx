@@ -147,6 +147,30 @@ function QuizPlay({
   const total = round.cards.length;
   const progress = total === 0 ? 0 : ((total - remaining) / total) * 100;
 
+  // Safari/iOS empuja la página entera hacia arriba con su propio scroll
+  // nativo para "traer a la vista" el input recién enfocado -aparte del
+  // zoom por letra chica, ya resuelto- así que si el `body` puede
+  // scrollear, tiene adónde correrla (confirmado en un iPhone real: la
+  // pantalla se corre para arriba al abrir el teclado). Acá nunca hace
+  // falta scroll -el propio `viewportH` ya redimensiona todo para que
+  // entre completo-, así que se bloquea el `body` mientras el quiz está
+  // montado: sin overflow que recorrer, ese scroll nativo no tiene nada
+  // que mover. Se restaura el valor original al desmontar, no un string
+  // fijo, por si algún estilo previo ya lo había tocado.
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevPosition = document.body.style.position;
+    const prevWidth = document.body.style.width;
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.position = prevPosition;
+      document.body.style.width = prevWidth;
+    };
+  }, []);
+
   // El foco arranca y vuelve siempre al input: el mouse nunca es obligatorio.
   useEffect(() => { inputRef.current?.focus(); }, [card?.id]);
   useEffect(() => { shownAt.current = Date.now(); }, [card?.id]);
