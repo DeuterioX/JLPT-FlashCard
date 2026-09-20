@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
 import {
@@ -407,8 +407,29 @@ function QuizPlay({
     .filter(Boolean)
     .join(' · ');
 
+  // El mouse nunca es obligatorio en el quiz (comentario de arriba de
+  // todo el archivo), pero clickear cualquier cosa que no sea un control
+  // real -el kana, las métricas, el caption- de todos modos le saca el
+  // foco al input: es el propio browser, que mueve el foco al `body` en
+  // el `mousedown` de cualquier elemento no enfocable -confirmado en
+  // vivo-. `preventDefault` en `mousedown` (no en `click`) frena ESE
+  // mecanismo puntual sin frenar el click en sí, así que el input nunca
+  // llega a perder el foco para empezar -no hace falta reenfocarlo
+  // después-. Los controles reales (el input, "Revelar") manejan su
+  // propio foco normalmente.
+  function keepInputFocused(e: MouseEvent) {
+    const target = e.target as HTMLElement;
+    if (target.closest('input, button, a, [role="button"]')) return;
+    e.preventDefault();
+  }
+
   return (
-    <Stack id="quiz-screen" gap={0} style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}>
+    <Stack
+      id="quiz-screen"
+      gap={0}
+      style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}
+      onMouseDown={keepInputFocused}
+    >
       {/* Mismo fondo/borde que la barra superior del resto de la app
           (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
           no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
