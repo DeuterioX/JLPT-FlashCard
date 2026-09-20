@@ -496,7 +496,7 @@ function QuizPlay({
                 id="quiz-kana"
                 className="kana"
                 data-testid="quiz-prompt"
-                style={{ fontSize: 'clamp(64px, 18vw, 108px)', lineHeight: 1 }}
+                style={{ fontSize: 'clamp(64px, 18vw, 162px)', lineHeight: 1 }}
                 c={flash === 'wrong' ? 'shu.6' : undefined}
               >
                 {card.prompt}
