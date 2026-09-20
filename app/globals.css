@@ -60,9 +60,19 @@ html { font-size: 100%; }
 /* El fondo de CUALQUIER input es el fondo de la página (`--a-bg` del
    diseño, dark.7), no el tono de superficie que trae Mantine por default
    -mismo criterio que usa `.field` en el editor de mazo, no es exclusivo
-   del quiz-. El error (más abajo) es más específico y sigue ganando. */
+   del quiz-. El error (más abajo) es más específico y sigue ganando.
+
+   `font-size: 1rem` (16px), no los 14px del diseño (`.answer`/`.field`):
+   Safari/iOS hace zoom automático de toda la página al enfocar un input
+   con `font-size` menor a 16px -para que el texto sea legible- y ese zoom
+   se queda pegado incluso después de perder el foco, así que TODO se ve
+   corrido y con scroll de más -confirmado en un iPhone real, con el
+   mismo síntoma exacto ("hace zoom y sigue scrolleando")-. 16px es el
+   mínimo que evita el zoom en cualquier navegador móvil, así que se pisa
+   acá para cualquier input de la app, no solo el del quiz. */
 .mantine-TextInput-input {
   background-color: var(--mantine-color-dark-7);
+  font-size: 1rem;
 }
 
 /* El borde de foco de CUALQUIER input (el de respuesta del quiz, los del
