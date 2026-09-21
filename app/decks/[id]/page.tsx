@@ -25,7 +25,10 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   // Se reusa cardsForGroups: ya resuelve las respuestas y la primaria.
   const cards: EditorCard[] = deck.groups.flatMap((g) =>
     cardsForGroups(db, [g.id]).map((c) => ({
-      id: c.id, prompt: c.prompt, meaning: c.meaning, primary: c.primary, groupId: g.id,
+      id: c.id, prompt: c.prompt, meaning: c.meaning, primary: c.primary,
+      // Todas las romanizaciones, no solo la primaria: editar una carta sin
+      // ellas borraría sus alternativas al guardar.
+      answers: c.answers, groupId: g.id,
     })),
   );
 

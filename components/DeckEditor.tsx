@@ -4,7 +4,7 @@ import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Stack, Group, Text, Button, Paper, TextInput, Divider, Box, Modal, UnstyledButton, rem,
-  useMantineTheme,
+  useMantineTheme, Anchor,
 } from '@mantine/core';
 import { SectionLabel } from './SectionLabel';
 import { toRomaji } from '@/lib/kana/transliterate';
@@ -13,7 +13,10 @@ import { DictSearchPanel } from '@/components/dict/DictSearchPanel';
 import type { DeckSummary } from '@/lib/services/decks';
 
 export type EditorCard = {
-  id: number; prompt: string; meaning: string | null; primary: string; groupId: number;
+  id: number; prompt: string; meaning: string | null; primary: string;
+  /** Todas las romanizaciones aceptadas, la primaria incluida. */
+  answers: string[];
+  groupId: number;
 };
 
 // Mantine centra el contenido de una `section`; el diseño lo quiere pegado
@@ -24,6 +27,76 @@ const FIELD_STYLES = {
   section: { justifyContent: 'flex-start', paddingLeft: rem(11) },
 } as const;
 
+/**
+ * Edición de una carta existente. El formulario vive acá adentro y no en
+ * `DeckEditor` para que abrir otra carta lo reinicie solo, vía `key`.
+ */
+function EditCardModal({
+  card, busy, error, onClose, onSave,
+}: {
+  card: EditorCard;
+  busy: boolean;
+  error: string | null;
+  onClose: () => void;
+  onSave: (v: { prompt: string; romaji: string; meaning: string; alts: string[] }) => void;
+}) {
+  const [prompt, setPrompt] = useState(card.prompt);
+  // La primaria va en su campo y el resto como alternativas, para no
+  // perderlas al guardar (el PATCH reemplaza la lista entera).
+  const [romaji, setRomaji] = useState(card.answers[0] ?? card.primary);
+  const [alts, setAlts] = useState<string[]>(card.answers.slice(1));
+  const [meaning, setMeaning] = useState(card.meaning ?? '');
+
+  return (
+    <Modal id="edit-card-modal" opened onClose={onClose} title="Editar carta">
+      <Stack>
+        <TextInput
+          id="edit-kana" label="Kana"
+          value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)}
+        />
+        <TextInput
+          id="edit-romaji" label="Romaji"
+          value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)}
+        />
+        {alts.map((a, i) => (
+          <Group key={i} gap="xs" wrap="nowrap" align="flex-end">
+            <TextInput
+              label={i === 0 ? 'Romanizaciones alternativas' : undefined}
+              aria-label={`Romanización alternativa ${i + 1}`}
+              style={{ flex: 1 }}
+              value={a}
+              onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
+            />
+            <Button
+              variant="subtle" color="shu.6" size="compact-sm"
+              aria-label={`Quitar romanización alternativa ${i + 1}`}
+              onClick={() => setAlts(alts.filter((_, j) => j !== i))}
+            >
+              ✕
+            </Button>
+          </Group>
+        ))}
+        <Anchor component="button" type="button" size="xs" c="dimmed" onClick={() => setAlts([...alts, ''])}>
+          + romanización alternativa
+        </Anchor>
+        <TextInput
+          id="edit-meaning" label="Significado"
+          value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
+        />
+        {error && <Text c="shu.6" size="sm">{error}</Text>}
+        <Button
+          id="edit-card-save"
+          onClick={() => onSave({ prompt, romaji, meaning, alts })}
+          disabled={!prompt.trim() || !romaji.trim() || busy}
+          loading={busy}
+        >
+          Guardar
+        </Button>
+      </Stack>
+    </Modal>
+  );
+}
+
 export function DeckEditor({
   deck, cards, dictionaryLoaded,
 }: { deck: DeckSummary; cards: EditorCard[]; dictionaryLoaded: boolean }) {
@@ -31,6 +104,28 @@ export function DeckEditor({
   const { other } = useMantineTheme();
 
   const [dictOpen, setDictOpen] = useState(false);
+
+  // Renombrar el mazo. Solo en mazos propios, igual que Borrar y el
+  // diccionario: `iconFor` en DeckList elige el glifo あ/ア por el nombre de
+  // los incluidos, así que renombrarlos les cambiaría el ícono.
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [renameValue, setRenameValue] = useState(deck.name);
+  const [renameBusy, setRenameBusy] = useState(false);
+  const [renameError, setRenameError] = useState<string | null>(null);
+  const renameRef = useRef(false);
+
+  // Edición de una carta ya creada. Va en modal y no en la fila: editar en
+  // línea metería tres inputs en columnas de 70px, y el archivo ya resuelve
+  // "nuevo grupo" y "borrar" con modales.
+  const [editing, setEditing] = useState<EditorCard | null>(null);
+  const [editBusy, setEditBusy] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const editRef = useRef(false);
+
+  // Romanizaciones alternativas del alta: la API ya acepta `answers` como
+  // lista (ver `createCardSchema`), solo faltaba poder cargar más de una.
+  const [alts, setAlts] = useState<string[]>([]);
+  const kanaRef = useRef<HTMLInputElement>(null);
 
   const [selectedGroupId, setSelectedGroupId] = useState(deck.groups[0]?.id ?? 0);
   // Si el grupo elegido ya no existe (se borró desde otro lado y llegó un
@@ -71,6 +166,65 @@ export function DeckEditor({
     if (!romajiTouched) setRomaji(toRomaji(value));
   }
 
+  async function renameDeckNow() {
+    if (renameRef.current) return;
+    renameRef.current = true;
+    setRenameBusy(true);
+    setRenameError(null);
+    try {
+      const res = await fetch(`/api/decks/${deck.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: renameValue }),
+      });
+      if (!res.ok) {
+        setRenameError(await errorFrom(res));
+        return;
+      }
+      setRenameOpen(false);
+      router.refresh();
+    } catch {
+      setRenameError(NETWORK_ERROR);
+    } finally {
+      renameRef.current = false;
+      setRenameBusy(false);
+    }
+  }
+
+  async function saveCard(next: { prompt: string; romaji: string; meaning: string; alts: string[] }) {
+    if (editRef.current || !editing) return;
+    editRef.current = true;
+    setEditBusy(true);
+    setEditError(null);
+    try {
+      const res = await fetch(`/api/cards/${editing.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          prompt: next.prompt,
+          meaning: next.meaning || null,
+          answers: [next.romaji, ...next.alts].map((a) => a.trim()).filter(Boolean),
+        }),
+      });
+      if (!res.ok) {
+        setEditError(await errorFrom(res));
+        return;
+      }
+      setEditing(null);
+      router.refresh();
+    } catch {
+      setEditError(NETWORK_ERROR);
+    } finally {
+      editRef.current = false;
+      setEditBusy(false);
+    }
+  }
+
+  function focusNewWord() {
+    kanaRef.current?.focus();
+    kanaRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }
+
   async function add() {
     if (addRef.current) return;
     addRef.current = true;
@@ -80,7 +234,11 @@ export function DeckEditor({
       const res = await fetch(`/api/groups/${groupId}/cards`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ prompt, meaning: meaning || null, answers: [romaji] }),
+        body: JSON.stringify({
+          prompt,
+          meaning: meaning || null,
+          answers: [romaji, ...alts].map((a) => a.trim()).filter(Boolean),
+        }),
       });
       if (!res.ok) {
         setAddError(await errorFrom(res));
@@ -89,6 +247,7 @@ export function DeckEditor({
       setPrompt('');
       setRomaji('');
       setMeaning('');
+      setAlts([]);
       setRomajiTouched(false);
       router.refresh();
     } catch {
@@ -158,14 +317,31 @@ export function DeckEditor({
             de la línea y el nombre no llega a los 16px del `lg`. */}
         <Text id="editor-breadcrumb" c="dark.3" size="sm">Mazos /</Text>
         <Text id="editor-deck-name" fw={700} size={rem(15)} lh={1.4} className="kana">{deck.name}</Text>
+        {!deck.isBuiltin && (
+          <Button
+            id="rename-deck-btn"
+            variant="default" bg="transparent" size="compact-xs"
+            onClick={() => { setRenameValue(deck.name); setRenameError(null); setRenameOpen(true); }}
+          >
+            Renombrar
+          </Button>
+        )}
         <Group ml="auto" gap="xs">
           {!deck.isBuiltin && (
             <Button
+              id="dict-search-btn"
               variant="default"
               size="compact-sm"
               onClick={() => setDictOpen(true)}
             >
               Buscar en el diccionario
+            </Button>
+          )}
+          {/* No abre otro formulario: lleva el foco al que ya está abajo.
+              Duplicar el alta en un modal sería dos caminos para lo mismo. */}
+          {!deck.isBuiltin && (
+            <Button id="add-word-btn" size="compact-sm" onClick={focusNewWord}>
+              + Palabra
             </Button>
           )}
         </Group>
@@ -260,16 +436,26 @@ export function DeckEditor({
                     {c.meaning ?? ''}
                   </Text>
                   {!deck.isBuiltin && (
-                    <Button
-                      variant="subtle"
-                      color="shu.6"
-                      size="compact-xs"
-                      onClick={() => removeCard(c.id)}
-                      loading={deletingId === c.id}
-                      disabled={deletingId !== null}
-                    >
-                      ✕
-                    </Button>
+                    <Group gap={5} wrap="nowrap">
+                      <Button
+                        id={`card-delete-${c.id}`}
+                        variant="subtle"
+                        color="shu.6"
+                        size="compact-xs"
+                        onClick={() => removeCard(c.id)}
+                        loading={deletingId === c.id}
+                        disabled={deletingId !== null}
+                      >
+                        ✕
+                      </Button>
+                      <Button
+                        id={`card-edit-${c.id}`}
+                        variant="default" bg="transparent" size="compact-xs"
+                        onClick={() => { setEditError(null); setEditing(c); }}
+                      >
+                        Editar
+                      </Button>
+                    </Group>
                   )}
                 </Group>
               </Box>
@@ -302,7 +488,7 @@ export function DeckEditor({
                     globals.css). */}
                 <Group gap="xs" align="center" wrap="wrap">
                   <TextInput
-                    id="nueva-kana" placeholder="えび" w={150}
+                    id="nueva-kana" ref={kanaRef} placeholder="えび" w={150}
                     leftSection={<span className="knd-field-label">Kana</span>}
                     leftSectionWidth={rem(48)}
                     leftSectionPointerEvents="none"
@@ -334,16 +520,95 @@ export function DeckEditor({
                     Agregar
                   </Button>
                 </Group>
+                {alts.length > 0 && (
+                  <Group id="alt-romaji-list" gap="xs" wrap="wrap">
+                    {alts.map((a, i) => (
+                      <Group key={i} gap={5} wrap="nowrap">
+                        <TextInput
+                          aria-label={`Romanización alternativa ${i + 1}`}
+                          placeholder="sūpā" w={150}
+                          leftSection={<span className="knd-field-label">Alt</span>}
+                          leftSectionWidth={rem(38)}
+                          leftSectionPointerEvents="none"
+                          styles={FIELD_STYLES}
+                          value={a}
+                          onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
+                        />
+                        <Button
+                          variant="subtle" color="shu.6" size="compact-xs"
+                          aria-label={`Quitar romanización alternativa ${i + 1}`}
+                          onClick={() => setAlts(alts.filter((_, j) => j !== i))}
+                        >
+                          ✕
+                        </Button>
+                      </Group>
+                    ))}
+                  </Group>
+                )}
                 {addError && <Text c="shu.6" size="sm">{addError}</Text>}
-                <Text size="xs" c="dimmed">
-                  El romaji se completa solo desde el kana. Editalo si hace falta:
-                  la っ de がっこう o las vocales largas de スーパー no siempre salen solas.
-                </Text>
+                {/* `Group`+`gap`, no un "·" con espacios a los lados: ver la
+                    regla de separadores en CLAUDE.md. */}
+                <Group gap="0.375rem" wrap="wrap">
+                  <Text size="xs" c="dimmed">
+                    El romaji se completa solo desde el kana. Editalo si hace falta:
+                    la っ de がっこう o las vocales largas de スーパー no siempre salen solas.
+                  </Text>
+                  <Text size="xs" c="dimmed">·</Text>
+                  {/* La API ya aceptaba varias (`answers` es una lista); esto
+                      es lo que faltaba para poder cargarlas. スーパー tiene
+                      que aceptar `suupaa` y `sūpā` por igual. */}
+                  <Anchor
+                    id="add-alt-romaji"
+                    component="button"
+                    type="button"
+                    size="xs"
+                    c="dimmed"
+                    onClick={() => setAlts([...alts, ''])}
+                  >
+                    + romanización alternativa
+                  </Anchor>
+                </Group>
               </Stack>
             </Paper>
           )}
         </Stack>
       </Group>
+
+      <Modal
+        id="rename-deck-modal"
+        opened={renameOpen}
+        onClose={() => setRenameOpen(false)}
+        title="Renombrar mazo"
+      >
+        <Stack>
+          <TextInput
+            id="rename-deck-input" label="Nombre"
+            value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
+          />
+          {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
+          <Button
+            onClick={renameDeckNow}
+            disabled={!renameValue.trim() || renameBusy}
+            loading={renameBusy}
+          >
+            Guardar
+          </Button>
+        </Stack>
+      </Modal>
+
+      {/* `key` con el id de la carta: monta un componente nuevo por carta, así
+          los campos arrancan con SUS valores en vez de quedarse con los de la
+          carta anterior -el estado del formulario vive adentro-. */}
+      {editing && (
+        <EditCardModal
+          key={editing.id}
+          card={editing}
+          busy={editBusy}
+          error={editError}
+          onClose={() => setEditing(null)}
+          onSave={saveCard}
+        />
+      )}
 
       <Modal opened={groupModalOpen} onClose={() => setGroupModalOpen(false)} title="Nuevo grupo">
         <Stack>
