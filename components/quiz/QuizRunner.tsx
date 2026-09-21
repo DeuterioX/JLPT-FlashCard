@@ -14,7 +14,6 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { ViewportDebug } from './ViewportDebug';
 import { APP_NAME } from '@/lib/app-meta';
 
 export type Round = StoredRound;
@@ -134,14 +133,6 @@ function QuizPlay({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const quizScreenRef = useRef<HTMLDivElement>(null);
-  // `?debug=vv` prende la lectura de geometría del viewport (ver
-  // ViewportDebug.tsx). Se lee en un efecto y no con `useSearchParams` para
-  // no arrastrar el Suspense que ese hook exige en el App Router: es una
-  // herramienta de diagnóstico, no tiene que renderizar en el servidor.
-  const [showViewportDebug, setShowViewportDebug] = useState(false);
-  useEffect(() => {
-    setShowViewportDebug(new URLSearchParams(window.location.search).get('debug') === 'vv');
-  }, []);
   // Arranca en 0 y no en Date.now(): llamar a una función impura al calcular
   // el valor inicial de un ref se evalúa en cada render (aunque solo se use
   // una vez), así que el valor real se fija en el efecto de más abajo.
@@ -239,24 +230,37 @@ function QuizPlay({
   // no se toca acá: lo fija y lo limpia `applyVisualViewportInset`, porque
   // tiene que seguir al viewport visible y no quedarse en un `100%` que con
   // el teclado abierto vale la pantalla entera (ver su nota).
+  // `overscrollBehavior: none` es aparte del `overflow: hidden`: aunque no
+  // quede nada que scrollear, arrastrar hacia abajo desde arriba sigue
+  // disparando el pull-to-refresh de Safari -recargar la página a mitad de
+  // una ronda-, porque el overscroll es un gesto del navegador, no scroll de
+  // la página. Esta propiedad lo apaga puntualmente, sin tener que cancelar
+  // `touchmove` a mano: eso ya se probó y dejaba al usuario sin poder
+  // scrollear para recuperarse si algo más fallaba.
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
     const prev = {
       htmlOverflow: html.style.overflow, htmlPosition: html.style.position,
-      bodyOverflow: body.style.overflow, bodyPosition: body.style.position, bodyWidth: body.style.width,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow, bodyPosition: body.style.position,
+      bodyWidth: body.style.width, bodyOverscroll: body.style.overscrollBehavior,
     };
     html.style.overflow = 'hidden';
     html.style.position = 'fixed';
+    html.style.overscrollBehavior = 'none';
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.width = '100%';
+    body.style.overscrollBehavior = 'none';
     return () => {
       html.style.overflow = prev.htmlOverflow;
       html.style.position = prev.htmlPosition;
+      html.style.overscrollBehavior = prev.htmlOverscroll;
       body.style.overflow = prev.bodyOverflow;
       body.style.position = prev.bodyPosition;
       body.style.width = prev.bodyWidth;
+      body.style.overscrollBehavior = prev.bodyOverscroll;
     };
   }, []);
 
@@ -557,8 +561,6 @@ function QuizPlay({
       style={{ height: '100dvh', willChange: 'transform' }}
       onMouseDown={keepInputFocused}
     >
-      {showViewportDebug && <ViewportDebug />}
-
       {/* Mismo fondo/borde que la barra superior del resto de la app
           (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
           no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
