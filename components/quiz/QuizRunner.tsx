@@ -149,30 +149,47 @@ function QuizPlay({
 
   // Safari/iOS empuja la página entera hacia arriba con su propio scroll
   // nativo para "traer a la vista" el input recién enfocado -aparte del
-  // zoom por letra chica, ya resuelto- así que si el `body` puede
-  // scrollear, tiene adónde correrla (confirmado en un iPhone real: la
-  // pantalla se corre para arriba al abrir el teclado). Acá nunca hace
-  // falta scroll -el propio `viewportH` ya redimensiona todo para que
-  // entre completo-, así que se bloquea el `body` mientras el quiz está
-  // montado: sin overflow que recorrer, ese scroll nativo no tiene nada
-  // que mover. Se restaura el valor original al desmontar, no un string
+  // zoom por letra chica, ya resuelto- y ese scroll SE QUEDA ahí, no se
+  // autocorrige: confirmado con un video real, hubo que scrollear a mano
+  // de vuelta hasta el kana. Bloquear solo el `body` no alcanzó -el
+  // elemento que realmente scrollea en iOS suele ser el `<html>`
+  // (`document.documentElement`), no el `body`-, así que acá se bloquean
+  // los dos. Encima, `scrollTo(0, 0)` en cada foco: es el mismo momento en
+  // que Safari decide mover la página, así que corregirlo ahí mismo, en
+  // vez de solo bloquear el contenedor, es la segunda red de seguridad.
+  // Se restaura el valor original de cada uno al desmontar, no un string
   // fijo, por si algún estilo previo ya lo había tocado.
   useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevPosition = document.body.style.position;
-    const prevWidth = document.body.style.width;
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      htmlOverflow: html.style.overflow, htmlPosition: html.style.position, htmlHeight: html.style.height,
+      bodyOverflow: body.style.overflow, bodyPosition: body.style.position, bodyWidth: body.style.width,
+    };
+    html.style.overflow = 'hidden';
+    html.style.position = 'fixed';
+    html.style.height = '100%';
+    body.style.overflow = 'hidden';
+    body.style.position = 'fixed';
+    body.style.width = '100%';
     return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.position = prevPosition;
-      document.body.style.width = prevWidth;
+      html.style.overflow = prev.htmlOverflow;
+      html.style.position = prev.htmlPosition;
+      html.style.height = prev.htmlHeight;
+      body.style.overflow = prev.bodyOverflow;
+      body.style.position = prev.bodyPosition;
+      body.style.width = prev.bodyWidth;
     };
   }, []);
 
   // El foco arranca y vuelve siempre al input: el mouse nunca es obligatorio.
-  useEffect(() => { inputRef.current?.focus(); }, [card?.id]);
+  useEffect(() => {
+    inputRef.current?.focus();
+    // Segunda red de seguridad contra el mismo scroll de Safari: si de
+    // todos modos llegó a moverse algo, esto lo vuelve a 0 apenas React
+    // corre este efecto (después de que el navegador ya enfocó el input).
+    window.scrollTo(0, 0);
+  }, [card?.id]);
   useEffect(() => { shownAt.current = Date.now(); }, [card?.id]);
   // Arranque del cronómetro de la ronda. Las rondas siguientes lo reinician
   // en `nextRound` (un manejador, no el render).
