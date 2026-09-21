@@ -652,8 +652,16 @@ function QuizPlay({
         //   hace falta igual: con `place-items: center` el padding solo se
         //   nota cuando el contenido roza los bordes, y en ese caso lo que
         //   tiene que ceder es justamente él.
+        // `overflow: hidden` para que nada de acá adentro se le escape al
+        // stage: con `lineHeight: 1` la caja del kana queda 12px más corta
+        // que la caja de línea natural de la fuente -medido-, y ese sobrante
+        // es el único desborde que queda en toda la pantalla. Alcanza para
+        // que Safari muestre una barra de scroll sobre el stage al arrastrar
+        // (el thumb ocupaba casi todo el alto, justo lo que corresponde a un
+        // desborde de 12px). Lo que se recorta es espacio de métricas de la
+        // fuente, no tinta del glifo, así que el kana se ve igual.
         style={{
-          flex: 1, minHeight: 0, containerType: 'size',
+          flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
           display: 'grid', placeItems: 'center',
           paddingBlock: '0.5rem',
           background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgb(22,27,48), var(--mantine-color-dark-7) 100%)',
@@ -669,7 +677,7 @@ function QuizPlay({
           // -del tamaño justo del contenido, no de la pantalla- el toast se
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
-          <Box pos="relative">
+          <Box pos="relative" className="knd-quiz-kana-wrap">
             <Stack align="center" gap="xs">
               <Text
                 id="quiz-kana"

@@ -263,6 +263,33 @@ body { margin: 0; }
   .knd-quiz-caption {
     display: none;
   }
+
+}
+
+/* Umbral MUCHO más bajo que el del caption de acá arriba, y a propósito: con
+   el teclado abierto el stage mide ~135px en el dispositivo real, así que
+   cualquier regla que apunte a "pantalla apretada" con un corte generoso se
+   aplica SIEMPRE que hay teclado. Esto de acá abajo es un layout de
+   emergencia y tiene que activarse solo cuando de verdad no hay salida:
+   medido, el toast necesita 30px y recién por debajo de ~100px de stage deja
+   de entrar debajo del kana (a 89px quedan 26px libres). Con el corte en
+   200px el toast terminaba tapando el glifo en el caso normal.
+
+   Cuando sí se activa: poniendo el wrapper del kana en `static`, el bloque
+   contenedor del toast pasa a ser `#quiz-stage` (que es `position:
+   relative`), y el toast se ancla al piso del stage -libre, porque a esa
+   altura el caption ya está oculto-. Ahí sí se superpone con el kana, pero
+   la alternativa es que el `overflow: hidden` del stage lo recorte: que el
+   mensaje de error quede invisible es lo único que no se puede negociar. */
+@container (max-height: 100px) {
+  .knd-quiz-kana-wrap {
+    position: static;
+  }
+  .knd-quiz-toast {
+    top: auto;
+    bottom: 0.25rem;
+    margin-top: 0;
+  }
 }
 
 /* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
