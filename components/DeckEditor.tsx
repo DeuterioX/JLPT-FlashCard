@@ -16,6 +16,14 @@ export type EditorCard = {
   id: number; prompt: string; meaning: string | null; primary: string; groupId: number;
 };
 
+// Mantine centra el contenido de una `section`; el diseño lo quiere pegado
+// al borde izquierdo, con el mismo padding de 11px que tiene la caja.
+// Propiedades planas, sin selectores anidados: en Mantine 9 el `styles` de
+// un componente no los compila a CSS real (ver la nota de globals.css).
+const FIELD_STYLES = {
+  section: { justifyContent: 'flex-start', paddingLeft: rem(11) },
+} as const;
+
 export function DeckEditor({
   deck, cards, dictionaryLoaded,
 }: { deck: DeckSummary; cards: EditorCard[]; dictionaryLoaded: boolean }) {
@@ -31,6 +39,9 @@ export function DeckEditor({
   const groupId = deck.groups.some((g) => g.id === selectedGroupId)
     ? selectedGroupId
     : (deck.groups[0]?.id ?? 0);
+  // El panel de alta nombra el grupo al que va a parar la carta
+  // ("Nueva palabra en «Pescado»"), como en el diseño.
+  const groupName = deck.groups.find((g) => g.id === groupId)?.name ?? '';
 
   const [prompt, setPrompt] = useState('');
   const [romaji, setRomaji] = useState('');
@@ -272,19 +283,47 @@ export function DeckEditor({
           {!deck.isBuiltin && (
             <Paper withBorder p="sm">
               <Stack gap="xs">
-                <Text size="xs" fw={600}>Nueva palabra</Text>
-                <Group gap="xs" align="flex-end" wrap="wrap">
+                <Text id="new-word-title" size="0.71875rem" lh={1.4} fw={600}>
+                  {groupName ? `Nueva palabra en «${groupName}»` : 'Nueva palabra'}
+                </Text>
+                {/* `.field` del diseño: el rótulo va ADENTRO de la caja, a la
+                    izquierda del valor y en la misma línea, no encima. Se
+                    arma con `leftSection` en vez de envolver el input en una
+                    caja propia: así el borde, el foco y el estado de error
+                    siguen siendo del `TextInput` -incluida la regla de
+                    `.mantine-TextInput-input:focus` de globals.css- en vez de
+                    tener que reescribirlos.
+
+                    `leftSectionPointerEvents="none"` para que un click sobre
+                    el rótulo caiga en el input y lo enfoque. El ancho va por
+                    campo porque la sección se posiciona absoluta y cada
+                    rótulo mide distinto, y en `rem` para que escale con el
+                    resto de la app en 2K/4K (ver el `html { font-size }` de
+                    globals.css). */}
+                <Group gap="xs" align="center" wrap="wrap">
                   <TextInput
-                    id="nueva-kana" label="Kana" placeholder="えび" w={130}
+                    id="nueva-kana" placeholder="えび" w={150}
+                    leftSection={<span className="knd-field-label">Kana</span>}
+                    leftSectionWidth={rem(48)}
+                    leftSectionPointerEvents="none"
+                    styles={FIELD_STYLES}
                     value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
                   />
                   <TextInput
-                    id="nueva-romaji" label="Romaji" placeholder="ebi" w={120}
+                    id="nueva-romaji" placeholder="ebi" w={150}
+                    leftSection={<span className="knd-field-label">Romaji</span>}
+                    leftSectionWidth={rem(58)}
+                    leftSectionPointerEvents="none"
+                    styles={FIELD_STYLES}
                     value={romaji}
                     onChange={(e) => { setRomajiTouched(true); setRomaji(e.currentTarget.value); }}
                   />
                   <TextInput
-                    id="nueva-meaning" label="Significado" placeholder="camarón" w={160}
+                    id="nueva-meaning" placeholder="camarón" w={200}
+                    leftSection={<span className="knd-field-label">Significado</span>}
+                    leftSectionWidth={rem(84)}
+                    leftSectionPointerEvents="none"
+                    styles={FIELD_STYLES}
                     value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
                   />
                   <Button

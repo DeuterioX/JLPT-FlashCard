@@ -515,6 +515,19 @@ body { margin: 0; }
   color: var(--mantine-color-dark-3); /* --a-dimmer */
 }
 
+/* `.field .lbl` del diseño: el rótulo que va DENTRO del campo, a la
+   izquierda del valor. Es un rótulo, no un input, así que puede ir en 9px
+   sin reintroducir el zoom automático de Safari/iOS -eso solo lo dispara el
+   `font-size` del propio `<input>`, que por eso sigue en 16px (ver la nota
+   de `.mantine-TextInput-input` más arriba)-. */
+.knd-field-label {
+  font-size: 0.5625rem; /* 9px */
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-3); /* --a-dimmer */
+  white-space: nowrap;
+}
+
 .knd-editor-groups-desktop { display: flex; }
 .knd-editor-groups-mobile { display: none; }
 
