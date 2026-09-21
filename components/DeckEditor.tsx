@@ -2,7 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, Text, Button, Paper, TextInput, Divider, Box, Modal } from '@mantine/core';
+import {
+  Stack, Group, Text, Button, Paper, TextInput, Divider, Box, Modal, UnstyledButton, rem,
+  useMantineTheme,
+} from '@mantine/core';
+import { SectionLabel } from './SectionLabel';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import { DictSearchPanel } from '@/components/dict/DictSearchPanel';
@@ -16,6 +20,7 @@ export function DeckEditor({
   deck, cards, dictionaryLoaded,
 }: { deck: DeckSummary; cards: EditorCard[]; dictionaryLoaded: boolean }) {
   const router = useRouter();
+  const { other } = useMantineTheme();
 
   const [dictOpen, setDictOpen] = useState(false);
 
@@ -137,9 +142,11 @@ export function DeckEditor({
 
   return (
     <Stack gap="md">
-      <Group>
-        <Text c="dimmed" size="sm">Mazos /</Text>
-        <Text fw={700} className="kana">{deck.name}</Text>
+      <Group id="editor-header">
+        {/* `--a-dimmer` y 15px del diseño: el breadcrumb es lo más apagado
+            de la línea y el nombre no llega a los 16px del `lg`. */}
+        <Text id="editor-breadcrumb" c="dark.3" size="sm">Mazos /</Text>
+        <Text id="editor-deck-name" fw={700} size={rem(15)} lh={1.4} className="kana">{deck.name}</Text>
         <Group ml="auto" gap="xs">
           {!deck.isBuiltin && (
             <Button
@@ -153,7 +160,7 @@ export function DeckEditor({
         </Group>
       </Group>
 
-      <Group align="flex-start" wrap="wrap" gap="md" className="knd-editor-layout">
+      <Group id="editor-layout" align="flex-start" wrap="wrap" gap={14} className="knd-editor-layout">
         {showGroups && (
           <>
             {/* Columna vertical: escritorio. Tira horizontal: teléfono. Los
@@ -162,23 +169,35 @@ export function DeckEditor({
                 la navegación (ver AppShell.tsx) -así no hace falta
                 `useMediaQuery`, que devuelve un valor distinto en el
                 servidor y podría desincronizar la hidratación. */}
-            <Stack gap={3} w={180} className="knd-editor-groups-desktop">
-              <Text size="xs" tt="uppercase" c="dimmed">Grupos</Text>
+            <Stack id="editor-groups" gap={3} w={180} className="knd-editor-groups-desktop">
+              <SectionLabel id="editor-groups-title">Grupos</SectionLabel>
+              {/* `.it` del diseño, con `UnstyledButton` y no `Button`: el
+                  seleccionado va en un gris NEUTRO (`--a-surface-2`), y el
+                  `variant="light"` de Mantine lo pintaba con un tinte jade
+                  -medido: rgb(13,43,33)-, o sea el color de marca en el
+                  único lugar de la pantalla donde no significa nada. Pelear
+                  eso desde `Button` implica pisar sus vars de color, alto y
+                  padding a la vez; acá el control es directo. */}
               {deck.groups.map((g) => (
-                <Button
+                <UnstyledButton
                   key={g.id}
-                  variant={g.id === groupId ? 'light' : 'subtle'}
-                  justify="space-between"
-                  rightSection={<Text size="xs" c="dimmed" className="tabular">{g.cardCount}</Text>}
+                  id={`group-item-${g.id}`}
+                  className="knd-group-item"
+                  data-active={g.id === groupId || undefined}
                   onClick={() => setSelectedGroupId(g.id)}
-                  fullWidth
                 >
-                  {g.name}
-                </Button>
+                  <span>{g.name}</span>
+                  <span className="knd-group-count tabular">{g.cardCount}</span>
+                </UnstyledButton>
               ))}
-              <Button variant="subtle" c="dimmed" onClick={openGroupModal} fullWidth>
+              <UnstyledButton
+                id="new-group-btn"
+                className="knd-group-item"
+                data-muted
+                onClick={openGroupModal}
+              >
                 + Nuevo grupo
-              </Button>
+              </UnstyledButton>
             </Stack>
 
             <Group gap={6} wrap="nowrap" className="knd-editor-groups-mobile">
@@ -206,12 +225,12 @@ export function DeckEditor({
           </>
         )}
 
-        <Stack gap="sm" className="knd-editor-cards" style={{ flex: 1, minWidth: 280 }}>
-          <Paper withBorder>
+        <Stack id="editor-cards" gap="sm" className="knd-editor-cards" style={{ flex: 1, minWidth: 280 }}>
+          <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
             {visible.map((c, i) => (
-              <Box key={c.id}>
-                {i > 0 && <Divider />}
-                <Group px="sm" py="xs" wrap="nowrap">
+              <Box key={c.id} id={`card-row-${c.id}`}>
+                {i > 0 && <Divider color={other.borderSoft} />}
+                <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
                   {/* Una palabra sin espacios (el romaji siempre es una:
                       "arigatougozaimasu") no tiene dónde cortar para el
                       navegador -a diferencia del kana o una `meaning` con
@@ -222,9 +241,13 @@ export function DeckEditor({
                       -por default un flex item no se achica más allá del
                       ancho de su contenido, así que sin esto la fila
                       entera se desbordaba para hacerle lugar-. */}
-                  <Text className="kana" c="dimmed" w={90} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
-                  <Text className="romaji" size="sm" c="dimmed" w={80} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
-                  <Text size="sm" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>{c.meaning ?? ''}</Text>
+                  <Text className="kana" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
+                  <Text className="romaji" size="sm" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
+                  {/* El significado va en `--a-dim`, no en el color de texto:
+                      en el diseño es información secundaria de la fila. */}
+                  <Text size="sm" c="dimmed" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
+                    {c.meaning ?? ''}
+                  </Text>
                   {!deck.isBuiltin && (
                     <Button
                       variant="subtle"
