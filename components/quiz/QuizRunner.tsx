@@ -14,70 +14,13 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
+import { ViewportDebug } from './ViewportDebug';
 import { APP_NAME } from '@/lib/app-meta';
 
 export type Round = StoredRound;
 
 const MEANING_MS = 1200;
 const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
-
-// `interactive-widget: resizes-content` (app/layout.tsx) le pide al navegador
-// que redimensione el LAYOUT viewport cuando aparece el teclado -y en los
-// navegadores que lo respetan alcanza con `100dvh`, sin JS-. Pero un video
-// real (iPhone/Safari, con teclado SwiftKey) mostró que el bug seguía: el
-// navegador paneó el VISUAL viewport hacia arriba para mantener el input a la vista,
-// dejando el layout viewport (y por lo tanto `100dvh` y cualquier
-// `position: fixed`, que se ancla al layout viewport) del mismo alto de
-// siempre. Bloquear el scroll de `html`/`body` no toca ese paneo -no es un
-// scroll del documento, es un desplazamiento de la "cámara" del visual
-// viewport- así que el header y el kana, aunque siguen ahí, quedan arriba
-// del área realmente visible. Solo la Visual Viewport API expone ese offset
-// (`offsetTop`) y ese alto real (`height`); replicarlos acá con `height` +
-// `transform: translateY()` en vez de un `100dvh` a secas hace que el propio
-// contenedor siga al viewport visual en vez de al layout. En un browser que
-// sí resuelve todo de forma nativa esto es un no-op (`offsetTop` es 0 y
-// `height` coincide con el layout viewport), así que no compite con
-// `interactive-widget`.
-//
-// Muta el DOM directo (`ref.current.style...`) en el propio handler en vez de
-// pasar por estado de React: durante un gesto este evento dispara una vez por
-// frame, y un `useState`/`useSyncExternalStore` ahí significa un ciclo de
-// render completo de todo el quiz por frame, para terminar escribiendo dos
-// propiedades de estilo en un solo nodo.
-//
-// Lo que esto NO arregla, aunque en su momento lo intenté por acá: el input
-// desaparecía y volvía mientras el usuario arrastraba. Eso no era ni lag de
-// React ni churn de capas de composición (las dos hipótesis que probé antes,
-// las dos equivocadas), sino el PISO del layout -el alto mínimo que ocupaba
-// el contenido de la pantalla-, que estaba en ~294px contra los ~302px que
-// deja libres el teclado: cualquier fluctuación del visual viewport cruzaba
-// ese umbral y el pie entero quedaba posicionado fuera del contenedor. La
-// explicación completa y las medidas están en la nota de `.knd-quiz-footer`
-// en globals.css; el piso se arregló allá y en el `minHeight: 0` del stage,
-// más abajo en este archivo.
-function applyVisualViewportInset(el: HTMLElement) {
-  const vv = window.visualViewport;
-  if (!vv) return;
-  el.style.height = `${vv.height}px`;
-  // `html`/`body` al alto VISIBLE, y no al `100%` que tenían antes. Medido en
-  // el dispositivo con el teclado abierto: `innerHeight` 326 (el layout
-  // viewport SÍ se achica, `interactive-widget` funciona) pero `100dvh` 721,
-  // porque por especificación las unidades de viewport ignoran el teclado. Con
-  // `height: 100%` el documento se quedaba en esos 721 mientras solo se veían
-  // 326: 395px de documento muerto, que es exactamente el `scrollY` de 395 que
-  // mostró la misma medición. Ese era el scroll. Igualando el documento al
-  // área visible no queda nada que scrollear y Safari no tiene adónde ir.
-  document.documentElement.style.height = `${vv.height}px`;
-  document.body.style.height = `${vv.height}px`;
-  // Sin overflow ya no hay scroll que compensar, así que NO se aplica ningún
-  // `translateY`. El que había antes cancelaba el scroll de 395px con un
-  // desplazamiento igual y opuesto: se veía bien solo mientras los dos
-  // coincidían, y cualquier gesto los desincronizaba -era la causa de que la
-  // pantalla "se viera re mal" al scrollear-. Si igual quedó scrolleado de
-  // antes (Safari scrollea al enfocar, antes de que corra esto), se vuelve a 0.
-  el.style.transform = '';
-  if (window.scrollY !== 0) window.scrollTo(0, 0);
-}
 
 function readUsedRound(): string | null {
   try {
@@ -132,7 +75,13 @@ function QuizPlay({
   const [elapsedMs, setElapsedMs] = useState(0);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const quizScreenRef = useRef<HTMLDivElement>(null);
+  // `?debug=vv`: lectura de scroll/viewport para verificar en el dispositivo
+  // (ver ViewportDebug.tsx). En un efecto y no con `useSearchParams` para no
+  // arrastrar el Suspense que ese hook exige en el App Router.
+  const [showViewportDebug, setShowViewportDebug] = useState(false);
+  useEffect(() => {
+    setShowViewportDebug(new URLSearchParams(window.location.search).get('debug') === 'vv');
+  }, []);
   // Arranca en 0 y no en Date.now(): llamar a una función impura al calcular
   // el valor inicial de un ref se evalúa en cada render (aunque solo se use
   // una vez), así que el valor real se fija en el efecto de más abajo.
@@ -176,90 +125,46 @@ function QuizPlay({
   // estado de React llegaría un render tarde para esto; un ref no.
   const continued = useRef(false);
 
-  // Ver el comentario largo junto a `applyVisualViewportInset` más arriba en
-  // el archivo. Corre en el mismo efecto que bloquea el scroll de
-  // `html`/`body` (abajo) porque comparten ciclo de vida -ambos existen
-  // mientras el quiz está montado-, pero es un mecanismo aparte: ese lock
-  // frena el scroll del documento, esto sigue el paneo del visual viewport
-  // que el lock no puede ver.
-  useEffect(() => {
-    const el = quizScreenRef.current;
-    const vv = window.visualViewport;
-    if (!el || !vv) return;
-    const onChange = () => applyVisualViewportInset(el);
-    onChange();
-    vv.addEventListener('resize', onChange);
-    vv.addEventListener('scroll', onChange);
-    // Safari scrollea el documento al enfocar el input, y ese scroll no
-    // dispara ningún evento del visual viewport: sin escuchar también el
-    // scroll del documento, el `scrollTo(0, 0)` correctivo no llega a correr.
-    window.addEventListener('scroll', onChange);
-    return () => {
-      vv.removeEventListener('resize', onChange);
-      vv.removeEventListener('scroll', onChange);
-      window.removeEventListener('scroll', onChange);
-      el.style.height = '';
-      el.style.transform = '';
-      // El alto de `html`/`body` lo limpia ESTE efecto, que es el que lo
-      // fija, y no el del lock de abajo: aquel guarda el valor previo cuando
-      // este ya corrió (los efectos se ejecutan en orden de declaración), así
-      // que "restauraría" el pixel recién escrito acá y dejaría la página
-      // siguiente con el alto del quiz clavado -pasó de verdad, medido-.
-      document.documentElement.style.height = '';
-      document.body.style.height = '';
-    };
-  }, []);
-
   const card = currentCard(state);
   const remaining = state.queue.length;
   const total = round.cards.length;
   const progress = total === 0 ? 0 : ((total - remaining) / total) * 100;
 
-  // Safari/iOS empuja la página entera hacia arriba con su propio scroll
-  // nativo para "traer a la vista" el input recién enfocado -aparte del
-  // zoom por letra chica, ya resuelto- y ese scroll SE QUEDA ahí, no se
-  // autocorrige: confirmado con un video real, hubo que scrollear a mano
-  // de vuelta hasta el kana. Bloquear solo el `body` no alcanzó -el
-  // elemento que realmente scrollea en iOS suele ser el `<html>`
-  // (`document.documentElement`), no el `body`-, así que acá se bloquean
-  // los dos. Encima, `scrollTo(0, 0)` en cada foco: es el mismo momento en
-  // que Safari decide mover la página, así que corregirlo ahí mismo, en
-  // vez de solo bloquear el contenedor, es la segunda red de seguridad.
-  // Se restaura el valor original de cada uno al desmontar, no un string
-  // fijo, por si algún estilo previo ya lo había tocado. El ALTO de los dos
-  // no se toca acá: lo fija y lo limpia `applyVisualViewportInset`, porque
-  // tiene que seguir al viewport visible y no quedarse en un `100%` que con
-  // el teclado abierto vale la pantalla entera (ver su nota).
-  // `overscrollBehavior: none` es aparte del `overflow: hidden`: aunque no
-  // quede nada que scrollear, arrastrar hacia abajo desde arriba sigue
-  // disparando el pull-to-refresh de Safari -recargar la página a mitad de
-  // una ronda-, porque el overscroll es un gesto del navegador, no scroll de
-  // la página. Esta propiedad lo apaga puntualmente, sin tener que cancelar
-  // `touchmove` a mano: eso ya se probó y dejaba al usuario sin poder
-  // scrollear para recuperarse si algo más fallaba.
+  // La pantalla del quiz no scrollea nunca: mide exactamente el viewport y
+  // no hay nada fuera de él. `overflow: hidden` en `html` y `body` es lo que
+  // lo sostiene, y `overscrollBehavior: none` es aparte -el pull-to-refresh
+  // de Safari es un gesto del navegador, no scroll de la página, así que
+  // sobrevive al `overflow` aunque no quede nada que scrollear-.
+  //
+  // Lo que ya NO está acá, a propósito: `position: fixed` en `html`/`body`,
+  // fijar su alto por JS, seguir el viewport visual con un `transform`, y
+  // forzar `scrollTo(0, 0)` en cada evento de scroll. Todo eso existía para
+  // compensar un scroll que resultó ser autoinfligido: el contenedor usaba
+  // `100dvh`, y las unidades de viewport ignoran el teclado por
+  // especificación -medido en el dispositivo: con el teclado abierto
+  // `innerHeight` 326 pero `100dvh` 721-, así que la pantalla se dibujaba
+  // 395px más alta que el espacio visible y todo lo demás era tapar eso. El
+  // `scrollTo(0, 0)` encima peleaba contra el gesto del usuario en cada
+  // frame, que es de dónde salían el temblor y la barra de scroll que
+  // aparecía al arrastrar (confirmado cuadro a cuadro en video: el contenido
+  // se corría ~17px y volvía). Con `height: 100%` en la pantalla -el layout
+  // viewport, que Safari SÍ achica con `interactive-widget: resizes-content`-
+  // no hay nada que compensar.
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
     const prev = {
-      htmlOverflow: html.style.overflow, htmlPosition: html.style.position,
-      htmlOverscroll: html.style.overscrollBehavior,
-      bodyOverflow: body.style.overflow, bodyPosition: body.style.position,
-      bodyWidth: body.style.width, bodyOverscroll: body.style.overscrollBehavior,
+      htmlOverflow: html.style.overflow, htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverflow: body.style.overflow, bodyOverscroll: body.style.overscrollBehavior,
     };
     html.style.overflow = 'hidden';
-    html.style.position = 'fixed';
     html.style.overscrollBehavior = 'none';
     body.style.overflow = 'hidden';
-    body.style.position = 'fixed';
-    body.style.width = '100%';
     body.style.overscrollBehavior = 'none';
     return () => {
       html.style.overflow = prev.htmlOverflow;
-      html.style.position = prev.htmlPosition;
       html.style.overscrollBehavior = prev.htmlOverscroll;
       body.style.overflow = prev.bodyOverflow;
-      body.style.position = prev.bodyPosition;
-      body.style.width = prev.bodyWidth;
       body.style.overscrollBehavior = prev.bodyOverscroll;
     };
   }, []);
@@ -549,18 +454,18 @@ function QuizPlay({
   return (
     <Stack
       id="quiz-screen"
-      ref={quizScreenRef}
       gap={0}
-      // `100dvh` es el valor de reposo (SSR, navegadores sin `visualViewport`,
-      // o antes de que el efecto de `applyVisualViewportInset` corra por
-      // primera vez); ese efecto pisa `height`/`transform` directo sobre el
-      // nodo apenas monta -ver el comentario largo junto a esa función más
-      // arriba en el archivo-. `willChange: transform` porque ese efecto
-      // reescribe `transform` una vez por frame mientras dura un paneo del
-      // teclado: es exactamente el caso para el que existe el hint.
-      style={{ height: '100dvh', willChange: 'transform' }}
+      // `100%`, no `100dvh`: con el teclado abierto Safari achica el layout
+      // viewport (`interactive-widget: resizes-content` en app/layout.tsx), y
+      // `100%` lo sigue a través de la cadena `html`/`body` de globals.css.
+      // `100dvh` NO lo sigue -las unidades de viewport excluyen el teclado por
+      // especificación- y era la causa de todo: la pantalla quedaba 395px más
+      // alta que el espacio visible.
+      style={{ height: '100%' }}
       onMouseDown={keepInputFocused}
     >
+      {showViewportDebug && <ViewportDebug />}
+
       {/* Mismo fondo/borde que la barra superior del resto de la app
           (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
           no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
