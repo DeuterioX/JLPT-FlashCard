@@ -1,6 +1,8 @@
 'use client';
 
-import { useEffect, useEffectEvent, useRef, useState, type FormEvent, type MouseEvent } from 'react';
+import {
+  useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent, type MouseEvent,
+} from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
 import {
@@ -18,6 +20,52 @@ export type Round = StoredRound;
 
 const MEANING_MS = 1200;
 const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
+
+// `interactive-widget: resizes-content` (app/layout.tsx) le pide al navegador
+// que redimensione el LAYOUT viewport cuando aparece el teclado -y en los
+// navegadores que lo respetan alcanza con `100dvh`, sin JS-. Pero un video
+// real (Android, teclado SwiftKey) mostró que el bug seguía: el navegador
+// paneó el VISUAL viewport hacia arriba para mantener el input a la vista,
+// dejando el layout viewport (y por lo tanto `100dvh` y cualquier
+// `position: fixed`, que se ancla al layout viewport) del mismo alto de
+// siempre. Bloquear el scroll de `html`/`body` no toca ese paneo -no es un
+// scroll del documento, es un desplazamiento de la "cámara" del visual
+// viewport- así que el header y el kana, aunque siguen ahí, quedan arriba
+// del área realmente visible. Solo la Visual Viewport API expone ese offset
+// (`offsetTop`) y ese alto real (`height`); replicarlos acá con `height` +
+// `transform: translateY()` en vez de un `100dvh` a secas hace que el propio
+// contenedor seguido al viewport visual en vez de al layout. En un browser
+// que sí resuelve todo de forma nativa esto es un no-op (`offsetTop` es 0 y
+// `height` coincide con el layout viewport), así que no compite con
+// `interactive-widget`.
+function subscribeVisualViewportInset(onChange: () => void) {
+  const vv = window.visualViewport;
+  if (!vv) return () => {};
+  vv.addEventListener('resize', onChange);
+  vv.addEventListener('scroll', onChange);
+  return () => {
+    vv.removeEventListener('resize', onChange);
+    vv.removeEventListener('scroll', onChange);
+  };
+}
+
+function getVisualViewportInset() {
+  const vv = window.visualViewport;
+  if (!vv) return null;
+  return `${vv.height}px|${vv.offsetTop}px`;
+}
+
+function getVisualViewportInsetServer() {
+  return null;
+}
+
+function useVisualViewportInset() {
+  return useSyncExternalStore(
+    subscribeVisualViewportInset,
+    getVisualViewportInset,
+    getVisualViewportInsetServer,
+  );
+}
 
 function readUsedRound(): string | null {
   try {
@@ -114,6 +162,9 @@ function QuizPlay({
   // Evita que el timer de 6s y una tecla disparen `nextRound` dos veces. Un
   // estado de React llegaría un render tarde para esto; un ref no.
   const continued = useRef(false);
+
+  const viewportInset = useVisualViewportInset();
+  const [viewportHeight, viewportTop] = viewportInset ? viewportInset.split('|') : [null, null];
 
   const card = currentCard(state);
   const remaining = state.queue.length;
@@ -441,15 +492,16 @@ function QuizPlay({
     <Stack
       id="quiz-screen"
       gap={0}
-      // Antes esto medía `window.visualViewport.height` por JS (el teclado
-      // tapa el input con un `100dvh` a secas). Ahora que el `viewport` de
-      // `app/layout.tsx` pide `interactive-widget: resizes-content`, el
-      // navegador mismo redimensiona el LAYOUT viewport -del que sale
-      // `100dvh`- cuando aparece el teclado; mantener el parche viejo de
-      // encima competía con ese mecanismo nativo en vez de sumarse -el
-      // scroll que quedaba pegado en iOS parece venir de ahí, dos
-      // sistemas achicando el alto por separado en momentos distintos-.
-      style={{ height: '100dvh' }}
+      // Ver el comentario largo junto a `useVisualViewportInset` más arriba
+      // en el archivo: `height` sigue el alto real del visual viewport (no
+      // el layout viewport de `100dvh`) y `translateY` cancela el paneo que
+      // el navegador aplica para mantener el input a la vista sobre el
+      // teclado. Sin `visualViewport` (SSR, navegadores sin soporte) cae a
+      // `100dvh` sin transform, el comportamiento de siempre.
+      style={{
+        height: viewportHeight ?? '100dvh',
+        transform: viewportTop ? `translateY(${viewportTop})` : undefined,
+      }}
       onMouseDown={keepInputFocused}
     >
       {/* Mismo fondo/borde que la barra superior del resto de la app
