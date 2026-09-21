@@ -27,6 +27,12 @@ const FIELD_STYLES = {
   section: { justifyContent: 'flex-start', paddingLeft: rem(11) },
 } as const;
 
+// La misma acción se ofrece en dos lugares -el pie de la columna de grupos
+// y, cuando esa columna no está, el encabezado-, así que la etiqueta vive
+// en un solo lado: con el texto escrito a mano en cada uno, los dos botones
+// ya habían quedado con nombres distintos ("+ Grupo" y "+ Nuevo grupo").
+const NEW_GROUP_LABEL = '+ Nuevo grupo';
+
 /**
  * Edición de una carta existente. El formulario vive acá adentro y no en
  * `DeckEditor` para que abrir otra carta lo reinicie solo, vía `key`.
@@ -350,7 +356,7 @@ export function DeckEditor({
               variant="default" size="compact-sm"
               onClick={openGroupModal}
             >
-              + Grupo
+              {NEW_GROUP_LABEL}
             </Button>
           )}
           {!deck.isBuiltin && (
@@ -397,7 +403,7 @@ export function DeckEditor({
                 data-muted
                 onClick={openGroupModal}
               >
-                + Nuevo grupo
+                {NEW_GROUP_LABEL}
               </UnstyledButton>
             </Stack>
 
@@ -420,7 +426,7 @@ export function DeckEditor({
                 onClick={openGroupModal}
                 style={{ flex: 'none', minHeight: 44 }}
               >
-                + Nuevo grupo
+                {NEW_GROUP_LABEL}
               </Button>
             </Group>
           </>
