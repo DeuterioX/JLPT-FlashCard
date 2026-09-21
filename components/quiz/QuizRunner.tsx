@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent, type MouseEvent } from 'react';
+import { useEffect, useEffectEvent, useRef, useState, type FormEvent, type MouseEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
 import {
@@ -18,32 +18,6 @@ export type Round = StoredRound;
 
 const MEANING_MS = 1200;
 const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
-
-// El teclado virtual se come la mitad inferior de la pantalla. Con 100vh (o
-// 100dvh sin más) el input queda tapado abajo del teclado y la app es
-// inusable en el teléfono. `visualViewport.height` sí refleja el espacio que
-// queda libre una vez que el teclado empujó el layout visual.
-//
-// Se lee con `useSyncExternalStore` (no con un `useEffect` + `setState`
-// síncrono, que `react-hooks/set-state-in-effect` rechaza) siguiendo el
-// mismo patrón que ya usan `app/quiz/page.tsx` y `HistoryDate` en
-// `StatsBoard.tsx` para valores que solo existen en el navegador.
-function subscribeViewport(onChange: () => void) {
-  const vv = window.visualViewport;
-  if (!vv) return () => {};
-  vv.addEventListener('resize', onChange);
-  vv.addEventListener('scroll', onChange);
-  return () => {
-    vv.removeEventListener('resize', onChange);
-    vv.removeEventListener('scroll', onChange);
-  };
-}
-function getViewportHeight(): number | null {
-  return window.visualViewport?.height ?? null;
-}
-function getViewportHeightServer(): number | null {
-  return null;
-}
 
 function readUsedRound(): string | null {
   try {
@@ -84,7 +58,6 @@ function ReplaceTo({ href }: { href: string }) {
 function QuizPlay({
   round, start,
 }: { round: Round; start: Exclude<RoundStart, { kind: 'redirect' }> }) {
-  const viewportH = useSyncExternalStore(subscribeViewport, getViewportHeight, getViewportHeightServer);
   const router = useRouter();
   const [state, setState] = useState<RoundState>(() => startRound(round.cards));
   const [typed, setTyped] = useState('');
@@ -468,7 +441,15 @@ function QuizPlay({
     <Stack
       id="quiz-screen"
       gap={0}
-      style={{ height: viewportH ? `${viewportH}px` : '100dvh' }}
+      // Antes esto medía `window.visualViewport.height` por JS (el teclado
+      // tapa el input con un `100dvh` a secas). Ahora que el `viewport` de
+      // `app/layout.tsx` pide `interactive-widget: resizes-content`, el
+      // navegador mismo redimensiona el LAYOUT viewport -del que sale
+      // `100dvh`- cuando aparece el teclado; mantener el parche viejo de
+      // encima competía con ese mecanismo nativo en vez de sumarse -el
+      // scroll que quedaba pegado en iOS parece venir de ahí, dos
+      // sistemas achicando el alto por separado en momentos distintos-.
+      style={{ height: '100dvh' }}
       onMouseDown={keepInputFocused}
     >
       {/* Mismo fondo/borde que la barra superior del resto de la app
