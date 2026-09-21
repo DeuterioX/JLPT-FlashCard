@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type FormEvent, type MouseEvent,
+  useEffect, useEffectEvent, useRef, useState, type FormEvent, type MouseEvent,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
@@ -34,37 +34,28 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 // del área realmente visible. Solo la Visual Viewport API expone ese offset
 // (`offsetTop`) y ese alto real (`height`); replicarlos acá con `height` +
 // `transform: translateY()` en vez de un `100dvh` a secas hace que el propio
-// contenedor seguido al viewport visual en vez de al layout. En un browser
-// que sí resuelve todo de forma nativa esto es un no-op (`offsetTop` es 0 y
+// contenedor siga al viewport visual en vez de al layout. En un browser que
+// sí resuelve todo de forma nativa esto es un no-op (`offsetTop` es 0 y
 // `height` coincide con el layout viewport), así que no compite con
 // `interactive-widget`.
-function subscribeVisualViewportInset(onChange: () => void) {
+//
+// Esto muta el DOM directo (`ref.current.style...`) en el propio handler del
+// evento, en vez de pasar por `useState`/`useSyncExternalStore` -que sí
+// funcionaba en reposo, pero un segundo video (mismo dispositivo) mostró el
+// input desapareciendo un instante mientras el usuario arrastraba/scrolleaba
+// activamente-. Con estado de React, cada evento `scroll` del visual
+// viewport (que dispara muy seguido durante un gesto, uno por frame) espera
+// a el próximo ciclo de render de React para aplicarse; el navegador sigue
+// paneando en su propio hilo de composición mientras tanto, así que durante
+// el gesto el contenedor va sistemáticamente un frame atrás de la cámara
+// real -eso es el parpadeo-. Escribiendo el estilo ya en el handler no hay
+// ciclo de render de por medio: se aplica en el mismo frame en que el
+// navegador reporta el nuevo offset.
+function applyVisualViewportInset(el: HTMLElement) {
   const vv = window.visualViewport;
-  if (!vv) return () => {};
-  vv.addEventListener('resize', onChange);
-  vv.addEventListener('scroll', onChange);
-  return () => {
-    vv.removeEventListener('resize', onChange);
-    vv.removeEventListener('scroll', onChange);
-  };
-}
-
-function getVisualViewportInset() {
-  const vv = window.visualViewport;
-  if (!vv) return null;
-  return `${vv.height}px|${vv.offsetTop}px`;
-}
-
-function getVisualViewportInsetServer() {
-  return null;
-}
-
-function useVisualViewportInset() {
-  return useSyncExternalStore(
-    subscribeVisualViewportInset,
-    getVisualViewportInset,
-    getVisualViewportInsetServer,
-  );
+  if (!vv) return;
+  el.style.height = `${vv.height}px`;
+  el.style.transform = vv.offsetTop ? `translateY(${vv.offsetTop}px)` : '';
 }
 
 function readUsedRound(): string | null {
@@ -120,6 +111,7 @@ function QuizPlay({
   const [elapsedMs, setElapsedMs] = useState(0);
   const [sessionError, setSessionError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const quizScreenRef = useRef<HTMLDivElement>(null);
   // Arranca en 0 y no en Date.now(): llamar a una función impura al calcular
   // el valor inicial de un ref se evalúa en cada render (aunque solo se use
   // una vez), así que el valor real se fija en el efecto de más abajo.
@@ -163,8 +155,27 @@ function QuizPlay({
   // estado de React llegaría un render tarde para esto; un ref no.
   const continued = useRef(false);
 
-  const viewportInset = useVisualViewportInset();
-  const [viewportHeight, viewportTop] = viewportInset ? viewportInset.split('|') : [null, null];
+  // Ver el comentario largo junto a `applyVisualViewportInset` más arriba en
+  // el archivo. Corre en el mismo efecto que bloquea el scroll de
+  // `html`/`body` (abajo) porque comparten ciclo de vida -ambos existen
+  // mientras el quiz está montado-, pero es un mecanismo aparte: ese lock
+  // frena el scroll del documento, esto sigue el paneo del visual viewport
+  // que el lock no puede ver.
+  useEffect(() => {
+    const el = quizScreenRef.current;
+    const vv = window.visualViewport;
+    if (!el || !vv) return;
+    const onChange = () => applyVisualViewportInset(el);
+    onChange();
+    vv.addEventListener('resize', onChange);
+    vv.addEventListener('scroll', onChange);
+    return () => {
+      vv.removeEventListener('resize', onChange);
+      vv.removeEventListener('scroll', onChange);
+      el.style.height = '';
+      el.style.transform = '';
+    };
+  }, []);
 
   const card = currentCard(state);
   const remaining = state.queue.length;
@@ -491,17 +502,14 @@ function QuizPlay({
   return (
     <Stack
       id="quiz-screen"
+      ref={quizScreenRef}
       gap={0}
-      // Ver el comentario largo junto a `useVisualViewportInset` más arriba
-      // en el archivo: `height` sigue el alto real del visual viewport (no
-      // el layout viewport de `100dvh`) y `translateY` cancela el paneo que
-      // el navegador aplica para mantener el input a la vista sobre el
-      // teclado. Sin `visualViewport` (SSR, navegadores sin soporte) cae a
-      // `100dvh` sin transform, el comportamiento de siempre.
-      style={{
-        height: viewportHeight ?? '100dvh',
-        transform: viewportTop ? `translateY(${viewportTop})` : undefined,
-      }}
+      // `100dvh` es el valor de reposo (SSR, navegadores sin `visualViewport`,
+      // o antes de que el efecto de `applyVisualViewportInset` corra por
+      // primera vez); ese efecto pisa `height`/`transform` directo sobre el
+      // nodo apenas monta -ver el comentario largo junto a esa función más
+      // arriba en el archivo-.
+      style={{ height: '100dvh' }}
       onMouseDown={keepInputFocused}
     >
       {/* Mismo fondo/borde que la barra superior del resto de la app
