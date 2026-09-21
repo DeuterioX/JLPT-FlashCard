@@ -31,10 +31,9 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 // más alta que el espacio visible, con el input debajo del teclado.
 //
 // `html`/`body` van al mismo alto para que no quede documento fuera de lo
-// visible. No se aplica ningún `transform` ni se fuerza `scrollTo(0, 0)`:
-// eso estuvo acá y era peor que el problema -el `scrollTo` disparaba en cada
-// evento de scroll y peleaba contra el gesto del usuario frame a frame, que
-// es de dónde salían el temblor y la barra de scroll al arrastrar-.
+// visible. Lo que NO se hace es seguir el paneo del viewport visual con un
+// `transform`: eso estuvo acá y llegaba siempre un frame tarde respecto del
+// navegador, que compone en su propio hilo.
 function applyVisualViewportInset(el: HTMLElement) {
   const vv = window.visualViewport;
   if (!vv) return;
@@ -174,16 +173,18 @@ function QuizPlay({
   const total = round.cards.length;
   const progress = total === 0 ? 0 : ((total - remaining) / total) * 100;
 
-  // `position: fixed` en `html`/`body` NO es redundante con el
-  // `overflow: hidden`: sacándolo, el diagnóstico en el dispositivo registró
-  // eventos de scroll reales del documento (`document top=0, 22, 45, 88,
-  // 168`) con el overflow igual en `hidden`. Fijándolos, el documento queda
-  // fuera de flujo y no hay scroll posible -esa misma medición, con `fixed`,
-  // daba `sY 0` estable-.
+  // Ojo con lo que estas dos propiedades SÍ hacen: ni `overflow: hidden` ni
+  // `position: fixed` frenan el scroll en iOS. Medido en el dispositivo con
+  // las dos puestas (`deOv hidden/fixed`), el documento scrolleaba igual
+  // -`document top=0, 17, 37, 59, 68`-, porque el área scrolleable es el ICB
+  // (el layout viewport, 721px) y no el alto que se le fija al elemento. El
+  // que frena el gesto es el `touchAction: 'none'` de la pantalla del quiz.
+  // Quedan igual porque sacan el documento de flujo y le fijan el tamaño, que
+  // es lo que evita que el contenido viaje con cualquier scroll residual.
   //
   // `overscrollBehavior: none` es otra cosa más: el pull-to-refresh de Safari
   // es un gesto del navegador, no scroll de la página, así que sobrevive a
-  // los dos de arriba aunque no quede nada que scrollear.
+  // todo lo anterior aunque no quede nada que scrollear.
   //
   // El alto NO se toca acá: lo fija y lo limpia `applyVisualViewportInset`,
   // que es el único que conoce el alto visible real.
@@ -216,11 +217,9 @@ function QuizPlay({
 
   // El foco arranca y vuelve siempre al input: el mouse nunca es obligatorio.
   useEffect(() => {
+    // Sin `scrollTo(0, 0)` acá: este `focus()` dispara `focusin`, y de ahí
+    // cuelga la corrección del scroll (ver `applyVisualViewportInset`).
     inputRef.current?.focus();
-    // Segunda red de seguridad contra el mismo scroll de Safari: si de
-    // todos modos llegó a moverse algo, esto lo vuelve a 0 apenas React
-    // corre este efecto (después de que el navegador ya enfocó el input).
-    window.scrollTo(0, 0);
   }, [card?.id]);
   useEffect(() => { shownAt.current = Date.now(); }, [card?.id]);
   // Arranque del cronómetro de la ronda. Las rondas siguientes lo reinician
