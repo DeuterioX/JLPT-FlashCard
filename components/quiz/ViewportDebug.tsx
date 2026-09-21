@@ -86,7 +86,7 @@ export function ViewportDebug() {
   return (
     <div
       style={{
-        position: 'fixed', top: 0, left: 0, zIndex: 9999,
+        position: 'fixed', bottom: 0, left: 0, zIndex: 9999,
         background: 'rgba(0,0,0,0.9)', color: '#7CFF9B',
         font: '10px/1.35 ui-monospace, monospace', padding: '4px 6px',
         pointerEvents: 'none', whiteSpace: 'pre', maxWidth: '100vw',

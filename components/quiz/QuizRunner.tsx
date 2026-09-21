@@ -43,6 +43,12 @@ function applyVisualViewportInset(el: HTMLElement) {
   el.style.height = h;
   document.documentElement.style.height = h;
   document.body.style.height = h;
+  // Corrección de una sola vez del scroll que Safari hace al enfocar. Va
+  // atada a `resize` del viewport visual y al `focus` del input -eventos
+  // discretos-, NUNCA al evento de scroll: atarla al scroll es lo que
+  // generaba el temblor, porque corregía en cada frame contra el gesto que
+  // el usuario estaba haciendo.
+  if (window.scrollY !== 0) window.scrollTo(0, 0);
 }
 
 function readUsedRound(): string | null {
@@ -159,10 +165,12 @@ function QuizPlay({
     const onChange = () => applyVisualViewportInset(el);
     onChange();
     vv.addEventListener('resize', onChange);
-    vv.addEventListener('scroll', onChange);
+    // También al enfocar: es el momento exacto en que Safari scrollea para
+    // "traer a la vista" el input, y es un evento discreto, no continuo.
+    document.addEventListener('focusin', onChange);
     return () => {
       vv.removeEventListener('resize', onChange);
-      vv.removeEventListener('scroll', onChange);
+      document.removeEventListener('focusin', onChange);
       el.style.height = '';
       document.documentElement.style.height = '';
       document.body.style.height = '';
@@ -505,7 +513,17 @@ function QuizPlay({
       // teclado, `100dvh` es la pantalla completa y es correcto. Con el
       // teclado abierto ninguna unidad de CSS sirve y manda
       // `applyVisualViewportInset` (ver su nota).
-      style={{ height: '100dvh' }}
+      // `touchAction: 'none'`: lo ÚNICO que frena el scroll en iOS. Medido en
+      // el dispositivo, `overflow: hidden` MÁS `position: fixed` en
+      // `html`/`body` no alcanzan -el diagnóstico registró scroll real del
+      // documento con las dos puestas-, porque el área scrolleable es el ICB
+      // (721px, el layout viewport) y no el alto que se le fija al elemento.
+      // Acá es seguro y no repite el bloqueo de `touchmove` de antes, que
+      // dejaba al usuario encerrado si algo se corría: ahora la pantalla mide
+      // exactamente el área visible, así que no hay nada a dónde scrollear ni
+      // de dónde volver, y si Safari igual scrollea al enfocar, el
+      // `focusin` de `applyVisualViewportInset` lo devuelve a 0.
+      style={{ height: '100dvh', touchAction: 'none' }}
       onMouseDown={keepInputFocused}
     >
       {showViewportDebug && <ViewportDebug />}
