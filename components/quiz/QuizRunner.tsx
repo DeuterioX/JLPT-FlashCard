@@ -51,11 +51,26 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 // real -eso es el parpadeo-. Escribiendo el estilo ya en el handler no hay
 // ciclo de render de por medio: se aplica en el mismo frame en que el
 // navegador reporta el nuevo offset.
+//
+// Ese cambio solo no alcanzó -un tercer video mostró el mismo parpadeo,
+// puntualmente en el input (el resto del contenedor se veía bien)-. La causa
+// no era el lag de React sino que `el.style.transform` pasaba de `''` a
+// `translateY(Npx)` y de vuelta a `''` según si `offsetTop` era 0 o no: cada
+// vez que `transform` deja de estar vacío (o vuelve a estarlo) el navegador
+// crea o destruye la capa de composición propia del elemento, y un input con
+// fondo/borde propio (el único hijo con esa pinta) puede quedar un frame sin
+// pintar mientras esa capa se recrea. Durante un gesto de arrastre, con
+// `offsetTop` fluctuando seguido entre 0 y no-0, esa creación/destrucción se
+// repite muchas veces por segundo -de ahí el parpadeo puntual del input-.
+// Ahora `transform` nunca vuelve a `''`: siempre es `translateY(_px)`, aunque
+// sea de 0px, así la capa se crea una sola vez (con `willChange: transform`
+// puesto en el propio JSX, más abajo) y se queda quieta durante todo el
+// gesto; solo cambia el número.
 function applyVisualViewportInset(el: HTMLElement) {
   const vv = window.visualViewport;
   if (!vv) return;
   el.style.height = `${vv.height}px`;
-  el.style.transform = vv.offsetTop ? `translateY(${vv.offsetTop}px)` : '';
+  el.style.transform = `translateY(${vv.offsetTop}px)`;
 }
 
 function readUsedRound(): string | null {
@@ -508,8 +523,10 @@ function QuizPlay({
       // o antes de que el efecto de `applyVisualViewportInset` corra por
       // primera vez); ese efecto pisa `height`/`transform` directo sobre el
       // nodo apenas monta -ver el comentario largo junto a esa función más
-      // arriba en el archivo-.
-      style={{ height: '100dvh' }}
+      // arriba en el archivo-. `willChange: transform` está puesto acá, no
+      // en el JS, para que la capa de composición exista desde el primer
+      // render y no recién cuando el efecto toca `transform` por primera vez.
+      style={{ height: '100dvh', willChange: 'transform' }}
       onMouseDown={keepInputFocused}
     >
       {/* Mismo fondo/borde que la barra superior del resto de la app
