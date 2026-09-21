@@ -24,8 +24,8 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 // `interactive-widget: resizes-content` (app/layout.tsx) le pide al navegador
 // que redimensione el LAYOUT viewport cuando aparece el teclado -y en los
 // navegadores que lo respetan alcanza con `100dvh`, sin JS-. Pero un video
-// real (Android, teclado SwiftKey) mostró que el bug seguía: el navegador
-// paneó el VISUAL viewport hacia arriba para mantener el input a la vista,
+// real (iPhone/Safari, con teclado SwiftKey) mostró que el bug seguía: el
+// navegador paneó el VISUAL viewport hacia arriba para mantener el input a la vista,
 // dejando el layout viewport (y por lo tanto `100dvh` y cualquier
 // `position: fixed`, que se ancla al layout viewport) del mismo alto de
 // siempre. Bloquear el scroll de `html`/`body` no toca ese paneo -no es un
@@ -39,33 +39,22 @@ const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se e
 // `height` coincide con el layout viewport), así que no compite con
 // `interactive-widget`.
 //
-// Esto muta el DOM directo (`ref.current.style...`) en el propio handler del
-// evento, en vez de pasar por `useState`/`useSyncExternalStore` -que sí
-// funcionaba en reposo, pero un segundo video (mismo dispositivo) mostró el
-// input desapareciendo un instante mientras el usuario arrastraba/scrolleaba
-// activamente-. Con estado de React, cada evento `scroll` del visual
-// viewport (que dispara muy seguido durante un gesto, uno por frame) espera
-// a el próximo ciclo de render de React para aplicarse; el navegador sigue
-// paneando en su propio hilo de composición mientras tanto, así que durante
-// el gesto el contenedor va sistemáticamente un frame atrás de la cámara
-// real -eso es el parpadeo-. Escribiendo el estilo ya en el handler no hay
-// ciclo de render de por medio: se aplica en el mismo frame en que el
-// navegador reporta el nuevo offset.
+// Muta el DOM directo (`ref.current.style...`) en el propio handler en vez de
+// pasar por estado de React: durante un gesto este evento dispara una vez por
+// frame, y un `useState`/`useSyncExternalStore` ahí significa un ciclo de
+// render completo de todo el quiz por frame, para terminar escribiendo dos
+// propiedades de estilo en un solo nodo.
 //
-// Ese cambio solo no alcanzó -un tercer video mostró el mismo parpadeo,
-// puntualmente en el input (el resto del contenedor se veía bien)-. La causa
-// no era el lag de React sino que `el.style.transform` pasaba de `''` a
-// `translateY(Npx)` y de vuelta a `''` según si `offsetTop` era 0 o no: cada
-// vez que `transform` deja de estar vacío (o vuelve a estarlo) el navegador
-// crea o destruye la capa de composición propia del elemento, y un input con
-// fondo/borde propio (el único hijo con esa pinta) puede quedar un frame sin
-// pintar mientras esa capa se recrea. Durante un gesto de arrastre, con
-// `offsetTop` fluctuando seguido entre 0 y no-0, esa creación/destrucción se
-// repite muchas veces por segundo -de ahí el parpadeo puntual del input-.
-// Ahora `transform` nunca vuelve a `''`: siempre es `translateY(_px)`, aunque
-// sea de 0px, así la capa se crea una sola vez (con `willChange: transform`
-// puesto en el propio JSX, más abajo) y se queda quieta durante todo el
-// gesto; solo cambia el número.
+// Lo que esto NO arregla, aunque en su momento lo intenté por acá: el input
+// desaparecía y volvía mientras el usuario arrastraba. Eso no era ni lag de
+// React ni churn de capas de composición (las dos hipótesis que probé antes,
+// las dos equivocadas), sino el PISO del layout -el alto mínimo que ocupaba
+// el contenido de la pantalla-, que estaba en ~294px contra los ~302px que
+// deja libres el teclado: cualquier fluctuación del visual viewport cruzaba
+// ese umbral y el pie entero quedaba posicionado fuera del contenedor. La
+// explicación completa y las medidas están en la nota de `.knd-quiz-footer`
+// en globals.css; el piso se arregló allá y en el `minHeight: 0` del stage,
+// más abajo en este archivo.
 function applyVisualViewportInset(el: HTMLElement) {
   const vv = window.visualViewport;
   if (!vv) return;
@@ -523,9 +512,9 @@ function QuizPlay({
       // o antes de que el efecto de `applyVisualViewportInset` corra por
       // primera vez); ese efecto pisa `height`/`transform` directo sobre el
       // nodo apenas monta -ver el comentario largo junto a esa función más
-      // arriba en el archivo-. `willChange: transform` está puesto acá, no
-      // en el JS, para que la capa de composición exista desde el primer
-      // render y no recién cuando el efecto toca `transform` por primera vez.
+      // arriba en el archivo-. `willChange: transform` porque ese efecto
+      // reescribe `transform` una vez por frame mientras dura un paneo del
+      // teclado: es exactamente el caso para el que existe el hint.
       style={{ height: '100dvh', willChange: 'transform' }}
       onMouseDown={keepInputFocused}
     >
@@ -540,7 +529,11 @@ function QuizPlay({
         py="xs"
         justify="space-between"
         bg="dark.6"
-        style={{ borderBottom: '1px solid var(--mantine-color-dark-4)' }}
+        // `flexShrink: 0` por lo mismo que el pie (ver la nota larga en
+        // `.knd-quiz-footer`, globals.css): con el teclado abierto el alto
+        // útil se vuelve escasísimo y el reparto del faltante no puede
+        // tocar ni al header ni al pie, solo al stage.
+        style={{ borderBottom: '1px solid var(--mantine-color-dark-4)', flexShrink: 0 }}
       >
         <Group id="quiz-brand" gap={7}>
           <Box
@@ -594,11 +587,34 @@ function QuizPlay({
       <Box
         id="quiz-stage"
         pos="relative"
+        // El stage es el ÚNICO que absorbe el faltante de alto (header y pie
+        // son `flex-shrink: 0`), y para poder hacerlo tiene que poder
+        // encogerse de verdad:
+        // - `minHeight: 0` anula el `min-height: auto` que traen por default
+        //   los ítems de flex, que es lo que le impedía bajar de los 134px
+        //   que ocupaba su contenido;
+        // - `containerType: 'size'` hace que su contenido deje de contar
+        //   para su propio tamaño (el alto se lo dicta el flex padre) y, de
+        //   paso, habilita las unidades `cqh` de acá abajo, que son las que
+        //   permiten que el kana escale con el espacio REAL disponible. Ni
+        //   `vh` ni una media query servirían: el alto de la pantalla del
+        //   quiz lo fija JS contra el visual viewport, no el layout viewport
+        //   que esas dos miran;
+        // - el padding vertical baja de `xl` (32px arriba y abajo) a 8px: con
+        //   `box-sizing: border-box` es un piso de 64px por sí solo, aunque
+        //   el contenido ya no cuente. No se puede hacer responsive con
+        //   `cqh` porque sería circular -son unidades del propio contenedor,
+        //   aplicadas a una propiedad que define el tamaño de su caja de
+        //   contenido: medido, se quedaba clavado en los 32px del máximo-. No
+        //   hace falta igual: con `place-items: center` el padding solo se
+        //   nota cuando el contenido roza los bordes, y en ese caso lo que
+        //   tiene que ceder es justamente él.
         style={{
-          flex: 1, display: 'grid', placeItems: 'center',
+          flex: 1, minHeight: 0, containerType: 'size',
+          display: 'grid', placeItems: 'center',
+          paddingBlock: '0.5rem',
           background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgb(22,27,48), var(--mantine-color-dark-7) 100%)',
         }}
-        py="xl"
       >
         {card && (
           // `pos="relative"` acá, no solo en `quiz-stage`: el mockup posiciona
@@ -616,7 +632,14 @@ function QuizPlay({
                 id="quiz-kana"
                 className="kana"
                 data-testid="quiz-prompt"
-                style={{ fontSize: 'clamp(64px, 18vw, 162px)', lineHeight: 1 }}
+                // El `min(18vw, 42cqh)` es lo que hace que el kana se achique
+                // cuando el teclado deja poco alto: `18vw` sigue mandando
+                // mientras sobre espacio (es el valor del diseño), pero
+                // `42cqh` -42% del alto del stage, que es un container de
+                // tamaño, ver arriba- lo pisa cuando el alto se vuelve el
+                // recurso escaso. Antes el mínimo de 64px era fijo y el kana
+                // era parte del piso del layout que dejaba al input afuera.
+                style={{ fontSize: 'clamp(2rem, min(18vw, 42cqh), 162px)', lineHeight: 1 }}
                 c={flash === 'wrong' ? 'shu.6' : undefined}
               >
                 {card.prompt}

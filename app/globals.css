@@ -189,6 +189,8 @@ body { margin: 0; }
   justify-content: center;
   padding: 0.5rem 1rem;
   border-bottom: 1px solid var(--mantine-color-dark-4);
+  /* Ver la nota de `flex-shrink` en `.knd-quiz-footer`, más abajo. */
+  flex-shrink: 0;
 }
 /* La instancia de adentro del pie tiene id propio (`quiz-metrics`, sin
    sufijo, ver QuizRunner.tsx) precisamente para poder apuntarle acá sin
@@ -217,7 +219,12 @@ body { margin: 0; }
   position: absolute;
   left: 50%;
   top: 100%;
-  margin-top: 0.875rem;
+  /* 14px del diseño mientras haya alto de sobra, pero proporcional al
+     stage cuando escasea -con el teclado abierto el stage queda en ~125px y
+     esos 14px fijos eran parte de lo que empujaba al toast afuera, encima de
+     las métricas-. `cqh` acá sí es válido: el toast es DESCENDIENTE del
+     container (`#quiz-stage`), no el container mismo. */
+  margin-top: min(0.875rem, 7cqh);
   transform: translateX(-50%);
   background: #3a2028; /* --a-shu-bg del diseño */
   border: 1px solid var(--mantine-color-shu-6);
@@ -243,6 +250,21 @@ body { margin: 0; }
   font-size: 0.6875rem; /* 11px del diseño */
 }
 
+/* Con el teclado abierto el stage queda en ~125px de alto y ahí ya no
+   entran a la vez el kana, el toast de error (que cuelga del kana) y este
+   caption (anclado al piso del stage): se pisaban entre sí y el toast se
+   desbordaba sobre la barra de métricas -medido-. El caption es lo que
+   sobra: "carta N de M" es la misma información que ya da RESTANTES en las
+   métricas, que siguen visibles. La consulta es contra `#quiz-stage`, que
+   es un container de tamaño (ver QuizRunner.tsx); no sirve una media query
+   acá, porque el alto que importa es el del contenedor que fija JS contra
+   el visual viewport, no el de la ventana. */
+@container (max-height: 200px) {
+  .knd-quiz-caption {
+    display: none;
+  }
+}
+
 /* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
    columnas -métricas ancladas a la izquierda, input de ancho FIJO
    centrado, "Revelar" anclado a la derecha-, no un flex donde el input se
@@ -255,6 +277,20 @@ body { margin: 0; }
   display: flex;
   align-items: center;
   gap: var(--mantine-spacing-md);
+  /* El pie NUNCA se encoge: todo lo que falte de alto lo absorbe el stage
+     (ver `minHeight: 0` + `containerType` en QuizRunner.tsx). Por default un
+     ítem de flex tiene `flex-shrink: 1`, así que cuando el contenedor del
+     quiz se achica -y con el teclado abierto se achica muchísimo: el alto
+     útil en un iPhone queda en ~300px- el reparto del faltante le tocaba
+     también al pie. Peor: entre el `min-height: auto` del stage y el alto
+     propio del header/métricas, el layout tenía un piso de ~294px, y por
+     debajo de eso el pie entero (con el input adentro) terminaba
+     posicionado FUERA del contenedor -medido: a 240px de alto, el input
+     quedaba 54px por debajo del borde inferior, o sea invisible-. Como el
+     alto útil real del dispositivo (~302px) estaba a 8px de ese piso,
+     cualquier fluctuación momentánea del visual viewport durante un gesto
+     lo cruzaba y el input desaparecía y volvía: eso era el parpadeo. */
+  flex-shrink: 0;
 }
 .knd-quiz-answer-form {
   flex: 1;
