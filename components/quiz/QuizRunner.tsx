@@ -14,7 +14,6 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { ViewportDebug } from './ViewportDebug';
 import { APP_NAME } from '@/lib/app-meta';
 
 export type Round = StoredRound;
@@ -105,13 +104,6 @@ function QuizPlay({
   const [sessionError, setSessionError] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const quizScreenRef = useRef<HTMLDivElement>(null);
-  // `?debug=vv`: lectura de scroll/viewport para verificar en el dispositivo
-  // (ver ViewportDebug.tsx). En un efecto y no con `useSearchParams` para no
-  // arrastrar el Suspense que ese hook exige en el App Router.
-  const [showViewportDebug, setShowViewportDebug] = useState(false);
-  useEffect(() => {
-    setShowViewportDebug(new URLSearchParams(window.location.search).get('debug') === 'vv');
-  }, []);
   // Arranca en 0 y no en Date.now(): llamar a una función impura al calcular
   // el valor inicial de un ref se evalúa en cada render (aunque solo se use
   // una vez), así que el valor real se fija en el efecto de más abajo.
@@ -526,8 +518,6 @@ function QuizPlay({
       style={{ height: '100dvh', touchAction: 'none' }}
       onMouseDown={keepInputFocused}
     >
-      {showViewportDebug && <ViewportDebug />}
-
       {/* Mismo fondo/borde que la barra superior del resto de la app
           (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
           no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
