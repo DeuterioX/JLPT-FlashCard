@@ -60,6 +60,15 @@ function applyVisualViewportInset(el: HTMLElement) {
   if (!vv) return;
   el.style.height = `${vv.height}px`;
   el.style.transform = `translateY(${vv.offsetTop}px)`;
+  // `html`/`body` van al alto VISIBLE, no al `100%` del layout viewport: con
+  // el teclado abierto en iOS el layout viewport sigue midiendo la pantalla
+  // entera (~800px) aunque solo se vean ~300px -`interactive-widget:
+  // resizes-content` no lo achica en este dispositivo, quedó demostrado
+  // cuando sacar este JS dejó la pantalla scrolleada afuera-. Esos ~500px de
+  // documento muerto detrás del área visible son lo que el usuario podía
+  // panear con el dedo, y lo que se veía "re mal" al hacerlo.
+  document.documentElement.style.height = `${vv.height}px`;
+  document.body.style.height = `${vv.height}px`;
 }
 
 function readUsedRound(): string | null {
@@ -178,6 +187,14 @@ function QuizPlay({
       vv.removeEventListener('scroll', onChange);
       el.style.height = '';
       el.style.transform = '';
+      // El alto de `html`/`body` lo limpia ESTE efecto, que es el que lo
+      // fija, y no el del lock de abajo: aquel guarda el valor previo cuando
+      // ya corrió este (los efectos se ejecutan en orden de declaración), así
+      // que "restauraba" el pixel que acababa de escribirse acá y la página
+      // siguiente quedaba con el alto del quiz clavado -pasó de verdad,
+      // medido-. Vaciar la propiedad devuelve el `height: 100%` de la hoja.
+      document.documentElement.style.height = '';
+      document.body.style.height = '';
     };
   }, []);
 
@@ -197,28 +214,54 @@ function QuizPlay({
   // que Safari decide mover la página, así que corregirlo ahí mismo, en
   // vez de solo bloquear el contenedor, es la segunda red de seguridad.
   // Se restaura el valor original de cada uno al desmontar, no un string
-  // fijo, por si algún estilo previo ya lo había tocado.
+  // fijo, por si algún estilo previo ya lo había tocado. El ALTO de los dos
+  // no se toca acá: lo fija y lo limpia `applyVisualViewportInset` (ver la
+  // nota en su cleanup, más arriba).
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
     const prev = {
-      htmlOverflow: html.style.overflow, htmlPosition: html.style.position, htmlHeight: html.style.height,
+      htmlOverflow: html.style.overflow, htmlPosition: html.style.position,
       bodyOverflow: body.style.overflow, bodyPosition: body.style.position, bodyWidth: body.style.width,
     };
     html.style.overflow = 'hidden';
     html.style.position = 'fixed';
-    html.style.height = '100%';
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.width = '100%';
     return () => {
       html.style.overflow = prev.htmlOverflow;
       html.style.position = prev.htmlPosition;
-      html.style.height = prev.htmlHeight;
       body.style.overflow = prev.bodyOverflow;
       body.style.position = prev.bodyPosition;
       body.style.width = prev.bodyWidth;
     };
+  }, []);
+
+  // Lo único que de verdad frena el paneo del viewport visual en iOS. Ese
+  // paneo NO es scroll del documento -por eso `overflow: hidden` y
+  // `position: fixed` de arriba no lo tocan-: es Safari moviendo su propia
+  // "cámara" sobre el layout viewport, y la única forma de cancelarlo es
+  // cortar el gesto en sí con `preventDefault` en `touchmove`, que necesita
+  // `passive: false` para poder hacerlo. En el quiz no hay nada que
+  // scrollear -la pantalla entera mide exactamente el viewport visible-, así
+  // que no se pierde nada; igual se dejan pasar los toques sobre el propio
+  // input (mover el cursor, seleccionar) y sobre cualquier contenedor que
+  // realmente scrollee, para no romper el resumen de ronda si algún día no
+  // entra en pantalla.
+  useEffect(() => {
+    function onTouchMove(e: TouchEvent) {
+      let el = e.target as HTMLElement | null;
+      while (el && el !== document.body) {
+        if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') return;
+        const overflowY = getComputedStyle(el).overflowY;
+        if ((overflowY === 'auto' || overflowY === 'scroll') && el.scrollHeight > el.clientHeight) return;
+        el = el.parentElement;
+      }
+      e.preventDefault();
+    }
+    document.addEventListener('touchmove', onTouchMove, { passive: false });
+    return () => document.removeEventListener('touchmove', onTouchMove);
   }, []);
 
   // El foco arranca y vuelve siempre al input: el mouse nunca es obligatorio.
