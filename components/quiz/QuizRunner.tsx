@@ -60,7 +60,24 @@ function applyVisualViewportInset(el: HTMLElement) {
   const vv = window.visualViewport;
   if (!vv) return;
   el.style.height = `${vv.height}px`;
-  el.style.transform = `translateY(${vv.offsetTop}px)`;
+  // `html`/`body` al alto VISIBLE, y no al `100%` que tenían antes. Medido en
+  // el dispositivo con el teclado abierto: `innerHeight` 326 (el layout
+  // viewport SÍ se achica, `interactive-widget` funciona) pero `100dvh` 721,
+  // porque por especificación las unidades de viewport ignoran el teclado. Con
+  // `height: 100%` el documento se quedaba en esos 721 mientras solo se veían
+  // 326: 395px de documento muerto, que es exactamente el `scrollY` de 395 que
+  // mostró la misma medición. Ese era el scroll. Igualando el documento al
+  // área visible no queda nada que scrollear y Safari no tiene adónde ir.
+  document.documentElement.style.height = `${vv.height}px`;
+  document.body.style.height = `${vv.height}px`;
+  // Sin overflow ya no hay scroll que compensar, así que NO se aplica ningún
+  // `translateY`. El que había antes cancelaba el scroll de 395px con un
+  // desplazamiento igual y opuesto: se veía bien solo mientras los dos
+  // coincidían, y cualquier gesto los desincronizaba -era la causa de que la
+  // pantalla "se viera re mal" al scrollear-. Si igual quedó scrolleado de
+  // antes (Safari scrollea al enfocar, antes de que corra esto), se vuelve a 0.
+  el.style.transform = '';
+  if (window.scrollY !== 0) window.scrollTo(0, 0);
 }
 
 function readUsedRound(): string | null {
@@ -182,11 +199,23 @@ function QuizPlay({
     onChange();
     vv.addEventListener('resize', onChange);
     vv.addEventListener('scroll', onChange);
+    // Safari scrollea el documento al enfocar el input, y ese scroll no
+    // dispara ningún evento del visual viewport: sin escuchar también el
+    // scroll del documento, el `scrollTo(0, 0)` correctivo no llega a correr.
+    window.addEventListener('scroll', onChange);
     return () => {
       vv.removeEventListener('resize', onChange);
       vv.removeEventListener('scroll', onChange);
+      window.removeEventListener('scroll', onChange);
       el.style.height = '';
       el.style.transform = '';
+      // El alto de `html`/`body` lo limpia ESTE efecto, que es el que lo
+      // fija, y no el del lock de abajo: aquel guarda el valor previo cuando
+      // este ya corrió (los efectos se ejecutan en orden de declaración), así
+      // que "restauraría" el pixel recién escrito acá y dejaría la página
+      // siguiente con el alto del quiz clavado -pasó de verdad, medido-.
+      document.documentElement.style.height = '';
+      document.body.style.height = '';
     };
   }, []);
 
@@ -206,24 +235,25 @@ function QuizPlay({
   // que Safari decide mover la página, así que corregirlo ahí mismo, en
   // vez de solo bloquear el contenedor, es la segunda red de seguridad.
   // Se restaura el valor original de cada uno al desmontar, no un string
-  // fijo, por si algún estilo previo ya lo había tocado.
+  // fijo, por si algún estilo previo ya lo había tocado. El ALTO de los dos
+  // no se toca acá: lo fija y lo limpia `applyVisualViewportInset`, porque
+  // tiene que seguir al viewport visible y no quedarse en un `100%` que con
+  // el teclado abierto vale la pantalla entera (ver su nota).
   useEffect(() => {
     const html = document.documentElement;
     const body = document.body;
     const prev = {
-      htmlOverflow: html.style.overflow, htmlPosition: html.style.position, htmlHeight: html.style.height,
+      htmlOverflow: html.style.overflow, htmlPosition: html.style.position,
       bodyOverflow: body.style.overflow, bodyPosition: body.style.position, bodyWidth: body.style.width,
     };
     html.style.overflow = 'hidden';
     html.style.position = 'fixed';
-    html.style.height = '100%';
     body.style.overflow = 'hidden';
     body.style.position = 'fixed';
     body.style.width = '100%';
     return () => {
       html.style.overflow = prev.htmlOverflow;
       html.style.position = prev.htmlPosition;
-      html.style.height = prev.htmlHeight;
       body.style.overflow = prev.bodyOverflow;
       body.style.position = prev.bodyPosition;
       body.style.width = prev.bodyWidth;
