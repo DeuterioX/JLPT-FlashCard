@@ -2,7 +2,9 @@
 
 import { useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress, Divider } from '@mantine/core';
+import {
+  Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress, useMantineTheme,
+} from '@mantine/core';
 import { MetricTile } from './MetricTile';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
@@ -10,11 +12,27 @@ import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
 
 /** Semáforo del spec: jade ≥85%, ámbar 60–85%, shu <60%. Único lugar de la
  * app donde aparece un tercer color además de jade/shu. */
+// Semáforo del diseño: verde sobre 85%, ámbar entre 60 y 85, rojo debajo.
+// El ámbar va como hex y no como color del tema porque no hay ninguno que
+// se le parezca: el `yellow.6` de fábrica de Mantine es `#fab005`, un
+// amarillo anaranjado, contra el latón apagado `#C8A23E` del diseño. Es el
+// único lugar de la app donde aparece un tercer color y codifica un estado
+// real, así que el tono importa.
 function tone(acc: number) {
   if (acc >= 0.85) return 'jade.6';
-  if (acc >= 0.6) return 'yellow.6';
+  if (acc >= 0.6) return '#C8A23E';
   return 'shu.6';
 }
+
+/** `2:14` del diseño. */
+function formatDuration(ms: number | null) {
+  if (ms === null || ms < 0) return null;
+  const total = Math.round(ms / 1000);
+  return `${Math.floor(total / 60)}:${String(total % 60).padStart(2, '0')}`;
+}
+
+const RANGE_DAYS: Record<string, number | null> = { '7d': 7, '30d': 30, all: null };
+const RANGE_LABEL: Record<string, string> = { '7d': '7 días', '30d': '30 días', all: 'siempre' };
 
 function subscribeNoop() {
   return () => {};
@@ -52,8 +70,11 @@ function formatRoundDate(iso: string): string {
 
 function HistoryDate({ iso }: { iso: string }) {
   const mounted = useMounted();
-  if (!mounted) return <Text size="xs" c="dimmed" w={130}>&nbsp;</Text>;
-  return <Text size="xs" c="dimmed" w={130}>{formatRoundDate(iso)}</Text>;
+  // 96px y `dark.3` (`--a-dimmer`) del diseño, no los 130px y el `dimmed`
+  // (`--a-dim`) de antes: la fecha es el dato más apagado de la fila.
+  const props = { size: '0.6875rem', lh: 1.4, c: 'dark.3', w: 96 } as const;
+  if (!mounted) return <Text {...props}>&nbsp;</Text>;
+  return <Text {...props}>{formatRoundDate(iso)}</Text>;
 }
 
 const REVIEW_LIMIT = 20;
@@ -109,6 +130,15 @@ export function StatsBoard({
   }
 
   const reviewCount = Math.min(REVIEW_LIMIT, worst.length);
+  const { other } = useMantineTheme();
+  const panelStyle = { padding: '0.8125rem', borderColor: other.borderSoft };
+  const rangeDays = RANGE_DAYS[range];
+  const rangeLabel = RANGE_LABEL[range];
+  // "1,4 por día" del diseño. Con el rango "Siempre" no hay denominador
+  // honesto -no se sabe sobre cuántos días-, así que la línea no se muestra.
+  const roundsPerDay = rangeDays === null
+    ? null
+    : `${(o.rounds / rangeDays).toFixed(1).replace('.', ',')} por día`;
 
   return (
     <Stack gap="md">
@@ -131,12 +161,18 @@ export function StatsBoard({
           />
         </div>
 
-        <SimpleGrid className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing="xs">
-          <MetricTile label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
+        <SimpleGrid className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing={9}>
+          <MetricTile id="stat-accuracy" label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
             hint={`${o.correct} de ${o.attempts}`} />
-          <MetricTile label="Errores" value={o.incorrect} tone="bad" />
-          <MetricTile label="Rondas" value={o.rounds} />
-          <MetricTile label="Dominadas" value={o.mastered} hint={`de ${o.totalCards} cartas`} />
+          {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
+              sí les da, así que quedaban truncadas al lado de las otras dos.
+              Las dos dependen del rango elegido, no de un "30 días" fijo. */}
+          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} tone="bad"
+            hint={rangeDays === null ? 'en total' : `en ${rangeLabel}`} />
+          <MetricTile id="stat-rounds" label="Rondas" value={o.rounds}
+            hint={roundsPerDay ?? undefined} />
+          <MetricTile id="stat-mastered" label="Dominadas" value={o.mastered}
+            hint={`de ${o.totalCards} cartas`} />
         </SimpleGrid>
 
         <Stack gap={4} align="flex-end" className="knd-stats-review">
@@ -153,33 +189,53 @@ export function StatsBoard({
       </div>
 
       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-        <Paper withBorder p="sm">
+        {/* Los tres paneles son `.card-box` del diseño: borde
+            `--a-border-soft` (no el `dark.4` que trae `withBorder`), radio 9
+            y padding 13. El encabezado lleva el título a la izquierda y una
+            aclaración al ras de la derecha, un escalón más chica y apagada. */}
+        <Paper id="worst-panel" withBorder radius={9} style={panelStyle}>
           <Stack gap="xs">
-            <Group>
-              <Text size="xs" fw={600}>Las que más errás</Text>
-              <Text size="xs" c="dimmed" ml="auto">errores / veces vista</Text>
+            <Group gap="sm" wrap="nowrap">
+              <Text size="0.71875rem" lh={1.4} fw={600}>Las que más errás</Text>
+              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">errores / veces vista</Text>
             </Group>
             {worst.length === 0 && <Text size="sm" c="dimmed">Todavía no hay datos suficientes.</Text>}
             {worst.slice(0, 8).map((w) => (
-              <Group key={w.cardId} gap="sm" wrap="nowrap">
-                <Text className="kana" w={44}>{w.prompt}</Text>
-                <Text className="romaji" size="xs" c="dimmed" w={54}>{w.primary}</Text>
-                <Progress value={w.rate * 100} color="shu.6" size="xs" style={{ flex: 1 }} />
-                <Text size="xs" c="dimmed" className="tabular">{w.errors}/{w.seen}</Text>
+              // Mismos anchos que la lista equivalente del resumen de ronda
+              // (34/46): antes acá eran 44/54 y las dos listas, que son la
+              // misma fila del diseño, no coincidían entre sí.
+              <Group key={w.cardId} gap={9} wrap="nowrap">
+                <Text className="kana" w={34}>{w.prompt}</Text>
+                <Text className="romaji" size="0.71875rem" c="dimmed" w={46}>{w.primary}</Text>
+                <Progress
+                  value={w.rate * 100} color="shu.6" size={4} radius={2}
+                  style={{ flex: 1 }} styles={{ root: { backgroundColor: other.borderSoft } }}
+                />
+                <Text size="0.71875rem" lh={1.4} c="dark.3" className="tabular">{w.errors}/{w.seen}</Text>
               </Group>
             ))}
           </Stack>
         </Paper>
 
-        <Paper withBorder p="sm">
+        <Paper id="by-group-panel" withBorder radius={9} style={panelStyle}>
           <Stack gap="xs">
-            <Text size="xs" fw={600}>Aciertos por grupo</Text>
+            <Group gap="sm" wrap="nowrap">
+              <Text size="0.71875rem" lh={1.4} fw={600}>Aciertos por grupo</Text>
+              {/* Esta aclaración faltaba por completo. Sigue al rango
+                  elegido en vez de decir siempre "últimos 30 días". */}
+              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">
+                {rangeDays === null ? 'siempre' : `últimos ${rangeLabel}`}
+              </Text>
+            </Group>
             {o.byGroup.length === 0 && <Text size="sm" c="dimmed">Todavía no practicaste nada.</Text>}
             {o.byGroup.slice(0, 10).map((g) => (
-              <Group key={g.groupId} gap="sm" wrap="nowrap">
-                <Text className="kana" size="sm" w={66} c="dimmed">{g.name}</Text>
-                <Progress value={g.accuracy * 100} color={tone(g.accuracy)} size="sm" style={{ flex: 1 }} />
-                <Text size="xs" c="dimmed" className="tabular" w={34} ta="right">
+              <Group key={g.groupId} gap={9} wrap="nowrap">
+                <Text className="kana" size="0.6875rem" lh={1.4} w={62} c="dimmed">{g.name}</Text>
+                <Progress
+                  value={g.accuracy * 100} color={tone(g.accuracy)} size={6} radius={3}
+                  style={{ flex: 1 }} styles={{ root: { backgroundColor: other.borderSoft } }}
+                />
+                <Text size="0.6875rem" lh={1.4} c="dimmed" className="tabular" w={30} ta="right">
                   {Math.round(g.accuracy * 100)}%
                 </Text>
               </Group>
@@ -188,21 +244,26 @@ export function StatsBoard({
         </Paper>
       </SimpleGrid>
 
-      <Paper withBorder p="sm">
+      <Paper id="history-panel" withBorder radius={9} style={panelStyle}>
         <Stack gap={6}>
-          <Text size="xs" fw={600}>Historial de rondas</Text>
+          <Text size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
           {o.history.length === 0 && <Text size="sm" c="dimmed">Sin rondas terminadas.</Text>}
-          {o.history.map((h, i) => (
-            <div key={h.id}>
-              {i > 0 && <Divider my={10} />}
-              <Group gap="sm" wrap="nowrap" py={4}>
-                <HistoryDate iso={h.startedAt} />
-                <Text size="xs" c="dimmed" style={{ flex: 1 }}>{h.label}</Text>
-                <Text size="xs" className="tabular" w={44} ta="right">
-                  {Math.round(h.accuracy * 100)}%
-                </Text>
-              </Group>
-            </div>
+          {/* Sin `Divider` entre filas: en el diseño esta lista va sin
+              líneas (`border: none`), separada solo por el padding de cada
+              fila. Las líneas las tiene la lista de mazos, no esta. */}
+          {o.history.map((h) => (
+            <Group key={h.id} gap="sm" wrap="nowrap" py={6}>
+              <HistoryDate iso={h.startedAt} />
+              <Text size="0.71875rem" lh={1.4} c="dimmed" style={{ flex: 1, minWidth: 0 }}>{h.label}</Text>
+              {/* Columna de duración del diseño, que faltaba entera. El dato
+                  sale de `finishedAt - startedAt` en el servicio. */}
+              <Text className="romaji" size="0.71875rem" lh={1.4} c="dimmed">
+                {formatDuration(h.durationMs) ?? ''}
+              </Text>
+              <Text size="0.71875rem" lh={1.4} className="tabular" w={44} ta="right">
+                {Math.round(h.accuracy * 100)}%
+              </Text>
+            </Group>
           ))}
         </Stack>
       </Paper>

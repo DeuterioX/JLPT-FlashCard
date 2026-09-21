@@ -171,7 +171,7 @@ describe('overview', () => {
     expect(overview(db, 'all').attempts).toBe(1);
   });
 
-  it('rotula el historial con "1 grupo" en singular y "N grupos" en plural', () => {
+  it('rotula el historial con el mazo adelante y el singular/plural de grupos', () => {
     const hira = listDecks(db).find((d) => d.name === 'Hiragana')!;
     const saGroupId = hira.groups.find((g) => g.name === 'Serie S')!.id;
     const one = openRound(db, [kaGroupId]);
@@ -180,8 +180,22 @@ describe('overview', () => {
     closeRound(db, two.sessionId);
 
     const labels = new Map(overview(db, 'all').history.map((h) => [h.id, h.label]));
-    expect(labels.get(one.sessionId)).toMatch(/^1 grupo · 5 cartas/);
-    expect(labels.get(two.sessionId)).toMatch(/^2 grupos · 10 cartas/);
+    // El mazo encabeza la etiqueta, como en el diseño ("Hiragana · 6 grupos
+    // · 28 cartas"); antes empezaba directamente por la cuenta de grupos.
+    expect(labels.get(one.sessionId)).toBe('Hiragana · 1 grupo · 5 cartas');
+    expect(labels.get(two.sessionId)).toBe('Hiragana · 2 grupos · 10 cartas');
+  });
+
+  it('expone la duración de cada ronda del historial', () => {
+    const r = openRound(db, [kaGroupId]);
+    closeRound(db, r.sessionId);
+
+    const h = overview(db, 'all').history.find((x) => x.id === r.sessionId)!;
+    // El dato sale de `finishedAt - startedAt`; sin abrir y cerrar con
+    // fechas fijas no se puede afirmar un valor exacto, pero sí que existe
+    // y que no es negativo -que es lo que la UI necesita para formatearlo-.
+    expect(h.durationMs).not.toBeNull();
+    expect(h.durationMs!).toBeGreaterThanOrEqual(0);
   });
 
   it('cuenta TODAS las rondas cerradas aunque el historial se recorte a 20', () => {

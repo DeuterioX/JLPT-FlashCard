@@ -229,8 +229,10 @@ export const theme = createTheme({
     // `--a-border-soft` del diseño: un borde más sutil que el `dark.4`
     // -"--a-border"- que usa el resto de la app (la barra de acción, el
     // riel del switcher). No es el mismo tono, así que no alcanza con
-    // dejar el borde "default" de Mantine en la tarjeta sin seleccionar.
-    groupCardBorder: '#232840',
+    // dejar el borde "default" de Mantine. Lo piden la tarjeta de grupo sin
+    // seleccionar y, en Estadísticas, las tiles, los paneles y el fondo de
+    // las barras -por eso el nombre es el del diseño y no el de un uso-.
+    borderSoft: '#232840',
     switchThumbActiveBg: '#06231A',
     // `--a-focus` del diseño: el borde de foco de CUALQUIER input es este
     // azul dedicado, no el jade primario que Mantine usa por default para

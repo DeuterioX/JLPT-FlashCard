@@ -73,9 +73,9 @@ export function GroupCard({
         // mientras todo alrededor escalaba, confirmado en vivo-.
         '--card-padding': '0.5rem 0.375rem',
         // Sin seleccionar usa el borde "suave" del diseño
-        // (`groupCardBorder`), no el `dark.4` -"default"- que trae
+        // (`borderSoft`), no el `dark.4` -"default"- que trae
         // Mantine solo con `withBorder`: son dos tonos distintos.
-        borderColor: checked ? other.groupCardActiveBorder : other.groupCardBorder,
+        borderColor: checked ? other.groupCardActiveBorder : other.borderSoft,
       }}
     >
       <Stack gap={6} align="center">

@@ -1,6 +1,6 @@
 import { gte, desc, inArray } from 'drizzle-orm';
 import type { Db } from '../db/client';
-import { attempt, card, cardAnswer, cardGroup, session, sessionGroup } from '../db/schema';
+import { attempt, card, cardAnswer, cardGroup, deck, session, sessionGroup } from '../db/schema';
 import { badRequest } from './errors';
 import { cardsForGroups, type RoundPayload } from './sessions';
 import { shuffle } from '../quiz/engine';
@@ -78,7 +78,11 @@ export type Overview = {
   rounds: number; mastered: number; totalCards: number;
   byGroup: GroupAccuracy[];
   history: { id: number; startedAt: string; total: number; correct: number;
-             incorrect: number; accuracy: number; label: string }[];
+             incorrect: number; accuracy: number; label: string;
+             // Duración de la ronda. Sale de `finishedAt - startedAt`, que ya
+             // se consultaba acá para filtrar las rondas cerradas; faltaba
+             // exponerlo. `null` solo si las fechas no parsean.
+             durationMs: number | null }[];
 };
 
 export function overview(db: Db, range: StatsRange): Overview {
@@ -142,17 +146,32 @@ export function overview(db: Db, range: StatsRange): Overview {
     ? db.select().from(sessionGroup).where(inArray(sessionGroup.sessionId, closed.map((s) => s.id))).all()
     : [];
 
+  // El mazo encabeza la etiqueta del historial ("Hiragana · 6 grupos · 28
+  // cartas", como en el diseño), así que hace falta resolver grupo → mazo.
+  const allDecks = db.select().from(deck).all();
+  const deckNameOfGroup = (groupId: number) => {
+    const g = allGroups.find((x) => x.id === groupId);
+    return g ? allDecks.find((d) => d.id === g.deckId)?.name : undefined;
+  };
+
   const history = closed.map((s) => {
     const n = s.correct + s.incorrect;
     const gids = links.filter((l) => l.sessionId === s.id).map((l) => l.groupId);
-    const names = gids.map((g) => allGroups.find((x) => x.id === g)?.name).filter(Boolean);
+    const deckName = gids.length > 0 ? deckNameOfGroup(gids[0]) : undefined;
+    const started = Date.parse(s.startedAt);
+    const finished = s.finishedAt === null ? NaN : Date.parse(s.finishedAt);
     return {
       id: s.id, startedAt: s.startedAt, total: s.total,
       correct: s.correct, incorrect: s.incorrect,
       accuracy: n === 0 ? 0 : s.correct / n,
+      durationMs: Number.isNaN(started) || Number.isNaN(finished) ? null : finished - started,
       label: s.mode === 'review'
         ? `Repaso · ${s.total} cartas`
-        : `${gids.length} ${gids.length === 1 ? 'grupo' : 'grupos'} · ${s.total} cartas${names[0] ? ` (${names[0]}…)` : ''}`,
+        : [
+          deckName,
+          `${gids.length} ${gids.length === 1 ? 'grupo' : 'grupos'}`,
+          `${s.total} cartas`,
+        ].filter(Boolean).join(' · '),
     };
   });
 
