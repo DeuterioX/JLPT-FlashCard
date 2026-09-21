@@ -157,7 +157,12 @@ export function DeckEditor({
   const [groupError, setGroupError] = useState<string | null>(null);
   const groupRef = useRef(false);
 
-  // Un solo grupo: se esconde la columna y se ve una lista plana.
+  // Un solo grupo: se esconde la columna y se ve una lista plana (el nivel
+  // de grupos existe siempre en la base, pero solo se muestra cuando
+  // significa algo). Ojo con lo que eso arrastra: "+ Nuevo grupo" vivía
+  // ADENTRO de esa columna, así que un mazo de un grupo se quedaba sin
+  // ninguna forma de crear el segundo -un callejón sin salida, reportado-.
+  // Por eso, cuando la columna no está, el botón aparece en el encabezado.
   const showGroups = deck.groups.length > 1;
   const visible = cards.filter((c) => c.groupId === groupId);
 
@@ -339,6 +344,15 @@ export function DeckEditor({
           )}
           {/* No abre otro formulario: lleva el foco al que ya está abajo.
               Duplicar el alta en un modal sería dos caminos para lo mismo. */}
+          {!showGroups && (
+            <Button
+              id="add-group-btn"
+              variant="default" size="compact-sm"
+              onClick={openGroupModal}
+            >
+              + Grupo
+            </Button>
+          )}
           {!deck.isBuiltin && (
             <Button id="add-word-btn" size="compact-sm" onClick={focusNewWord}>
               + Palabra
