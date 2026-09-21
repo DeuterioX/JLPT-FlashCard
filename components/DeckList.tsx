@@ -3,10 +3,11 @@
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, rem, useMantineTheme,
+  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, useMantineTheme,
 } from '@mantine/core';
 import { ListRow } from './ListRow';
 import { BuiltinDot } from './BuiltinDot';
+import { SectionLabel } from './SectionLabel';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
 
@@ -131,23 +132,10 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
   return (
     <Stack id="decks-screen" gap="md">
-      {/* `.sect-label` del diseño: mono 9.5px, 0.11em, `--a-dimmer`, y una
-          línea de 1px que ocupa todo el ancho sobrante hasta el botón.
-          Antes era un `xs` (12px) en IBM Plex Sans, sin letter-spacing y sin
-          línea, o sea ninguno de los cinco valores. */}
       <Group id="decks-header" gap={10} wrap="nowrap">
-        <Text
-          id="decks-count"
-          className="romaji"
-          size={rem(9.5)}
-          lh={1.5}
-          tt="uppercase"
-          c="dark.3"
-          style={{ letterSpacing: '0.11em', whiteSpace: 'nowrap' }}
-        >
-          {decks.length} mazos · {totalCards} cartas
-        </Text>
-        <Divider style={{ flex: 1 }} color="dark.4" />
+        <SectionLabel id="decks-count">
+          {`${decks.length} mazos · ${totalCards} cartas`}
+        </SectionLabel>
         <Button id="new-deck-btn" size="compact-sm" onClick={openCreate}>
           + Nuevo mazo
         </Button>

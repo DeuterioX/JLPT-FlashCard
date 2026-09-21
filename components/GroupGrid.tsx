@@ -1,6 +1,7 @@
 'use client';
 
-import { Stack, Box, Group, Text, Divider } from '@mantine/core';
+import { Stack, Box } from '@mantine/core';
+import { SectionLabel } from './SectionLabel';
 import type { GroupSummary } from '@/lib/services/decks';
 import { GroupCard } from './GroupCard';
 
@@ -14,6 +15,18 @@ function bySection(groups: GroupSummary[]): { label: string | null; items: Group
   }
   return out;
 }
+
+// El diseño rotula estas secciones con su término japonés al lado
+// ("Básicos · gojūon"). El dato guardado en `card_group.section` es solo la
+// categoría -una palabra-, así que el término va acá: es presentación, no
+// un valor nuevo del modelo, y ponerlo en la base obligaría a migrar los
+// mazos ya sembrados para nada. "Extendidos" (katakana) no lleva: el
+// mockup tampoco le pone uno.
+const SECTION_SUFFIX: Record<string, string | undefined> = {
+  'Básicos': 'gojūon',
+  'Dakuten': 'handakuten',
+  'Contracciones': 'yōon',
+};
 
 export function GroupGrid({
   groups, selected, onToggle,
@@ -31,12 +44,7 @@ export function GroupGrid({
       {bySection(groups).map((section, i) => (
         <Stack gap="md" key={section.label ?? `sin-seccion-${i}`}>
           {section.label && (
-            <Group gap="sm" wrap="nowrap">
-              <Text size="xs" tt="uppercase" c="dimmed" style={{ letterSpacing: '0.11em' }}>
-                {section.label}
-              </Text>
-              <Divider style={{ flex: 1 }} />
-            </Group>
+            <SectionLabel suffix={SECTION_SUFFIX[section.label]}>{section.label}</SectionLabel>
           )}
           {/* 8 columnas en escritorio, 5 en tablet, 3 en teléfono (ver
               `.knd-group-grid` en app/globals.css). No se usa `SimpleGrid`

@@ -1,7 +1,8 @@
 'use client';
 
-import { Overlay, Paper, Stack, Group, Text, Progress, Kbd, Divider } from '@mantine/core';
+import { Overlay, Paper, Stack, Group, Text, Progress, Kbd } from '@mantine/core';
 import { accuracy, type RoundState } from '@/lib/quiz/engine';
+import { SectionLabel } from '../SectionLabel';
 
 export type MissEntry = { cardId: number; prompt: string; primary: string; count: number };
 
@@ -73,17 +74,9 @@ export function RoundSummary({
 
           {sorted.length > 0 && (
             <Stack id="round-summary-misses" gap={5}>
-              {/* Mismo tratamiento que cualquier encabezado de sección de
-                  la app (`.sect-label` del diseño, ver GroupGrid.tsx):
-                  letter-spacing 0.11em -no el 0.06em de los labels de
-                  arriba, son dos escalas de label distintas- y la línea
-                  divisoria a continuación, que acá faltaba. */}
-              <Group gap="sm" wrap="nowrap">
-                <Text size="xs" tt="uppercase" c="dimmed" style={{ letterSpacing: '0.11em' }}>
-                  Las que te costaron
-                </Text>
-                <Divider style={{ flex: 1 }} />
-              </Group>
+              {/* Mismo encabezado de sección que el resto de la app, ahora
+                  desde el componente compartido (ver SectionLabel.tsx). */}
+              <SectionLabel>Las que te costaron</SectionLabel>
               {sorted.map((m) => (
                 <Group key={m.cardId} gap="sm" wrap="nowrap">
                   <Text className="kana" w={34}>{m.prompt}</Text>
