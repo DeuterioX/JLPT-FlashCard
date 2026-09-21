@@ -102,19 +102,19 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
   const totalCards = decks.reduce((n, d) => n + d.cardCount, 0);
 
   return (
-    <Stack gap="md">
-      <Group>
+    <Stack id="decks-screen" gap="md">
+      <Group id="decks-header">
         <Text size="xs" tt="uppercase" c="dimmed">
           {decks.length} mazos · {totalCards} cartas
         </Text>
-        <Button ml="auto" size="compact-sm" onClick={openCreate}>
+        <Button id="new-deck-btn" ml="auto" size="compact-sm" onClick={openCreate}>
           + Nuevo mazo
         </Button>
       </Group>
 
-      <Paper withBorder>
+      <Paper id="decks-list" withBorder>
         {decks.map((d, i) => (
-          <div key={d.id}>
+          <div key={d.id} id={`deck-row-${d.id}`}>
             {i > 0 && <Divider />}
             <ListRow
               icon={iconFor(d)}
@@ -124,14 +124,23 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 <>
                   {/* Los incluidos no muestran Borrar: eso ya dice que no se pueden borrar. */}
                   {!d.isBuiltin && (
-                    <Button variant="subtle" color="shu" size="compact-xs" onClick={() => openConfirm(d)}>
+                    <Button
+                      id={`deck-delete-${d.id}`}
+                      variant="subtle" color="shu" size="compact-xs" onClick={() => openConfirm(d)}
+                    >
                       Borrar
                     </Button>
                   )}
-                  <Button variant="subtle" size="compact-xs" onClick={() => router.push(`/decks/${d.id}`)}>
+                  <Button
+                    id={`deck-edit-${d.id}`}
+                    variant="subtle" size="compact-xs" onClick={() => router.push(`/decks/${d.id}`)}
+                  >
                     {d.isBuiltin ? 'Ver cartas' : 'Editar'}
                   </Button>
-                  <Button variant="default" size="compact-xs" onClick={() => router.push('/')}>
+                  <Button
+                    id={`deck-practice-${d.id}`}
+                    variant="default" size="compact-xs" onClick={() => router.push('/')}
+                  >
                     Practicar
                   </Button>
                 </>
@@ -141,7 +150,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
         ))}
       </Paper>
 
-      <Modal opened={creating} onClose={() => setCreating(false)} title="Nuevo mazo">
+      <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title="Nuevo mazo">
         <Stack>
           <TextInput
             id="deck-name" label="Nombre" placeholder="Comidas"
@@ -154,13 +163,13 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
           />
           {createError && <Text c="shu.6" size="sm">{createError}</Text>}
-          <Button onClick={create} disabled={!name.trim() || createBusy} loading={createBusy}>
+          <Button id="create-deck-btn" onClick={create} disabled={!name.trim() || createBusy} loading={createBusy}>
             Crear
           </Button>
         </Stack>
       </Modal>
 
-      <Modal opened={!!confirm} onClose={() => setConfirm(null)} title="¿Borrar el mazo?">
+      <Modal id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)} title="¿Borrar el mazo?">
         <Stack>
           {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas. */}
           <Text size="sm">

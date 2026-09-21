@@ -5,10 +5,13 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { APP_NAME } from '../lib/app-meta';
 
+// `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
+// `nav-mobile-stats`, ...), para poder referirse a uno puntual sin depender
+// de su posición ni de su texto visible.
 const LINKS = [
-  { href: '/', label: 'Práctica', glyph: 'あ' },
-  { href: '/decks', label: 'Mazos', glyph: '▤' },
-  { href: '/stats', label: 'Estadísticas', glyph: '◷' },
+  { href: '/', label: 'Práctica', glyph: 'あ', id: 'practice' },
+  { href: '/decks', label: 'Mazos', glyph: '▤', id: 'decks' },
+  { href: '/stats', label: 'Estadísticas', glyph: '◷', id: 'stats' },
 ];
 
 /**
@@ -34,9 +37,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <MantineShell header={{ height: 48 }} padding="md">
-      <MantineShell.Header>
+      <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl">
-          <Group gap={7}>
+          <Group id="app-brand" gap={7}>
             {/* `.brand i` del diseño: la marca va invertida -fondo claro,
                 texto oscuro- adentro de un cuadrado chico con las puntas
                 redondeadas, no como texto suelto. */}
@@ -57,15 +60,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             >
               あ
             </Box>
-            <Text fw={700} size="sm">{APP_NAME}</Text>
+            <Text id="app-name" fw={700} size="sm">{APP_NAME}</Text>
           </Group>
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
               el activo), como en el diseño -no solo un `gap` entre textos
               sueltos, que es lo que los dejaba pegoteados. */}
-          <Group gap={4} className="knd-nav-desktop">
+          <Group id="nav-desktop" gap={4} className="knd-nav-desktop">
             {LINKS.map((l) => (
               <Anchor
                 key={l.href}
+                id={`nav-desktop-${l.id}`}
                 component={Link}
                 href={l.href}
                 size="sm"
@@ -83,7 +87,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </Group>
       </MantineShell.Header>
 
-      <MantineShell.Main className="knd-main-pb">
+      <MantineShell.Main id="main" className="knd-main-pb">
         {children}
       </MantineShell.Main>
 
@@ -92,6 +96,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         bottom={0}
         left={0}
         right={0}
+        id="nav-mobile"
         className="knd-nav-mobile"
         style={{
           background: 'var(--mantine-color-dark-6)',
@@ -102,6 +107,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {LINKS.map((l) => (
           <Anchor
             key={l.href}
+            id={`nav-mobile-${l.id}`}
             component={Link}
             href={l.href}
             underline="never"

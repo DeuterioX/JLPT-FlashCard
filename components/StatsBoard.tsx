@@ -141,16 +141,17 @@ export function StatsBoard({
     : `${(o.rounds / rangeDays).toFixed(1).replace('.', ',')} por día`;
 
   return (
-    <Stack gap="md">
+    <Stack id="stats-screen" gap="md">
       {/* En teléfono el orden real del documento es rango → tiles → botón
           (así el botón queda debajo de las tiles y a lo ancho completo);
           en escritorio `.knd-stats-top` los reacomoda con CSS Grid para que
           el botón vuelva a estar al lado del selector de rango, como en el
           diseño. Nada se duplica ni se oculta: es el mismo único botón en
           los dos casos. */}
-      <div className="knd-stats-top">
-        <div className="knd-stats-range">
+      <div id="stats-top" className="knd-stats-top">
+        <div id="stats-range" className="knd-stats-range">
           <SegmentedControl
+            id="stats-range-control"
             value={range}
             onChange={(v) => router.push(`/stats?window=${v}`)}
             data={[
@@ -161,7 +162,7 @@ export function StatsBoard({
           />
         </div>
 
-        <SimpleGrid className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing={9}>
+        <SimpleGrid id="stats-tiles" className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing={9}>
           <MetricTile id="stat-accuracy" label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
             hint={`${o.correct} de ${o.attempts}`} />
           {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
@@ -175,8 +176,9 @@ export function StatsBoard({
             hint={`de ${o.totalCards} cartas`} />
         </SimpleGrid>
 
-        <Stack gap={4} align="flex-end" className="knd-stats-review">
+        <Stack id="stats-review" gap={4} align="flex-end" className="knd-stats-review">
           <Button
+            id="review-btn"
             className="knd-review-btn"
             onClick={review}
             loading={busy}
@@ -188,15 +190,15 @@ export function StatsBoard({
         </Stack>
       </div>
 
-      <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
+      <SimpleGrid id="stats-panels" cols={{ base: 1, sm: 2 }} spacing="md">
         {/* Los tres paneles son `.card-box` del diseño: borde
             `--a-border-soft` (no el `dark.4` que trae `withBorder`), radio 9
             y padding 13. El encabezado lleva el título a la izquierda y una
             aclaración al ras de la derecha, un escalón más chica y apagada. */}
         <Paper id="worst-panel" withBorder radius={9} style={panelStyle}>
-          <Stack gap="xs">
+          <Stack id="worst-list" gap="xs">
             <Group gap="sm" wrap="nowrap">
-              <Text size="0.71875rem" lh={1.4} fw={600}>Las que más errás</Text>
+              <Text id="worst-title" size="0.71875rem" lh={1.4} fw={600}>Las que más errás</Text>
               <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">errores / veces vista</Text>
             </Group>
             {worst.length === 0 && <Text size="sm" c="dimmed">Todavía no hay datos suficientes.</Text>}
@@ -204,7 +206,7 @@ export function StatsBoard({
               // Mismos anchos que la lista equivalente del resumen de ronda
               // (34/46): antes acá eran 44/54 y las dos listas, que son la
               // misma fila del diseño, no coincidían entre sí.
-              <Group key={w.cardId} gap={9} wrap="nowrap">
+              <Group key={w.cardId} id={`worst-row-${w.cardId}`} gap={9} wrap="nowrap">
                 <Text className="kana" w={34}>{w.prompt}</Text>
                 <Text className="romaji" size="0.71875rem" c="dimmed" w={46}>{w.primary}</Text>
                 <Progress
@@ -218,9 +220,9 @@ export function StatsBoard({
         </Paper>
 
         <Paper id="by-group-panel" withBorder radius={9} style={panelStyle}>
-          <Stack gap="xs">
+          <Stack id="by-group-list" gap="xs">
             <Group gap="sm" wrap="nowrap">
-              <Text size="0.71875rem" lh={1.4} fw={600}>Aciertos por grupo</Text>
+              <Text id="by-group-title" size="0.71875rem" lh={1.4} fw={600}>Aciertos por grupo</Text>
               {/* Esta aclaración faltaba por completo. Sigue al rango
                   elegido en vez de decir siempre "últimos 30 días". */}
               <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">
@@ -229,7 +231,7 @@ export function StatsBoard({
             </Group>
             {o.byGroup.length === 0 && <Text size="sm" c="dimmed">Todavía no practicaste nada.</Text>}
             {o.byGroup.slice(0, 10).map((g) => (
-              <Group key={g.groupId} gap={9} wrap="nowrap">
+              <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
                 <Text className="kana" size="0.6875rem" lh={1.4} w={62} c="dimmed">{g.name}</Text>
                 <Progress
                   value={g.accuracy * 100} color={tone(g.accuracy)} size={6} radius={3}
@@ -245,14 +247,14 @@ export function StatsBoard({
       </SimpleGrid>
 
       <Paper id="history-panel" withBorder radius={9} style={panelStyle}>
-        <Stack gap={6}>
-          <Text size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
+        <Stack id="history-list" gap={6}>
+          <Text id="history-title" size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
           {o.history.length === 0 && <Text size="sm" c="dimmed">Sin rondas terminadas.</Text>}
           {/* Sin `Divider` entre filas: en el diseño esta lista va sin
               líneas (`border: none`), separada solo por el padding de cada
               fila. Las líneas las tiene la lista de mazos, no esta. */}
           {o.history.map((h) => (
-            <Group key={h.id} gap="sm" wrap="nowrap" py={6}>
+            <Group key={h.id} id={`history-row-${h.id}`} gap="sm" wrap="nowrap" py={6}>
               <HistoryDate iso={h.startedAt} />
               <Text size="0.71875rem" lh={1.4} c="dimmed" style={{ flex: 1, minWidth: 0 }}>{h.label}</Text>
               {/* Columna de duración del diseño, que faltaba entera. El dato

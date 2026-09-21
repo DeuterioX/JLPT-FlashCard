@@ -123,7 +123,12 @@ body { margin: 0; }
   height: 56px;
   padding-top: 6px;
 }
-.knd-main-pb { padding-bottom: 0; }
+/* El padding inferior del contenido es SIEMPRE el del shell (`md`), más la
+   barra de pestañas cuando existe -`--knd-bottom-offset` vale 0 en
+   escritorio-. Antes esto era `0` fijo y la regla de teléfono lo reponía:
+   en escritorio el último panel quedaba pegado al borde de la ventana al
+   scrollear hasta el fondo, sin aire. */
+.knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + var(--mantine-spacing-md)); }
 
 @media (max-width: 640px) {
   .knd-nav-desktop { display: none; }
@@ -135,7 +140,6 @@ body { margin: 0; }
   /* La altura real de la barra de pestañas: la misma barra fija esta
      variable a su propia altura, así que nunca se desincronizan. */
   :root { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
-  .knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + 16px); }
 }
 
 /* Métricas del quiz (aciertos, restantes, errores): caja con borde propio
