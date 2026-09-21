@@ -204,7 +204,7 @@ export const theme = createTheme({
       styles: {
         label: { fontWeight: 500 },
       },
-      vars: (_t: MantineTheme, props: { variant?: string }) => {
+      vars: (_t: MantineTheme, props: { variant?: string; color?: string; size?: string }) => {
         // Mantine trata el `variant` sin especificar como "filled" -su
         // propio `varsResolver` hace `variant || 'filled'`-, pero ACÁ
         // llega crudo (`undefined`), no con ese fallback ya aplicado. Sin
@@ -212,9 +212,29 @@ export const theme = createTheme({
         // `variant`) caía en la rama "neutro" -pasó de verdad: quedó con
         // el texto blanco de acá en vez del oscuro por autoContrast-.
         const variant = props.variant ?? 'filled';
-        const neutral = variant !== 'filled';
+        // `!props.color` es imprescindible: sin eso este override le ganaba
+        // a CUALQUIER `color=""` explícito y lo dejaba en blanco. Pasó de
+        // verdad -medido-: los dos botones de borrar de la app
+        // (`variant="subtle" color="shu"`, en DeckList y DeckEditor) se
+        // veían blancos en vez de rojos, o sea que la acción destructiva no
+        // se leía como destructiva. Este bloque existe para los botones
+        // NEUTROS; el que pide un color, ya eligió.
+        const neutral = variant !== 'filled' && !props.color;
         return {
-          root: neutral ? { '--button-color': 'var(--mantine-color-text)' } : {},
+          root: {
+            ...(neutral ? { '--button-color': 'var(--mantine-color-text)' } : {}),
+            // `.btn` del diseño: el botón por defecto va sobre
+            // `--a-surface-2` (dark.5), no sobre el dark.6 que Mantine usa
+            // como `--mantine-color-default`. Es el botón más repetido del
+            // mockup (11 usos, en todas las pantallas), así que se corrige
+            // acá y no pantalla por pantalla.
+            ...(variant === 'default' ? { '--button-bg': 'var(--mantine-color-dark-5)' } : {}),
+            // `.btn.sm` del diseño: 11px y 9px de padding lateral, contra
+            // los 12px/7px que trae `compact-xs`.
+            ...(props.size === 'compact-xs'
+              ? { '--button-fz': rem(11), '--button-padding-x': rem(9) }
+              : {}),
+          },
         };
       },
     },

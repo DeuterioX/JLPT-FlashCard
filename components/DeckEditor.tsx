@@ -228,7 +228,7 @@ export function DeckEditor({
                   {!deck.isBuiltin && (
                     <Button
                       variant="subtle"
-                      color="shu"
+                      color="shu.6"
                       size="compact-xs"
                       onClick={() => removeCard(c.id)}
                       loading={deletingId === c.id}

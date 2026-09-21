@@ -10,8 +10,8 @@ export function BuiltinDot() {
     <Tooltip label="Incluido en la app · no se puede borrar" withArrow>
       <Box
         component="span"
-        w={7}
-        h={7}
+        w={6}
+        h={6}
         ml={7}
         style={{ borderRadius: '50%', background: 'var(--mantine-color-jade-6)', display: 'inline-block' }}
       />
