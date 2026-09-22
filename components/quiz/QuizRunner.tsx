@@ -651,19 +651,25 @@ function QuizPlay({
               >
                 {card.prompt}
               </Text>
+            </Stack>
+            {/* TODO lo que cuelga del kana vive en este bloque de posición
+                absoluta (el `.toast` del mockup, más la respuesta revelada y
+                el significado). Adentro del Stack de arriba, cualquiera de
+                los tres cambia el alto del bloque centrado y, al seguir
+                centrado, el kana SE CORRE al aparecer -pasó dos veces: se
+                arregló para el aviso de error y quedó igual para "Revelar",
+                que es cuando más se nota porque entran dos líneas juntas-.
+                Van los tres en el mismo bloque y no como hermanos sueltos
+                para que no se pisen entre sí cuando coinciden. */}
+            <Stack id="quiz-under-kana" className="knd-quiz-under" align="center" gap={5}>
               {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
+              {flash === 'wrong' && (
+                <Text id="quiz-wrong-hint" className="knd-quiz-toast">
+                  Esa no es, probá de nuevo
+                </Text>
+              )}
             </Stack>
-            {/* Posición absoluta (mismo `.toast` del mockup): si viviera
-                dentro del Stack de arriba, su alto cambia cuando el aviso
-                aparece o desaparece y, al seguir centrado, el kana se corre
-                -pasó de verdad, era justo el reclamo-. Como hermano aparte,
-                aparecer o desaparecer no mueve nada más. */}
-            {flash === 'wrong' && (
-              <Text id="quiz-wrong-hint" className="knd-quiz-toast">
-                Esa no es, probá de nuevo
-              </Text>
-            )}
           </Box>
         )}
         {/* "carta N de M" del mockup (`.under-glyph`), ausente hasta ahora.

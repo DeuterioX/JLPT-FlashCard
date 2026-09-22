@@ -346,17 +346,21 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    cualquier ventana real -pasó de verdad, medido-: el mockup lo calculó
    contra los 300px fijos de su propio stage estático, no contra una
    pantalla completa. */
-.knd-quiz-toast {
+.knd-quiz-under {
   position: absolute;
   left: 50%;
   top: 100%;
   /* 14px del diseño mientras haya alto de sobra, pero proporcional al
      stage cuando escasea -con el teclado abierto el stage queda en ~125px y
      esos 14px fijos eran parte de lo que empujaba al toast afuera, encima de
-     las métricas-. `cqh` acá sí es válido: el toast es DESCENDIENTE del
+     las métricas-. `cqh` acá sí es válido: el bloque es DESCENDIENTE del
      container (`#quiz-stage`), no el container mismo. */
   margin-top: min(0.875rem, 7cqh);
   transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.knd-quiz-toast {
   background: #3a2028; /* --a-shu-bg del diseño */
   border: 1px solid var(--mantine-color-shu-6);
   color: var(--mantine-color-shu-6);
@@ -407,7 +411,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    200px el toast terminaba tapando el glifo en el caso normal.
 
    Cuando sí se activa: poniendo el wrapper del kana en `static`, el bloque
-   contenedor del toast pasa a ser `#quiz-stage` (que es `position:
+   contenedor de lo que cuelga del kana pasa a ser `#quiz-stage` (que es `position:
    relative`), y el toast se ancla al piso del stage -libre, porque a esa
    altura el caption ya está oculto-. Ahí sí se superpone con el kana, pero
    la alternativa es que el `overflow: hidden` del stage lo recorte: que el
@@ -416,7 +420,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
   .knd-quiz-kana-wrap {
     position: static;
   }
-  .knd-quiz-toast {
+  .knd-quiz-under {
     top: auto;
     bottom: 0.25rem;
     margin-top: 0;
