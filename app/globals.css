@@ -736,10 +736,10 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
    - La `perspective` va en el PADRE DIRECTO de lo que gira. Un nivel más
      arriba no llega -alcanza sólo a los hijos inmediatos- y el giro se ve
      como un aplastado lineal, sin volumen.
-   - Las dos caras comparten celda de grilla en vez de ir en posición
-     absoluta: así el bloque mide lo que mide la más alta -el kana- y no
-     hace falta fijarle un alto, que con el teclado abierto sería un piso
-     de layout de los que ya nos costaron caro.
+   - El frente ocupa la celda y el dorso va ENCIMA, en posición absoluta:
+     así el alto del bloque lo fija siempre el kana grande del frente, y las
+     tres líneas del dorso no empujan lo que cuelga abajo ni crean un piso
+     de layout de los que ya nos costaron caro con el teclado abierto.
    - Nada de `filter` ni de `transform` extra sobre las caras: un `filter`
      aplana el contexto 3D y un `transform` PISA el `rotateY(180deg)` del
      dorso, que entonces aparece de golpe a mitad del giro (probado).
@@ -750,6 +750,7 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
 
 .knd-quiz-turn {
   display: grid;
+  position: relative;
   transform-style: preserve-3d;
   transition: transform 560ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
@@ -763,7 +764,11 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
-.knd-quiz-face-back { transform: rotateY(180deg); }
+.knd-quiz-face-back {
+  position: absolute;
+  inset: 0;
+  transform: rotateY(180deg);
+}
 
 /* Con movimiento reducido el giro se cambia por un fundido entre las dos
    caras: se saca el movimiento, no la función de revelar. */

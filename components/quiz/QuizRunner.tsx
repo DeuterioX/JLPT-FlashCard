@@ -93,6 +93,11 @@ function QuizPlay({
   const [typed, setTyped] = useState('');
   const [flash, setFlash] = useState<'none' | 'wrong'>('none');
   const [shown, setShown] = useState<string | null>(null);
+  // Qué cara se ve, separado de si la carta fue revelada. `shown` guarda la
+  // respuesta y no vuelve a null hasta cambiar de carta -revelar cuenta como
+  // error y eso ya quedó registrado-; esto es sólo la vista, y por eso se
+  // puede ir y volver sin tocar el puntaje.
+  const [flipped, setFlipped] = useState(false);
   const [meaning, setMeaning] = useState<string | null>(null);
   // Cuántas veces costó cada carta (error tipeado o revelada) en la ronda
   // actual, para "Las que te costaron" del resumen. Se reinicia en cada ronda.
@@ -282,6 +287,7 @@ function QuizPlay({
       setTyped('');
       setFlash('none');
       setShown(null);
+      setFlipped(false);
 
       // El significado que se muestra es el de la carta que se acaba de
       // acertar (capturada en `card` antes de este setState), no el de la
@@ -322,12 +328,20 @@ function QuizPlay({
   }
 
   function onReveal() {
-    // Ya revelada: un segundo Espacio (o Tab a "Revelar" + Espacio) no
-    // registra otro error sobre la misma carta.
-    if (!card || state.revealedCurrent) return;
+    if (!card) return;
+    // Ya revelada: el botón pasa a ser un interruptor. Se puede volver al
+    // kana y mirarlo de nuevo cuantas veces haga falta -es una app para
+    // aprender a leerlo- y NO se registra otro error: el de esta carta ya
+    // quedó contado en el primer revelado.
+    if (state.revealedCurrent) {
+      setFlipped((f) => !f);
+      inputRef.current?.focus();
+      return;
+    }
     const r = reveal(state);
     setState(r.state);
     setShown(r.answer);
+    setFlipped(true);
     // Revelar cuenta como error: se registra igual que un error tipeado, y
     // suma al conteo de "las que te costaron".
     setMisses((m) => ({ ...m, [card.id]: (m[card.id] ?? 0) + 1 }));
@@ -370,6 +384,7 @@ function QuizPlay({
     setMisses({});
     setTyped('');
     setShown(null);
+    setFlipped(false);
     setFlash('none');
     setMeaning(null);
     setSessionError(null);
@@ -634,7 +649,7 @@ function QuizPlay({
                 que el aviso de error se ancle al piso del stage- dejaría de
                 funcionar si el Box la tuviera. */}
             <div className="knd-quiz-persp">
-              <div className={`knd-quiz-turn${shown ? ' is-revealed' : ''}`}>
+              <div className={`knd-quiz-turn${flipped ? ' is-revealed' : ''}`}>
                 <div className="knd-quiz-face">
                   <Text
                     id="quiz-kana"
@@ -653,19 +668,40 @@ function QuizPlay({
                     {card.prompt}
                   </Text>
                 </div>
-                {/* El dorso. Las dos caras comparten celda de grilla, así que
-                    el bloque mide lo que mide la más alta -el kana- y revelar
-                    no mueve nada de lo que cuelga abajo. */}
+                {/* El dorso lleva la carta COMPLETA: el kana otra vez, su
+                    lectura y su significado.
+
+                    El kana tiene que estar de los dos lados. Revelás para
+                    asociar el signo con su lectura, y si al girar el signo
+                    desaparece, la asociación no se puede hacer: quedás
+                    mirando una respuesta suelta hasta que tipeás. Es el
+                    reverso de una ficha de verdad, que tampoco muestra la
+                    respuesta sola.
+
+                    Va en posición absoluta y no compartiendo la celda con el
+                    frente: así el alto del bloque lo fija SIEMPRE el kana
+                    grande del frente, y tres líneas de dorso no empujan lo
+                    que cuelga abajo. */}
                 <div className="knd-quiz-face knd-quiz-face-back">
                   {shown && (
-                    <Text
-                      id="quiz-revealed-answer"
-                      className="romaji"
-                      c="dimmed"
-                      style={{ fontSize: 'clamp(1.25rem, min(9vw, 20cqh), 64px)', lineHeight: 1.1 }}
-                    >
-                      {shown}
-                    </Text>
+                    <Stack align="center" gap={6}>
+                      <Text
+                        className="kana"
+                        style={{ fontSize: 'clamp(1.5rem, min(9vw, 20cqh), 72px)', lineHeight: 1 }}
+                      >
+                        {card.prompt}
+                      </Text>
+                      <Text
+                        id="quiz-revealed-answer"
+                        className="romaji"
+                        style={{ fontSize: 'clamp(1rem, min(5vw, 11cqh), 32px)', lineHeight: 1.15 }}
+                      >
+                        {shown}
+                      </Text>
+                      {card.meaning && (
+                        <Text id="quiz-revealed-meaning" size="sm" c="jade.6">{card.meaning}</Text>
+                      )}
+                    </Stack>
                   )}
                 </div>
               </div>
@@ -756,6 +792,10 @@ function QuizPlay({
                 // Único lugar donde se apaga el aviso de error: recién
                 // cuando el usuario vuelve a escribir, no antes.
                 if (flash === 'wrong') setFlash('none');
+                // Empezar a escribir devuelve al kana: se escribe MIRANDO el
+                // signo, no la respuesta. Si no, el ejercicio se vuelve
+                // copiar lo que dice la pantalla.
+                if (flipped) setFlipped(false);
               }}
               placeholder="escribí en romaji"
               // `ta="center"` NO alcanza acá: centra el div contenedor de
@@ -782,7 +822,7 @@ function QuizPlay({
               <Kbd>Espacio</Kbd>
             </Text>
             <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>
-              Revelar
+              {flipped ? 'Ocultar' : 'Revelar'}
             </Button>
           </Group>
         </Box>
