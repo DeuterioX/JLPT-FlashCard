@@ -3,6 +3,8 @@
 import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import logo from '../public/logo.png';
 import { APP_NAME } from '../lib/app-meta';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
@@ -52,26 +54,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl">
           <Group id="app-brand" gap={7}>
-            {/* `.brand i` del diseño: la marca va invertida -fondo claro,
-                texto oscuro- adentro de un cuadrado chico con las puntas
-                redondeadas, no como texto suelto. */}
-            <Box
-              className="kana"
-              style={{
-                width: '1.375rem',
-                height: '1.375rem',
-                display: 'grid',
-                placeItems: 'center',
-                borderRadius: '0.3125rem',
-                background: 'var(--mantine-color-text)',
-                color: 'var(--mantine-color-body)',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                flexShrink: 0,
-              }}
-            >
-              あ
-            </Box>
+            {/* Reemplaza al cuadrado con la あ que traía el diseño. Va a
+                30px y no a los 22px de aquel cuadrado porque es un dibujo
+                con detalle: a 22 la cara se empasta y las cartas del fondo
+                desaparecen. `alt` vacío a propósito -el nombre está al lado,
+                así que un lector de pantalla que lo anunciara repetiría-. */}
+            <Image
+              src={logo}
+              alt=""
+              width={30}
+              height={30}
+              priority
+              style={{ width: '1.875rem', height: 'auto', flexShrink: 0 }}
+            />
             <Text id="app-name" fw={700} size="sm">{APP_NAME}</Text>
           </Group>
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
