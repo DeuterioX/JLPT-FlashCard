@@ -698,3 +698,18 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
 @media (max-width: 640px) {
   .mantine-Button-root { min-height: 1.875rem; }
 }
+
+/* La navegación de escritorio no tenía hover: el inactivo se quedaba igual
+   al pasarle el mouse por encima. El resalte levanta el TEXTO y no pinta un
+   fondo, porque el fondo ya está tomado: la píldora del activo usa `dark.5`,
+   que en esta paleta es el color de hover de la app. Un hover relleno haría
+   que "podés ir acá" y "estás acá" se vean del mismo color, y la píldora
+   dejaría de significar una sola cosa.
+
+   Va detrás de `hover: hover` por lo mismo que las filas: en un laptop
+   táctil el estado se quedaría pegado después del toque. */
+a.knd-nav-link { color: var(--mantine-color-dark-2); }
+@media (hover: hover) {
+  a.knd-nav-link { transition: color 120ms ease; }
+  a.knd-nav-link:hover { color: var(--mantine-color-text); }
+}
