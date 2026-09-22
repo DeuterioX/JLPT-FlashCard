@@ -14,7 +14,7 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { APP_NAME } from '@/lib/app-meta';
+import { Brand } from '../Brand';
 
 export type Round = StoredRound;
 
@@ -518,14 +518,19 @@ function QuizPlay({
       onMouseDown={keepInputFocused}
     >
       {/* Mismo fondo/borde que la barra superior del resto de la app
-          (AppShellHeader en theme.ts) y la misma marca -ícono あ + nombre-,
-          no un texto suelto atenuado: el mockup (`.topbar`) trae los tres,
-          y acá faltaban -confirmado contra el mockup real, no solo el plan
-          de implementación que lo había simplificado de más al traducirlo-. */}
+          (AppShellHeader en theme.ts) y la MISMA marca, que ahora sale del
+          componente compartido: el mockup (`.topbar`) trae los tres y acá
+          faltaban. Estaba copiada, y al cambiar el logo esta copia se quedó
+          con la あ mientras el resto de la app ya mostraba el zorro. */}
       <Group
         id="quiz-header"
         px="md"
-        py="xs"
+        // `py` más chico que en el resto de la app a propósito: con el
+        // zorro de 34px, el padding de `xs` dejaría esta barra 12px más alta
+        // que antes, y esos 12px salen del stage -que es lo único que cede
+        // alto cuando se abre el teclado-. Así mide lo mismo que medía con
+        // el cuadrado de la あ.
+        py={4}
         justify="space-between"
         bg="dark.6"
         // `flexShrink: 0` por lo mismo que el pie (ver la nota larga en
@@ -534,20 +539,7 @@ function QuizPlay({
         // tocar ni al header ni al pie, solo al stage.
         style={{ borderBottom: '1px solid var(--mantine-color-dark-4)', flexShrink: 0 }}
       >
-        <Group id="quiz-brand" gap={7}>
-          <Box
-            id="quiz-brand-icon"
-            className="kana"
-            style={{
-              width: '1.375rem', height: '1.375rem', display: 'grid', placeItems: 'center',
-              borderRadius: '0.3125rem', background: 'var(--mantine-color-text)',
-              color: 'var(--mantine-color-body)', fontSize: '0.75rem', fontWeight: 700, flexShrink: 0,
-            }}
-          >
-            あ
-          </Box>
-          <Text id="quiz-app-name" fw={700} size="sm">{APP_NAME}</Text>
-        </Group>
+        <Brand id="quiz-brand" nameId="quiz-app-name" />
         {/* `Group` con `gap`, no texto suelto con espacios/nbsp intercalados
             a mano: un espacio de texto JSX pegado al cierre de un tag puede
             colapsar a ancho CERO -pasó de verdad, confirmado midiendo en

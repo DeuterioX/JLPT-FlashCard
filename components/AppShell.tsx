@@ -3,9 +3,7 @@
 import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
-import logo from '../public/logo.png';
-import { APP_NAME } from '../lib/app-meta';
+import { Brand } from './Brand';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
 // `nav-mobile-stats`, ...), para poder referirse a uno puntual sin depender
@@ -53,23 +51,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <MantineShell header={{ height: 48 }} padding="md">
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl">
-          <Group id="app-brand" gap={7}>
-            {/* Reemplaza al cuadrado con la あ que traía el diseño. Va a
-                34px y no a los 22px de aquel cuadrado: comprobado
-                renderizando a tamaño real, abajo de ~30px la cara se
-                empasta y los anteojos desaparecen. `alt` vacío a propósito:
-                el nombre está al lado, así que un lector de pantalla que
-                anunciara la imagen estaría repitiendo. */}
-            <Image
-              src={logo}
-              alt=""
-              width={34}
-              height={34}
-              priority
-              style={{ width: '2.125rem', height: 'auto', flexShrink: 0 }}
-            />
-            <Text id="app-name" fw={700} size="sm">{APP_NAME}</Text>
-          </Group>
+          <Brand id="app-brand" nameId="app-name" />
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
               el activo), como en el diseño -no solo un `gap` entre textos
               sueltos, que es lo que los dejaba pegoteados. */}
