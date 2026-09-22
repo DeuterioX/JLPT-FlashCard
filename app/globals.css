@@ -260,10 +260,19 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    ignora cuando cae sobre un control real. El teclado llega igual a la misma
    acción por el botón de la fila, que ya es enfocable y tiene su nombre. */
 .knd-row-tap { cursor: pointer; }
-.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
-/* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
-   contenedor, así que el hover va ahí. */
-.knd-swipe-front.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+/* El hover va detrás de `hover: hover` porque en una pantalla táctil no hay
+   puntero que se vaya: el navegador deja la fila en estado hover después del
+   toque y queda iluminada hasta que tocás otra cosa, lo que se lee como una
+   selección que no existe. La pregunta es por el dispositivo, no por el ancho
+   -`max-width` acá dejaría el problema en una tablet y lo apagaría en una
+   ventana angosta de escritorio, que es justo al revés-. En táctil el
+   feedback del toque ya lo da la navegación misma. */
+@media (hover: hover) {
+  .knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+  /* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
+     contenedor, así que el hover va ahí. */
+  .knd-swipe-front.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+}
 
 /* Fila del encabezado de sección: el label más lo que lo acompañe. El alto
    se fija acá porque si no lo dicta el vecino, y el vecino cambia según la
