@@ -119,7 +119,10 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
   return (
     <Stack id="deck-groups-screen" gap="md">
       <Group id="deck-header" gap="0.5rem">
-        <Anchor id="deck-breadcrumb" component={Link} href="/decks" c="dark.3" size="sm" underline="never">
+        <Anchor
+          id="deck-breadcrumb" className="knd-crumb"
+          component={Link} href="/decks" size="sm" underline="hover"
+        >
           Mazos /
         </Anchor>
         <Text id="deck-name" fw={700} size={rem(15)} lh={1.4} className="kana">{deck.name}</Text>

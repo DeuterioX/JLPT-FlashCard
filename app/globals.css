@@ -218,6 +218,21 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
+/* Migas de navegación: sin esto son `Anchor` sin ningún estado -ni color ni
+   subrayado- y se leen como texto en vez de como links. El color sube un
+   escalón, de `--a-dimmer` a `--a-dim`, que es el mismo par que la app usa
+   en todas partes para "apagado" y "apagado pero presente"; el subrayado lo
+   pone Mantine con `underline="hover"`. El mockup no define un hover acá
+   -sus migas son `span`, no links-, así que el valor es una decisión de acá.
+
+   El color de reposo va acá y no en un prop `c=`: Mantine lo escribe INLINE
+   en el elemento, y un estilo inline le gana a cualquier regla de clase, así
+   que con `c="dark.3"` puesto el hover nunca llegaba a aplicarse. El selector
+   lleva el `a` para ganarle a `.mantine-Anchor-root` sin depender del orden
+   en que se carguen las hojas. */
+a.knd-crumb { color: var(--mantine-color-dark-3); transition: color 120ms ease; }
+a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
+
 /* El botón por defecto no tenía NINGÚN hover: al fijarle el fondo a
    `--a-surface-2` en theme.ts, el reposo quedó igual que el `--button-hover`
    que Mantine deriva, así que el estado existía pero era invisible -medido,

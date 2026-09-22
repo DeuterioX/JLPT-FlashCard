@@ -283,12 +283,15 @@ export function GroupCards({
   return (
     <Stack id="group-cards-screen" gap="md">
       <Group id="group-header" gap="0.5rem">
-        <Anchor component={Link} href="/decks" c="dark.3" size="sm" underline="never">Mazos</Anchor>
+        <Anchor className="knd-crumb" component={Link} href="/decks" size="sm" underline="hover">
+          Mazos
+        </Anchor>
         <Text c="dark.3" size="sm">/</Text>
         <Anchor
+          className="knd-crumb"
           component={Link}
           href={manyGroups ? `/decks/${deck.id}` : '/decks'}
-          c="dark.3" size="sm" underline="never"
+          size="sm" underline="hover"
         >
           {deck.name}
         </Anchor>
