@@ -802,3 +802,36 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
   .knd-quiz-turn.is-revealed .knd-quiz-face { opacity: 0; }
   .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
 }
+
+/* Las tres columnas de una fila de carta.
+
+   Las bases salen de medir, no de tantear: en el diccionario de la app el
+   p99 del largo de una lectura son 11 caracteres -«アコースティックギター»- y
+   once kana renderizados ocupan 176px, o sea 11rem. Su romaji ronda los 16
+   caracteres, 135px, pero se le da el mismo ancho para que una lectura larga
+   con romaji largo tampoco corte.
+
+   Son BASES y no anchos: `flex-shrink: 1` deja que se encojan cuando no hay
+   lugar, y como la base es una longitud -no el contenido- todas las filas
+   calculan lo mismo y las columnas quedan alineadas entre sí.
+
+   `word-break` para que, cuando no haya más remedio que partir, el corte
+   caiga donde sea antes que desbordar la celda. */
+.knd-card-kana { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
+.knd-card-romaji { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
+.knd-card-meaning { flex: 1 1 10rem; min-width: 0; word-break: break-word; }
+
+/* En teléfono el p99 no entra y no hay ancho que lo arregle: once kana más su
+   romaji más el significado no caben en 390px. Se vuelve a lo que sí entra
+   -unos siete kana- y el resto se parte, que es preferible a dejar el
+   significado en una tira de 100px. */
+@media (max-width: 640px) {
+  .knd-card-kana { flex-basis: 6rem; }
+  .knd-card-romaji { flex-basis: 6.25rem; }
+  /* Y el significado pasa a base CERO: con una base propia, las tres sumadas
+     pasan los 390px y el reparto del faltante encoge también a las dos
+     primeras, que terminaban más angostas que antes del cambio -medido: 83 y
+     86px contra los 96 y 100 que se les pide-. Con base cero se queda con lo
+     que sobra y las otras dos conservan la suya. */
+  .knd-card-meaning { flex-basis: 0; }
+}

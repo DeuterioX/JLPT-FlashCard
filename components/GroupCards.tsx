@@ -485,21 +485,13 @@ export function GroupCards({
               onMove={() => { setMoveError(null); setMoving(c); }}
               onDelete={() => { setDeleteError(null); setDeleting(c); }}
             >
-              {/* Las dos primeras columnas tienen base flexible y no ancho
-                  fijo. Con `w={70}` una palabra de seis kana -かいしゃいん- o
-                  un romaji de diez letras se partían en dos renglones aunque
-                  a la derecha sobrara media pantalla. Pero tampoco pueden ser
-                  anchos grandes fijos: en teléfono las tres columnas siguen
-                  estando y sumadas no entran en 390px. Con `flex: 0 1 base`
-                  toman la base cuando hay lugar y se encogen cuando no, y
-                  como la base es una longitud -no el contenido- todas las
-                  filas calculan lo mismo y las columnas siguen alineadas. */}
+              {/* Los anchos viven en globals.css y no acá porque tienen que
+                  cambiar entre escritorio y teléfono, y un `style` inline no
+                  puede llevar una media query. */}
               <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
-                <Text className="kana" c="dimmed" style={{ flex: '0 1 8.5rem', minWidth: 0, wordBreak: 'break-word' }}>{c.prompt}</Text>
-                <Text className="romaji" size="sm" c="dimmed" style={{ flex: '0 1 9rem', minWidth: 0, wordBreak: 'break-word' }}>{c.primary}</Text>
-                <Text size="sm" c="dimmed" style={{ flex: '1 1 10rem', minWidth: 0, wordBreak: 'break-word' }}>
-                  {c.meaning ?? ''}
-                </Text>
+                <Text className="kana knd-card-kana" c="dimmed">{c.prompt}</Text>
+                <Text className="romaji knd-card-romaji" size="sm" c="dimmed">{c.primary}</Text>
+                <Text className="knd-card-meaning" size="sm" c="dimmed">{c.meaning ?? ''}</Text>
                 {/* Un mazo incluido no trae acciones por carta: la pantalla es
                     un visor. En teléfono estos botones se ocultan por CSS y
                     las acciones llegan por gesto. */}
