@@ -31,16 +31,13 @@ const FIELD_STYLES = {
  * `GroupCards` para que abrir otra carta lo reinicie solo, vía `key`.
  */
 function EditCardModal({
-  card, busy, error, onClose, onSave, onMove, onDelete,
+  card, busy, error, onClose, onSave,
 }: {
   card: EditorCard;
   busy: boolean;
   error: string | null;
   onClose: () => void;
   onSave: (v: { prompt: string; romaji: string; meaning: string; alts: string[] }) => void;
-  /** Ausente cuando el mazo tiene un solo grupo: no hay a dónde mover. */
-  onMove?: () => void;
-  onDelete: () => void;
 }) {
   const [prompt, setPrompt] = useState(card.prompt);
   // La primaria va en su campo y el resto como alternativas, para no
@@ -72,10 +69,12 @@ function EditCardModal({
             </Button>
           </Group>
         ))}
+        <TextInput id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
+        {/* Al final, después de los campos, como en el formulario de alta:
+            es una acción sobre el formulario, no un campo más. */}
         <Anchor component="button" type="button" size="xs" c="dimmed" onClick={() => setAlts([...alts, ''])}>
           + romanización alternativa
         </Anchor>
-        <TextInput id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
         {error && <Text c="shu.6" size="sm">{error}</Text>}
         <Button
           id="edit-card-save"
@@ -85,19 +84,6 @@ function EditCardModal({
         >
           Guardar
         </Button>
-        {/* Mover y Borrar también viven acá, no sólo en el gesto: en teléfono
-            el swipe es un atajo, y quien no lo descubre tiene que poder hacer
-            lo mismo igual. */}
-        <Group gap="xs">
-          {onMove && (
-            <Button id="edit-card-move" variant="default" bg="transparent" size="compact-sm" onClick={onMove}>
-              Mover a otro grupo
-            </Button>
-          )}
-          <Button id="edit-card-delete" variant="subtle" color="shu.6" size="compact-sm" onClick={onDelete}>
-            Borrar carta
-          </Button>
-        </Group>
       </Stack>
     </Modal>
   );
@@ -523,8 +509,6 @@ export function GroupCards({
           error={editError}
           onClose={() => setEditing(null)}
           onSave={saveCard}
-          onMove={manyGroups ? () => { setMoveError(null); setMoving(editing); setEditing(null); } : undefined}
-          onDelete={() => { const id = editing.id; setEditing(null); removeCard(id); }}
         />
       )}
 
