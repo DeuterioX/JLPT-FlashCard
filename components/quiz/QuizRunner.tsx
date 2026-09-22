@@ -683,12 +683,23 @@ function QuizPlay({
                       <Text
                         id="quiz-revealed-answer"
                         className="romaji"
-                        style={{ fontSize: 'clamp(1.25rem, min(9vw, 20cqh), 64px)', lineHeight: 1.1 }}
+                        /* Escala hermana de la del kana, un escalón abajo:
+                           el kana usa `min(18vw, 42cqh)` y esto `min(12vw,
+                           26cqh)`. El dorso es el premio del giro y tiene
+                           que leerse de un vistazo, no ser una nota al pie
+                           del signo que reemplaza. */
+                        style={{ fontSize: 'clamp(1.5rem, min(12vw, 26cqh), 88px)', lineHeight: 1.1 }}
                       >
                         {shown}
                       </Text>
                       {card.meaning && (
-                        <Text id="quiz-revealed-meaning" size="sm" c="jade.6">{card.meaning}</Text>
+                        <Text
+                          id="quiz-revealed-meaning"
+                          c="jade.6"
+                          style={{ fontSize: 'clamp(0.9375rem, min(4.5vw, 9cqh), 26px)', lineHeight: 1.25 }}
+                        >
+                          {card.meaning}
+                        </Text>
                       )}
                     </Stack>
                   )}
