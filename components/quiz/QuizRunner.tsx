@@ -668,33 +668,22 @@ function QuizPlay({
                     {card.prompt}
                   </Text>
                 </div>
-                {/* El dorso lleva la carta COMPLETA: el kana otra vez, su
-                    lectura y su significado.
-
-                    El kana tiene que estar de los dos lados. Revelás para
-                    asociar el signo con su lectura, y si al girar el signo
-                    desaparece, la asociación no se puede hacer: quedás
-                    mirando una respuesta suelta hasta que tipeás. Es el
-                    reverso de una ficha de verdad, que tampoco muestra la
-                    respuesta sola.
+                {/* El dorso: la lectura y el significado, sin repetir el
+                    kana. El kana no hace falta acá porque volver a verlo
+                    cuesta un toque -«Revelar» alterna y escribir devuelve al
+                    frente solo-, así que duplicarlo sería ruido.
 
                     Va en posición absoluta y no compartiendo la celda con el
                     frente: así el alto del bloque lo fija SIEMPRE el kana
-                    grande del frente, y tres líneas de dorso no empujan lo
-                    que cuelga abajo. */}
+                    grande del frente, y el dorso no empuja lo que cuelga
+                    abajo por más líneas que tenga. */}
                 <div className="knd-quiz-face knd-quiz-face-back">
                   {shown && (
                     <Stack align="center" gap={6}>
                       <Text
-                        className="kana"
-                        style={{ fontSize: 'clamp(1.5rem, min(9vw, 20cqh), 72px)', lineHeight: 1 }}
-                      >
-                        {card.prompt}
-                      </Text>
-                      <Text
                         id="quiz-revealed-answer"
                         className="romaji"
-                        style={{ fontSize: 'clamp(1rem, min(5vw, 11cqh), 32px)', lineHeight: 1.15 }}
+                        style={{ fontSize: 'clamp(1.25rem, min(9vw, 20cqh), 64px)', lineHeight: 1.1 }}
                       >
                         {shown}
                       </Text>
