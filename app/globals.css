@@ -727,3 +727,51 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
   a.knd-nav-link { transition: color 120ms ease; }
   a.knd-nav-link:not(.knd-nav-link-on):hover { color: var(--mantine-color-text); }
 }
+
+/* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
+   Antes la respuesta se agregaba debajo; ahora está en el dorso.
+
+   Cuatro cosas que no son negociables acá:
+
+   - La `perspective` va en el PADRE DIRECTO de lo que gira. Un nivel más
+     arriba no llega -alcanza sólo a los hijos inmediatos- y el giro se ve
+     como un aplastado lineal, sin volumen.
+   - Las dos caras comparten celda de grilla en vez de ir en posición
+     absoluta: así el bloque mide lo que mide la más alta -el kana- y no
+     hace falta fijarle un alto, que con el teclado abierto sería un piso
+     de layout de los que ya nos costaron caro.
+   - Nada de `filter` ni de `transform` extra sobre las caras: un `filter`
+     aplana el contexto 3D y un `transform` PISA el `rotateY(180deg)` del
+     dorso, que entonces aparece de golpe a mitad del giro (probado).
+   - Los 560ms salen de comparar 380 / 560 / 820 en la maqueta: 380 apenas
+     se registra y 820 ya se siente como espera, que en una ronda de veinte
+     cartas se paga veinte veces. */
+.knd-quiz-persp { perspective: 1000px; }
+
+.knd-quiz-turn {
+  display: grid;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.2, 0.75, 0.25, 1);
+}
+.knd-quiz-turn.is-revealed { transform: rotateY(180deg); }
+
+.knd-quiz-face {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+.knd-quiz-face-back { transform: rotateY(180deg); }
+
+/* Con movimiento reducido el giro se cambia por un fundido entre las dos
+   caras: se saca el movimiento, no la función de revelar. */
+@media (prefers-reduced-motion: reduce) {
+  .knd-quiz-turn { transition: none; }
+  .knd-quiz-turn.is-revealed { transform: none; }
+  .knd-quiz-face-back { transform: none; opacity: 0; transition: opacity 160ms ease; }
+  .knd-quiz-face { transition: opacity 160ms ease; }
+  .knd-quiz-turn.is-revealed .knd-quiz-face { opacity: 0; }
+  .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
+}

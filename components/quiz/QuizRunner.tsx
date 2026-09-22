@@ -626,9 +626,18 @@ function QuizPlay({
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
           <Box pos="relative" className="knd-quiz-kana-wrap">
-            <Stack align="center" gap="xs">
-              <Text
-                id="quiz-kana"
+            {/* El bloque que gira al revelar. La perspectiva va en este div y
+                no en el `Box` de afuera por una razón concreta: `perspective`
+                convierte al elemento en bloque contenedor de sus descendientes
+                absolutos, y el layout de emergencia de globals.css -el que con
+                el teclado abierto pone `.knd-quiz-kana-wrap` en `static` para
+                que el aviso de error se ancle al piso del stage- dejaría de
+                funcionar si el Box la tuviera. */}
+            <div className="knd-quiz-persp">
+              <div className={`knd-quiz-turn${shown ? ' is-revealed' : ''}`}>
+                <div className="knd-quiz-face">
+                  <Text
+                    id="quiz-kana"
                 className="kana"
                 data-testid="quiz-prompt"
                 // El `min(18vw, 42cqh)` es lo que hace que el kana se achique
@@ -638,23 +647,40 @@ function QuizPlay({
                 // tamaño, ver arriba- lo pisa cuando el alto se vuelve el
                 // recurso escaso. Antes el mínimo de 64px era fijo y el kana
                 // era parte del piso del layout que dejaba al input afuera.
-                style={{ fontSize: 'clamp(2rem, min(18vw, 42cqh), 162px)', lineHeight: 1 }}
-                c={flash === 'wrong' ? 'shu.6' : undefined}
-              >
-                {card.prompt}
-              </Text>
-            </Stack>
-            {/* TODO lo que cuelga del kana vive en este bloque de posición
-                absoluta (el `.toast` del mockup, más la respuesta revelada y
-                el significado). Adentro del Stack de arriba, cualquiera de
-                los tres cambia el alto del bloque centrado y, al seguir
-                centrado, el kana SE CORRE al aparecer -pasó dos veces: se
-                arregló para el aviso de error y quedó igual para "Revelar",
-                que es cuando más se nota porque entran dos líneas juntas-.
-                Van los tres en el mismo bloque y no como hermanos sueltos
-                para que no se pisen entre sí cuando coinciden. */}
+                    style={{ fontSize: 'clamp(2rem, min(18vw, 42cqh), 162px)', lineHeight: 1 }}
+                    c={flash === 'wrong' ? 'shu.6' : undefined}
+                  >
+                    {card.prompt}
+                  </Text>
+                </div>
+                {/* El dorso. Las dos caras comparten celda de grilla, así que
+                    el bloque mide lo que mide la más alta -el kana- y revelar
+                    no mueve nada de lo que cuelga abajo. */}
+                <div className="knd-quiz-face knd-quiz-face-back">
+                  {shown && (
+                    <Text
+                      id="quiz-revealed-answer"
+                      className="romaji"
+                      c="dimmed"
+                      style={{ fontSize: 'clamp(1.25rem, min(9vw, 20cqh), 64px)', lineHeight: 1.1 }}
+                    >
+                      {shown}
+                    </Text>
+                  )}
+                </div>
+              </div>
+            </div>
+            {/* Lo que cuelga del kana va en este bloque de posición absoluta:
+                el significado (que aparece 1200ms al acertar, ya sobre la
+                carta siguiente) y el aviso de error. Adentro del bloque
+                centrado, cualquiera de los dos cambia su alto y, al seguir
+                centrado, el kana SE CORRE al aparecer. Van juntos y no como
+                hermanos sueltos para que no se pisen cuando coinciden.
+
+                La respuesta revelada ya no está acá: se fue al dorso del
+                giro, que ocupa la misma celda que el kana y por lo tanto
+                tampoco mueve nada. */}
             <Stack id="quiz-under-kana" className="knd-quiz-under" align="center" gap={5}>
-              {shown && <Text id="quiz-revealed-answer" className="romaji" c="dimmed">{shown}</Text>}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
               {flash === 'wrong' && (
                 <Text id="quiz-wrong-hint" className="knd-quiz-toast">
