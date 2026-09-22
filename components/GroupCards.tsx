@@ -10,6 +10,7 @@ import {
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { DictSearchPanel } from './dict/DictSearchPanel';
+import { SwipeCardRow } from './SwipeCardRow';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary, GroupSummary } from '@/lib/services/decks';
@@ -30,13 +31,16 @@ const FIELD_STYLES = {
  * `GroupCards` para que abrir otra carta lo reinicie solo, vía `key`.
  */
 function EditCardModal({
-  card, busy, error, onClose, onSave,
+  card, busy, error, onClose, onSave, onMove, onDelete,
 }: {
   card: EditorCard;
   busy: boolean;
   error: string | null;
   onClose: () => void;
   onSave: (v: { prompt: string; romaji: string; meaning: string; alts: string[] }) => void;
+  /** Ausente cuando el mazo tiene un solo grupo: no hay a dónde mover. */
+  onMove?: () => void;
+  onDelete: () => void;
 }) {
   const [prompt, setPrompt] = useState(card.prompt);
   // La primaria va en su campo y el resto como alternativas, para no
@@ -81,6 +85,19 @@ function EditCardModal({
         >
           Guardar
         </Button>
+        {/* Mover y Borrar también viven acá, no sólo en el gesto: en teléfono
+            el swipe es un atajo, y quien no lo descubre tiene que poder hacer
+            lo mismo igual. */}
+        <Group gap="xs">
+          {onMove && (
+            <Button id="edit-card-move" variant="default" bg="transparent" size="compact-sm" onClick={onMove}>
+              Mover a otro grupo
+            </Button>
+          )}
+          <Button id="edit-card-delete" variant="subtle" color="shu.6" size="compact-sm" onClick={onDelete}>
+            Borrar carta
+          </Button>
+        </Group>
       </Stack>
     </Modal>
   );
@@ -405,44 +422,53 @@ export function GroupCards({
         {cards.map((c, i) => (
           <Box key={c.id} id={`card-row-${c.id}`}>
             {i > 0 && <Divider color={other.borderSoft} />}
-            <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
-              <Text className="kana" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
-              <Text className="romaji" size="sm" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
-              <Text size="sm" c="dimmed" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
-                {c.meaning ?? ''}
-              </Text>
-              {/* Un mazo incluido no trae acciones por carta: la pantalla es
-                  un visor. */}
-              {!readOnly && (
-                <Group gap={5} wrap="nowrap">
-                  <Button
-                    id={`card-delete-${c.id}`}
-                    variant="subtle" color="shu.6" size="compact-xs"
-                    onClick={() => removeCard(c.id)}
-                    loading={deletingId === c.id}
-                    disabled={deletingId !== null}
-                  >
-                    Borrar
-                  </Button>
-                  {manyGroups && (
+            <SwipeCardRow
+              label={c.prompt}
+              canMove={!readOnly && manyGroups}
+              onTap={() => { if (!readOnly) { setEditError(null); setEditing(c); } }}
+              onMove={() => { setMoveError(null); setMoving(c); }}
+              onDelete={() => removeCard(c.id)}
+            >
+              <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
+                <Text className="kana" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
+                <Text className="romaji" size="sm" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
+                <Text size="sm" c="dimmed" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
+                  {c.meaning ?? ''}
+                </Text>
+                {/* Un mazo incluido no trae acciones por carta: la pantalla es
+                    un visor. En teléfono estos botones se ocultan por CSS y
+                    las acciones llegan por gesto. */}
+                {!readOnly && (
+                  <Group className="knd-card-actions" gap={5} wrap="nowrap">
                     <Button
-                      id={`card-move-${c.id}`}
-                      variant="default" bg="transparent" size="compact-xs"
-                      onClick={() => { setMoveError(null); setMoving(c); }}
+                      id={`card-delete-${c.id}`}
+                      variant="subtle" color="shu.6" size="compact-xs"
+                      onClick={() => removeCard(c.id)}
+                      loading={deletingId === c.id}
+                      disabled={deletingId !== null}
                     >
-                      Mover
+                      Borrar
                     </Button>
-                  )}
-                  <Button
-                    id={`card-edit-${c.id}`}
-                    variant="default" size="compact-xs"
-                    onClick={() => { setEditError(null); setEditing(c); }}
-                  >
-                    Editar
-                  </Button>
-                </Group>
-              )}
-            </Group>
+                    {manyGroups && (
+                      <Button
+                        id={`card-move-${c.id}`}
+                        variant="default" bg="transparent" size="compact-xs"
+                        onClick={() => { setMoveError(null); setMoving(c); }}
+                      >
+                        Mover
+                      </Button>
+                    )}
+                    <Button
+                      id={`card-edit-${c.id}`}
+                      variant="default" size="compact-xs"
+                      onClick={() => { setEditError(null); setEditing(c); }}
+                    >
+                      Editar
+                    </Button>
+                  </Group>
+                )}
+              </Group>
+            </SwipeCardRow>
           </Box>
         ))}
         {cards.length === 0 && <Text p="md" size="sm" c="dimmed">Todavía no hay cartas en este grupo.</Text>}
@@ -496,6 +522,8 @@ export function GroupCards({
           error={editError}
           onClose={() => setEditing(null)}
           onSave={saveCard}
+          onMove={manyGroups ? () => { setMoveError(null); setMoving(editing); setEditing(null); } : undefined}
+          onDelete={() => { const id = editing.id; setEditing(null); removeCard(id); }}
         />
       )}
 

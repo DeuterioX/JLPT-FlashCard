@@ -218,6 +218,58 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
+/* Fila de carta con acciones por gesto (ver SwipeCardRow.tsx). Los paneles
+   y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
+   como el resto de las listas de la app, así que acá no hay nada que
+   descubrir. Mismo patrón de dos variantes en el DOM que ya usan
+   `.knd-nav-desktop`/`.knd-nav-mobile`, sin `useMediaQuery`. */
+.knd-swipe-row { position: relative; overflow: hidden; }
+.knd-swipe-side { display: none; }
+.knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
+
+@media (max-width: 640px) {
+  .knd-swipe-side {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 6rem;
+    display: grid;
+    place-items: center;
+  }
+  .knd-swipe-move { left: 0; background: var(--mantine-color-dark-5); }
+  /* Borrar va sobre el fondo de la app: un escalón más HUNDIDO que la fila,
+     así se diferencia de Mover por profundidad y el rojo queda sólo en la
+     palabra -`.btn.danger` del diseño es texto `shu` sin fondo, y un bloque
+     rojo saturado sería el único lugar de la app donde ese color ocupa una
+     superficie entera-. Y va del lado opuesto al borde con el que compite el
+     gesto "atrás" de Safari. */
+  .knd-swipe-del { right: 0; background: var(--mantine-color-dark-7); }
+  .knd-swipe-side button {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: 500 0.71875rem var(--mantine-font-family);
+    color: var(--mantine-color-text);
+  }
+  .knd-swipe-del button { color: var(--mantine-color-shu-6); }
+  .knd-swipe-front {
+    /* `pan-y` le deja el scroll vertical al navegador y nos deja el
+       horizontal; sin esto el swipe pelea con el scroll de la lista. */
+    touch-action: pan-y;
+    /* Sin esto el arrastre selecciona el texto de la fila. */
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
+     botones no entran en 390px, y bajarlos a su propia línea deja cada carta
+     en ~100px de alto, que es una lista de vocabulario que no se puede
+     escanear. Las acciones llegan por gesto, y por el modal que abre el
+     toque para quien no lo use. */
+  .knd-card-actions { display: none; }
+}
+
 /* Aviso de error del quiz (`.toast` del mockup): posición absoluta,
    anclada al wrapper que envuelve SOLO al kana (`pos="relative"` puesto
    ahí en QuizRunner, no en `quiz-stage`) -ese wrapper mide justo lo que
