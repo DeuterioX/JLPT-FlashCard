@@ -150,6 +150,16 @@ export function deleteGroup(db: Db, id: number): void {
   if (res.changes === 0) throw notFound('el grupo');
 }
 
+/**
+ * Primera letra en mayúscula. Sólo la PRIMERA: el resto queda como se
+ * escribió, porque ahí puede haber nombres propios o siglas que no hay que
+ * tocar. Se salta lo que no sea letra al principio, así «¡hola!» queda
+ * «¡Hola!» y no sin cambiar.
+ */
+function capitalizar(s: string): string {
+  return s.replace(/^([^\p{L}]*)(\p{L})/u, (_, previo, letra) => previo + letra.toUpperCase());
+}
+
 function writeAnswers(db: Db, cardId: number, answers: string[]) {
   const clean = answers.map(normalizeAnswer).filter(Boolean);
   if (clean.length === 0) throw badRequest('La carta necesita al menos una romanización');
@@ -157,8 +167,13 @@ function writeAnswers(db: Db, cardId: number, answers: string[]) {
 
   db.delete(cardAnswer).where(eq(cardAnswer.cardId, cardId)).run();
   unique.forEach((romaji, i) => {
+    // Se capitaliza DESPUÉS de normalizar y de deduplicar: la comparación
+    // del quiz pasa los dos lados por `normalizeAnswer`, que baja todo a
+    // minúscula, así que esto no cambia qué respuestas son correctas -sólo
+    // cómo se ven-. Al revés, capitalizar antes rompería el dedupe, porque
+    // «Shi» y «shi» dejarían de ser la misma.
     // La primera es la primaria: es la que se muestra al revelar.
-    db.insert(cardAnswer).values({ cardId, romaji, isPrimary: i === 0 }).run();
+    db.insert(cardAnswer).values({ cardId, romaji: capitalizar(romaji), isPrimary: i === 0 }).run();
   });
 }
 
@@ -178,7 +193,12 @@ export function createCard(
     const siblings = t.select().from(card).where(eq(card.groupId, groupId)).all();
     const max = siblings.reduce((n, c) => Math.max(n, c.sortOrder), -1);
     const [row] = t.insert(card)
-      .values({ groupId, prompt, meaning: input.meaning?.trim() || null, sortOrder: max + 1 })
+      .values({
+        groupId,
+        prompt,
+        meaning: input.meaning?.trim() ? capitalizar(input.meaning.trim()) : null,
+        sortOrder: max + 1,
+      })
       .returning().all();
     id = row.id;
     writeAnswers(t, id, input.answers);
@@ -206,7 +226,9 @@ export function updateCard(
     const t = tx as Db;
     const patch: Partial<typeof card.$inferInsert> = {};
     if (input.prompt !== undefined) patch.prompt = input.prompt.trim();
-    if (input.meaning !== undefined) patch.meaning = input.meaning?.trim() || null;
+    if (input.meaning !== undefined) {
+      patch.meaning = input.meaning?.trim() ? capitalizar(input.meaning.trim()) : null;
+    }
     // Mover de grupo es solo esto. attempt apunta a la carta, no al grupo,
     // así que el historial de métricas viaja con ella.
     if (input.groupId !== undefined) patch.groupId = input.groupId;

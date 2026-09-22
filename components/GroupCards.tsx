@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -316,7 +316,21 @@ export function GroupCards({
 
       {!readOnly && (
         <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: other.borderSoft }}>
-          <Stack gap="xs">
+          {/* Un `form` de verdad y no un `div` con botón: así Enter agrega
+              desde cualquiera de los campos -incluidas las romanizaciones
+              alternativas, que están acá adentro- y en teléfono el teclado
+              muestra la tecla de ir en vez de un salto de línea inútil. La
+              condición es la misma que deshabilita el botón, así que Enter
+              nunca hace algo que el botón no haría. */}
+          <Stack
+            gap="xs"
+            component="form"
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (!prompt.trim() || !romaji.trim() || addBusy) return;
+              void add();
+            }}
+          >
             <Text id="new-word-title" size="0.71875rem" lh={1.4} fw={600}>
               {`Nueva palabra en «${group.name}»`}
             </Text>
@@ -387,7 +401,7 @@ export function GroupCards({
                 leftSectionWidth={rem(84)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                 value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
               />
-              <Button onClick={add} disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
+              <Button type="submit" disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
                 Agregar
               </Button>
             </div>
