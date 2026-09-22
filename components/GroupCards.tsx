@@ -142,16 +142,6 @@ export function GroupCards({
   const [editError, setEditError] = useState<string | null>(null);
   const editRef = useRef(false);
 
-  // Crear un grupo desde ACÁ es lo que evita el callejón sin salida: un mazo
-  // de un solo grupo se salta la pantalla de grupos (ver el redirect en
-  // `app/decks/[id]/page.tsx`), así que sin esto nunca podría tener un
-  // segundo -y sin un segundo grupo tampoco se puede mover una carta-.
-  const [newGroupOpen, setNewGroupOpen] = useState(false);
-  const [newGroupName, setNewGroupName] = useState('');
-  const [newGroupBusy, setNewGroupBusy] = useState(false);
-  const [newGroupError, setNewGroupError] = useState<string | null>(null);
-  const newGroupRef = useRef(false);
-
   const [moving, setMoving] = useState<EditorCard | null>(null);
   const [moveBusy, setMoveBusy] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
@@ -217,34 +207,6 @@ export function GroupCards({
     } finally {
       addRef.current = false;
       setAddBusy(false);
-    }
-  }
-
-  async function createGroup() {
-    if (newGroupRef.current) return;
-    newGroupRef.current = true;
-    setNewGroupBusy(true);
-    setNewGroupError(null);
-    try {
-      const res = await fetch(`/api/decks/${deck.id}/groups`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: newGroupName }),
-      });
-      if (!res.ok) {
-        setNewGroupError(await errorFrom(res));
-        return;
-      }
-      setNewGroupOpen(false);
-      setNewGroupName('');
-      // Al listado: ahora el mazo tiene dos grupos, así que esa pantalla ya
-      // no redirige y se ve lo que se acaba de crear.
-      router.push(`/decks/${deck.id}`);
-    } catch {
-      setNewGroupError(NETWORK_ERROR);
-    } finally {
-      newGroupRef.current = false;
-      setNewGroupBusy(false);
     }
   }
 
@@ -334,7 +296,7 @@ export function GroupCards({
         <Anchor
           className="knd-crumb"
           component={Link}
-          href={manyGroups ? `/decks/${deck.id}` : '/decks'}
+          href={`/decks/${deck.id}`}
           size="sm" underline="hover"
         >
           {deck.name}
@@ -494,26 +456,15 @@ export function GroupCards({
         <SectionLabel id="cards-count">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
-        {manyGroups && (
-          <Button
-            id="deck-groups-btn" component={Link} href={`/decks/${deck.id}`}
-            variant="default" bg="transparent" size="compact-sm"
-          >
-            Grupos del mazo
-          </Button>
-        )}
-        {/* Con un solo grupo no hay listado al que volver -esa pantalla
-            redirige acá-, así que el camino para crear el segundo tiene que
-            estar en ESTA pantalla o no existe en ninguna. */}
-        {!manyGroups && !readOnly && (
-          <Button
-            id="new-group-btn"
-            variant="default" bg="transparent" size="compact-sm"
-            onClick={() => { setNewGroupName(''); setNewGroupError(null); setNewGroupOpen(true); }}
-          >
-            + Nuevo grupo
-          </Button>
-        )}
+        {/* Siempre, no sólo con varios grupos: el listado existe aunque haya
+            uno -es donde se crean los demás- así que desde acá siempre se
+            puede subir. */}
+        <Button
+          id="deck-groups-btn" component={Link} href={`/decks/${deck.id}`}
+          variant="default" bg="transparent" size="compact-sm"
+        >
+          Grupos del mazo
+        </Button>
         {readOnly && !manyGroups && (
           <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>
             sólo lectura
@@ -596,27 +547,6 @@ export function GroupCards({
 
       {/* El grupo actual aparece deshabilitado en vez de ausente: dice dónde
           estás parado sin necesidad de otra etiqueta. */}
-      <Modal
-        id="new-group-modal"
-        opened={newGroupOpen}
-        onClose={() => setNewGroupOpen(false)}
-        title="Nuevo grupo"
-      >
-        <Stack>
-          <Text size="sm" c="dimmed">
-            {`Un segundo grupo en «${deck.name}» te deja repartir las palabras y moverlas entre ellos.`}
-          </Text>
-          <TextInput
-            id="new-group-input" label="Nombre" placeholder="Lección 2"
-            value={newGroupName} onChange={(e) => setNewGroupName(e.currentTarget.value)}
-          />
-          {newGroupError && <Text c="shu.6" size="sm">{newGroupError}</Text>}
-          <Button onClick={createGroup} disabled={!newGroupName.trim() || newGroupBusy} loading={newGroupBusy}>
-            Crear
-          </Button>
-        </Stack>
-      </Modal>
-
       <Modal
         id="delete-card-modal"
         opened={!!deleting}

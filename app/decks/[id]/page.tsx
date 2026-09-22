@@ -1,4 +1,4 @@
-import { notFound, redirect } from 'next/navigation';
+import { notFound } from 'next/navigation';
 import { db } from '@/lib/db/client';
 import { getDeck, type DeckSummary } from '@/lib/services/decks';
 import { AppError } from '@/lib/services/errors';
@@ -19,12 +19,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     if (e instanceof AppError && e.status === 404) notFound();
     throw e;
   }
-
-  // Un mazo de un solo grupo no muestra el nivel de grupos: se entra directo
-  // a sus cartas. El nivel existe siempre en la base, pero sólo se muestra
-  // cuando significa algo -y desde la pantalla de cartas se puede crear el
-  // segundo grupo, así que no queda ningún callejón sin salida-.
-  if (deck.groups.length === 1) redirect(`/decks/${deck.id}/groups/${deck.groups[0].id}`);
 
   return <DeckGroups deck={deck} />;
 }
