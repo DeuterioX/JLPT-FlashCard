@@ -22,13 +22,17 @@ import { APP_NAME } from '../lib/app-meta';
 export function Brand({ id, nameId }: { id?: string; nameId?: string }) {
   return (
     <Group id={id} gap={7} wrap="nowrap">
+      {/* Se mide por ALTO y no por ancho: el dibujo es más alto que ancho, y
+          atarlo al ancho deja que su proporción decida cuánto crece la barra
+          -que en el quiz es alto que se le saca al stage-. Con el alto fijo,
+          cambiar el dibujo no mueve ninguna cabecera. */}
       <Image
         src={logo}
         alt=""
         width={34}
         height={34}
         priority
-        style={{ width: '2.125rem', height: 'auto', flexShrink: 0 }}
+        style={{ height: '2.125rem', width: 'auto', flexShrink: 0 }}
       />
       <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>
     </Group>
