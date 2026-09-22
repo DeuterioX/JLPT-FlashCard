@@ -154,7 +154,16 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
             {i > 0 && <Divider color={other.borderSoft} />}
-            <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
+            <Group
+              gap={12}
+              wrap="nowrap"
+              style={{ padding: '0.625rem 0.8125rem' }}
+              className="knd-row-tap"
+              onClick={(e) => {
+                if ((e.target as HTMLElement).closest('button, a, input')) return;
+                router.push(`/decks/${deck.id}/groups/${g.id}`);
+              }}
+            >
               <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
                 <Text size={rem(13)} lh={1.45} fw={500} className="kana">{g.name}</Text>
                 <Text size={rem(11)} lh={1.45} c="dark.3">

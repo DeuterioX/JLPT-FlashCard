@@ -425,7 +425,8 @@ export function GroupCards({
             <SwipeCardRow
               label={c.prompt}
               canMove={!readOnly && manyGroups}
-              onTap={() => { if (!readOnly) { setEditError(null); setEditing(c); } }}
+              tappable={!readOnly}
+              onTap={() => { setEditError(null); setEditing(c); }}
               onMove={() => { setMoveError(null); setMoving(c); }}
               onDelete={() => removeCard(c.id)}
             >

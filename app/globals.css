@@ -218,6 +218,21 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
+/* Fila de lista clickeable: se toca en cualquier parte, no sólo en su
+   botón. El fondo del hover es `--a-surface-2`, el mismo escalón que el
+   diseño usa para "esto está activo o bajo el cursor" (el grupo seleccionado
+   del editor, el link activo de la navegación).
+
+   No se envuelve la fila en un `<button>` porque adentro ya hay botones, y
+   anidarlos es HTML inválido: el click se maneja en el contenedor y se
+   ignora cuando cae sobre un control real. El teclado llega igual a la misma
+   acción por el botón de la fila, que ya es enfocable y tiene su nombre. */
+.knd-row-tap { cursor: pointer; }
+.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+/* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
+   contenedor, así que el hover va ahí. */
+.knd-swipe-front.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+
 /* Fila del encabezado de sección: el label más lo que lo acompañe. El alto
    se fija acá porque si no lo dicta el vecino, y el vecino cambia según la
    pantalla: medido, la misma fila daba 14px con sólo el texto de "sólo

@@ -150,6 +150,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 más marcado queda para el borde exterior de la lista. */}
             {i > 0 && <Divider color={other.borderSoft} />}
             <ListRow
+              onClick={() => router.push(`/decks/${d.id}`)}
               icon={iconFor(d)}
               title={<>{d.name}{d.isBuiltin && <BuiltinDot />}</>}
               subtitle={subtitleFor(d)}

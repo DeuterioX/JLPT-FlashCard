@@ -1,6 +1,11 @@
 'use client';
 
-import { useRef, type PointerEvent as ReactPointerEvent, type ReactNode } from 'react';
+import {
+  useRef,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from 'react';
 
 /**
  * Fila de carta con acciones por gesto, sólo en teléfono.
@@ -29,13 +34,15 @@ const EDGE_GUTTER = 30;
 const OPEN_RATIO = 0.4;
 
 export function SwipeCardRow({
-  children, onTap, onMove, onDelete, canMove, label,
+  children, onTap, onMove, onDelete, canMove, tappable, label,
 }: {
   children: ReactNode;
   onTap: () => void;
   onMove: () => void;
   onDelete: () => void;
   canMove: boolean;
+  /** Un mazo incluido es un visor: la fila no lleva a ningún lado. */
+  tappable: boolean;
   label: string;
 }) {
   const frontRef = useRef<HTMLDivElement>(null);
@@ -96,17 +103,26 @@ export function SwipeCardRow({
     const s = state.current;
     if (!s.dragging) return;
     s.dragging = false;
-    if (!s.decided) {
-      // Fue un toque, no un arrastre.
-      if (s.base !== 0) close();
-      else onTap();
-      return;
-    }
+    // El toque lo resuelve `onClick`, no esto: así el mismo camino sirve para
+    // el dedo y para el mouse, en vez de tener el gesto en teléfono y nada en
+    // escritorio.
+    if (!s.decided) return;
     const max = width();
     const openRight = canMove && s.dx > max * OPEN_RATIO;
     const openLeft = s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
     setX(s.base, true);
+  }
+
+  function onClick(e: ReactMouseEvent<HTMLDivElement>) {
+    // Un click sobre un control real es de ese control, no de la fila.
+    if ((e.target as HTMLElement).closest('button, a, input')) return;
+    const s = state.current;
+    // Venía de un arrastre: el navegador dispara el click igual, y ese no es
+    // un toque.
+    if (s.decided) { s.decided = false; return; }
+    if (s.base !== 0) { close(); return; }
+    if (tappable) onTap();
   }
 
   return (
@@ -133,7 +149,8 @@ export function SwipeCardRow({
       </div>
       <div
         ref={frontRef}
-        className="knd-swipe-front"
+        className={`knd-swipe-front${tappable ? ' knd-row-tap' : ''}`}
+        onClick={onClick}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={end}
