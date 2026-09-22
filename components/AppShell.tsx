@@ -54,14 +54,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl">
           <Group id="app-brand" gap={7}>
-            {/* Reemplaza al cuadrado con la あ que traía el diseño.
-                Es SÓLO LA CABEZA del dibujo original: probado a tamaño real,
-                la ilustración entera no sobrevive a esta escala -las dos
-                cartas quedan en manchas y la cara se empasta-, mientras que
-                la cabeza recortada se lee, anteojos incluidos. Y 34px, no
-                los 22 de aquel cuadrado, porque abajo de eso vuelve a
-                perderse. `alt` vacío a propósito: el nombre está al lado,
-                un lector de pantalla que lo anunciara repetiría. */}
+            {/* Reemplaza al cuadrado con la あ que traía el diseño. Va a
+                34px y no a los 22px de aquel cuadrado: comprobado
+                renderizando a tamaño real, abajo de ~30px la cara se
+                empasta y los anteojos desaparecen. `alt` vacío a propósito:
+                el nombre está al lado, así que un lector de pantalla que
+                anunciara la imagen estaría repitiendo. */}
             <Image
               src={logo}
               alt=""
