@@ -743,16 +743,16 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
    - Nada de `filter` ni de `transform` extra sobre las caras: un `filter`
      aplana el contexto 3D y un `transform` PISA el `rotateY(180deg)` del
      dorso, que entonces aparece de golpe a mitad del giro (probado).
-   - Los 560ms salen de comparar 380 / 560 / 820 en la maqueta: 380 apenas
-     se registra y 820 ya se siente como espera, que en una ronda de veinte
-     cartas se paga veinte veces. */
+   - 380ms, elegidos comparando 380 / 560 / 820 en la maqueta. Arrancó en
+     560 y bajó acá al probarlo con las cartas de verdad: en una ronda se
+     revela muchas veces, y lo que se agrega se paga en cada una. */
 .knd-quiz-persp { perspective: 1000px; }
 
 .knd-quiz-turn {
   display: grid;
   position: relative;
   transform-style: preserve-3d;
-  transition: transform 560ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  transition: transform 380ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 .knd-quiz-turn.is-revealed { transform: rotateY(180deg); }
 
