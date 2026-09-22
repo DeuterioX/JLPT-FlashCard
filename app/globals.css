@@ -218,6 +218,23 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
+/* El botón por defecto no tenía NINGÚN hover: al fijarle el fondo a
+   `--a-surface-2` en theme.ts, el reposo quedó igual que el `--button-hover`
+   que Mantine deriva, así que el estado existía pero era invisible -medido,
+   `rgb(33,38,57)` en los dos-.
+
+   Se repone cambiando el BORDE y no el fondo, que es una decisión de acá: el
+   mockup no define hover para `.btn`, así que no hay valor del diseño que
+   copiar. El borde evita las dos colisiones que tendría un fondo: la fila ya
+   se pinta de `--a-surface-2` al pasar por encima, y ese es justo el fondo
+   que el botón tiene en reposo.
+
+   Va acá y no en el tema porque el `styles` de un componente en Mantine 9 no
+   compila selectores anidados (ver la nota de `.mantine-TextInput-input`). */
+.mantine-Button-root[data-variant='default']:hover {
+  border-color: var(--mantine-color-dark-3);
+}
+
 /* Fila de lista clickeable: se toca en cualquier parte, no sólo en su
    botón. El fondo del hover es `--a-surface-2`, el mismo escalón que el
    diseño usa para "esto está activo o bajo el cursor" (el grupo seleccionado
