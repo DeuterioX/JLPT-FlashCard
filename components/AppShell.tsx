@@ -87,10 +87,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 size="sm"
                 px="sm"
                 py={4}
-                /* El color de reposo del inactivo lo pone `.knd-nav-link`
-                   y no un `c=`, porque Mantine escribe ese prop inline y un
-                   estilo inline le gana a la regla del hover. */
-                className={isActive(path, l.href) ? undefined : 'knd-nav-link'}
+                /* Los colores los pone `.knd-nav-link` y no un `c=`, porque
+                   Mantine escribe ese prop inline y un estilo inline le gana
+                   a la regla del hover. */
+                className={`knd-nav-link${isActive(path, l.href) ? ' knd-nav-link-on' : ''}`}
                 bg={isActive(path, l.href) ? 'dark.5' : undefined}
                 underline="never"
                 style={{ borderRadius: 'var(--mantine-radius-sm)' }}
