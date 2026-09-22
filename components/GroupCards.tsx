@@ -324,22 +324,28 @@ export function GroupCards({
                 `TextInput`. El rótulo puede ir en 9px sin riesgo; el que no
                 puede bajar de 16px es el `<input>`, que es lo que dispara el
                 zoom de iOS. */}
-            <Group gap="xs" align="center" wrap="wrap">
+            {/* Grilla y no un `Group wrap`: envolver reparte los campos en
+                pares desparejos -Kana+Romaji, Significado+Agregar- en cuanto
+                la pantalla se angosta. El diseño pide cuatro columnas en
+                escritorio y UNA en teléfono, y eso lo decide `.knd-addform`
+                en globals.css. Los anchos salen de los `w={}` porque Mantine
+                los escribe inline y un ancho inline le gana a la grilla. */}
+            <div className="knd-addform">
               <TextInput
-                id="nueva-kana" placeholder="えび" w={150}
+                id="nueva-kana" placeholder="えび"
                 leftSection={<span className="knd-field-label">Kana</span>}
                 leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                 value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
               />
               <TextInput
-                id="nueva-romaji" placeholder="ebi" w={150}
+                id="nueva-romaji" placeholder="ebi"
                 leftSection={<span className="knd-field-label">Romaji</span>}
                 leftSectionWidth={rem(58)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                 value={romaji}
                 onChange={(e) => { setRomajiTouched(true); setRomaji(e.currentTarget.value); }}
               />
               <TextInput
-                id="nueva-meaning" placeholder="camarón" w={200}
+                id="nueva-meaning" placeholder="camarón"
                 leftSection={<span className="knd-field-label">Significado</span>}
                 leftSectionWidth={rem(84)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                 value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
@@ -347,7 +353,7 @@ export function GroupCards({
               <Button onClick={add} disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
                 Agregar
               </Button>
-            </Group>
+            </div>
             {alts.length > 0 && (
               <Group id="alt-romaji-list" gap="xs" wrap="wrap">
                 {alts.map((a, i) => (
@@ -372,9 +378,13 @@ export function GroupCards({
               </Group>
             )}
             {addError && <Text c="shu.6" size="sm">{addError}</Text>}
+            {/* Sin el `·` que separaba la frase del link: con el formulario
+                en una columna la ayuda ocupa dos líneas, y el punto quedaba
+                abriendo la segunda como si fuera una viñeta. El link se
+                distingue solo -color y subrayado-, así que el separador no
+                estaba aportando nada que se pierda. */}
             <Group gap="0.375rem" wrap="wrap">
               <Text size="xs" c="dimmed">El romaji se completa solo desde el kana. Editalo si hace falta.</Text>
-              <Text size="xs" c="dimmed">·</Text>
               <Anchor
                 id="add-alt-romaji" component="button" type="button" size="xs" c="dimmed"
                 onClick={() => setAlts([...alts, ''])}

@@ -660,3 +660,41 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
   .knd-stats-review { grid-area: review; }
   .knd-review-btn { width: auto; }
 }
+
+/* `.formgrid` del diseño: Kana, Romaji, Significado y el botón en cuatro
+   columnas, y UNA sola columna en teléfono. Un `flex-wrap` acá no sirve:
+   reparte los campos en pares según lo que vaya entrando -Kana+Romaji arriba,
+   Significado+Agregar abajo- en vez de apilarlos, que es lo que el diseño
+   pide cuando no hay ancho. */
+.knd-addform {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr 1.2fr auto;
+  gap: 0.5rem;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
+}
+
+/* Un botón deshabilitado tiene que seguir pareciendo un botón. Mantine le
+   pone `--mantine-color-disabled`, que en este tema resuelve al MISMO
+   #181C2E del panel: «Agregar» desaparecía dentro de la caja y se leía como
+   texto apagado, no como un control todavía no disponible. El diseño lo
+   resuelve al revés -`.btn[disabled] { opacity: .4 }`, o sea el botón
+   entero atenuado- y eso conserva la forma. */
+.mantine-Button-root:disabled:not([data-loading]),
+.mantine-Button-root[data-disabled]:not([data-loading]) {
+  background: var(--button-bg, var(--mantine-primary-color-filled));
+  color: var(--button-color, var(--mantine-color-white));
+  opacity: 0.4;
+}
+
+/* En teléfono los botones suben a 30px de alto, que es el número del diseño
+   (`.phone .btn { min-height: 30px }`). Los 22px de `compact-xs` son una
+   medida pensada para el mouse: con el dedo hay que apuntar. No van a 44px
+   porque estos conviven con el texto de la fila y la lista tiene que poder
+   escanearse; los 44 el diseño los reserva para las acciones por gesto, que
+   ya los tienen. */
+@media (max-width: 640px) {
+  .mantine-Button-root { min-height: 1.875rem; }
+}
