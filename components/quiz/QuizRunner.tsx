@@ -678,8 +678,13 @@ function QuizPlay({
                     grande del frente, y el dorso no empuja lo que cuelga
                     abajo por más líneas que tenga. */}
                 <div className="knd-quiz-face knd-quiz-face-back">
+                  {/* El hueco entre la lectura y el significado es más grande
+                      que el de un Stack normal a propósito: son dos datos
+                      distintos -cómo se dice y qué quiere decir-, no dos
+                      renglones del mismo. Pegados se leen como una sola cosa
+                      partida en dos. */}
                   {shown && (
-                    <Stack align="center" gap={6}>
+                    <Stack align="center" gap={14}>
                       <Text
                         id="quiz-revealed-answer"
                         className="romaji"
@@ -696,7 +701,7 @@ function QuizPlay({
                         <Text
                           id="quiz-revealed-meaning"
                           c="jade.6"
-                          style={{ fontSize: 'clamp(0.9375rem, min(4.5vw, 9cqh), 26px)', lineHeight: 1.25 }}
+                          style={{ fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)', lineHeight: 1.25 }}
                         >
                           {card.meaning}
                         </Text>
