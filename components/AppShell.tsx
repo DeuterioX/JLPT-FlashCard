@@ -3,6 +3,8 @@
 import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+import logo from '../public/logo.png';
 import { APP_NAME } from '../lib/app-meta';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
@@ -52,26 +54,22 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl">
           <Group id="app-brand" gap={7}>
-            {/* `.brand i` del diseño: la marca va invertida -fondo claro,
-                texto oscuro- adentro de un cuadrado chico con las puntas
-                redondeadas, no como texto suelto. */}
-            <Box
-              className="kana"
-              style={{
-                width: '1.375rem',
-                height: '1.375rem',
-                display: 'grid',
-                placeItems: 'center',
-                borderRadius: '0.3125rem',
-                background: 'var(--mantine-color-text)',
-                color: 'var(--mantine-color-body)',
-                fontSize: '0.75rem',
-                fontWeight: 700,
-                flexShrink: 0,
-              }}
-            >
-              あ
-            </Box>
+            {/* Reemplaza al cuadrado con la あ que traía el diseño.
+                Es SÓLO LA CABEZA del dibujo original: probado a tamaño real,
+                la ilustración entera no sobrevive a esta escala -las dos
+                cartas quedan en manchas y la cara se empasta-, mientras que
+                la cabeza recortada se lee, anteojos incluidos. Y 34px, no
+                los 22 de aquel cuadrado, porque abajo de eso vuelve a
+                perderse. `alt` vacío a propósito: el nombre está al lado,
+                un lector de pantalla que lo anunciara repetiría. */}
+            <Image
+              src={logo}
+              alt=""
+              width={34}
+              height={34}
+              priority
+              style={{ width: '2.125rem', height: 'auto', flexShrink: 0 }}
+            />
             <Text id="app-name" fw={700} size="sm">{APP_NAME}</Text>
           </Group>
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
