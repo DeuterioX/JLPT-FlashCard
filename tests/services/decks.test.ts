@@ -90,23 +90,24 @@ describe('cartas', () => {
     expect(id).toBeGreaterThan(0);
   });
 
-  it('guarda el significado y el romaji con la primera letra en mayúscula', () => {
+  it('guarda el significado con la primera letra en mayúscula, y el romaji no', () => {
     const d = createDeck(db, { name: 'Comidas' });
     const { id } = createCard(db, d.groups[0].id, {
       prompt: 'さかな', meaning: 'pescado', answers: ['sakana'],
     });
     const [row] = db.select().from(card).where(eq(card.id, id)).all();
     expect(row.meaning).toBe('Pescado');
+    // El romaji NO: es una transcripción fonética, no una palabra de una
+    // frase, y se guarda como lo dejó `normalizeAnswer`.
     const [ans] = db.select().from(cardAnswer).where(eq(cardAnswer.cardId, id)).all();
-    expect(ans.romaji).toBe('Sakana');
+    expect(ans.romaji).toBe('sakana');
 
     // Sólo la primera letra: el resto puede traer nombres propios o siglas.
     updateCard(db, id, { meaning: 'pescado de río, tipo JLPT N5' });
     const [tras] = db.select().from(card).where(eq(card.id, id)).all();
     expect(tras.meaning).toBe('Pescado de río, tipo JLPT N5');
 
-    // Y no rompe la corrección del quiz, que compara en minúscula.
-    expect(matchesAnswer('sakana', [ans.romaji])).toBe(true);
+    expect(matchesAnswer('SAKANA', [ans.romaji])).toBe(true);
   });
 
   it('normaliza y deduplica las romanizaciones, y la primera normalizada queda primaria', () => {
@@ -115,10 +116,8 @@ describe('cartas', () => {
       prompt: 'し', answers: ['  SHI  ', 'shi', 'si'],
     });
     const rows = db.select().from(cardAnswer).where(eq(cardAnswer.cardId, id)).all();
-    // Capitalizadas al guardar, pero deduplicadas ANTES: «  SHI  » y «shi»
-    // son la misma y quedan en una sola fila.
-    expect(rows.map((r) => r.romaji).sort()).toEqual(['Shi', 'Si']);
-    expect(rows.find((r) => r.isPrimary)?.romaji).toBe('Shi');
+    expect(rows.map((r) => r.romaji).sort()).toEqual(['shi', 'si']);
+    expect(rows.find((r) => r.isPrimary)?.romaji).toBe('shi');
   });
 
   it('al actualizar las respuestas reemplaza las anteriores en vez de sumarlas', () => {
@@ -126,7 +125,7 @@ describe('cartas', () => {
     const { id } = createCard(db, d.groups[0].id, { prompt: 'パン', answers: ['pan'] });
     updateCard(db, id, { answers: ['pang'] });
     const rows = db.select().from(cardAnswer).where(eq(cardAnswer.cardId, id)).all();
-    expect(rows.map((r) => r.romaji)).toEqual(['Pang']);
+    expect(rows.map((r) => r.romaji)).toEqual(['pang']);
   });
 
   it('rechaza una carta sin ninguna romanización válida y no la crea', () => {
@@ -210,12 +209,12 @@ describe('preview de seis cartas', () => {
     const group = getDeck(db, d.id).groups[0];
     expect(group.cardCount).toBe(6);
     expect(group.preview).toEqual([
-      { prompt: 'p0', romaji: 'R0' },
-      { prompt: 'p1', romaji: 'R1' },
-      { prompt: 'p2', romaji: 'R2' },
-      { prompt: 'p3', romaji: 'R3' },
-      { prompt: 'p4', romaji: 'R4' },
-      { prompt: 'p5', romaji: 'R5' },
+      { prompt: 'p0', romaji: 'r0' },
+      { prompt: 'p1', romaji: 'r1' },
+      { prompt: 'p2', romaji: 'r2' },
+      { prompt: 'p3', romaji: 'r3' },
+      { prompt: 'p4', romaji: 'r4' },
+      { prompt: 'p5', romaji: 'r5' },
     ]);
   });
 

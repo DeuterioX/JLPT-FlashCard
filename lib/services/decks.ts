@@ -151,7 +151,7 @@ export function deleteGroup(db: Db, id: number): void {
 }
 
 /**
- * Primera letra en mayúscula. Sólo la PRIMERA: el resto queda como se
+ * Primera letra en mayúscula, para el significado. Sólo la PRIMERA: el resto queda como se
  * escribió, porque ahí puede haber nombres propios o siglas que no hay que
  * tocar. Se salta lo que no sea letra al principio, así «¡hola!» queda
  * «¡Hola!» y no sin cambiar.
@@ -167,13 +167,11 @@ function writeAnswers(db: Db, cardId: number, answers: string[]) {
 
   db.delete(cardAnswer).where(eq(cardAnswer.cardId, cardId)).run();
   unique.forEach((romaji, i) => {
-    // Se capitaliza DESPUÉS de normalizar y de deduplicar: la comparación
-    // del quiz pasa los dos lados por `normalizeAnswer`, que baja todo a
-    // minúscula, así que esto no cambia qué respuestas son correctas -sólo
-    // cómo se ven-. Al revés, capitalizar antes rompería el dedupe, porque
-    // «Shi» y «shi» dejarían de ser la misma.
+    // El romaji queda como lo dejó `normalizeAnswer`, en minúscula: es una
+    // transcripción fonética, no una palabra de una frase. El significado sí
+    // se capitaliza (ver `createCard`), y esa diferencia es a propósito.
     // La primera es la primaria: es la que se muestra al revelar.
-    db.insert(cardAnswer).values({ cardId, romaji: capitalizar(romaji), isPrimary: i === 0 }).run();
+    db.insert(cardAnswer).values({ cardId, romaji, isPrimary: i === 0 }).run();
   });
 }
 
