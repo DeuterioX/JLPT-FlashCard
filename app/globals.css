@@ -218,6 +218,17 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
+/* Fila del encabezado de sección: el label más lo que lo acompañe. El alto
+   se fija acá porque si no lo dicta el vecino, y el vecino cambia según la
+   pantalla: medido, la misma fila daba 14px con sólo el texto de "sólo
+   lectura", 22px con un botón `compact-xs` y 26px con uno `compact-sm`, así
+   que al navegar de un mazo a un grupo el encabezado saltaba de alto. 26px
+   es el alto de `compact-sm`, el tamaño que usa el botón de esta misma
+   ranura en la lista de mazos ("+ Nuevo mazo"). */
+.knd-sect-row {
+  min-height: 1.625rem;
+}
+
 /* Fila de carta con acciones por gesto (ver SwipeCardRow.tsx). Los paneles
    y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
    como el resto de las listas de la app, así que acá no hay nada que

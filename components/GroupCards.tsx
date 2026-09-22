@@ -397,14 +397,14 @@ export function GroupCards({
         </Paper>
       )}
 
-      <Group gap={10} wrap="nowrap">
+      <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="cards-count">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
         {manyGroups && (
           <Button
             id="deck-groups-btn" component={Link} href={`/decks/${deck.id}`}
-            variant="default" bg="transparent" size="compact-xs"
+            variant="default" bg="transparent" size="compact-sm"
           >
             Grupos del mazo
           </Button>

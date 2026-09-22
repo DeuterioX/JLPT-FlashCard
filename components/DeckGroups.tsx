@@ -137,7 +137,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         )}
       </Group>
 
-      <Group gap={10} wrap="nowrap">
+      <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="groups-count">
           {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
         </SectionLabel>
