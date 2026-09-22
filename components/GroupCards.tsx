@@ -12,6 +12,7 @@ import { BuiltinDot } from './BuiltinDot';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeCardRow } from './SwipeCardRow';
 import { toRomaji } from '@/lib/kana/transliterate';
+import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary, GroupSummary } from '@/lib/services/decks';
 
@@ -331,12 +332,48 @@ export function GroupCards({
                 en globals.css. Los anchos salen de los `w={}` porque Mantine
                 los escribe inline y un ancho inline le gana a la grilla. */}
             <div className="knd-addform">
-              <TextInput
-                id="nueva-kana" placeholder="えび"
-                leftSection={<span className="knd-field-label">Kana</span>}
-                leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
-                value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
-              />
+              <div className="knd-addform-kana">
+                <TextInput
+                  id="nueva-kana" placeholder="えび"
+                  leftSection={<span className="knd-field-label">Kana</span>}
+                  leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+                  value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
+                />
+                {/* El camino inverso al que ya existía: el kana completa el
+                    romaji solo, y esto completa el kana desde el romaji, para
+                    quien no tiene cómo escribir japonés.
+
+                    Son DOS botones y no uno porque el romaji no dice el
+                    silabario: "neko" es ねこ o ネコ según si la palabra es
+                    japonesa o prestada, y eso lo sabe quien la escribe.
+
+                    Sólo por botón, nunca solo: si el romaji escribiera kana
+                    al tipear, los dos campos se realimentarían. Así cada uno
+                    tiene un dueño y el cruce lo decide el usuario. Y usa
+                    `setPrompt` y no `onPrompt` justamente por eso -`onPrompt`
+                    reescribiría el romaji recién tipeado con su propia
+                    transcripción, cambiando "si" por "shi" a mitad de camino-. */}
+                <div className="knd-kana-conv">
+                  <Button
+                    id="nueva-kana-hiragana"
+                    variant="default" size="compact-sm"
+                    leftSection={<span className="kana">あ</span>}
+                    disabled={!romaji.trim()}
+                    onClick={() => setPrompt(toKana(romaji, 'hiragana'))}
+                  >
+                    Hiragana
+                  </Button>
+                  <Button
+                    id="nueva-kana-katakana"
+                    variant="default" size="compact-sm"
+                    leftSection={<span className="kana">ア</span>}
+                    disabled={!romaji.trim()}
+                    onClick={() => setPrompt(toKana(romaji, 'katakana'))}
+                  >
+                    Katakana
+                  </Button>
+                </div>
+              </div>
               <TextInput
                 id="nueva-romaji" placeholder="ebi"
                 leftSection={<span className="knd-field-label">Romaji</span>}

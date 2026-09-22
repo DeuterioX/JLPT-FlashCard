@@ -674,7 +674,29 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
   display: grid;
   grid-template-columns: 1.1fr 1fr 1.2fr auto;
   gap: 0.5rem;
-  align-items: center;
+  /* `start` y no `center`: la celda del kana es más alta que las otras -lleva
+     los botones debajo- y centrando, los demás campos flotarían contra ella
+     en vez de alinearse por arriba. */
+  align-items: start;
+}
+
+/* La celda del kana: el campo y, debajo, los dos botones que lo completan
+   desde el romaji. La columna flex hace que la botonera mida exactamente lo
+   mismo que el input de arriba. */
+.knd-addform-kana {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+/* Los dos botones se reparten ese ancho, y `auto-fit` los apila solos cuando
+   no entran de a dos -la columna del kana es angosta en escritorio-. No hace
+   falta un breakpoint: decide el ancho disponible. */
+.knd-kana-conv {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
+  gap: 0.375rem;
 }
 @media (max-width: 640px) {
   .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
