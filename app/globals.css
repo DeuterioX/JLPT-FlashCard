@@ -678,15 +678,18 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
 
 /* Un botón deshabilitado tiene que seguir pareciendo un botón. Mantine le
    pone `--mantine-color-disabled`, que en este tema resuelve al MISMO
-   #181C2E del panel: «Agregar» desaparecía dentro de la caja y se leía como
-   texto apagado, no como un control todavía no disponible. El diseño lo
-   resuelve al revés -`.btn[disabled] { opacity: .4 }`, o sea el botón
-   entero atenuado- y eso conserva la forma. */
+   #181C2E de los paneles: «Agregar» desaparecía dentro de la caja y se leía
+   como texto apagado, no como un control todavía no disponible.
+
+   Lo que le falta es el CONTORNO, no el color: repintarlo con su color de
+   habilitado -que es lo que hacía este bloque antes, siguiendo el
+   `opacity: .4` del diseño- le devuelve la forma pero lo hace parecer
+   disponible, y el «Comenzar» de Práctica, que arranca deshabilitado,
+   pasaba a verse como un botón vivo. El borde lo delimita sin prometer
+   nada. */
 .mantine-Button-root:disabled:not([data-loading]),
 .mantine-Button-root[data-disabled]:not([data-loading]) {
-  background: var(--button-bg, var(--mantine-primary-color-filled));
-  color: var(--button-color, var(--mantine-color-white));
-  opacity: 0.4;
+  border: 1px solid var(--mantine-color-dark-4);
 }
 
 /* En teléfono los botones suben a 30px de alto, que es el número del diseño
@@ -707,9 +710,16 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    dejaría de significar una sola cosa.
 
    Va detrás de `hover: hover` por lo mismo que las filas: en un laptop
-   táctil el estado se quedaría pegado después del toque. */
+   táctil el estado se quedaría pegado después del toque.
+
+   El activo va en `--a-text` y no en el jade que traía por defecto el
+   `Anchor` de Mantine: el diseño lo pide así (`.nav a.on { color:
+   var(--a-text) }`) porque acá la señal de "estás acá" ya la da la
+   píldora, y el color sólo la acompaña. La barra de teléfono sí usa jade
+   (`.tabbar span.on`), y es correcto: ahí no hay píldora que lo diga. */
 a.knd-nav-link { color: var(--mantine-color-dark-2); }
+a.knd-nav-link-on { color: var(--mantine-color-text); }
 @media (hover: hover) {
   a.knd-nav-link { transition: color 120ms ease; }
-  a.knd-nav-link:hover { color: var(--mantine-color-text); }
+  a.knd-nav-link:not(.knd-nav-link-on):hover { color: var(--mantine-color-text); }
 }
