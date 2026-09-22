@@ -15,6 +15,18 @@ const LINKS = [
 ];
 
 /**
+ * Un link de navegación está activo cuando la pantalla ESTÁ DENTRO de su
+ * sección, no sólo cuando la ruta coincide exacta: editar un grupo es
+ * `/decks/3/groups/7`, que sigue siendo Mazos. Se compara contra `href + '/'`
+ * y no con un `startsWith(href)` pelado para que un futuro `/decksomething`
+ * no encienda Mazos. Práctica, que vive en `/`, queda cubierta por la
+ * igualdad: su prefijo sería `//`, que ninguna ruta empieza así.
+ */
+function isActive(path: string, href: string) {
+  return path === href || path.startsWith(`${href}/`);
+}
+
+/**
  * Navegación responsive sin `useMediaQuery`: ese hook devuelve `undefined`/
  * `false` en el render de servidor y el valor real recién después de montar,
  * lo que puede parpadear o desincronizar la hidratación. Además el breakpoint
@@ -75,8 +87,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 size="sm"
                 px="sm"
                 py={4}
-                c={path === l.href ? undefined : 'dimmed'}
-                bg={path === l.href ? 'dark.5' : undefined}
+                c={isActive(path, l.href) ? undefined : 'dimmed'}
+                bg={isActive(path, l.href) ? 'dark.5' : undefined}
                 underline="never"
                 style={{ borderRadius: 'var(--mantine-radius-sm)' }}
               >
@@ -112,7 +124,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             href={l.href}
             underline="never"
             style={{ flex: 1, textAlign: 'center' }}
-            c={path === l.href ? 'jade.6' : 'dimmed'}
+            c={isActive(path, l.href) ? 'jade.6' : 'dimmed'}
           >
             <Text className="kana" size="lg" lh={1.2}>{l.glyph}</Text>
             <Text size="11px">{l.label}</Text>
