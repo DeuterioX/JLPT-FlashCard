@@ -484,36 +484,6 @@ body { margin: 0; }
    teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
    bloques se renderizan siempre y CSS puro decide cuál se ve, para no
    depender de `useMediaQuery` y su desincronización servidor/cliente. */
-/* `.side .it` del diseño: el ítem de grupo del editor. Va con estilos
-   propios y no con un `Button` de Mantine porque el estado seleccionado
-   tiene que ser un gris NEUTRO (`--a-surface-2`): el `variant="light"` que
-   había antes lo pintaba con un tinte jade -medido, rgb(13,43,33)-, metiendo
-   el color de marca en el único lugar de la pantalla donde no codifica
-   nada. Los no seleccionados van en `--a-dim`, así el contraste -y no solo
-   el fondo- distingue al activo. */
-.knd-group-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 0.4375rem 0.625rem; /* 7px 10px */
-  border-radius: 0.4375rem; /* 7px */
-  font-size: 0.75rem; /* 12px */
-  color: var(--mantine-color-dark-2); /* --a-dim */
-  text-align: left;
-}
-.knd-group-item:hover { background: var(--mantine-color-dark-6); }
-.knd-group-item[data-active] {
-  background: var(--mantine-color-dark-5); /* --a-surface-2 */
-  color: var(--mantine-color-text);
-}
-.knd-group-item[data-muted] { color: var(--mantine-color-dark-3); }
-/* El contador se empuja al borde y es un escalón más apagado que el nombre. */
-.knd-group-count {
-  margin-left: auto;
-  font-size: 0.65625rem; /* 10.5px */
-  color: var(--mantine-color-dark-3); /* --a-dimmer */
-}
 
 /* `.field .lbl` del diseño: el rótulo que va DENTRO del campo, a la
    izquierda del valor. Es un rótulo, no un input, así que puede ir en 9px
@@ -528,40 +498,21 @@ body { margin: 0; }
   white-space: nowrap;
 }
 
-.knd-editor-groups-desktop { display: flex; }
-.knd-editor-groups-mobile { display: none; }
-
 /* Scroll horizontal sin la barra nativa a la vista -se puede seguir
    scrolleando con el dedo o la rueda, solo se esconde el widget-. La
    comparten esta tira, el selector de mazos de Práctica y las métricas
    del quiz cuando no entran completas (ver el grid de `.knd-quiz-footer`). */
-.knd-editor-groups-mobile,
 .knd-deck-switcher,
 .knd-quiz-metrics {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Edge legado */
 }
-.knd-editor-groups-mobile::-webkit-scrollbar,
 .knd-deck-switcher::-webkit-scrollbar,
 .knd-quiz-metrics::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
 
 @media (max-width: 640px) {
-  .knd-editor-layout { flex-direction: column; }
-  .knd-editor-groups-desktop { display: none; }
-  .knd-editor-groups-mobile {
-    display: flex;
-    width: 100%;
-    overflow-x: auto;
-  }
-  /* En fila, `flex: 1` alcanza para estirar la columna de cartas. En
-     columna (acá arriba), el ítem ya no compite por espacio con nada más
-     en el eje principal, así que `flex: 1` no la lleva a 100%: queda
-     encogida a su `minWidth: 280` y sobra un margen vacío a la derecha.
-     `min-width: 0` evita que el propio contenido (una glosa larga, por
-     ejemplo) empuje el ancho más allá del contenedor. */
-  .knd-editor-cards { width: 100%; min-width: 0; }
 }
 
 /* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único

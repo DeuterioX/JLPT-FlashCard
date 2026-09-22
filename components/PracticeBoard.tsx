@@ -190,7 +190,7 @@ export function PracticeBoard({
             scroll solo. `min-width: 0` dentro de un `Group` es necesario
             para que el `overflow-x` realmente pueda achicar la caja en
             vez de empujar a los hermanos fuera de pantalla; mismo patrón
-            que ya usa `.knd-editor-groups-mobile` en el editor de mazo. */}
+            que ya usan las listas horizontales de la app. */}
         <Box id="deck-picker" className="knd-deck-switcher" style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
           <SegmentedControl
             id="deck-segmented-control"

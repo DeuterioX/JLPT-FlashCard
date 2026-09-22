@@ -52,22 +52,25 @@ test.describe('editor de mazo en teléfono', () => {
     test.skip(!isMobile, 'solo aplica al proyecto de teléfono (ancho angosto real)');
   });
 
-  // Sin scroll horizontal (arriba) no alcanza para detectar esto: el bug es
-  // que la columna de cartas se queda en su `minWidth: 280` en vez de
-  // estirarse a lo ancho del contenedor cuando el layout pasa a columna en
-  // 640px, dejando un margen vacío a la derecha SIN que nada desborde.
-  test('la columna de cartas ocupa todo el ancho del layout', async ({ page, request, baseURL }) => {
+  // El bug que guardaba la versión anterior de este test -la columna de
+  // cartas quedándose en su `minWidth` en vez de estirarse cuando el layout
+  // de dos paneles pasaba a columna- ya no puede pasar: ese layout se fue
+  // con la navegación por niveles. Lo que sí sigue valiendo la pena vigilar
+  // es la propiedad de fondo: en teléfono la lista ocupa todo el ancho.
+  test('la lista de cartas ocupa todo el ancho en teléfono', async ({ page, request, baseURL }) => {
     const id = await hiraganaDeckId(request, baseURL);
     await page.goto(`/decks/${id}`);
+    await page.locator('[id^=group-open-]').first().click();
+    await page.waitForURL(/\/groups\/\d+/);
 
-    const layout = page.locator('.knd-editor-layout');
-    const cards = page.locator('.knd-editor-cards');
-    await expect(cards).toBeVisible();
+    const screen = page.locator('#group-cards-screen');
+    const list = page.locator('#cards-list');
+    await expect(list).toBeVisible();
 
-    const layoutBox = await layout.boundingBox();
-    const cardsBox = await cards.boundingBox();
-    if (!layoutBox || !cardsBox) throw new Error('no se pudo medir el layout del editor');
+    const screenBox = await screen.boundingBox();
+    const listBox = await list.boundingBox();
+    if (!screenBox || !listBox) throw new Error('no se pudo medir la lista de cartas');
 
-    expect(Math.abs(cardsBox.width - layoutBox.width)).toBeLessThanOrEqual(1);
+    expect(Math.abs(listBox.width - screenBox.width)).toBeLessThanOrEqual(1);
   });
 });

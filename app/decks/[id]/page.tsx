@@ -1,10 +1,8 @@
-import { notFound } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { db } from '@/lib/db/client';
 import { getDeck, type DeckSummary } from '@/lib/services/decks';
-import { cardsForGroups } from '@/lib/services/sessions';
-import { isDictionaryLoaded } from '@/lib/services/dict';
 import { AppError } from '@/lib/services/errors';
-import { DeckEditor, type EditorCard } from '@/components/DeckEditor';
+import { DeckGroups } from '@/components/DeckGroups';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -22,17 +20,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     throw e;
   }
 
-  // Se reusa cardsForGroups: ya resuelve las respuestas y la primaria.
-  const cards: EditorCard[] = deck.groups.flatMap((g) =>
-    cardsForGroups(db, [g.id]).map((c) => ({
-      id: c.id, prompt: c.prompt, meaning: c.meaning, primary: c.primary,
-      // Todas las romanizaciones, no solo la primaria: editar una carta sin
-      // ellas borraría sus alternativas al guardar.
-      answers: c.answers, groupId: g.id,
-    })),
-  );
+  // Un mazo de un solo grupo no muestra el nivel de grupos: se entra directo
+  // a sus cartas. El nivel existe siempre en la base, pero sólo se muestra
+  // cuando significa algo -y desde la pantalla de cartas se puede crear el
+  // segundo grupo, así que no queda ningún callejón sin salida-.
+  if (deck.groups.length === 1) redirect(`/decks/${deck.id}/groups/${deck.groups[0].id}`);
 
-  // Se resuelve acá, en el servidor, y baja como prop: el buscador avisa que
-  // no hay diccionario en vez de decir "sin resultados" (sin otra ruta de API).
-  return <DeckEditor deck={deck} cards={cards} dictionaryLoaded={isDictionaryLoaded(db)} />;
+  return <DeckGroups deck={deck} />;
 }
