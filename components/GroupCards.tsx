@@ -129,6 +129,10 @@ export function GroupCards({
   const [addError, setAddError] = useState<string | null>(null);
   const addRef = useRef(false);
 
+  // La carta que se está por borrar, no la que se está borrando: borrar es
+  // irreversible y hasta ahora era el ÚNICO borrado de la app que no pedía
+  // confirmación -el de mazo y el de grupo sí la piden-.
+  const [deleting, setDeleting] = useState<EditorCard | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteRef = useRef(false);
@@ -206,17 +210,18 @@ export function GroupCards({
     }
   }
 
-  async function removeCard(id: number) {
-    if (deleteRef.current) return;
+  async function removeCard() {
+    if (deleteRef.current || !deleting) return;
     deleteRef.current = true;
-    setDeletingId(id);
+    setDeletingId(deleting.id);
     setDeleteError(null);
     try {
-      const res = await fetch(`/api/cards/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
       if (!res.ok) {
         setDeleteError(await errorFrom(res));
         return;
       }
+      setDeleting(null);
       router.refresh();
     } catch {
       setDeleteError(NETWORK_ERROR);
@@ -478,12 +483,21 @@ export function GroupCards({
               tappable={!readOnly}
               onTap={() => { setEditError(null); setEditing(c); }}
               onMove={() => { setMoveError(null); setMoving(c); }}
-              onDelete={() => removeCard(c.id)}
+              onDelete={() => { setDeleteError(null); setDeleting(c); }}
             >
+              {/* Las dos primeras columnas tienen base flexible y no ancho
+                  fijo. Con `w={70}` una palabra de seis kana -かいしゃいん- o
+                  un romaji de diez letras se partían en dos renglones aunque
+                  a la derecha sobrara media pantalla. Pero tampoco pueden ser
+                  anchos grandes fijos: en teléfono las tres columnas siguen
+                  estando y sumadas no entran en 390px. Con `flex: 0 1 base`
+                  toman la base cuando hay lugar y se encogen cuando no, y
+                  como la base es una longitud -no el contenido- todas las
+                  filas calculan lo mismo y las columnas siguen alineadas. */}
               <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
-                <Text className="kana" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.prompt}</Text>
-                <Text className="romaji" size="sm" c="dimmed" w={70} style={{ wordBreak: 'break-word' }}>{c.primary}</Text>
-                <Text size="sm" c="dimmed" style={{ flex: 1, minWidth: 0, wordBreak: 'break-word' }}>
+                <Text className="kana" c="dimmed" style={{ flex: '0 1 8.5rem', minWidth: 0, wordBreak: 'break-word' }}>{c.prompt}</Text>
+                <Text className="romaji" size="sm" c="dimmed" style={{ flex: '0 1 9rem', minWidth: 0, wordBreak: 'break-word' }}>{c.primary}</Text>
+                <Text size="sm" c="dimmed" style={{ flex: '1 1 10rem', minWidth: 0, wordBreak: 'break-word' }}>
                   {c.meaning ?? ''}
                 </Text>
                 {/* Un mazo incluido no trae acciones por carta: la pantalla es
@@ -494,7 +508,7 @@ export function GroupCards({
                     <Button
                       id={`card-delete-${c.id}`}
                       variant="subtle" color="shu.6" size="compact-xs"
-                      onClick={() => removeCard(c.id)}
+                      onClick={() => { setDeleteError(null); setDeleting(c); }}
                       loading={deletingId === c.id}
                       disabled={deletingId !== null}
                     >
@@ -540,6 +554,32 @@ export function GroupCards({
 
       {/* El grupo actual aparece deshabilitado en vez de ausente: dice dónde
           estás parado sin necesidad de otra etiqueta. */}
+      <Modal
+        id="delete-card-modal"
+        opened={!!deleting}
+        onClose={() => setDeleting(null)}
+        title="¿Borrar la palabra?"
+      >
+        <Stack>
+          {/* El diálogo nombra la carta y lo que se lleva puesto: los intentos
+              de esa carta se borran con ella, así que la estadística cambia. */}
+          <Text size="sm">
+            {deleting && `Se va «${deleting.prompt}»${
+              deleting.meaning ? ` (${deleting.meaning})` : ''
+            } y sus intentos registrados. No se puede deshacer.`}
+          </Text>
+          {deleteError && <Text c="shu.6" size="sm">{deleteError}</Text>}
+          <Group>
+            <Button variant="default" onClick={() => setDeleting(null)} disabled={deletingId !== null}>
+              Cancelar
+            </Button>
+            <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={deletingId !== null}>
+              Borrar palabra
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
       <Modal
         id="move-card-modal"
         opened={!!moving}
