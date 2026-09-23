@@ -825,15 +825,19 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
    romaji más el significado no caben en 390px. Se vuelve a lo que sí entra
    -unos siete kana- y el resto se parte, que es preferible a dejar el
    significado en una tira de 100px. */
+/* En escritorio la fila va en una sola línea, en columnas alineadas. */
+.knd-card-row { flex-wrap: nowrap; }
+
 @media (max-width: 640px) {
-  .knd-card-kana { flex-basis: 6rem; }
-  .knd-card-romaji { flex-basis: 6.25rem; }
-  /* Y el significado pasa a base CERO: con una base propia, las tres sumadas
-     pasan los 390px y el reparto del faltante encoge también a las dos
-     primeras, que terminaban más angostas que antes del cambio -medido: 83 y
-     86px contra los 96 y 100 que se les pide-. Con base cero se queda con lo
-     que sobra y las otras dos conservan la suya. */
-  .knd-card-meaning { flex-basis: 0; }
+  /* En teléfono se parte en dos renglones: arriba la palabra y su lectura,
+     abajo el significado. Repartir el ancho en tres columnas deja las tres
+     angostas -una palabra de ocho kana como ちゅうしゃじょう se partía al medio
+     mientras al lado sobraba espacio-, y las columnas alineadas no valen
+     tanto cuando no hay ancho para que se note la alineación. */
+  .knd-card-row { flex-wrap: wrap; align-items: baseline; }
+  .knd-card-kana { flex: 0 1 auto; }
+  .knd-card-romaji { flex: 0 1 auto; }
+  .knd-card-meaning { flex: 1 0 100%; }
 }
 
 /* Un link dentro de un formulario -«+ romanización alternativa»-. Atenuado y
@@ -962,7 +966,15 @@ a.knd-inline-link {
      "cortar acá"-, pero deja lugar para que la categoría comparta la línea
      en vez de llevarse una tercera para ella sola. */
   .knd-dict-gloss { flex: 1 1 60%; order: 5; }
-  .knd-dict-pos { order: 6; }
+  /* El margen negativo cancela, sólo para el segundo renglón, la reserva que
+     la fila hace para el botón. Sin esto la categoría termina 88px antes del
+     borde -el ancho del botón- y queda flotando en el medio en vez de
+     alineada debajo de él. */
+  .knd-dict-pos {
+    order: 6;
+    margin-left: auto;
+    margin-right: -5.5rem;
+  }
 }
 
 /* La segunda mitad del arreglo del autocompletado, porque `autocomplete=off`

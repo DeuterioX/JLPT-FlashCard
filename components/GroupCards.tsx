@@ -586,7 +586,7 @@ export function GroupCards({
               {/* Los anchos viven en globals.css y no acá porque tienen que
                   cambiar entre escritorio y teléfono, y un `style` inline no
                   puede llevar una media query. */}
-              <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
+              <Group className="knd-card-row" gap={12} style={{ padding: '0.625rem 0.8125rem' }}>
                 {/* El kana NO va atenuado: es el dato principal de la fila, y
                     el mockup lo deja en el color de texto normal -son el
                     romaji y el significado los que van en `--a-dim`-. */}
