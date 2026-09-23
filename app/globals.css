@@ -858,7 +858,9 @@ a.knd-inline-link {
    `size` del componente fija `--modal-size`; esto sólo lo corrige para el
    tramo donde no puede sobrar margen. */
 @media (max-width: 640px) {
-  .knd-dict-modal { --modal-size: 100vw; }
+  /* No se pisa `--modal-size` -Mantine lo escribe inline y el inline gana-
+     sino el margen que ese valor usa adentro. */
+  .knd-dict-modal { --knd-dict-gutter: 0rem; }
 }
 
 /* El buscador del diccionario, en tres bandas: campo arriba, resultados con
@@ -901,10 +903,40 @@ a.knd-inline-link {
 .knd-dict-kanji { flex: 0 1 5rem; min-width: 0; word-break: break-word; }
 .knd-dict-romaji { flex: 0 1 8rem; min-width: 0; word-break: break-word; }
 
+/* En escritorio la fila va en una sola línea. */
+.knd-dict-row { flex-wrap: nowrap; }
+.knd-dict-gloss { flex: 1; min-width: 0; }
+.knd-dict-pos { white-space: nowrap; }
+
+/* En teléfono, pantalla completa y la fila en DOS renglones.
+   Seis columnas -kana, kanji, romaji, glosa, categoría y botón- no entran en
+   390px por más ancho que se le dé al modal: lo que sobraba se cortaba, y el
+   primero en irse era el botón «Agregar», que es justamente el punto de toda
+   la pantalla. Arriba queda la palabra y el botón; abajo, el significado.
+
+   El reparto es por `order` y un `flex-basis: 100%` en la glosa, no por una
+   grilla: así el orden del DOM -y con él el del tabulador y el del lector de
+   pantalla- sigue siendo el natural de la fila. */
 @media (max-width: 640px) {
-  .knd-dict-kana { flex-basis: 5.5rem; }
-  .knd-dict-kanji { flex-basis: 3.5rem; }
-  .knd-dict-romaji { flex-basis: 5rem; }
+  .knd-dict-modal .mantine-Modal-inner { padding: 0; }
+  .knd-dict-modal .mantine-Modal-content {
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  .knd-dict-modal .mantine-Modal-body { max-height: none; flex: 1; }
+
+  .knd-dict-row { flex-wrap: wrap; align-items: center; }
+  .knd-dict-kana { flex: 0 1 auto; order: 1; }
+  .knd-dict-kanji { flex: 0 1 auto; order: 2; }
+  .knd-dict-romaji { flex: 0 1 auto; order: 3; }
+  .knd-dict-add { order: 4; margin-left: auto; }
+  /* La base grande es lo que fuerza el salto de renglón -flex no tiene un
+     "cortar acá"-, pero deja lugar para que la categoría comparta la línea
+     en vez de llevarse una tercera para ella sola. */
+  .knd-dict-gloss { flex: 1 1 60%; order: 5; }
+  .knd-dict-pos { order: 6; }
 }
 
 /* La segunda mitad del arreglo del autocompletado, porque `autocomplete=off`

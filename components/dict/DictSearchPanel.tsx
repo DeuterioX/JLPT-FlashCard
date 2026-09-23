@@ -107,7 +107,13 @@ export function DictSearchPanel({
     <Modal
       opened={opened}
       onClose={onClose}
-      size="calc(100vw - 6rem)"
+      // El margen sale de una variable en vez de estar escrito acá: Mantine
+      // pasa `size` a un `--modal-size` INLINE en el root, y un estilo inline
+      // le gana a cualquier regla de hoja -así que una media query no puede
+      // tocarlo-. Lo que sí puede tocar es la variable que ese valor usa
+      // adentro, y eso es lo que hace `.knd-dict-modal` en globals.css para
+      // dejarlo a pantalla completa en teléfono.
+      size="calc(100vw - var(--knd-dict-gutter, 6rem))"
       className="knd-dict-modal"
       // Anclado arriba, contra el `centered: true` que el tema pone para
       // todos los demás. Este no es un diálogo de tamaño fijo: arranca con
@@ -154,11 +160,11 @@ export function DictSearchPanel({
             {/* Mismas columnas que la tabla de palabras y por la misma razón:
                 con ancho fijo, una lectura de once kana o su romaji se partían
                 en dos renglones. Las clases están en globals.css. */}
-            <Group wrap="nowrap" gap="sm" align="flex-start">
+            <Group className="knd-dict-row" gap="sm" align="flex-start">
               <Text className="kana knd-dict-kana">{h.kana}</Text>
               <Text className="kana knd-dict-kanji" c="dimmed">{h.kanji ?? ''}</Text>
               <Text className="romaji knd-dict-romaji" size="sm" c="dimmed">{h.romaji}</Text>
-              <Group gap={6} style={{ flex: 1, minWidth: 0 }}>
+              <Group className="knd-dict-gloss" gap={6}>
                 <Text size="sm" c="dimmed" truncate>{h.gloss}</Text>
                 {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">en inglés</Badge>}
               </Group>
@@ -167,14 +173,15 @@ export function DictSearchPanel({
                   `adj-na`- y así salía a la pantalla, donde no le dice nada
                   a nadie que no conozca el formato. */}
               {posEnCastellano(h.pos) && (
-                <Text size="xs" c="dark.3" fs="italic" style={{ whiteSpace: 'nowrap' }}>
+                <Text className="knd-dict-pos" size="xs" c="dark.3" fs="italic">
                   {posEnCastellano(h.pos)}
                 </Text>
               )}
               {addedIds.has(h.id) ? (
-                <Text size="xs" c="jade.6">Agregada</Text>
+                <Text className="knd-dict-add" size="xs" c="jade.6">Agregada</Text>
               ) : (
                 <Button
+                  className="knd-dict-add"
                   size="compact-xs"
                   onClick={() => addHit(h)}
                   loading={addingId === h.id}
