@@ -2,8 +2,9 @@
 
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, useMantineTheme,
+  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, rem, useMantineTheme,
 } from '@mantine/core';
 import { ListRow } from './ListRow';
 import { BuiltinDot } from './BuiltinDot';
@@ -132,6 +133,14 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
   return (
     <Stack id="decks-screen" gap="md">
+      {/* La misma cabecera que las otras dos pantallas de la sección, con el
+          nivel actual en negrita. Acá «Mazos» no es un enlace porque es
+          donde ya se está parado: un enlace a la página actual no lleva a
+          ningún lado y sólo agrega un blanco más al tabulador. */}
+      <Group id="decks-header-crumb" gap="0.5rem">
+        <Text id="decks-title" fw={700} size={rem(15)} lh={1.4}>Mazos</Text>
+      </Group>
+
       <Group id="decks-header" gap={10} wrap="nowrap">
         <SectionLabel id="decks-count">
           {`${decks.length} mazos · ${totalCards} cartas`}
@@ -152,7 +161,24 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             <ListRow
               onClick={() => router.push(`/decks/${d.id}`)}
               icon={iconFor(d)}
-              title={<>{d.name}{d.isBuiltin && <BuiltinDot />}</>}
+              /* El nombre ES el enlace, por lo mismo que en el listado de
+                 grupos: sacado el botón que navegaba -la fila ya lo hace al
+                 tocarla-, hacía falta algo enfocable para llegar con el
+                 teclado. */
+              title={
+                <>
+                  <Anchor
+                    component={Link}
+                    href={`/decks/${d.id}`}
+                    underline="never"
+                    c="var(--mantine-color-text)"
+                    inherit
+                  >
+                    {d.name}
+                  </Anchor>
+                  {d.isBuiltin && <BuiltinDot />}
+                </>
+              }
               subtitle={subtitleFor(d)}
               actions={
                 <>
@@ -165,16 +191,6 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                       Borrar
                     </Button>
                   )}
-                  {/* `.btn.ghost` del diseño: saca el FONDO pero conserva el
-                      borde. El `subtle` de Mantine saca los dos y dejaba
-                      "Ver cartas"/"Editar" como texto suelto. */}
-                  <Button
-                    id={`deck-edit-${d.id}`}
-                    variant="default" bg="transparent" size="compact-xs"
-                    onClick={() => router.push(`/decks/${d.id}`)}
-                  >
-                    {d.isBuiltin ? 'Ver cartas' : 'Editar'}
-                  </Button>
                   <Button
                     id={`deck-practice-${d.id}`}
                     variant="default" size="compact-xs" onClick={() => router.push('/')}

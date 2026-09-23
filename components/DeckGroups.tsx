@@ -168,7 +168,23 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
               }}
             >
               <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
-                <Text size={rem(13)} lh={1.45} fw={500} className="kana">{g.name}</Text>
+                {/* El nombre ES el enlace. Antes el único elemento enfocable
+                    de la fila era el botón «Ver cartas», y al sacarlo -la
+                    fila entera ya navega al tocarla- el teclado se quedaba
+                    sin camino. Además esto devuelve el clic derecho y el
+                    abrir en otra pestaña, que un `onClick` no da. */}
+                <Anchor
+                  component={Link}
+                  href={`/decks/${deck.id}/groups/${g.id}`}
+                  underline="never"
+                  c="var(--mantine-color-text)"
+                  size={rem(13)}
+                  lh={1.45}
+                  fw={500}
+                  className="kana"
+                >
+                  {g.name}
+                </Anchor>
                 <Text size={rem(11)} lh={1.45} c="dark.3">
                   {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
                 </Text>
@@ -187,14 +203,6 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     Borrar
                   </Button>
                 )}
-                <Button
-                  id={`group-open-${g.id}`}
-                  component={Link}
-                  href={`/decks/${deck.id}/groups/${g.id}`}
-                  variant="default" size="compact-xs"
-                >
-                  Ver cartas
-                </Button>
               </Group>
             </Group>
           </div>

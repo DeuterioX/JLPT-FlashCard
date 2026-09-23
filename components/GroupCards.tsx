@@ -553,15 +553,6 @@ export function GroupCards({
         <SectionLabel id="cards-count">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
-        {/* Siempre, no sólo con varios grupos: el listado existe aunque haya
-            uno -es donde se crean los demás- así que desde acá siempre se
-            puede subir. */}
-        <Button
-          id="deck-groups-btn" component={Link} href={`/decks/${deck.id}`}
-          variant="default" bg="transparent" size="compact-sm"
-        >
-          Grupos del mazo
-        </Button>
         {readOnly && !manyGroups && (
           <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>
             sólo lectura
