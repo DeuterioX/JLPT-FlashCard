@@ -6,6 +6,7 @@ import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem, useMantineTheme,
 } from '@mantine/core';
+import { Breadcrumb } from './Breadcrumb';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -118,21 +119,13 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
 
   return (
     <Stack id="deck-groups-screen" gap="md">
-      <Group id="deck-header" className="knd-crumb-row" gap="0.5rem">
-        {/* La barra va como elemento APARTE, no dentro del texto del enlace.
-            Con «Mazos /» adentro, el separador queda con un espacio de texto
-            de un lado y el `gap` del Group del otro, así que la miga se ve
-            distinta a la de la pantalla de palabras, que sí lo separa. Y un
-            espacio literal pegado a un tag es lo que CLAUDE.md prohíbe:
-            puede colapsar a ancho cero. */}
-        <Anchor
-          id="deck-breadcrumb" className="knd-crumb"
-          component={Link} href="/decks" size="sm" underline="hover"
-        >
-          Mazos
-        </Anchor>
-        <Text c="dark.3" size="sm">/</Text>
-        <Text id="deck-name" fw={700} size={rem(15)} lh={1.4} className="kana">{deck.name}</Text>
+      <Breadcrumb
+        id="deck-header"
+        trail={[{ label: 'Mazos', href: '/decks' }]}
+        currentId="deck-name"
+        current={deck.name}
+        currentClassName="kana"
+      >
         {/* En un mazo incluido el punto ocupa el lugar del botón: sin él, la
             ausencia de acciones se lee como "falta algo" y no como "esto no
             se edita". */}
@@ -145,7 +138,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             Renombrar
           </Button>
         )}
-      </Group>
+      </Breadcrumb>
 
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="groups-count">

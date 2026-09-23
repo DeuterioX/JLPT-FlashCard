@@ -4,8 +4,9 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, rem, useMantineTheme,
+  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, useMantineTheme,
 } from '@mantine/core';
+import { Breadcrumb } from './Breadcrumb';
 import { ListRow } from './ListRow';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
@@ -133,13 +134,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
   return (
     <Stack id="decks-screen" gap="md">
-      {/* La misma cabecera que las otras dos pantallas de la sección, con el
-          nivel actual en negrita. Acá «Mazos» no es un enlace porque es
-          donde ya se está parado: un enlace a la página actual no lleva a
-          ningún lado y sólo agrega un blanco más al tabulador. */}
-      <Group id="decks-header-crumb" className="knd-crumb-row" gap="0.5rem">
-        <Text id="decks-title" fw={700} size={rem(15)} lh={1.4}>Mazos</Text>
-      </Group>
+      <Breadcrumb id="decks-header-crumb" currentId="decks-title" current="Mazos" />
 
       <Group id="decks-header" gap={10} wrap="nowrap">
         <SectionLabel id="decks-count">

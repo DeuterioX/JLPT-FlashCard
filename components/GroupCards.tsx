@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box,
   rem, useMantineTheme,
 } from '@mantine/core';
+import { Breadcrumb } from './Breadcrumb';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { DictSearchPanel } from './dict/DictSearchPanel';
@@ -53,15 +53,24 @@ function EditCardModal({
   // montaba recién al abrirlo y se reiniciaba solo por su `key`; ahora vive
   // montado siempre -es lo que le da a Mantine un estado cerrado del que
   // salir, y sin eso no hay animación de entrada-, así que el reinicio tiene
-  // que colgar de la apertura. Depender también de `opened` es lo que hace
-  // que reabrir la misma carta descarte lo que se haya tipeado y cancelado.
-  useEffect(() => {
-    if (!opened || !card) return;
-    setPrompt(card.prompt);
-    setRomaji(card.answers[0] ?? card.primary);
-    setAlts(card.answers.slice(1));
-    setMeaning(card.meaning ?? '');
-  }, [opened, card]);
+  // que colgar de la apertura.
+  //
+  // Va en el RENDER y no en un efecto: es el patrón que React documenta para
+  // ajustar estado cuando cambian las props, y evita el repintado de más que
+  // deja un `setState` dentro de un efecto -React descarta este render y
+  // rehace el componente antes de tocar el DOM-. Compararlo contra el estado
+  // ANTERIOR de `opened` es lo que hace que reabrir la misma carta descarte
+  // lo que se haya tipeado y cancelado.
+  const [wasOpen, setWasOpen] = useState(false);
+  if (opened !== wasOpen) {
+    setWasOpen(opened);
+    if (opened && card) {
+      setPrompt(card.prompt);
+      setRomaji(card.answers[0] ?? card.primary);
+      setAlts(card.answers.slice(1));
+      setMeaning(card.meaning ?? '');
+    }
+  }
 
   return (
     /* `keepMounted`: sin esto, la PRIMERA apertura sigue sin animar aunque el
@@ -378,21 +387,16 @@ export function GroupCards({
 
   return (
     <Stack id="group-cards-screen" gap="md">
-      <Group id="group-header" className="knd-crumb-row" gap="0.5rem">
-        <Anchor className="knd-crumb" component={Link} href="/decks" size="sm" underline="hover">
-          Mazos
-        </Anchor>
-        <Text c="dark.3" size="sm">/</Text>
-        <Anchor
-          className="knd-crumb"
-          component={Link}
-          href={`/decks/${deck.id}`}
-          size="sm" underline="hover"
-        >
-          {deck.name}
-        </Anchor>
-        <Text c="dark.3" size="sm">/</Text>
-        <Text id="group-name" fw={700} size={rem(15)} lh={1.4} className="kana">{group.name}</Text>
+      <Breadcrumb
+        id="group-header"
+        trail={[
+          { label: 'Mazos', href: '/decks' },
+          { label: deck.name, href: `/decks/${deck.id}` },
+        ]}
+        currentId="group-name"
+        current={group.name}
+        currentClassName="kana"
+      >
         {readOnly ? <BuiltinDot /> : (
           <Button
             id="rename-group-btn"
@@ -402,7 +406,7 @@ export function GroupCards({
             Renombrar
           </Button>
         )}
-      </Group>
+      </Breadcrumb>
 
       {!readOnly && (
         <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: other.borderSoft }}>
