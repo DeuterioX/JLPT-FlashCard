@@ -109,6 +109,12 @@ export function DictSearchPanel({
       onClose={onClose}
       size="calc(100vw - 6rem)"
       className="knd-dict-modal"
+      // Anclado arriba, contra el `centered: true` que el tema pone para
+      // todos los demás. Este no es un diálogo de tamaño fijo: arranca con
+      // el campo vacío y crece hacia abajo a medida que llegan resultados.
+      // Centrado, cada tecleo lo reacomoda vertical y el campo de búsqueda
+      // se mueve solo bajo el cursor.
+      centered={false}
       title="Buscar en el diccionario"
     >
       {/* Tres bandas: el buscador arriba, los resultados con su propio
