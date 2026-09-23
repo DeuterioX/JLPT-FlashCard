@@ -13,6 +13,11 @@ export type Crumb = { label: string; href: string };
  * pantalla en pantalla según qué botones lleva. Las dos cosas se reportaron
  * como bugs. Con un componente no pueden volver a pasar.
  *
+ * Es UNA línea siempre: lo que no entra se corta con puntos suspensivos. Con
+ * envoltura, un nombre largo mandaba el nivel actual al segundo renglón y la
+ * fila pasaba de 30 a 58px, así que el texto quedaba a distinta altura según
+ * la pantalla -que es justo lo que este componente viene a evitar-.
+ *
  * `trail` son los niveles de arriba, que son enlaces; `current` es dónde se
  * está parado y no lo es -un enlace a la página actual no lleva a ningún lado
  * y sólo agrega un blanco más al tabulador-. `children` son los controles que
@@ -37,14 +42,20 @@ export function Breadcrumb({
         // del Group del otro, y el separador deja de medir lo mismo en todas
         // las pantallas. Además un espacio literal pegado al cierre de un tag
         // puede colapsar a ancho cero (ver CLAUDE.md).
-        <Group key={c.href} gap="0.5rem" wrap="nowrap">
+        <Group key={c.href} className="knd-crumb-step" gap="0.5rem" wrap="nowrap">
           <Anchor className="knd-crumb" component={Link} href={c.href} size="sm" underline="hover">
             {c.label}
           </Anchor>
-          <Text c="dark.3" size="sm">/</Text>
+          <Text className="knd-crumb-sep" c="dark.3" size="sm">/</Text>
         </Group>
       ))}
-      <Text id={currentId} className={currentClassName} fw={700} size={rem(15)} lh={1.4}>
+      <Text
+        id={currentId}
+        className={`knd-crumb-current${currentClassName ? ` ${currentClassName}` : ''}`}
+        fw={700}
+        size={rem(15)}
+        lh={1.4}
+      >
         {current}
       </Text>
       {children}

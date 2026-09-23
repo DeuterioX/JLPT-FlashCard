@@ -1003,9 +1003,39 @@ input:-webkit-autofill:active {
 .knd-crumb-row {
   min-height: 1.625rem;
   align-items: center;
+  /* Una sola línea, siempre. Envolviendo, un nombre largo manda el nivel
+     actual al renglón de abajo y la fila casi duplica su alto, así que el
+     texto queda a distinta altura según en qué pantalla estés. */
+  flex-wrap: nowrap;
+  min-width: 0;
+}
+
+/* Lo que no entra se corta. Se reparten el faltante los DOS -los niveles de
+   arriba y el actual-, en vez de que el actual se lleve todo el recorte: con
+   tres niveles en un teléfono, recortar sólo el último lo dejaría en dos
+   letras. */
+.knd-crumb-step { min-width: 0; }
+/* El primer nivel no se encoge NUNCA. Es el ancla de orientación -y mide
+   cuatro letras-, así que recortarlo a «M…» no gana espacio y sí pierde la
+   única referencia fija de la miga. El faltante lo absorben los niveles de
+   abajo, que son los largos. */
+.knd-crumb-step:first-of-type { flex: none; }
+.knd-crumb,
+.knd-crumb-current {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+/* La barra y los controles nunca se encogen: son del ancho de un carácter o
+   de un botón, y recortarlos no gana nada. */
+.knd-crumb-sep,
+.knd-crumb-row > button,
+.knd-crumb-row > a[class*='Button'] {
+  flex: none;
 }
 @media (max-width: 640px) {
   /* En teléfono los botones van a 30px (ver la regla de `.mantine-Button-root`
      más arriba), así que el piso los acompaña. */
-  .knd-crumb-row { min-height: 1.875rem; flex-wrap: wrap; }
+  .knd-crumb-row { min-height: 1.875rem; }
 }
