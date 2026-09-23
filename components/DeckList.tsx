@@ -137,7 +137,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           nivel actual en negrita. Acá «Mazos» no es un enlace porque es
           donde ya se está parado: un enlace a la página actual no lleva a
           ningún lado y sólo agrega un blanco más al tabulador. */}
-      <Group id="decks-header-crumb" gap="0.5rem">
+      <Group id="decks-header-crumb" className="knd-crumb-row" gap="0.5rem">
         <Text id="decks-title" fw={700} size={rem(15)} lh={1.4}>Mazos</Text>
       </Group>
 

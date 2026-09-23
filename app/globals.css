@@ -993,3 +993,30 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--mantine-color-text);
   caret-color: var(--mantine-color-text);
 }
+
+/* La cabecera de las tres pantallas de la sección Mazos. Sin un piso común
+   mide lo que mide su contenido, y ese contenido cambia de pantalla en
+   pantalla -mazos no lleva botones, grupos lleva «Renombrar» de 22px y
+   palabras suma «Buscar en el diccionario» de 26px-, así que la línea se
+   movía 5px al navegar entre ellas. El piso es el alto del botón más alto,
+   el mismo número que ya usa `.knd-sect-row`. */
+.knd-crumb-row {
+  min-height: 1.625rem;
+  align-items: center;
+}
+@media (max-width: 640px) {
+  /* En teléfono los botones van a 30px (ver la regla de `.mantine-Button-root`
+     más arriba), así que el piso los acompaña. */
+  .knd-crumb-row { min-height: 1.875rem; flex-wrap: wrap; }
+
+  /* Y «Buscar en el diccionario» baja a su propia fila, a lo ancho -que es
+     como lo dibuja el mockup en teléfono-. Adentro de la línea de migas no
+     entra, y envolviéndose a medias dejaba esa línea el doble de alta que en
+     las otras dos pantallas. Bajándolo entero, la línea de migas vuelve a
+     medir lo mismo en las tres y el botón se lee como una fila aparte y no
+     como un sobrante. */
+  #dict-search-btn {
+    flex: 1 0 100%;
+    margin-left: 0;
+  }
+}

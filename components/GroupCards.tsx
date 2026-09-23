@@ -378,7 +378,7 @@ export function GroupCards({
 
   return (
     <Stack id="group-cards-screen" gap="md">
-      <Group id="group-header" gap="0.5rem">
+      <Group id="group-header" className="knd-crumb-row" gap="0.5rem">
         <Anchor className="knd-crumb" component={Link} href="/decks" size="sm" underline="hover">
           Mazos
         </Anchor>
