@@ -351,12 +351,24 @@ export function GroupCards({
                 en globals.css. Los anchos salen de los `w={}` porque Mantine
                 los escribe inline y un ancho inline le gana a la grilla. */}
             <div className="knd-addform">
-              <div className="knd-addform-kana">
+              <TextInput
+                id="nueva-kana" placeholder="えび"
+                leftSection={<span className="knd-field-label">Kana</span>}
+                leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+                value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
+              />
+              {/* Los botones van debajo del ROMAJI, que es el campo del que
+                  leen, y después de él en el DOM. Eso deja el tabulador en el
+                  orden en que se usa -romaji, hiragana, katakana,
+                  significado- sin un solo `tabIndex`: el orden del documento
+                  ya es el correcto. */}
+              <div className="knd-addform-romaji">
                 <TextInput
-                  id="nueva-kana" placeholder="えび"
-                  leftSection={<span className="knd-field-label">Kana</span>}
-                  leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
-                  value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
+                  id="nueva-romaji" placeholder="ebi"
+                  leftSection={<span className="knd-field-label">Romaji</span>}
+                  leftSectionWidth={rem(58)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+                  value={romaji}
+                  onChange={(e) => { setRomajiTouched(true); setRomaji(e.currentTarget.value); }}
                 />
                 {/* El camino inverso al que ya existía: el kana completa el
                     romaji solo, y esto completa el kana desde el romaji, para
@@ -393,13 +405,6 @@ export function GroupCards({
                   </Button>
                 </div>
               </div>
-              <TextInput
-                id="nueva-romaji" placeholder="ebi"
-                leftSection={<span className="knd-field-label">Romaji</span>}
-                leftSectionWidth={rem(58)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
-                value={romaji}
-                onChange={(e) => { setRomajiTouched(true); setRomaji(e.currentTarget.value); }}
-              />
               <TextInput
                 id="nueva-meaning" placeholder="camarón"
                 leftSection={<span className="knd-field-label">Significado</span>}
