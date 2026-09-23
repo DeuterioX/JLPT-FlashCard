@@ -7,6 +7,7 @@ import {
   rem, useMantineTheme,
 } from '@mantine/core';
 import { Breadcrumb } from './Breadcrumb';
+import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { DictSearchPanel } from './dict/DictSearchPanel';
@@ -398,13 +399,7 @@ export function GroupCards({
         currentClassName="kana"
       >
         {readOnly ? <BuiltinDot /> : (
-          <Button
-            id="rename-group-btn"
-            variant="default" bg="transparent" size="compact-xs"
-            onClick={() => { setRenameValue(group.name); setRenameError(null); setRenameOpen(true); }}
-          >
-            Renombrar
-          </Button>
+          <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); setRenameError(null); setRenameOpen(true); }} />
         )}
       </Breadcrumb>
 

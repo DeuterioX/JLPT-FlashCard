@@ -7,6 +7,7 @@ import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem, useMantineTheme,
 } from '@mantine/core';
 import { Breadcrumb } from './Breadcrumb';
+import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -130,13 +131,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             ausencia de acciones se lee como "falta algo" y no como "esto no
             se edita". */}
         {readOnly ? <BuiltinDot /> : (
-          <Button
-            id="rename-deck-btn"
-            variant="default" bg="transparent" size="compact-xs"
-            onClick={() => { setRenameValue(deck.name); setRenameError(null); setRenameOpen(true); }}
-          >
-            Renombrar
-          </Button>
+          <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); setRenameError(null); setRenameOpen(true); }} />
         )}
       </Breadcrumb>
 

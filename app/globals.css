@@ -1039,3 +1039,18 @@ input:-webkit-autofill:active {
      más arriba), así que el piso los acompaña. */
   .knd-crumb-row { min-height: 1.875rem; }
 }
+
+/* «Renombrar» pasa a ícono en teléfono: en 390px, con tres niveles de miga,
+   la etiqueta se come el ancho que necesita el nombre del nivel actual.
+   El nombre accesible lo da el `aria-label` del botón, así que el ícono no
+   pierde información para un lector de pantalla. */
+.knd-rename-icon { display: none; }
+@media (max-width: 640px) {
+  .knd-rename-label { display: none; }
+  .knd-rename-icon {
+    display: inline;
+    font-size: 0.9375rem;
+    line-height: 1;
+  }
+  .knd-rename-btn { padding-inline: 0.5rem; }
+}
