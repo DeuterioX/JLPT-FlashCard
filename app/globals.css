@@ -924,14 +924,40 @@ a.knd-inline-link {
     height: 100dvh;
     max-height: 100dvh;
     border-radius: 0;
+    /* Columna flexible: sin esto el `flex: 1` del cuerpo no tiene contra qué
+       estirarse -el contenedor no reparte nada- y el cuerpo mide lo que mide
+       su contenido. Con el cuerpo más alto que la pantalla, el que scrollea
+       vuelve a ser el modal entero y el pie se va con él. */
+    display: flex;
+    flex-direction: column;
   }
-  .knd-dict-modal .mantine-Modal-body { max-height: none; flex: 1; }
+  .knd-dict-modal .mantine-Modal-body {
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+  }
 
-  .knd-dict-row { flex-wrap: wrap; align-items: center; }
+  /* El botón sale del flujo y se ancla arriba a la derecha, con su lugar
+     reservado por el padding de la fila. Puesto en el flujo, una palabra
+     larga -«ぎょせんのりくみいん 漁船乗組員 gyosennorikumiin»- llena el primer
+     renglón y lo empuja al segundo, donde aparece a la IZQUIERDA del
+     significado: la columna de botones deja de existir y la lista se vuelve
+     imposible de recorrer con el pulgar. */
+  .knd-dict-row {
+    position: relative;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-right: 5.5rem;
+  }
   .knd-dict-kana { flex: 0 1 auto; order: 1; }
   .knd-dict-kanji { flex: 0 1 auto; order: 2; }
   .knd-dict-romaji { flex: 0 1 auto; order: 3; }
-  .knd-dict-add { order: 4; margin-left: auto; }
+  .knd-dict-add {
+    position: absolute;
+    top: 0;
+    right: 0;
+    order: 4;
+  }
   /* La base grande es lo que fuerza el salto de renglón -flex no tiene un
      "cortar acá"-, pero deja lugar para que la categoría comparta la línea
      en vez de llevarse una tercera para ella sola. */
