@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Modal, Stack, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
+import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
 import type { DictHit } from '@/lib/services/dict';
+import { posEnCastellano } from '@/lib/services/pos';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 
 const MIN_QUERY = 2;
@@ -110,7 +111,12 @@ export function DictSearchPanel({
       className="knd-dict-modal"
       title="Buscar en el diccionario"
     >
-      <Stack gap="sm">
+      {/* Tres bandas: el buscador arriba, los resultados con su propio
+          scroll en el medio, y el pie abajo. Antes scrolleaba el cuerpo
+          entero, así que al bajar por los resultados se iban de pantalla
+          tanto el campo de búsqueda -que es donde se corrige la consulta-
+          como la línea que dice a qué grupo se está agregando. */}
+      <div className="knd-dict-head">
         <TextInput
           id="dict-q"
           placeholder="pescado"
@@ -123,8 +129,10 @@ export function DictSearchPanel({
             </Text>
           }
         />
-
         {searchError && <Text c="shu.6" size="sm">{searchError}</Text>}
+      </div>
+
+      <div className="knd-dict-results">
 
         {!dictionaryLoaded && (
           <Text size="sm" c="dimmed">
@@ -137,20 +145,24 @@ export function DictSearchPanel({
         {hits.map((h, i) => (
           <div key={h.id}>
             {i > 0 && <Divider mb="sm" />}
-            <Group wrap="nowrap" gap="sm">
-              <Text className="kana" w={88}>{h.kana}</Text>
-              <Text className="kana" c="dimmed" w={54}>{h.kanji ?? ''}</Text>
-              <Text className="romaji" size="sm" c="dimmed" w={78}>{h.romaji}</Text>
+            {/* Mismas columnas que la tabla de palabras y por la misma razón:
+                con ancho fijo, una lectura de once kana o su romaji se partían
+                en dos renglones. Las clases están en globals.css. */}
+            <Group wrap="nowrap" gap="sm" align="flex-start">
+              <Text className="kana knd-dict-kana">{h.kana}</Text>
+              <Text className="kana knd-dict-kanji" c="dimmed">{h.kanji ?? ''}</Text>
+              <Text className="romaji knd-dict-romaji" size="sm" c="dimmed">{h.romaji}</Text>
               <Group gap={6} style={{ flex: 1, minWidth: 0 }}>
                 <Text size="sm" c="dimmed" truncate>{h.gloss}</Text>
                 {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">en inglés</Badge>}
               </Group>
-              {/* La categoría gramatical, que el diseño muestra (`.pos`) y
-                  acá faltaba: el dato ya venía en `DictHit`, sin usar. En
-                  cursiva y apagada, como una acotación al margen. */}
-              {h.pos && (
+              {/* La categoría gramatical, que el diseño muestra (`.pos`).
+                  Traducida: JMdict la guarda como código -`n`, `v5s`,
+                  `adj-na`- y así salía a la pantalla, donde no le dice nada
+                  a nadie que no conozca el formato. */}
+              {posEnCastellano(h.pos) && (
                 <Text size="xs" c="dark.3" fs="italic" style={{ whiteSpace: 'nowrap' }}>
-                  {h.pos}
+                  {posEnCastellano(h.pos)}
                 </Text>
               )}
               {addedIds.has(h.id) ? (
@@ -178,10 +190,11 @@ export function DictSearchPanel({
 
         {addError && <Text c="shu.6" size="sm">{addError}</Text>}
 
-        <Text size="xs" c="dimmed">
-          Se agrega al grupo <b>{groupName}</b>. Podés editar kana, romaji y significado después.
-        </Text>
-      </Stack>
+      </div>
+
+      <Text className="knd-dict-foot" size="xs" c="dimmed">
+        Se agrega al grupo <b>{groupName}</b>. Podés editar kana, romaji y significado después.
+      </Text>
     </Modal>
   );
 }

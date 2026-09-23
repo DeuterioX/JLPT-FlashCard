@@ -860,3 +860,49 @@ a.knd-inline-link {
 @media (max-width: 640px) {
   .knd-dict-modal { --modal-size: 100vw; }
 }
+
+/* El buscador del diccionario, en tres bandas: campo arriba, resultados con
+   su propio scroll, pie abajo. El cuerpo del modal deja de scrollear como un
+   bloque -si scrollea él, al bajar por los resultados se van de pantalla el
+   campo de búsqueda y la línea que dice a qué grupo se agrega-. */
+.knd-dict-modal .mantine-Modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+  min-height: 0;
+  /* Lo que sobra de la ventana descontando cabecera, pie del modal y aire.
+     Sin un alto máximo el cuerpo crece con los resultados y no hay nada que
+     scrollear adentro. */
+  max-height: calc(100dvh - 12rem);
+}
+.knd-dict-head,
+.knd-dict-foot { flex: none; }
+.knd-dict-head { display: flex; flex-direction: column; gap: var(--mantine-spacing-xs); }
+
+.knd-dict-results {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-sm);
+  /* La barra fina y en el color del tema: la del sistema entra blanca y
+     ancha sobre el panel oscuro. */
+  scrollbar-width: thin;
+  scrollbar-color: var(--mantine-color-dark-4) transparent;
+  /* Aire para que la barra no se coma el borde del botón «Agregar». */
+  padding-right: 0.375rem;
+}
+
+/* Las columnas de un resultado, con base flexible por lo mismo que las de la
+   tabla de palabras: con ancho fijo, una lectura larga o su romaji se parten
+   en dos renglones aunque sobre lugar al costado. */
+.knd-dict-kana { flex: 0 1 8rem; min-width: 0; word-break: break-word; }
+.knd-dict-kanji { flex: 0 1 5rem; min-width: 0; word-break: break-word; }
+.knd-dict-romaji { flex: 0 1 8rem; min-width: 0; word-break: break-word; }
+
+@media (max-width: 640px) {
+  .knd-dict-kana { flex-basis: 5.5rem; }
+  .knd-dict-kanji { flex-basis: 3.5rem; }
+  .knd-dict-romaji { flex-basis: 5rem; }
+}
