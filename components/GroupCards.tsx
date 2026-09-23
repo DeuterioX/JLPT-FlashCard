@@ -6,7 +6,7 @@ import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box,
   rem, useMantineTheme,
 } from '@mantine/core';
-import { Breadcrumb } from './Breadcrumb';
+import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
@@ -388,20 +388,19 @@ export function GroupCards({
 
   return (
     <Stack id="group-cards-screen" gap="md">
-      <Breadcrumb
+      <Navbar
         id="group-header"
-        trail={[
+        levels={[
           { label: 'Mazos', href: '/decks' },
           { label: deck.name, href: `/decks/${deck.id}` },
+          { label: group.name },
         ]}
         currentId="group-name"
-        current={group.name}
         currentClassName="kana"
-      >
-        {readOnly ? <BuiltinDot /> : (
+        action={readOnly ? <BuiltinDot /> : (
           <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); setRenameError(null); setRenameOpen(true); }} />
         )}
-      </Breadcrumb>
+      />
 
       {!readOnly && (
         <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: other.borderSoft }}>

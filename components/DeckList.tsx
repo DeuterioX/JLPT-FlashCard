@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, useMantineTheme,
 } from '@mantine/core';
-import { Breadcrumb } from './Breadcrumb';
+import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
@@ -134,7 +134,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
   return (
     <Stack id="decks-screen" gap="md">
-      <Breadcrumb id="decks-header-crumb" currentId="decks-title" current="Mazos" />
+      <Navbar id="decks-header-crumb" currentId="decks-title" levels={[{ label: 'Mazos' }]} />
 
       <Group id="decks-header" gap={10} wrap="nowrap">
         <SectionLabel id="decks-count">

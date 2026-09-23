@@ -1054,3 +1054,59 @@ input:-webkit-autofill:active {
   }
   .knd-rename-btn { padding-inline: 0.5rem; }
 }
+
+/* La barra de pantalla en teléfono (`MobileNavbar`). En escritorio no existe:
+   ahí manda la miga, que vive en el contenido y tiene ancho de sobra. */
+.knd-mobile-navbar { display: none; }
+
+@media (max-width: 640px) {
+  /* Las dos formas se renderizan siempre y acá se elige cuál se ve. Con
+     `display: none` y no con `visibility` ni `opacity`, porque `display:
+     none` sí saca el elemento del árbol de accesibilidad: si no, un lector
+     de pantalla anunciaría la misma navegación dos veces. */
+  .knd-crumb-row { display: none; }
+
+  .knd-mobile-navbar {
+    display: flex;
+    align-items: center;
+    /* OCUPA el lugar de la barra del AppShell, no se suma a ella: misma
+       altura y mismo fondo, y la de abajo se apaga. Así los 46px que gastaba
+       la miga vuelven al contenido en vez de sumar una segunda barra. */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    /* Los mismos 48px que declara el `AppShell`; el `padding-top` que ése
+       reserva en el main sigue en pie aunque su barra esté apagada, así que
+       esta barra cae justo en ese hueco. */
+    height: 3rem;
+    padding-inline: var(--mantine-spacing-md);
+    background: var(--mantine-color-dark-6);
+    border-bottom: 1px solid var(--mantine-color-dark-4);
+    z-index: 201;
+  }
+
+  /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.
+     Práctica y Estadísticas no tienen `MobileNavbar`, así que conservan la
+     marca y el nombre de la app. */
+  body:has(.knd-mobile-navbar) #app-header { display: none; }
+
+  .knd-navbar-back {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    flex: none;
+    border: 1px solid var(--mantine-color-dark-4);
+    border-radius: 7px;
+    background: var(--mantine-color-dark-5);
+    color: var(--mantine-color-text);
+  }
+  .knd-navbar-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .knd-navbar-action { margin-left: auto; flex: none; }
+}

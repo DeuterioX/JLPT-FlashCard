@@ -19,7 +19,15 @@ import { APP_NAME } from '../lib/app-meta';
  * `alt` vacío a propósito: el nombre está al lado, así que un lector de
  * pantalla que anunciara la imagen estaría repitiendo.
  */
-export function Brand({ id, nameId }: { id?: string; nameId?: string }) {
+export function Brand({
+  id, nameId, withName = true,
+}: {
+  id?: string;
+  nameId?: string;
+  /** Sin nombre donde el ancho está peleado y el zorro alcanza para la
+      identidad -la barra de teléfono, que además lleva título propio-. */
+  withName?: boolean;
+}) {
   return (
     <Group id={id} gap={7} wrap="nowrap">
       {/* Se mide por ALTO y no por ancho: el dibujo es más alto que ancho, y
@@ -34,7 +42,7 @@ export function Brand({ id, nameId }: { id?: string; nameId?: string }) {
         priority
         style={{ height: '2.125rem', width: 'auto', flexShrink: 0 }}
       />
-      <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>
+      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>}
     </Group>
   );
 }

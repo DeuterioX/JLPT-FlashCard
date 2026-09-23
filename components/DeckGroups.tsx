@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem, useMantineTheme,
 } from '@mantine/core';
-import { Breadcrumb } from './Breadcrumb';
+import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
@@ -120,20 +120,15 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
 
   return (
     <Stack id="deck-groups-screen" gap="md">
-      <Breadcrumb
+      <Navbar
         id="deck-header"
-        trail={[{ label: 'Mazos', href: '/decks' }]}
+        levels={[{ label: 'Mazos', href: '/decks' }, { label: deck.name }]}
         currentId="deck-name"
-        current={deck.name}
         currentClassName="kana"
-      >
-        {/* En un mazo incluido el punto ocupa el lugar del botón: sin él, la
-            ausencia de acciones se lee como "falta algo" y no como "esto no
-            se edita". */}
-        {readOnly ? <BuiltinDot /> : (
+        action={readOnly ? <BuiltinDot /> : (
           <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); setRenameError(null); setRenameOpen(true); }} />
         )}
-      </Breadcrumb>
+      />
 
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="groups-count">
