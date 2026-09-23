@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -32,23 +32,50 @@ const FIELD_STYLES = {
  * `GroupCards` para que abrir otra carta lo reinicie solo, vía `key`.
  */
 function EditCardModal({
-  card, busy, error, onClose, onSave,
+  card, opened, busy, error, onClose, onSave,
 }: {
-  card: EditorCard;
+  /** Nulo mientras no se editó nada todavía: el modal vive montado igual. */
+  card: EditorCard | null;
+  opened: boolean;
   busy: boolean;
   error: string | null;
   onClose: () => void;
   onSave: (v: { prompt: string; romaji: string; meaning: string; alts: string[] }) => void;
 }) {
-  const [prompt, setPrompt] = useState(card.prompt);
+  const [prompt, setPrompt] = useState('');
   // La primaria va en su campo y el resto como alternativas, para no
   // perderlas al guardar (el PATCH reemplaza la lista entera).
-  const [romaji, setRomaji] = useState(card.answers[0] ?? card.primary);
-  const [alts, setAlts] = useState<string[]>(card.answers.slice(1));
-  const [meaning, setMeaning] = useState(card.meaning ?? '');
+  const [romaji, setRomaji] = useState('');
+  const [alts, setAlts] = useState<string[]>([]);
+  const [meaning, setMeaning] = useState('');
+
+  // El formulario se carga al ABRIRSE, no al montarse. Antes el modal se
+  // montaba recién al abrirlo y se reiniciaba solo por su `key`; ahora vive
+  // montado siempre -es lo que le da a Mantine un estado cerrado del que
+  // salir, y sin eso no hay animación de entrada-, así que el reinicio tiene
+  // que colgar de la apertura. Depender también de `opened` es lo que hace
+  // que reabrir la misma carta descarte lo que se haya tipeado y cancelado.
+  useEffect(() => {
+    if (!opened || !card) return;
+    setPrompt(card.prompt);
+    setRomaji(card.answers[0] ?? card.primary);
+    setAlts(card.answers.slice(1));
+    setMeaning(card.meaning ?? '');
+  }, [opened, card]);
 
   return (
-    <Modal id="edit-card-modal" opened onClose={onClose} title="Editar carta">
+    /* `keepMounted`: sin esto, la PRIMERA apertura sigue sin animar aunque el
+       estado cambie. Mantine sólo crea su `Transition` cuando el modal se
+       abre, y un `Transition` que nace ya abierto no tiene de dónde salir.
+       Manteniéndolo en el DOM -oculto- existe desde antes del cambio y la
+       transición corre también la primera vez. */
+    <Modal
+      id="edit-card-modal"
+      opened={opened}
+      keepMounted
+      onClose={onClose}
+      title="Editar carta"
+    >
       <Stack
         component="form"
         onSubmit={(e: FormEvent) => {
@@ -175,7 +202,14 @@ export function GroupCards({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const deleteRef = useRef(false);
 
-  const [editing, setEditing] = useState<EditorCard | null>(null);
+  // La carta que se edita y si el modal está abierto van SEPARADOS. Antes el
+  // modal se montaba recién al abrirlo, con `opened` fijo en true: Mantine
+  // nunca veía el cambio de cerrado a abierto, así que no había transición
+  // que correr y aparecía de golpe -a diferencia de mover y borrar, que están
+  // siempre montados-. Y al cerrar, la carta se conserva para que el
+  // contenido no desaparezca a mitad de la animación de salida.
+  const [editCard, setEditCard] = useState<EditorCard | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
   const [editBusy, setEditBusy] = useState(false);
   const [editError, setEditError] = useState<string | null>(null);
   const editRef = useRef(false);
@@ -288,12 +322,12 @@ export function GroupCards({
   }
 
   async function saveCard(next: { prompt: string; romaji: string; meaning: string; alts: string[] }) {
-    if (editRef.current || !editing) return;
+    if (editRef.current || !editCard) return;
     editRef.current = true;
     setEditBusy(true);
     setEditError(null);
     try {
-      const res = await fetch(`/api/cards/${editing.id}`, {
+      const res = await fetch(`/api/cards/${editCard.id}`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
@@ -306,7 +340,7 @@ export function GroupCards({
         setEditError(await errorFrom(res));
         return;
       }
-      setEditing(null);
+      setEditOpen(false);
       router.refresh();
     } catch {
       setEditError(NETWORK_ERROR);
@@ -545,7 +579,7 @@ export function GroupCards({
               label={c.prompt}
               canMove={!readOnly && manyGroups}
               tappable={!readOnly}
-              onTap={() => { setEditError(null); setEditing(c); }}
+              onTap={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
               onMove={() => { setMoveError(null); setMoving(c); }}
               onDelete={() => { setDeleteError(null); setDeleting(c); }}
             >
@@ -585,7 +619,7 @@ export function GroupCards({
                     <Button
                       id={`card-edit-${c.id}`}
                       variant="default" size="compact-xs"
-                      onClick={() => { setEditError(null); setEditing(c); }}
+                      onClick={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
                     >
                       Editar
                     </Button>
@@ -671,16 +705,18 @@ export function GroupCards({
         </Stack>
       </Modal>
 
-      {editing && (
-        <EditCardModal
-          key={editing.id}
-          card={editing}
-          busy={editBusy}
-          error={editError}
-          onClose={() => setEditing(null)}
-          onSave={saveCard}
-        />
-      )}
+      {/* Montado SIEMPRE, no sólo cuando hay algo que editar: un modal que
+          nace abierto no tiene estado previo del que salir, y Mantine no
+          anima la entrada. Los de mover y borrar ya estaban así, y por eso
+          ellos sí animaban. */}
+      <EditCardModal
+        card={editCard}
+        opened={editOpen}
+        busy={editBusy}
+        error={editError}
+        onClose={() => setEditOpen(false)}
+        onSave={saveCard}
+      />
 
       {!readOnly && (
         <DictSearchPanel
