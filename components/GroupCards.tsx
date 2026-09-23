@@ -402,11 +402,6 @@ export function GroupCards({
             Renombrar
           </Button>
         )}
-        {!readOnly && (
-          <Button id="dict-search-btn" ml="auto" variant="default" size="compact-sm" onClick={() => setDictOpen(true)}>
-            Buscar en el diccionario
-          </Button>
-        )}
       </Group>
 
       {!readOnly && (
@@ -549,10 +544,20 @@ export function GroupCards({
         </Paper>
       )}
 
+      {/* El buscador vive acá y no en la cabecera: es la misma fila donde la
+          pantalla de grupos pone «+ Nuevo grupo», así que los dos niveles
+          quedan con la misma forma. Y saca de la línea de migas el único
+          control que no entraba en teléfono, que era lo que la dejaba el
+          doble de alta que en las otras pantallas. */}
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="cards-count">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
+        {!readOnly && (
+          <Button id="dict-search-btn" variant="default" size="compact-sm" onClick={() => setDictOpen(true)}>
+            Buscar en el diccionario
+          </Button>
+        )}
         {readOnly && !manyGroups && (
           <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>
             sólo lectura
