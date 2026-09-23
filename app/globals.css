@@ -906,3 +906,20 @@ a.knd-inline-link {
   .knd-dict-kanji { flex-basis: 3.5rem; }
   .knd-dict-romaji { flex-basis: 5rem; }
 }
+
+/* La segunda mitad del arreglo del autocompletado, porque `autocomplete=off`
+   no alcanza: Chrome lo ignora en varios casos y pinta el campo que rellena
+   con su propio fondo -un celeste clarito sobre un tema oscuro-. Ese fondo no
+   se puede cambiar con `background-color`; el único camino es taparlo con una
+   sombra interior enorme, que es lo que hace esto.
+
+   `-webkit-text-fill-color` va aparte porque Chrome también fuerza el color
+   del texto, y `caret-color` porque el cursor quedaría oscuro sobre oscuro. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100rem var(--mantine-color-body) inset;
+  -webkit-text-fill-color: var(--mantine-color-text);
+  caret-color: var(--mantine-color-text);
+}

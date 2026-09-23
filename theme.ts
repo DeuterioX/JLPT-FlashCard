@@ -116,6 +116,15 @@ export const theme = createTheme({
         },
       }),
     },
+    // Ningún campo de esta app tiene algo que el navegador pueda adivinar:
+    // no hay login, y lo que se escribe son palabras en japonés y nombres de
+    // mazos. El autocompletado sólo molesta -y, cuando actúa, Chrome pinta el
+    // campo con SU fondo claro, que sobre el tema oscuro se ve como una caja
+    // iluminada de la nada-. Se declara una vez acá en vez de repetirlo en
+    // los quince campos que hay.
+    TextInput: {
+      defaultProps: { autoComplete: 'off' },
+    },
     Modal: {
       // Centrado vertical. Mantine los ancla arriba por defecto, y en una
       // pantalla alta el diálogo queda pegado al techo, lejos de donde está
