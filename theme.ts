@@ -117,6 +117,10 @@ export const theme = createTheme({
       }),
     },
     Modal: {
+      // Centrado vertical. Mantine los ancla arriba por defecto, y en una
+      // pantalla alta el diálogo queda pegado al techo, lejos de donde está
+      // mirando quien lo abrió.
+      defaultProps: { centered: true },
       styles: {
         content: { backgroundColor: 'var(--mantine-color-dark-6)' },
         header: { backgroundColor: 'var(--mantine-color-dark-6)' },

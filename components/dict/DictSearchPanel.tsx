@@ -97,8 +97,19 @@ export function DictSearchPanel({
     }
   }
 
+  // Ancho: el mockup lo dibuja ocupando el stage entero, no una caja
+  // angosta -las filas tienen kana, kanji, romaji, glosa, categoría y un
+  // botón, y con `size="lg"` la glosa se truncaba a la mitad-. El valor
+  // para teléfono lo baja `.knd-dict-modal` en globals.css, que es donde
+  // puede haber una media query.
   return (
-    <Modal opened={opened} onClose={onClose} size="lg" title="Buscar en el diccionario">
+    <Modal
+      opened={opened}
+      onClose={onClose}
+      size="calc(100vw - 6rem)"
+      className="knd-dict-modal"
+      title="Buscar en el diccionario"
+    >
       <Stack gap="sm">
         <TextInput
           id="dict-q"
@@ -106,7 +117,11 @@ export function DictSearchPanel({
           value={q}
           onChange={(e) => setQ(e.currentTarget.value)}
           autoFocus
-          rightSection={<Text size="xs" c="dimmed">{loading ? '…' : hits.length}</Text>}
+          rightSection={
+            <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+              {loading ? '…' : hits.length}
+            </Text>
+          }
         />
 
         {searchError && <Text c="shu.6" size="sm">{searchError}</Text>}
@@ -130,6 +145,14 @@ export function DictSearchPanel({
                 <Text size="sm" c="dimmed" truncate>{h.gloss}</Text>
                 {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">en inglés</Badge>}
               </Group>
+              {/* La categoría gramatical, que el diseño muestra (`.pos`) y
+                  acá faltaba: el dato ya venía en `DictHit`, sin usar. En
+                  cursiva y apagada, como una acotación al margen. */}
+              {h.pos && (
+                <Text size="xs" c="dark.3" fs="italic" style={{ whiteSpace: 'nowrap' }}>
+                  {h.pos}
+                </Text>
+              )}
               {addedIds.has(h.id) ? (
                 <Text size="xs" c="jade.6">Agregada</Text>
               ) : (

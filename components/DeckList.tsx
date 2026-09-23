@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, useMantineTheme,
@@ -189,7 +189,14 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
       </Paper>
 
       <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title="Nuevo mazo">
-        <Stack>
+        <Stack
+          component="form"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (!name.trim() || createBusy) return;
+            void create();
+          }}
+        >
           <TextInput
             id="deck-name" label="Nombre" placeholder="Comidas"
             value={name} onChange={(e) => setName(e.currentTarget.value)}
@@ -201,7 +208,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
           />
           {createError && <Text c="shu.6" size="sm">{createError}</Text>}
-          <Button id="create-deck-btn" onClick={create} disabled={!name.trim() || createBusy} loading={createBusy}>
+          <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createBusy} loading={createBusy}>
             Crear
           </Button>
         </Stack>

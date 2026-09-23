@@ -49,9 +49,40 @@ function EditCardModal({
 
   return (
     <Modal id="edit-card-modal" opened onClose={onClose} title="Editar carta">
-      <Stack>
+      <Stack
+        component="form"
+        onSubmit={(e: FormEvent) => {
+          e.preventDefault();
+          if (!prompt.trim() || !romaji.trim() || busy) return;
+          onSave({ prompt, romaji, meaning, alts });
+        }}
+      >
         <TextInput id="edit-kana" label="Kana" value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)} />
         <TextInput id="edit-romaji" label="Romaji" value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)} />
+        {/* Los mismos dos botones del alta, y por lo mismo: acá también se
+            puede querer escribir el kana sin teclado japonés. Debajo del
+            romaji y después de él en el DOM, así el tabulador va romaji →
+            hiragana → katakana → resto. */}
+        <div className="knd-kana-conv">
+          <Button
+            id="edit-kana-hiragana"
+            variant="default" size="compact-sm"
+            leftSection={<span className="kana">あ</span>}
+            disabled={!romaji.trim()}
+            onClick={() => setPrompt(toKana(romaji, 'hiragana'))}
+          >
+            Hiragana
+          </Button>
+          <Button
+            id="edit-kana-katakana"
+            variant="default" size="compact-sm"
+            leftSection={<span className="kana">ア</span>}
+            disabled={!romaji.trim()}
+            onClick={() => setPrompt(toKana(romaji, 'katakana'))}
+          >
+            Katakana
+          </Button>
+        </div>
         {alts.map((a, i) => (
           <Group key={i} gap="xs" wrap="nowrap" align="flex-end">
             <TextInput
@@ -73,13 +104,19 @@ function EditCardModal({
         <TextInput id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
         {/* Al final, después de los campos, como en el formulario de alta:
             es una acción sobre el formulario, no un campo más. */}
-        <Anchor component="button" type="button" size="xs" c="dimmed" onClick={() => setAlts([...alts, ''])}>
+        <Anchor
+          className="knd-inline-link" component="button" type="button"
+          size="xs" underline="always" onClick={() => setAlts([...alts, ''])}
+        >
           + romanización alternativa
         </Anchor>
         {error && <Text c="shu.6" size="sm">{error}</Text>}
+        {/* `type="submit"` y no un `onClick`: sin un botón de submit, un form
+            con más de un campo no se manda con Enter -esa es la regla de
+            "envío implícito" del HTML-, y el Enter del modal no hacía nada. */}
         <Button
           id="edit-card-save"
-          onClick={() => onSave({ prompt, romaji, meaning, alts })}
+          type="submit"
           disabled={!prompt.trim() || !romaji.trim() || busy}
           loading={busy}
         >
@@ -125,6 +162,7 @@ export function GroupCards({
   const [meaning, setMeaning] = useState('');
   const [alts, setAlts] = useState<string[]>([]);
   const [romajiTouched, setRomajiTouched] = useState(false);
+  const kanaRef = useRef<HTMLInputElement>(null);
   const [addBusy, setAddBusy] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
   const addRef = useRef(false);
@@ -150,6 +188,21 @@ export function GroupCards({
   function onPrompt(v: string) {
     setPrompt(v);
     if (!romajiTouched) setRomaji(toRomaji(v));
+  }
+
+  /**
+   * El autocompletado se apaga cuando hay algo escrito a mano en el romaji y
+   * se vuelve a encender cuando el campo queda vacío.
+   *
+   * Antes la marca era de una sola vía: tocar el romaji una vez la dejaba
+   * encendida hasta agregar la carta, así que el kana no volvía a completar
+   * nada en toda la sesión de ese formulario -y parecía roto-. Con la regla
+   * atada al CONTENIDO y no al hecho de haber tipeado, vaciar el campo
+   * alcanza para recuperarlo.
+   */
+  function onRomaji(v: string) {
+    setRomaji(v);
+    setRomajiTouched(v.trim() !== '');
   }
 
   async function renameGroup() {
@@ -201,6 +254,9 @@ export function GroupCards({
       setMeaning('');
       setAlts([]);
       setRomajiTouched(false);
+      // El foco vuelve al principio del formulario: agregar una palabra casi
+      // siempre viene seguido de agregar la siguiente.
+      kanaRef.current?.focus();
       router.refresh();
     } catch {
       setAddError(NETWORK_ERROR);
@@ -352,6 +408,7 @@ export function GroupCards({
                 los escribe inline y un ancho inline le gana a la grilla. */}
             <div className="knd-addform">
               <TextInput
+                ref={kanaRef}
                 id="nueva-kana" placeholder="えび"
                 leftSection={<span className="knd-field-label">Kana</span>}
                 leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
@@ -368,7 +425,7 @@ export function GroupCards({
                   leftSection={<span className="knd-field-label">Romaji</span>}
                   leftSectionWidth={rem(58)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                   value={romaji}
-                  onChange={(e) => { setRomajiTouched(true); setRomaji(e.currentTarget.value); }}
+                  onChange={(e) => onRomaji(e.currentTarget.value)}
                 />
                 {/* El camino inverso al que ya existía: el kana completa el
                     romaji solo, y esto completa el kana desde el romaji, para
@@ -447,7 +504,8 @@ export function GroupCards({
             <Group gap="0.375rem" wrap="wrap">
               <Text size="xs" c="dimmed">El romaji se completa solo desde el kana. Editalo si hace falta.</Text>
               <Anchor
-                id="add-alt-romaji" component="button" type="button" size="xs" c="dimmed"
+                id="add-alt-romaji" className="knd-inline-link" component="button" type="button"
+                size="xs" underline="always"
                 onClick={() => setAlts([...alts, ''])}
               >
                 + romanización alternativa
@@ -495,7 +553,10 @@ export function GroupCards({
                   cambiar entre escritorio y teléfono, y un `style` inline no
                   puede llevar una media query. */}
               <Group gap={12} wrap="nowrap" style={{ padding: '0.625rem 0.8125rem' }}>
-                <Text className="kana knd-card-kana" c="dimmed">{c.prompt}</Text>
+                {/* El kana NO va atenuado: es el dato principal de la fila, y
+                    el mockup lo deja en el color de texto normal -son el
+                    romaji y el significado los que van en `--a-dim`-. */}
+                <Text className="kana knd-card-kana">{c.prompt}</Text>
                 <Text className="romaji knd-card-romaji" size="sm" c="dimmed">{c.primary}</Text>
                 <Text className="knd-card-meaning" size="sm" c="dimmed">{c.meaning ?? ''}</Text>
                 {/* Un mazo incluido no trae acciones por carta: la pantalla es
@@ -538,13 +599,20 @@ export function GroupCards({
       </Paper>
 
       <Modal id="rename-group-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title="Renombrar grupo">
-        <Stack>
+        <Stack
+          component="form"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (!renameValue.trim() || renameBusy) return;
+            void renameGroup();
+          }}
+        >
           <TextInput
             id="rename-group-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
           {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
-          <Button onClick={renameGroup} disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+          <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
             Guardar
           </Button>
         </Stack>

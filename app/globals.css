@@ -835,3 +835,28 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
      que sobra y las otras dos conservan la suya. */
   .knd-card-meaning { flex-basis: 0; }
 }
+
+/* Un link dentro de un formulario -«+ romanización alternativa»-. Atenuado y
+   sin subrayar no se distinguía del texto de ayuda que tiene al lado: los dos
+   eran gris chico. Va subrayado siempre, que es lo que lo declara accionable,
+   y al pasar por encima sube un escalón, de `--a-dimmer` a `--a-dim`, igual
+   que las migas. */
+button.knd-inline-link,
+a.knd-inline-link {
+  color: var(--mantine-color-dark-3);
+}
+@media (hover: hover) {
+  button.knd-inline-link,
+  a.knd-inline-link { transition: color 120ms ease; }
+  button.knd-inline-link:hover,
+  a.knd-inline-link:hover { color: var(--mantine-color-dark-2); }
+}
+
+/* El buscador del diccionario ocupa casi toda la ventana en escritorio, y en
+   teléfono la ventana entera: sus filas llevan kana, kanji, romaji, glosa,
+   categoría y un botón, y cualquier ancho menor deja la glosa cortada. El
+   `size` del componente fija `--modal-size`; esto sólo lo corrige para el
+   tramo donde no puede sobrar margen. */
+@media (max-width: 640px) {
+  .knd-dict-modal { --modal-size: 100vw; }
+}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -202,26 +202,40 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       </Paper>
 
       <Modal id="rename-deck-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title="Renombrar mazo">
-        <Stack>
+        <Stack
+          component="form"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (!renameValue.trim() || renameBusy) return;
+            void renameDeck();
+          }}
+        >
           <TextInput
             id="rename-deck-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
           {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
-          <Button onClick={renameDeck} disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+          <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
             Guardar
           </Button>
         </Stack>
       </Modal>
 
       <Modal id="new-group-modal" opened={newOpen} onClose={() => setNewOpen(false)} title="Nuevo grupo">
-        <Stack>
+        <Stack
+          component="form"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (!newName.trim() || newBusy) return;
+            void createGroup();
+          }}
+        >
           <TextInput
             id="new-group-input" label="Nombre" placeholder="Verdura"
             value={newName} onChange={(e) => setNewName(e.currentTarget.value)}
           />
           {newError && <Text c="shu.6" size="sm">{newError}</Text>}
-          <Button onClick={createGroup} disabled={!newName.trim() || newBusy} loading={newBusy}>
+          <Button type="submit" disabled={!newName.trim() || newBusy} loading={newBusy}>
             Crear
           </Button>
         </Stack>
