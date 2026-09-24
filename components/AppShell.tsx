@@ -107,7 +107,19 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             component={Link}
             href={l.href}
             underline="never"
-            style={{ flex: 1, textAlign: 'center' }}
+            /* Columna centrada y no `text-align: center`: dos de los tres
+               íconos son SVG en bloque -tienen que serlo para que la caja de
+               texto no les sume el descendente de la fuente y desalinee la
+               etiqueta de abajo-, y a un bloque con ancho propio el
+               `text-align` del contenedor no lo centra. Centrar es trabajo de
+               la celda, no del ícono. */
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
             c={isActive(path, l.href) ? 'jade.6' : 'dimmed'}
           >
             <Text className="kana" size="lg" lh={1.2}>{l.glyph}</Text>
