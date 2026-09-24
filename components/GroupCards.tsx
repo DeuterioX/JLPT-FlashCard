@@ -438,9 +438,15 @@ export function GroupCards({
                 aria-label="Buscar en el diccionario"
                 onClick={() => setDictOpen(true)}
                 leftSection={(
+                  /* 18px y no 14: a 14 la lupa quedaba más chica que la
+                     altura de las mayúsculas de la etiqueta, que va en 14px
+                     negrita. Un círculo con cola tiene menos masa visual que
+                     una letra del mismo cuerpo, así que para leerse a la par
+                     tiene que ser más grande. El trazo baja a 1.7 para que
+                     al agrandarse no pese más que el texto. */
                   <svg
-                    width="14" height="14" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"
+                    width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
                     aria-hidden="true"
                   >
                     <circle cx="10.6" cy="10.6" r="6.4" />
