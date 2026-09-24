@@ -3,7 +3,8 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DeckIcon } from './DeckIcon';
+import { CollectionFill } from 'react-bootstrap-icons';
+import { Icon } from './Icon';
 import {
   Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, useMantineTheme,
 } from '@mantine/core';
@@ -45,14 +46,13 @@ function subtitleFor(d: DeckSummary): string {
 /**
  * Los dos mazos incluidos se muestran con SU kana, que es de qué son: あ para
  * Hiragana, ア para Katakana. Ahí el carácter no es un ícono, es el contenido.
- * Cualquier otro mazo lleva el dibujo de las cartas, el mismo de la pestaña
- * Mazos: es el mismo concepto, así que el mismo dibujo. Antes era el glifo
- * `▤`, que se leía como una tabla (ver `DeckIcon`).
+ * Cualquier otro mazo lleva el mismo ícono que la pestaña Mazos: es el mismo
+ * concepto, así que el mismo dibujo.
  */
 function iconFor(d: DeckSummary): React.ReactNode {
   if (d.isBuiltin && d.name === 'Hiragana') return 'あ';
   if (d.isBuiltin && d.name === 'Katakana') return 'ア';
-  return <DeckIcon />;
+  return <Icon glyph={CollectionFill} rem={1.35} />;
 }
 
 export function DeckList({ decks }: { decks: DeckSummary[] }) {

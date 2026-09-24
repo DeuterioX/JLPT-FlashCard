@@ -10,7 +10,7 @@ import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
-import { Search, X } from 'lucide-react';
+import { Search, X } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeCardRow } from './SwipeCardRow';

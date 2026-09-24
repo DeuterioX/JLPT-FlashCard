@@ -1,6 +1,6 @@
 import { Group, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { Brand } from './Brand';
 

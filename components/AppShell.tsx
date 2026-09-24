@@ -3,18 +3,25 @@
 import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { ChartPie } from 'lucide-react';
+import { BarChartFill, CollectionFill, Translate } from 'react-bootstrap-icons';
 import { Brand } from './Brand';
-import { DeckIcon } from './DeckIcon';
 import { Icon } from './Icon';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
 // `nav-mobile-stats`, ...), para poder referirse a uno puntual sin depender
 // de su posición ni de su texto visible.
 const LINKS = [
-  { href: '/', label: 'Práctica', glyph: 'あ', id: 'practice' },
-  { href: '/decks', label: 'Mazos', glyph: <DeckIcon />, id: 'decks' },
-  { href: '/stats', label: 'Estadísticas', glyph: <Icon glyph={ChartPie} rem={1.35} />, id: 'stats' },
+  { href: '/', label: 'Práctica', glyph: (
+      /* Bootstrap no es parejo consigo mismo: `Translate` llena las 16
+         unidades enteras del viewBox mientras que `CollectionFill` y
+         `BarChartFill` llenan 14, así que al lado se veía un 14% más grande.
+         El viewBox agrandado y centrado le da el mismo aire que los otros
+         -16 de tinta sobre 18,29 es el mismo 87,5%- sin tocar la caja de
+         21,6px, que es la que mantiene las tres etiquetas a la misma altura. */
+      <Icon glyph={Translate} rem={1.35} viewBox="-1.14 -1.14 18.29 18.29" />
+    ), id: 'practice' },
+  { href: '/decks', label: 'Mazos', glyph: <Icon glyph={CollectionFill} rem={1.35} />, id: 'decks' },
+  { href: '/stats', label: 'Estadísticas', glyph: <Icon glyph={BarChartFill} rem={1.35} />, id: 'stats' },
 ];
 
 /**

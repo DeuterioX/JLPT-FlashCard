@@ -1,5 +1,5 @@
 import { Button } from '@mantine/core';
-import { Pencil } from 'lucide-react';
+import { PencilFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 
 /**
@@ -30,7 +30,7 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
       onClick={onClick}
     >
       <span className="knd-rename-label">Renombrar</span>
-      <Icon glyph={Pencil} rem={0.875} className="knd-rename-icon" />
+      <Icon glyph={PencilFill} rem={0.875} className="knd-rename-icon" />
     </Button>
   );
 }
