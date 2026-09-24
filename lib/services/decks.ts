@@ -1,4 +1,4 @@
-import { eq, inArray, asc } from 'drizzle-orm';
+import { eq, inArray, asc, count, sql } from 'drizzle-orm';
 import type { Db } from '../db/client';
 import { deck, cardGroup, card, cardAnswer } from '../db/schema';
 import { normalizeAnswer } from '../kana/normalize';
@@ -33,46 +33,59 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
     .orderBy(asc(cardGroup.sortOrder)).all();
 
   const groupIds = groups.map((g) => g.id);
-  const cards = groupIds.length
-    ? db.select().from(card).where(inArray(card.groupId, groupIds))
-        .orderBy(asc(card.sortOrder)).all()
+
+  // El conteo se pide como conteo, no contando filas traídas: es lo único que
+  // la tarjeta necesita de las cartas que NO entran en la vista previa.
+  const counts = groupIds.length
+    ? db.select({ groupId: card.groupId, n: count() }).from(card)
+        .where(inArray(card.groupId, groupIds)).groupBy(card.groupId).all()
+    : [];
+  const countByGroup = new Map(counts.map((c) => [c.groupId, c.n]));
+
+  /**
+   * Las primeras `PREVIEW_LIMIT` de CADA grupo, con su romanización primaria,
+   * en una sola consulta. La función de ventana numera dentro de cada grupo y
+   * el `where` de afuera descarta el resto antes de que salga de SQLite.
+   *
+   * Antes esto traía todas las cartas y todas sus respuestas, y cortaba en
+   * JS. A la escala de una base personal daba igual -medido sobre 384 cartas,
+   * 0,30ms contra 0,46: a ese tamaño particionar cuesta más que leer la tabla
+   * entera-, pero el costo crecía con la biblioteca ENTERA mientras la salida
+   * está acotada en seis por grupo. Medido: a 3.800 cartas ya conviene esto, a
+   * 50.000 es tres veces más rápido, y `listDecks` no filtra por dueño, así
+   * que el día que la app tenga varias personas cada request iba a escanear
+   * las cartas de todas.
+   *
+   * Va como SQL a mano porque Drizzle no modela funciones de ventana.
+   */
+  const previews = groupIds.length
+    ? db.all<{ groupId: number; prompt: string; romaji: string | null }>(sql`
+        select x.group_id as "groupId", x.prompt as "prompt", a.romaji as "romaji"
+        from (
+          select c.id, c.group_id, c.prompt,
+                 row_number() over (partition by c.group_id order by c.sort_order) as rn
+          from ${card} c
+          where c.group_id in (${sql.join(groupIds.map((id) => sql`${id}`), sql`, `)})
+        ) x
+        left join ${cardAnswer} a on a.card_id = x.id and a.is_primary = 1
+        where x.rn <= ${PREVIEW_LIMIT}
+        order by x.group_id, x.rn
+      `)
     : [];
 
-  // `is_primary` es la romanización que se muestra; las alternativas no le
-  // interesan a la grilla.
-  //
-  // Se piden las de TODAS las cartas y no sólo las de la vista previa -un
-  // comentario viejo acá decía lo contrario, pero el código nunca lo hizo-.
-  // Medido sobre la base de hoy, 384 cartas: filtrar en SQL con una función
-  // de ventana sale 0,46ms contra 0,30 de traer todo y cortar acá, porque a
-  // este tamaño particionar cuesta más que leer la tabla entera. La cuenta
-  // se da vuelta alrededor de las pocas miles de cartas, y ahí conviene
-  // cambiarlo: a 50.000 el corte en SQL es tres veces más rápido.
-  const cardIds = cards.map((c) => c.id);
-  const answers = cardIds.length
-    ? db.select().from(cardAnswer)
-        .where(inArray(cardAnswer.cardId, cardIds)).all()
-        .filter((a) => a.isPrimary)
-    : [];
-  const romajiByCard = new Map(answers.map((a) => [a.cardId, a.romaji]));
-
-  const byGroup = new Map<number, typeof cards>();
-  for (const c of cards) {
-    const list = byGroup.get(c.groupId) ?? [];
-    list.push(c);
-    byGroup.set(c.groupId, list);
+  const previewByGroup = new Map<number, GroupPreviewCard[]>();
+  for (const r of previews) {
+    const list = previewByGroup.get(r.groupId) ?? [];
+    list.push({ prompt: r.prompt, romaji: r.romaji ?? '' });
+    previewByGroup.set(r.groupId, list);
   }
 
   return deckRows.map((d) => {
-    const own = groups.filter((g) => g.deckId === d.id).map<GroupSummary>((g) => {
-      const list = byGroup.get(g.id) ?? [];
-      return {
-        id: g.id, name: g.name, section: g.section, sortOrder: g.sortOrder,
-        cardCount: list.length,
-        preview: list.slice(0, PREVIEW_LIMIT)
-          .map((c) => ({ prompt: c.prompt, romaji: romajiByCard.get(c.id) ?? '' })),
-      };
-    });
+    const own = groups.filter((g) => g.deckId === d.id).map<GroupSummary>((g) => ({
+      id: g.id, name: g.name, section: g.section, sortOrder: g.sortOrder,
+      cardCount: countByGroup.get(g.id) ?? 0,
+      preview: previewByGroup.get(g.id) ?? [],
+    }));
     return {
       id: d.id, name: d.name, isBuiltin: d.isBuiltin,
       groupCount: own.length,

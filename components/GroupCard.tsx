@@ -125,7 +125,15 @@ export function GroupCard({
             prendida, `dark.3` cuando está apagada-, ya no el "dimmed"
             genérico: así queda igual de vivo que el resto de la
             tarjeta, no más apagado que ella. */}
-        <Text size="11px" lh={1.4} c={nameColor} className="kana" style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
+        {/* `textAlign` además del `align="center"` del Stack: ese centra la
+            CAJA, y un nombre que envuelve hace que la caja pase a ocupar el
+            ancho entero -con lo que deja de haber nada que centrar- y el
+            texto de adentro queda pegado a la izquierda. Pasa con «Unidad 3 -
+            Gran almacén» y con «Expresiones de uso en clase». */}
+        <Text
+          size="11px" lh={1.4} c={nameColor} className="kana"
+          style={{ wordBreak: 'break-word', maxWidth: '100%', textAlign: 'center' }}
+        >
           {group.name}
         </Text>
 
