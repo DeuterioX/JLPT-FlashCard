@@ -15,6 +15,14 @@
  *
  * El あ sí es texto, con la misma Zen Kaku Gothic New del resto del kana:
  * dibujarlo en trazos a 22px no le haría justicia.
+ *
+ * Las coordenadas están calzadas contra la convención de Lucide, que es de
+ * dónde salen los demás íconos: el dibujo ocupa 21,55 de las 24 unidades del
+ * `viewBox` (el 90%) y va CENTRADO. El dibujo original ocupaba 20,33 y
+ * además estaba 0,87 unidades alto, así que al lado de uno de la librería
+ * -en la barra de pestañas, contra el de Estadísticas- se veía más chico y
+ * pegado al borde de arriba. Medido con `getBBox()` más medio trazo de cada
+ * lado; si se toca alguna de estas cifras, hay que volver a medirlo.
  */
 export function DeckIcon({ rem = 1.35 }: { rem?: number }) {
   return (
@@ -39,13 +47,13 @@ export function DeckIcon({ rem = 1.35 }: { rem?: number }) {
 
           Va por `style` y no por el atributo `fill`, porque un atributo de
           presentación de SVG no resuelve `var()`. */}
-      <rect x="8.25" y="3" width="11.5" height="15" rx="2" transform="rotate(15 14 10.5)" />
+      <rect x="8.01" y="3.34" width="12.25" height="15.98" rx="2.13" transform="rotate(15 14.13 11.33)" />
       <rect
-        x="2.5" y="5" width="12.5" height="15.5" rx="2"
+        x="1.88" y="5.47" width="13.31" height="16.51" rx="2.13"
         style={{ fill: 'var(--knd-icon-bg, var(--mantine-color-dark-6))' }}
       />
       <text
-        x="8.75" y="16.2" textAnchor="middle" fontSize="10.5"
+        x="8.54" y="17.4" textAnchor="middle" fontSize="11.2"
         fill="currentColor" stroke="none" className="kana"
       >
         あ
