@@ -1047,11 +1047,9 @@ input:-webkit-autofill:active {
 .knd-rename-icon { display: none; }
 @media (max-width: 640px) {
   .knd-rename-label { display: none; }
-  .knd-rename-icon {
-    display: inline;
-    font-size: 0.9375rem;
-    line-height: 1;
-  }
+  /* `inline-flex` y no `inline`: adentro hay un SVG en bloque, y en línea la
+     caja de texto del span le sumaría el descendente de la fuente. */
+  .knd-rename-icon { display: inline-flex; }
   .knd-rename-btn { padding-inline: 0.5rem; }
 }
 

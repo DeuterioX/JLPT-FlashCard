@@ -30,7 +30,13 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
       onClick={onClick}
     >
       <span className="knd-rename-label">Renombrar</span>
-      <Icon glyph={PencilFill} rem={0.875} className="knd-rename-icon" />
+      {/* El ícono va envuelto en un span y la clase que lo prende y apaga va
+          en el SPAN, no en el SVG: `Icon` escribe su `display` como estilo
+          inline, y un estilo inline le gana a la hoja de estilos. Con la
+          clase en el SVG, en escritorio se veían la etiqueta Y el ícono. */}
+      <span className="knd-rename-icon">
+        <Icon glyph={PencilFill} rem={0.875} />
+      </span>
     </Button>
   );
 }

@@ -446,7 +446,7 @@ export function GroupCards({
                      una letra del mismo cuerpo, así que para leerse a la par
                      tiene que ser más grande. El trazo baja a 1.7 para que
                      al agrandarse no pese más que el texto. */
-                  <Icon glyph={Search} rem={1.125} />
+                  <Icon glyph={Search} rem={0.875} />
                 )}
               >
                 {/* Dos etiquetas y el CSS elige cuál se ve, como en
