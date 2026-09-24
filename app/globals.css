@@ -1115,6 +1115,11 @@ input:-webkit-autofill:active {
    el nombre del grupo, que es lo que dice en qué grupo estás cargando. El
    nombre accesible lo da el `aria-label`, así que la forma corta no pierde
    información para un lector de pantalla. */
+/* Mantine separa la sección izquierda del texto con 10px. Con la lupa de
+   Bootstrap, que es un dibujo relleno y compacto, ese hueco es más grande que
+   el que deja el botón contra su propio borde -5,33px-, y el ícono queda
+   flotando lejos de la palabra que rotula. */
+.knd-dict-btn .mantine-Button-section { margin-right: 0.3125rem; }
 .knd-dict-label-short { display: none; }
 .knd-dict-btn { flex: none; }
 /* El título cede el ancho: es lo único de la fila que se puede recortar sin
