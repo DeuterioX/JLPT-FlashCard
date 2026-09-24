@@ -30,8 +30,10 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
       <span className="knd-rename-label">Renombrar</span>
       <svg
         className="knd-rename-icon"
-        width="14"
-        height="14"
+        /* En `rem` y no en px, para que acompañe al resto cuando la app escala
+           subiendo el `font-size` de la raíz. Son los mismos 14px a escala
+           100%. */
+        style={{ width: '0.875rem', height: '0.875rem' }}
         viewBox="0 0 16 16"
         fill="none"
         stroke="currentColor"

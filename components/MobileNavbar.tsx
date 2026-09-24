@@ -36,9 +36,13 @@ export function MobileNavbar({
           underline="never"
         >
           <svg
-            width="15" height="15" viewBox="0 0 16 16" fill="none"
+            /* En `rem` y no en px, para que acompañe al resto cuando la app
+               escala subiendo el `font-size` de la raíz. Son los mismos 15px
+               a escala 100%. */
+            viewBox="0 0 16 16" fill="none"
             stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
             aria-hidden="true"
+            style={{ width: '0.9375rem', height: '0.9375rem' }}
           >
             <path d="M10 3 5 8l5 5" />
           </svg>
