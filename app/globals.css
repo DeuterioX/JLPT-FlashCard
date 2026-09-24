@@ -1110,3 +1110,25 @@ input:-webkit-autofill:active {
   }
   .knd-navbar-action { margin-left: auto; flex: none; }
 }
+
+/* El buscador del diccionario, en el encabezado del panel de «nueva
+   palabra». Dos etiquetas en el DOM y el CSS elige cuál se ve, igual que
+   `RenameButton`: en 390px la etiqueta entera se come el ancho que necesita
+   el nombre del grupo, que es lo que dice en qué grupo estás cargando. El
+   nombre accesible lo da el `aria-label`, así que la forma corta no pierde
+   información para un lector de pantalla. */
+.knd-dict-label-short { display: none; }
+.knd-dict-btn { flex: none; }
+/* El título cede el ancho: es lo único de la fila que se puede recortar sin
+   perder una acción, y el nombre del grupo ya está arriba en la barra. */
+.knd-addform-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 640px) {
+  .knd-dict-label-full { display: none; }
+  .knd-dict-label-short { display: inline; }
+}

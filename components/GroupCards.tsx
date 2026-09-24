@@ -419,9 +419,42 @@ export function GroupCards({
               void add();
             }}
           >
-            <Text id="new-word-title" size="0.71875rem" lh={1.4} fw={600}>
-              {`Nueva palabra en «${group.name}»`}
-            </Text>
+            {/* El buscador vive en el encabezado de ESTE panel porque lo que
+                hace es llenar este formulario. Colgaba de la fila de «N
+                cartas», que es el encabezado de la LISTA, y ahí se leía como
+                «buscar entre estas N» -lo contrario de lo que hace, que es
+                agregar una que no está-. Acá además no gasta alto: la fila
+                del título estaba entera libre. */}
+            <Group gap={10} wrap="nowrap">
+              <Text id="new-word-title" className="knd-addform-title" size="0.71875rem" lh={1.4} fw={600}>
+                {`Nueva palabra en «${group.name}»`}
+              </Text>
+              <Button
+                id="dict-search-btn"
+                className="knd-dict-btn"
+                variant="default"
+                size="compact-sm"
+                type="button"
+                aria-label="Buscar en el diccionario"
+                onClick={() => setDictOpen(true)}
+                leftSection={(
+                  <svg
+                    width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" strokeWidth="1.9" strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="10.6" cy="10.6" r="6.4" />
+                    <path d="m15.4 15.4 4.4 4.4" />
+                  </svg>
+                )}
+              >
+                {/* Dos etiquetas y el CSS elige cuál se ve, como en
+                    `RenameButton`: en 390px «Buscar en el diccionario» se
+                    come el ancho que necesita el nombre del grupo. */}
+                <span className="knd-dict-label-full">Buscar en el diccionario</span>
+                <span className="knd-dict-label-short">Diccionario</span>
+              </Button>
+            </Group>
             {/* `.field` del diseño: el rótulo va ADENTRO de la caja, con
                 `leftSection`, así el borde y el foco siguen siendo del
                 `TextInput`. El rótulo puede ir en 9px sin riesgo; el que no
@@ -542,20 +575,10 @@ export function GroupCards({
         </Paper>
       )}
 
-      {/* El buscador vive acá y no en la cabecera: es la misma fila donde la
-          pantalla de grupos pone «+ Nuevo grupo», así que los dos niveles
-          quedan con la misma forma. Y saca de la línea de migas el único
-          control que no entraba en teléfono, que era lo que la dejaba el
-          doble de alta que en las otras pantallas. */}
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
         <SectionLabel id="cards-count">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
-        {!readOnly && (
-          <Button id="dict-search-btn" variant="default" size="compact-sm" onClick={() => setDictOpen(true)}>
-            Buscar en el diccionario
-          </Button>
-        )}
         {readOnly && !manyGroups && (
           <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>
             sólo lectura
