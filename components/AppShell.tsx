@@ -119,11 +119,20 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               flexDirection: 'column',
               alignItems: 'center',
               justifyContent: 'center',
+              /* El `gap: 1px` del mockup. Es poco, pero con el `lh` de abajo
+                 es lo que separa la etiqueta del ícono. */
+              gap: '0.0625rem',
             }}
             c={isActive(path, l.href) ? 'jade.6' : 'dimmed'}
           >
             <Text className="kana" size="lg" lh={1.2}>{l.glyph}</Text>
-            <Text size="11px">{l.label}</Text>
+            {/* El `lh` explícito no es decorativo: Mantine no resuelve un
+                `size` en string libre contra `theme.lineHeights` y devuelve
+                una caja de línea MENOR que la letra -medido, 11px de caja
+                para 11px de letra, o sea interlineado 1-, que le come el
+                descendente a «Práctica» y la pega al ícono. El mockup usa
+                1.3. Es el mismo problema que ya está anotado en `ListRow`. */}
+            <Text size="11px" lh={1.3}>{l.label}</Text>
           </Anchor>
         ))}
       </Box>
