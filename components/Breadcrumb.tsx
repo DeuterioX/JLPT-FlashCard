@@ -1,4 +1,4 @@
-import { Group, Text, Anchor, rem } from '@mantine/core';
+import { Group, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
 
 export type Crumb = { label: string; href: string };
@@ -49,12 +49,13 @@ export function Breadcrumb({
           <Text className="knd-crumb-sep" c="dark.3" size="sm">/</Text>
         </Group>
       ))}
+      {/* Mismo tamaño y mismo peso que los niveles de arriba: lo que lo
+          distingue es que no es un enlace y que conserva el color de texto
+          pleno, mientras que los de arriba van en `dark.3`. */}
       <Text
         id={currentId}
         className={`knd-crumb-current${currentClassName ? ` ${currentClassName}` : ''}`}
-        fw={700}
-        size={rem(15)}
-        lh={1.4}
+        size="sm"
       >
         {current}
       </Text>
