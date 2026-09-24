@@ -4,7 +4,12 @@ import { deck, cardGroup, card, cardAnswer } from '../db/schema';
 import { normalizeAnswer } from '../kana/normalize';
 import { notFound, forbidden, badRequest } from './errors';
 
-/** Un grupo con 6 cartas o menos se previsualiza; con más, se muestra el conteo. */
+/**
+ * Cuántas cartas previsualiza una tarjeta de grupo. Un grupo que no lo pasa se
+ * ve entero; uno que sí, muestra las primeras seis y cuántas quedan. Antes,
+ * pasado el límite no mostraba NINGUNA -sólo el conteo-, y una Unidad de 30
+ * palabras quedaba como una tarjeta vacía al lado de las de kana.
+ */
 const PREVIEW_LIMIT = 6;
 
 export type GroupPreviewCard = { prompt: string; romaji: string };
@@ -33,10 +38,16 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
         .orderBy(asc(card.sortOrder)).all()
     : [];
 
-  // Solo hace falta el romaji de las cartas que van a mostrarse en la vista
-  // previa (grupos de ≤6 cartas): pedirlo para las demás sería trabajo de
-  // más. is_primary=1 es la que se muestra, la única que le interesa a la
-  // grilla.
+  // `is_primary` es la romanización que se muestra; las alternativas no le
+  // interesan a la grilla.
+  //
+  // Se piden las de TODAS las cartas y no sólo las de la vista previa -un
+  // comentario viejo acá decía lo contrario, pero el código nunca lo hizo-.
+  // Medido sobre la base de hoy, 384 cartas: filtrar en SQL con una función
+  // de ventana sale 0,46ms contra 0,30 de traer todo y cortar acá, porque a
+  // este tamaño particionar cuesta más que leer la tabla entera. La cuenta
+  // se da vuelta alrededor de las pocas miles de cartas, y ahí conviene
+  // cambiarlo: a 50.000 el corte en SQL es tres veces más rápido.
   const cardIds = cards.map((c) => c.id);
   const answers = cardIds.length
     ? db.select().from(cardAnswer)
@@ -58,9 +69,8 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
       return {
         id: g.id, name: g.name, section: g.section, sortOrder: g.sortOrder,
         cardCount: list.length,
-        preview: list.length <= PREVIEW_LIMIT
-          ? list.map((c) => ({ prompt: c.prompt, romaji: romajiByCard.get(c.id) ?? '' }))
-          : [],
+        preview: list.slice(0, PREVIEW_LIMIT)
+          .map((c) => ({ prompt: c.prompt, romaji: romajiByCard.get(c.id) ?? '' })),
       };
     });
     return {

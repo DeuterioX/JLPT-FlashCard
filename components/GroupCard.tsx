@@ -33,6 +33,24 @@ export function GroupCard({
   const nameColor = checked ? 'dark.2' : 'dark.3';
   const romajiColor = checked ? 'dark.3' : 'dark.4';
 
+  // Cuántas quedan afuera de la previsualización. 0 = el grupo entra entero.
+  const resto = group.cardCount - group.preview.length;
+
+  /**
+   * El kana baja de 15 a 13px cuando el grupo tiene PALABRAS y no sílabas
+   * sueltas. Lo decide el contenido y no el mazo, porque no hay nada en el
+   * modelo que diga «este mazo es de vocabulario»: un grupo de kana trae
+   * prompts de uno o dos caracteres -あ, きゃ- y uno de palabras arranca en
+   * tres -いしゃ-.
+   *
+   * Los 2px compran exactamente una letra por línea en la tarjeta de
+   * teléfono, que mide 113px y deja 101 de contenido: de seis a siete.
+   * Medido con las palabras del mazo: alcanza para けんきゅうしゃ y para las
+   * tres ましょう, que son el grueso. Para いいえ, わかりません no alcanza
+   * -ni ningún tamaño alcanzaría-, y de eso se encarga el recorte.
+   */
+  const palabras = group.preview.some((p) => [...p.prompt].length > 2);
+
   return (
     <Card
       withBorder
@@ -111,21 +129,31 @@ export function GroupCard({
           {group.name}
         </Text>
 
-        {group.preview.length > 0 ? (
-          <Stack gap={2} align="center" style={{ maxWidth: '100%' }}>
-            {group.preview.map((p) => (
-              <Stack key={p.prompt} gap={0} align="center" style={{ maxWidth: '100%' }}>
-                <Text className="kana" size="15px" lh={1.5} c={kanaColor} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
-                  {p.prompt}
-                </Text>
-                <Text className="romaji" size="10px" c={romajiColor} lh={1.2} style={{ wordBreak: 'break-word', maxWidth: '100%' }}>
-                  {p.romaji}
-                </Text>
-              </Stack>
-            ))}
-          </Stack>
-        ) : (
-          <Text size="xs" c={nameColor} className="tabular">{group.cardCount} palabras</Text>
+        {/* Una línea por carta, recortada con puntos suspensivos. Partir no
+            es una opción: con el kana envuelto, un yōon chico -el ゃ de
+            けんきゅうしゃ- puede quedar solo arrancando renglón, y en
+            composición japonesa eso está mal, no sólo feo. Y ningún tamaño
+            de letra garantiza que cualquier palabra entre, así que el recorte
+            es lo único que cubre también lo que todavía no cargaste. */}
+        <Stack className="knd-gc-words" gap={2} align="center">
+          {group.preview.map((p) => (
+            <Stack key={p.prompt} gap={0} align="center" style={{ maxWidth: '100%', width: '100%' }}>
+              <Text
+                className="kana knd-gc-cut"
+                size={palabras ? '13px' : '15px'}
+                lh={1.5}
+                c={kanaColor}
+              >
+                {p.prompt}
+              </Text>
+              <Text className="romaji knd-gc-cut" size="10px" c={romajiColor} lh={1.2}>
+                {p.romaji}
+              </Text>
+            </Stack>
+          ))}
+        </Stack>
+        {resto > 0 && (
+          <Text size="xs" c={nameColor} className="tabular">{resto} palabras más</Text>
         )}
       </Stack>
     </Card>

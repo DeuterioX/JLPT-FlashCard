@@ -1135,3 +1135,19 @@ input:-webkit-autofill:active {
   .knd-dict-label-full { display: none; }
   .knd-dict-label-short { display: inline; }
 }
+
+/* Las cartas previsualizadas en la tarjeta de grupo: una línea cada una,
+   recortada con puntos suspensivos.
+
+   El `min-width: 0` no es decorativo: dentro de una columna flex un elemento
+   se niega a achicarse por debajo de su contenido, así que sin eso el
+   `text-overflow` no aparece nunca y la palabra desborda o se parte igual. */
+.knd-gc-words { max-width: 100%; width: 100%; }
+.knd-gc-cut {
+  min-width: 0;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+}

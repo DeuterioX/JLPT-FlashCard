@@ -218,14 +218,34 @@ describe('preview de seis cartas', () => {
     ]);
   });
 
-  it('un grupo con 7 cartas no se previsualiza, solo se cuenta', () => {
+  it('un grupo con 7 cartas previsualiza las primeras seis', () => {
+    // La tarjeta muestra estas seis y abajo «1 palabras más», que sale de
+    // restar. Antes acá no se previsualizaba NADA y una Unidad de 30 palabras
+    // quedaba como una tarjeta vacía al lado de las de kana.
     const d = createDeck(db, { name: 'Siete' });
     for (let i = 0; i < 7; i++) {
       createCard(db, d.groups[0].id, { prompt: `p${i}`, answers: [`r${i}`] });
     }
     const group = getDeck(db, d.id).groups[0];
     expect(group.cardCount).toBe(7);
-    expect(group.preview).toEqual([]);
+    expect(group.preview).toEqual([
+      { prompt: 'p0', romaji: 'r0' },
+      { prompt: 'p1', romaji: 'r1' },
+      { prompt: 'p2', romaji: 'r2' },
+      { prompt: 'p3', romaji: 'r3' },
+      { prompt: 'p4', romaji: 'r4' },
+      { prompt: 'p5', romaji: 'r5' },
+    ]);
+  });
+
+  it('un grupo que entra entero no deja resto', () => {
+    const d = createDeck(db, { name: 'Tres' });
+    for (let i = 0; i < 3; i++) {
+      createCard(db, d.groups[0].id, { prompt: `p${i}`, answers: [`r${i}`] });
+    }
+    const group = getDeck(db, d.id).groups[0];
+    expect(group.cardCount).toBe(3);
+    expect(group.preview).toHaveLength(3);
   });
 });
 
