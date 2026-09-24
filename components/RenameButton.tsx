@@ -1,4 +1,6 @@
 import { Button } from '@mantine/core';
+import { Pencil } from 'lucide-react';
+import { Icon } from './Icon';
 
 /**
  * «Renombrar», con etiqueta en escritorio e ícono en teléfono.
@@ -28,23 +30,7 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
       onClick={onClick}
     >
       <span className="knd-rename-label">Renombrar</span>
-      <svg
-        className="knd-rename-icon"
-        /* En `rem` y no en px, para que acompañe al resto cuando la app escala
-           subiendo el `font-size` de la raíz. Son los mismos 14px a escala
-           100%. */
-        style={{ width: '0.875rem', height: '0.875rem' }}
-        viewBox="0 0 16 16"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        aria-hidden="true"
-      >
-        <path d="M11.4 2.3a1.4 1.4 0 0 1 2 2L5.8 11.9l-2.9.9.9-2.9 7.6-7.6z" />
-        <path d="M10.1 3.6l2.3 2.3" />
-      </svg>
+      <Icon glyph={Pencil} rem={0.875} className="knd-rename-icon" />
     </Button>
   );
 }

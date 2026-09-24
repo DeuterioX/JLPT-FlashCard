@@ -1,5 +1,7 @@
 import { Group, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
+import { ChevronLeft } from 'lucide-react';
+import { Icon } from './Icon';
 import { Brand } from './Brand';
 
 /**
@@ -35,17 +37,7 @@ export function MobileNavbar({
           aria-label={`Volver a ${up.label}`}
           underline="never"
         >
-          <svg
-            /* En `rem` y no en px, para que acompañe al resto cuando la app
-               escala subiendo el `font-size` de la raíz. Son los mismos 15px
-               a escala 100%. */
-            viewBox="0 0 16 16" fill="none"
-            stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
-            aria-hidden="true"
-            style={{ width: '0.9375rem', height: '0.9375rem' }}
-          >
-            <path d="M10 3 5 8l5 5" />
-          </svg>
+          <Icon glyph={ChevronLeft} rem={0.9375} />
         </Anchor>
       )}
       {/* Sólo el zorro, sin «Kitsune Cards»: la flecha, la marca y el título

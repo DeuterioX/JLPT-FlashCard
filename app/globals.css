@@ -268,7 +268,13 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    ventana angosta de escritorio, que es justo al revés-. En táctil el
    feedback del toque ya lo da la navegación misma. */
 @media (hover: hover) {
-  .knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+  .knd-row-tap:hover {
+    background: var(--mantine-color-dark-5);
+    /* `DeckIcon` rellena su carta de adelante con este color para tapar a la
+       de atrás. Si no lo movemos junto con el fondo de la fila, en hover se
+       ve un hueco del color de reposo. */
+    --knd-icon-bg: var(--mantine-color-dark-5);
+  }
   /* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
      contenedor, así que el hover va ahí. */
   .knd-swipe-front.knd-row-tap:hover { background: var(--mantine-color-dark-5); }

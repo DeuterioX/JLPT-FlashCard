@@ -10,6 +10,8 @@ import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
+import { Search, X } from 'lucide-react';
+import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeCardRow } from './SwipeCardRow';
 import { toRomaji } from '@/lib/kana/transliterate';
@@ -134,7 +136,7 @@ function EditCardModal({
               aria-label={`Quitar romanización alternativa ${i + 1}`}
               onClick={() => setAlts(alts.filter((_, j) => j !== i))}
             >
-              ✕
+              <Icon glyph={X} rem={0.875} />
             </Button>
           </Group>
         ))}
@@ -444,22 +446,7 @@ export function GroupCards({
                      una letra del mismo cuerpo, así que para leerse a la par
                      tiene que ser más grande. El trazo baja a 1.7 para que
                      al agrandarse no pese más que el texto. */
-                  <svg
-                    /* El tamaño va en `rem` y no en px: la app escala subiendo
-                       el `font-size` de la raíz por media query (ver el tope
-                       de globals.css), así que un ícono en px se queda del
-                       tamaño de siempre mientras el texto de al lado crece.
-                       En 3200px la etiqueta pasa de 14 a 28px, y esta lupa
-                       tiene que pasar de 18 a 36 para seguir leyéndose a la
-                       par. Son los mismos 18px a escala 100%. */
-                    viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"
-                    aria-hidden="true"
-                    style={{ width: '1.125rem', height: '1.125rem', flex: 'none' }}
-                  >
-                    <circle cx="10.6" cy="10.6" r="6.4" />
-                    <path d="m15.4 15.4 4.4 4.4" />
-                  </svg>
+                  <Icon glyph={Search} rem={1.125} />
                 )}
               >
                 {/* Dos etiquetas y el CSS elige cuál se ve, como en
@@ -563,7 +550,7 @@ export function GroupCards({
                       aria-label={`Quitar romanización alternativa ${i + 1}`}
                       onClick={() => setAlts(alts.filter((_, j) => j !== i))}
                     >
-                      ✕
+                      <Icon glyph={X} rem={0.875} />
                     </Button>
                   </Group>
                 ))}
