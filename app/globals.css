@@ -1,46 +1,34 @@
 /* El tema de Mantine controla colores y tipografías (ver theme.ts). */
 
 /* Mantine construye casi todos sus tamaños en `rem`, relativos al
-   font-size del elemento raíz -incluidos los `size="11px"` que se escriben
-   en píxeles: Mantine los convierte a rem por su cuenta-. Subir ESE valor
-   por media query escala de forma pareja toda la app -textos, paddings,
-   gaps- sin tocar un tamaño componente por componente.
-
-   Ojo con el ancho: es el ancho CSS, no la resolución nominal del monitor.
-   El escalado de Windows desvincula las dos -medido en vivo-, así que un 4K
-   al 150% le reporta 2560 al navegador, no 3840.
-
-     <1850      → 100%
-     1850–2149  → 120%
-     2150–2449  → 140%
-     2450–2749  → 160%
-     2750–3049  → 180%
-     ≥3050      → 200%
-
-   Los cortes están 150px POR DEBAJO de los de la grilla de tarjetas (2000,
-   2300, 2600...), a mitad de camino entre uno y otro, y eso es a propósito.
-   Cuando coincidían, 80px más de ventana agregaban una columna Y subían 20%
-   la letra al mismo tiempo, y la columna nueva se comía más de lo que el
-   ancho aportaba: medido, la tarjeta se ANGOSTABA de 261 a 235px al pasar de
-   1920 a 2000. Desfasados, cada cambio pasa solo.
-
-   El primero arranca en 1850 y no en 2000 para que 1920 -el ancho de
-   escritorio más común- entre en el primer escalón: a 16px la app se veía
-   chica en una pantalla de ese tamaño. */
+   font-size del elemento raíz. Subir ESE valor por media query escala de
+   forma pareja toda la app -textos, paddings, gaps- sin tocar un tamaño
+   componente por componente. Por debajo de 2000px de ancho CSS real
+   (ojo: no es la resolución nominal del monitor, el escalado de Windows
+   la desvincula del `window.innerWidth` que ve el navegador -medido en
+   vivo-) queda en el 100% de fábrica; de ahí en adelante sube 20% cada
+   300px -el mismo paso que usa el grid de tarjetas más abajo-, hasta
+   llegar al doble justo a los 3200px:
+     <2000      → 100%
+     2000–2299  → 120%
+     2300–2599  → 140%
+     2600–2899  → 160%
+     2900–3199  → 180%
+     ≥3200      → 200% */
 html { font-size: 100%; }
-@media (min-width: 1850px) {
+@media (min-width: 2000px) {
   html { font-size: 120%; }
 }
-@media (min-width: 2150px) {
+@media (min-width: 2300px) {
   html { font-size: 140%; }
 }
-@media (min-width: 2450px) {
+@media (min-width: 2600px) {
   html { font-size: 160%; }
 }
-@media (min-width: 2750px) {
+@media (min-width: 2900px) {
   html { font-size: 180%; }
 }
-@media (min-width: 3050px) {
+@media (min-width: 3200px) {
   html { font-size: 200%; }
 }
 
