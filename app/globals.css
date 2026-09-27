@@ -329,6 +329,27 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
     user-select: none;
     -webkit-user-select: none;
   }
+  /* El filete que anuncia el gesto (ver SwipeCardRow). 3px pegados al borde
+     de la cara que se desliza: verde a la izquierda para Mover, shu a la
+     derecha para Borrar, y sólo el de la acción que esa fila tenga
+     disponible -un filete que no está es una acción que no está-.
+
+     De borde a borde de la fila, sin retiro: el `Divider` que separa una
+     fila de la siguiente ya corta entre un filete y el otro, así que se
+     leen como un tilde por fila sin necesidad de dejarles aire, que
+     probado en la maqueta los dejaba como pastillas apoyadas sobre el
+     borde de la caja. */
+  .knd-swipe-edge-move::before,
+  .knd-swipe-edge-del::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+  }
+  .knd-swipe-edge-move::before { left: 0; background: var(--mantine-color-jade-6); }
+  .knd-swipe-edge-del::after { right: 0; background: var(--mantine-color-shu-6); }
+
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
      botones no entran en 390px, y bajarlos a su propia línea deja cada carta
      en ~100px de alto, que es una lista de vocabulario que no se puede

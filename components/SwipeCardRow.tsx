@@ -166,7 +166,18 @@ export function SwipeCardRow({
       )}
       <div
         ref={frontRef}
-        className={`knd-swipe-front${tappable ? ' knd-row-tap' : ''}`}
+        className={[
+          'knd-swipe-front',
+          tappable ? 'knd-row-tap' : '',
+          // Un filete por borde, del color de lo que ese gesto descubre, y
+          // sólo si la acción existe. Hoy las acciones son invisibles hasta
+          // que hacés el gesto: nada dice que están ahí ni para qué lado va
+          // cada una. Van en la cara que se desliza, no en el contenedor,
+          // así se corren con la fila en vez de quedar flotando encima del
+          // panel que se acaba de descubrir.
+          canMove ? 'knd-swipe-edge-move' : '',
+          canDelete ? 'knd-swipe-edge-del' : '',
+        ].filter(Boolean).join(' ')}
         onClick={onClick}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
