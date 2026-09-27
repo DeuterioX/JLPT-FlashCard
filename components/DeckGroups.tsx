@@ -20,9 +20,11 @@ import type { DeckSummary } from '@/lib/services/decks';
  * adentro, igual que un mazo se borra desde DeckList y se renombra desde su
  * propia pantalla.
  *
- * Un mazo de un solo grupo no llega acá: `app/decks/[id]/page.tsx` redirige
- * directo a sus cartas, porque el nivel de grupos sólo se muestra cuando
- * significa algo.
+ * Un mazo de un solo grupo SÍ llega acá, con su única fila y el Borrar
+ * apagado: un mazo necesita al menos un grupo. Acá decía que
+ * `app/decks/[id]/page.tsx` redirige directo a las cartas en ese caso; no
+ * existe tal redirect -no hay ninguno en toda la app fuera del quiz- y el
+ * `disabled` de más abajo no es una rama muerta.
  */
 export function DeckGroups({ deck }: { deck: DeckSummary }) {
   const router = useRouter();

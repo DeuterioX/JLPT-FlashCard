@@ -223,7 +223,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           <TextInput
             id="deck-groups" label="Grupos (opcional, separados por coma)"
             placeholder="Pescado, Verdura, Frutas"
-            description="Si lo dejás vacío se crea un solo grupo y la app esconde ese nivel."
+            description="Si lo dejás vacío se crea un grupo solo, llamado «General»."
             value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
           />
           {createError && <Text c="shu.6" size="sm">{createError}</Text>}

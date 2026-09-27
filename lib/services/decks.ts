@@ -110,7 +110,8 @@ export function createDeck(db: Db, input: { name: string; groups?: string[] }): 
   if (!name) throw badRequest('El mazo necesita un nombre');
 
   // Una carta siempre cuelga de un grupo. Si no se pasa ninguno, se crea uno
-  // solo llamado General y la UI esconde el nivel de grupos.
+  // solo llamado General. (Acá decía que la UI esconde ese nivel; no lo hace,
+  // y no lo hizo nunca: la pantalla de grupos se muestra igual con uno solo.)
   const names = (input.groups ?? []).map((g) => g.trim()).filter(Boolean);
   const groupNames = names.length > 0 ? names : ['General'];
 
