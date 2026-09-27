@@ -1151,3 +1151,22 @@ input:-webkit-autofill:active {
   white-space: nowrap;
   text-align: center;
 }
+
+/* El kana de la fila de carta cuando es el botón de editar (ver GroupCards).
+   Apaga el cromo que el navegador le pone a un `button`.
+
+   `color: inherit` no es decorativo: Mantine NO fija color en `Text` cuando no
+   le pasás `c`, así que sin esto ganaba el `color: buttontext` de la hoja del
+   navegador y el kana pasaba de `#E9EBF4` a blanco puro -medido en vivo: el
+   mismo kana daba rgb(233,235,244) en un mazo incluido, donde sigue siendo un
+   `<p>`, y rgb(255,255,255) en uno propio-. El tamaño y la familia sí los
+   ponen las clases, que le ganan a la hoja del navegador; el color no, porque
+   no hay ninguna clase que lo declare. */
+.knd-card-edit {
+  background: none;
+  border: 0;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+}

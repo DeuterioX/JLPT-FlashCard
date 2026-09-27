@@ -608,7 +608,28 @@ export function GroupCards({
                 {/* El kana NO va atenuado: es el dato principal de la fila, y
                     el mockup lo deja en el color de texto normal -son el
                     romaji y el significado los que van en `--a-dim`-. */}
-                <Text className="kana knd-card-kana">{c.prompt}</Text>
+                {/* Y en un mazo propio el kana ES el botón de editar, por lo
+                    mismo que el nombre es el enlace en el listado de mazos y
+                    en el de grupos: sacado el botón «Editar» -la fila ya abre
+                    el editor al tocarla, con dedo y con mouse-, hacía falta
+                    algo enfocable para llegar con el teclado. La fila que lo
+                    contiene es un `div` con `onClick`, sin `tabIndex` ni
+                    `onKeyDown`, así que sin esto editar quedaba en manos del
+                    mouse solamente.
+                    Conserva el id del botón que reemplaza. */}
+                {readOnly ? (
+                  <Text className="kana knd-card-kana">{c.prompt}</Text>
+                ) : (
+                  <Text
+                    component="button"
+                    type="button"
+                    id={`card-edit-${c.id}`}
+                    className="kana knd-card-kana knd-card-edit"
+                    onClick={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
+                  >
+                    {c.prompt}
+                  </Text>
+                )}
                 <Text className="romaji knd-card-romaji" size="sm" c="dimmed">{c.primary}</Text>
                 <Text className="knd-card-meaning" size="sm" c="dimmed">{c.meaning ?? ''}</Text>
                 {/* Un mazo incluido no trae acciones por carta: la pantalla es
@@ -634,13 +655,6 @@ export function GroupCards({
                         Mover
                       </Button>
                     )}
-                    <Button
-                      id={`card-edit-${c.id}`}
-                      variant="default" size="compact-xs"
-                      onClick={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
-                    >
-                      Editar
-                    </Button>
                   </Group>
                 )}
               </Group>
