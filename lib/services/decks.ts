@@ -130,7 +130,45 @@ export function createDeck(db: Db, input: { name: string; groups?: string[] }): 
   return getDeck(db, newId);
 }
 
+/**
+ * «Sólo lectura» de un mazo incluido, del lado del servidor.
+ *
+ * Hasta acá eso vivía SOLO en la interfaz: los componentes escondían los
+ * botones y los servicios aceptaban cualquier mutación. Y la interfaz tenía
+ * un agujero -el panel de Borrar del gesto se dibujaba también en un mazo
+ * incluido, verificado en vivo en Hiragana: el swipe descubría un «Borrar»
+ * apretable-, así que se podía borrar una carta de un mazo que viene con la
+ * app. `deleteDeck` era la única función que se defendía.
+ *
+ * Va en el servicio y no en la ruta porque es una regla del modelo, no del
+ * transporte: cualquier camino que llegue a una carta de Hiragana tiene que
+ * rebotar, venga de la API, de un script o de un test.
+ */
+function assertEditable(db: Db, deckId: number): void {
+  const rows = db.select({ isBuiltin: deck.isBuiltin }).from(deck).where(eq(deck.id, deckId)).all();
+  if (rows.length === 0) throw notFound('el mazo');
+  if (rows[0].isBuiltin) {
+    throw forbidden('Hiragana y Katakana vienen con la app y no se pueden editar');
+  }
+}
+
+function deckOfGroup(db: Db, groupId: number): number {
+  const rows = db.select({ deckId: cardGroup.deckId }).from(cardGroup)
+    .where(eq(cardGroup.id, groupId)).all();
+  if (rows.length === 0) throw notFound('el grupo');
+  return rows[0].deckId;
+}
+
+function deckOfCard(db: Db, cardId: number): number {
+  const rows = db.select({ deckId: cardGroup.deckId }).from(card)
+    .innerJoin(cardGroup, eq(cardGroup.id, card.groupId))
+    .where(eq(card.id, cardId)).all();
+  if (rows.length === 0) throw notFound('la carta');
+  return rows[0].deckId;
+}
+
 export function renameDeck(db: Db, id: number, name: string): void {
+  assertEditable(db, id);
   const trimmed = name.trim();
   if (!trimmed) throw badRequest('El mazo necesita un nombre');
   const res = db.update(deck).set({ name: trimmed }).where(eq(deck.id, id)).run();
@@ -148,6 +186,7 @@ export function deleteDeck(db: Db, id: number): void {
 }
 
 export function createGroup(db: Db, deckId: number, name: string): GroupSummary {
+  assertEditable(db, deckId);
   const trimmed = name.trim();
   if (!trimmed) throw badRequest('El grupo necesita un nombre');
   const parent = getDeck(db, deckId);
@@ -162,6 +201,7 @@ export function createGroup(db: Db, deckId: number, name: string): GroupSummary 
 }
 
 export function renameGroup(db: Db, id: number, name: string): void {
+  assertEditable(db, deckOfGroup(db, id));
   const trimmed = name.trim();
   if (!trimmed) throw badRequest('El grupo necesita un nombre');
   const res = db.update(cardGroup).set({ name: trimmed }).where(eq(cardGroup.id, id)).run();
@@ -169,6 +209,7 @@ export function renameGroup(db: Db, id: number, name: string): void {
 }
 
 export function deleteGroup(db: Db, id: number): void {
+  assertEditable(db, deckOfGroup(db, id));
   const res = db.delete(cardGroup).where(eq(cardGroup.id, id)).run();
   if (res.changes === 0) throw notFound('el grupo');
 }
@@ -202,6 +243,7 @@ export function createCard(
   db: Db, groupId: number,
   input: { prompt: string; meaning?: string | null; answers: string[] },
 ): { id: number } {
+  assertEditable(db, deckOfGroup(db, groupId));
   const prompt = input.prompt.trim();
   if (!prompt) throw badRequest('La carta necesita un texto en japonés');
 
@@ -234,6 +276,7 @@ export function updateCard(
 ): void {
   const rows = db.select().from(card).where(eq(card.id, id)).all();
   if (rows.length === 0) throw notFound('la carta');
+  assertEditable(db, deckOfCard(db, id));
 
   if (input.prompt !== undefined && !input.prompt.trim()) {
     throw badRequest('La carta necesita un texto en japonés');
@@ -241,6 +284,9 @@ export function updateCard(
   if (input.groupId !== undefined) {
     const target = db.select().from(cardGroup).where(eq(cardGroup.id, input.groupId)).all();
     if (target.length === 0) throw notFound('el grupo');
+    // También el DESTINO: mover una carta a un mazo incluido lo estaría
+    // editando igual, sólo que desde el otro lado.
+    assertEditable(db, deckOfGroup(db, input.groupId));
   }
 
   db.transaction((tx) => {
@@ -261,6 +307,7 @@ export function updateCard(
 }
 
 export function deleteCard(db: Db, id: number): void {
+  assertEditable(db, deckOfCard(db, id));
   const res = db.delete(card).where(eq(card.id, id)).run();
   if (res.changes === 0) throw notFound('la carta');
 }

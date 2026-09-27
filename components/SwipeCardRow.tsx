@@ -34,23 +34,37 @@ const EDGE_GUTTER = 30;
 const OPEN_RATIO = 0.4;
 
 export function SwipeCardRow({
-  children, onTap, onMove, onDelete, canMove, tappable, label,
+  children, onTap, onMove, onDelete, canMove, canDelete, tappable, label,
 }: {
   children: ReactNode;
   onTap: () => void;
   onMove: () => void;
   onDelete: () => void;
   canMove: boolean;
+  /**
+   * Un mazo incluido no deja borrar nada. Sin esto el panel de Borrar se
+   * dibujaba SIEMPRE -también en la pantalla que el propio código llama «un
+   * visor»-, y el gesto descubría un botón que borraba de verdad: verificado
+   * en vivo en Hiragana, el swipe dejaba el «Borrar» apretable. El servicio
+   * ahora también lo rechaza, pero un botón que existe y rebota es peor que
+   * un botón que no está.
+   */
+  canDelete: boolean;
   /** Un mazo incluido es un visor: la fila no lleva a ningún lado. */
   tappable: boolean;
   label: string;
 }) {
   const frontRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
+  const leftRef = useRef<HTMLDivElement>(null);
   const state = useRef({ x0: 0, y0: 0, dx: 0, dragging: false, decided: false, base: 0, fromEdge: false });
 
   function width() {
-    return rightRef.current?.offsetWidth ?? 96;
+    // El que esté: sin panel derecho -mazo incluido- el ancho lo da el
+    // izquierdo. El 96 de reserva es el `6rem` del CSS a tamaño de raíz
+    // normal, y sólo se usa si no hay ninguno de los dos, que es cuando
+    // tampoco hay gesto que medir.
+    return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
   }
 
   function setX(px: number, animate: boolean) {
@@ -93,9 +107,10 @@ export function SwipeCardRow({
       s.decided = true;
     }
     // Sin otros grupos a los que mover, el tope superior es 0: el gesto
-    // hacia la derecha no descubre nada.
+    // hacia la derecha no descubre nada. Y sin permiso para borrar, el tope
+    // inferior también: la fila no se mueve para ese lado.
     const max = width();
-    s.dx = Math.max(-max, Math.min(canMove ? max : 0, s.base + mx));
+    s.dx = Math.max(canDelete ? -max : 0, Math.min(canMove ? max : 0, s.base + mx));
     setX(s.dx, false);
   }
 
@@ -109,7 +124,7 @@ export function SwipeCardRow({
     if (!s.decided) return;
     const max = width();
     const openRight = canMove && s.dx > max * OPEN_RATIO;
-    const openLeft = s.dx < -max * OPEN_RATIO;
+    const openLeft = canDelete && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
     setX(s.base, true);
   }
@@ -128,7 +143,7 @@ export function SwipeCardRow({
   return (
     <div className="knd-swipe-row">
       {canMove && (
-        <div className="knd-swipe-side knd-swipe-move">
+        <div className="knd-swipe-side knd-swipe-move" ref={leftRef}>
           <button
             type="button"
             aria-label={`Mover ${label}`}
@@ -138,15 +153,17 @@ export function SwipeCardRow({
           </button>
         </div>
       )}
-      <div className="knd-swipe-side knd-swipe-del" ref={rightRef}>
-        <button
-          type="button"
-          aria-label={`Borrar ${label}`}
-          onClick={() => { close(); onDelete(); }}
-        >
-          Borrar
-        </button>
-      </div>
+      {canDelete && (
+        <div className="knd-swipe-side knd-swipe-del" ref={rightRef}>
+          <button
+            type="button"
+            aria-label={`Borrar ${label}`}
+            onClick={() => { close(); onDelete(); }}
+          >
+            Borrar
+          </button>
+        </div>
+      )}
       <div
         ref={frontRef}
         className={`knd-swipe-front${tappable ? ' knd-row-tap' : ''}`}

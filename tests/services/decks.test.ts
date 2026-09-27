@@ -79,6 +79,58 @@ describe('deleteDeck', () => {
   });
 });
 
+describe('un mazo incluido es de sólo lectura', () => {
+  // Hasta que se escribieron estos tests, «sólo lectura» vivía nada más que
+  // en la interfaz: los servicios aceptaban cualquier mutación y la interfaz
+  // tenía un agujero -el panel de Borrar del gesto se dibujaba también acá,
+  // verificado en vivo en Hiragana-, así que se podía borrar una carta de un
+  // mazo que viene con la app.
+  function hiragana() {
+    return listDecks(db).find((d) => d.name === 'Hiragana')!;
+  }
+
+  function rechaza(fn: () => unknown) {
+    let status = 0;
+    try {
+      fn();
+    } catch (e) {
+      expect(e).toBeInstanceOf(AppError);
+      status = (e as AppError).status;
+    }
+    expect(status).toBe(403);
+  }
+
+  it('no se renombra', () => {
+    rechaza(() => renameDeck(db, hiragana().id, 'Otro nombre'));
+  });
+
+  it('no le entran grupos nuevos, ni se le renombran o borran los que tiene', () => {
+    const hira = hiragana();
+    const serieA = hira.groups.find((g) => g.name === 'Serie A')!;
+    rechaza(() => createGroup(db, hira.id, 'Serie inventada'));
+    rechaza(() => renameGroup(db, serieA.id, 'Serie Ñ'));
+    rechaza(() => deleteGroup(db, serieA.id));
+  });
+
+  it('no le entran cartas nuevas, ni se le editan o borran las que tiene', () => {
+    const serieA = hiragana().groups.find((g) => g.name === 'Serie A')!;
+    const a = db.select().from(card).where(eq(card.groupId, serieA.id)).all()[0];
+    rechaza(() => createCard(db, serieA.id, { prompt: 'ゑ', answers: ['we'] }));
+    rechaza(() => updateCard(db, a.id, { prompt: 'あ!' }));
+    rechaza(() => deleteCard(db, a.id));
+    // y sigue estando
+    expect(db.select().from(card).where(eq(card.id, a.id)).all()).toHaveLength(1);
+  });
+
+  it('tampoco se le puede mover una carta de un mazo propio', () => {
+    const propio = createDeck(db, { name: 'Comidas', groups: ['Pescado'] });
+    const c = createCard(db, propio.groups[0].id,
+      { prompt: 'さかな', meaning: 'pescado', answers: ['sakana'] });
+    const serieA = hiragana().groups.find((g) => g.name === 'Serie A')!;
+    rechaza(() => updateCard(db, c.id, { groupId: serieA.id }));
+  });
+});
+
 describe('cartas', () => {
   it('crea la carta con su romaji normalizado y una sola primaria', () => {
     const d = createDeck(db, { name: 'Comidas' });
