@@ -268,7 +268,7 @@ export function PracticeBoard({
               ronda se trata. «Significados» se apaga cuando ninguna de las
               cartas elegidas tiene uno -un mazo de kana entero-, con el
               motivo en el `title`. */}
-          <Group gap="xs" ml="auto" wrap="nowrap">
+          <Box className="knd-verbos" ml="auto">
             <Button
               id="begin-meaning-btn"
               variant="default"
@@ -287,7 +287,7 @@ export function PracticeBoard({
             >
               Escribir ➜
             </Button>
-          </Group>
+          </Box>
         </ActionBar>
       </Stack>
     </>

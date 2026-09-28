@@ -1454,3 +1454,30 @@ input:-webkit-autofill:active {
   .knd-meaning-actions { justify-self: center; }
   .knd-meaning-reveal { justify-self: end; }
 }
+
+/* Los dos verbos con los que arranca una ronda, soldados en un solo control
+   (ver PracticeBoard).
+
+   Sueltos con un hueco se leen como dos acciones que no tienen nada que ver;
+   juntos dicen que son la misma decisión con dos salidas. El radio vive en el
+   contenedor -con `overflow: hidden` las esquinas de adentro salen rectas
+   solas- y la costura es un borde izquierdo en la segunda mitad. */
+.knd-verbos {
+  display: inline-flex;
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+  flex: none;
+}
+/* Cada mitad pierde su propio marco: el del grupo es el único. La regla de
+   `:disabled` de más arriba le devuelve un borde a los botones apagados, y
+   adentro del grupo eso dibujaría una línea de más. */
+.knd-verbos .mantine-Button-root,
+.knd-verbos .mantine-Button-root:disabled:not([data-loading]),
+.knd-verbos .mantine-Button-root[data-disabled]:not([data-loading]) {
+  border: 0;
+  border-radius: 0;
+}
+.knd-verbos .mantine-Button-root + .mantine-Button-root {
+  border-left: 1px solid var(--mantine-color-dark-4);
+}
