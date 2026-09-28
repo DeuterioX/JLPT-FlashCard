@@ -231,8 +231,14 @@ body { margin: 0; }
    que con `c="dark.3"` puesto el hover nunca llegaba a aplicarse. El selector
    lleva el `a` para ganarle a `.mantine-Anchor-root` sin depender del orden
    en que se carguen las hojas. */
-a.knd-crumb { color: var(--mantine-color-dark-3); transition: color 120ms ease; }
-a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
+/* `dark.2` y no `dark.3`: el 3 es el escalón de PLACEHOLDER, y un nivel de
+   la miga es un enlace. Medido en vivo, en el 3 daba 2,87:1 en oscuro y
+   3,11:1 en claro, debajo del mínimo para texto; en el 2 da 7,25:1 y 5,39:1 y
+   sigue estando un escalón por debajo del nivel actual, que es lo que lo
+   distingue. Venía de antes de la escala de tinta -con el índigo daba
+   3,16:1-, así que no lo trajo el cambio de paleta. */
+a.knd-crumb { color: var(--mantine-color-dark-2); transition: color 120ms ease; }
+a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 
 /* El botón por defecto no tenía NINGÚN hover: al fijarle el fondo a
    `--a-surface-2` en theme.ts, el reposo quedó igual que el `--button-hover`
@@ -882,13 +888,15 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
    que las migas. */
 button.knd-inline-link,
 a.knd-inline-link {
-  color: var(--mantine-color-dark-3);
+  /* Mismo motivo que la miga: era `dark.3`, el escalón de placeholder, y
+     daba 3,46:1 en oscuro y 3,11:1 en claro. */
+  color: var(--mantine-color-dark-2);
 }
 @media (hover: hover) {
   button.knd-inline-link,
   a.knd-inline-link { transition: color 120ms ease; }
   button.knd-inline-link:hover,
-  a.knd-inline-link:hover { color: var(--mantine-color-dark-2); }
+  a.knd-inline-link:hover { color: var(--mantine-color-dark-1); }
 }
 
 /* El buscador del diccionario ocupa casi toda la ventana en escritorio, y en
