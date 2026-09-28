@@ -60,7 +60,10 @@ test.describe('editor de mazo en teléfono', () => {
   test('la lista de cartas ocupa todo el ancho en teléfono', async ({ page, request, baseURL }) => {
     const id = await hiraganaDeckId(request, baseURL);
     await page.goto(`/decks/${id}`);
-    await page.locator('[id^=group-open-]').first().click();
+    // El nombre del grupo ES el enlace. Acá había un `[id^=group-open-]`,
+    // que era el botón «Ver cartas»; lo sacó `99e8789 Drop the buttons that
+    // only navigate` y el test se quedó esperando un id que ya no existe.
+    await page.locator('[id^=group-row-] a').first().click();
     await page.waitForURL(/\/groups\/\d+/);
 
     const screen = page.locator('#group-cards-screen');

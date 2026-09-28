@@ -77,12 +77,20 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
   const summary = page.getByText('Ronda completa');
   await expect(summary).toBeVisible();
 
-  // Encadenar: una sola letra arranca la ronda siguiente y queda como
-  // primera letra de la carta nueva.
+  // Encadenar: SÓLO Enter arranca la ronda siguiente. Este test apretaba
+  // una letra cualquiera y esperaba que además quedara escrita como primera
+  // letra de la carta nueva; eso dejó de valer cuando el resumen pasó a
+  // quedarse hasta que el usuario decide seguir (ver el manejador de teclas
+  // en QuizRunner: «cualquier tecla arranca la próxima» hacía que el resumen
+  // desapareciera solo). El test se quedó atrás y venía fallando desde
+  // entonces.
   await page.keyboard.press('k');
+  await expect(summary).toBeVisible();
+
+  await page.keyboard.press('Enter');
   await expect(summary).toBeHidden();
   await expect(prompt).toBeVisible();
-  await expect(input).toHaveValue('k');
+  await expect(input).toHaveValue('');
 });
 
 test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cerrada', async ({ page }) => {
