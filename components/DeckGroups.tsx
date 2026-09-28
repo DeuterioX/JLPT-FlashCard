@@ -11,6 +11,7 @@ import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { SwipeRow } from './SwipeRow';
+import { ModalTitle } from './ModalTitle';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
 
@@ -259,7 +260,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         ))}
       </Paper>
 
-      <Modal id="rename-deck-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title="Renombrar mazo">
+      <Modal id="rename-deck-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title={<ModalTitle jp="改">Renombrar mazo</ModalTitle>}>
         <Stack
           component="form"
           onSubmit={(e: FormEvent) => {
@@ -283,7 +284,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         id="rename-group-row-modal"
         opened={!!gRename}
         onClose={() => setGRename(null)}
-        title="Renombrar grupo"
+        title={<ModalTitle jp="改">Renombrar grupo</ModalTitle>}
       >
         <Stack
           component="form"
@@ -304,7 +305,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         </Stack>
       </Modal>
 
-      <Modal id="new-group-modal" opened={newOpen} onClose={() => setNewOpen(false)} title="Nuevo grupo">
+      <Modal id="new-group-modal" opened={newOpen} onClose={() => setNewOpen(false)} title={<ModalTitle jp="新">Nuevo grupo</ModalTitle>}>
         <Stack
           component="form"
           onSubmit={(e: FormEvent) => {
@@ -324,7 +325,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         </Stack>
       </Modal>
 
-      <Modal id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)} title="¿Borrar el grupo?">
+      <Modal id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el grupo?</ModalTitle>}>
         <Stack>
           {/* El diálogo nombra lo que se lleva puesto: `deleteGroup` borra en
               cascada, igual que borrar un mazo. */}

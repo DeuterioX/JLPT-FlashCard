@@ -11,6 +11,7 @@ import {
 import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
 import { SwipeRow } from './SwipeRow';
+import { ModalTitle } from './ModalTitle';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -222,7 +223,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
         ))}
       </Paper>
 
-      <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title="Nuevo mazo">
+      <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title={<ModalTitle jp="新">Nuevo mazo</ModalTitle>}>
         <Stack
           component="form"
           onSubmit={(e: FormEvent) => {
@@ -248,7 +249,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
         </Stack>
       </Modal>
 
-      <Modal id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)} title="¿Borrar el mazo?">
+      <Modal id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el mazo?</ModalTitle>}>
         <Stack>
           {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas. */}
           <Text size="sm">

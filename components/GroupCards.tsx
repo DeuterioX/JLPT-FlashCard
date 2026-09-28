@@ -14,6 +14,7 @@ import { Search, X } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeRow } from './SwipeRow';
+import { ModalTitle } from './ModalTitle';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -86,7 +87,7 @@ function EditCardModal({
       opened={opened}
       keepMounted
       onClose={onClose}
-      title="Editar carta"
+      title={<ModalTitle jp="編">Editar carta</ModalTitle>}
     >
       <Stack
         component="form"
@@ -666,7 +667,7 @@ export function GroupCards({
         {cards.length === 0 && <Text p="md" size="sm" c="dimmed">Todavía no hay cartas en este grupo.</Text>}
       </Paper>
 
-      <Modal id="rename-group-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title="Renombrar grupo">
+      <Modal id="rename-group-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title={<ModalTitle jp="改">Renombrar grupo</ModalTitle>}>
         <Stack
           component="form"
           onSubmit={(e: FormEvent) => {
@@ -692,7 +693,7 @@ export function GroupCards({
         id="delete-card-modal"
         opened={!!deleting}
         onClose={() => setDeleting(null)}
-        title="¿Borrar la palabra?"
+        title={<ModalTitle jp="削">¿Borrar la palabra?</ModalTitle>}
       >
         <Stack>
           {/* El diálogo nombra la carta y lo que se lleva puesto: los intentos
@@ -718,7 +719,7 @@ export function GroupCards({
         id="move-card-modal"
         opened={!!moving}
         onClose={() => setMoving(null)}
-        title={moving ? `Mover «${moving.prompt}» a…` : 'Mover'}
+        title={<ModalTitle jp="移">{moving ? `Mover «${moving.prompt}» a…` : 'Mover'}</ModalTitle>}
       >
         <Stack gap={4}>
           {deck.groups.map((g) => (

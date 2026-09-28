@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { ModalTitle } from '../ModalTitle';
 import { useRouter } from 'next/navigation';
 import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
 import type { DictHit } from '@/lib/services/dict';
@@ -121,7 +122,7 @@ export function DictSearchPanel({
       // Centrado, cada tecleo lo reacomoda vertical y el campo de búsqueda
       // se mueve solo bajo el cursor.
       centered={false}
-      title="Buscar en el diccionario"
+      title={<ModalTitle jp="辞">Buscar en el diccionario</ModalTitle>}
     >
       {/* Tres bandas: el buscador arriba, los resultados con su propio
           scroll en el medio, y el pie abajo. Antes scrolleaba el cuerpo
