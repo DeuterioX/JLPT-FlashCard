@@ -13,14 +13,13 @@ import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
 /** Semáforo del spec: jade ≥85%, ámbar 60–85%, shu <60%. Único lugar de la
  * app donde aparece un tercer color además de jade/shu. */
 // Semáforo del diseño: verde sobre 85%, ámbar entre 60 y 85, rojo debajo.
-// El ámbar va como hex y no como color del tema porque no hay ninguno que
-// se le parezca: el `yellow.6` de fábrica de Mantine es `#fab005`, un
-// amarillo anaranjado, contra el latón apagado `#C8A23E` del diseño. Es el
-// único lugar de la app donde aparece un tercer color y codifica un estado
-// real, así que el tono importa.
-function tone(acc: number) {
+// El ámbar no sale de la escala de Mantine -su `yellow.6` es `#fab005`, un
+// amarillo anaranjado, contra el latón apagado del diseño- pero tampoco es
+// un hex suelto acá: vive en `theme.other.ambar` con el resto de los colores
+// que no son jade ni shu.
+function tone(acc: number, ambar: string) {
   if (acc >= 0.85) return 'jade.6';
-  if (acc >= 0.6) return '#C8A23E';
+  if (acc >= 0.6) return ambar;
   return 'shu.6';
 }
 
@@ -234,7 +233,7 @@ export function StatsBoard({
               <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
                 <Text className="kana" size="0.6875rem" lh={1.4} w={62} c="dimmed">{g.name}</Text>
                 <Progress
-                  value={g.accuracy * 100} color={tone(g.accuracy)} size={6} radius={3}
+                  value={g.accuracy * 100} color={tone(g.accuracy, other.ambar)} size={6} radius={3}
                   style={{ flex: 1 }} styles={{ root: { backgroundColor: other.borderSoft } }}
                 />
                 <Text size="0.6875rem" lh={1.4} c="dimmed" className="tabular" w={30} ta="right">

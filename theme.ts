@@ -1,20 +1,24 @@
 import { createTheme, rem, type MantineColorsTuple, type MantineTheme } from '@mantine/core';
 
-// Índigo profundo, no negro. Reemplaza el `dark` gris neutro de Mantine.
+// Tinta, no negro ni índigo. Reemplaza el `dark` gris neutro de Mantine.
 // Mantine deriva de este array TODAS sus variables semánticas, así que
 // redefinirlo alcanza para que cada componente se acomode solo.
 // Ojo con el orden: en la escala de Mantine el 6 es MÁS CLARO que el 7.
+//
+// La escala anterior era índigo (#0F1220 de fondo). Ésta es el gris-verde de
+// la tinta, de la dirección «tinta y papel»: la app entera pasa a ser el
+// entorno donde vive el papel, en vez de un azul que compite con él.
 const dark: MantineColorsTuple = [
-  '#E9EBF4', // 0 → --mantine-color-text
-  '#C3C8DC', // 1
-  '#868DA8', // 2 → texto atenuado
-  '#5D6480', // 3 → placeholders
-  '#2C3249', // 4 → --mantine-color-default-border
-  '#212639', // 5 → hover
-  '#181C2E', // 6 → --mantine-color-default (superficies)
-  '#0F1220', // 7 → --mantine-color-body (fondo de página)
-  '#0B0E19', // 8
-  '#070912', // 9
+  '#EFEBE0', // 0 → --mantine-color-text
+  '#CDD3C9', // 1
+  '#9BA49B', // 2 → texto atenuado
+  '#6E7570', // 3 → placeholders
+  '#3A433D', // 4 → --mantine-color-default-border
+  '#272E29', // 5 → hover
+  '#1B211D', // 6 → --mantine-color-default (superficies)
+  '#111513', // 7 → --mantine-color-body (fondo de página)
+  '#0C0F0D', // 8
+  '#080A09', // 9
 ];
 
 // Acción y acierto. Generado desde #3FBF8F con el generador de Mantine.
@@ -257,7 +261,7 @@ export const theme = createTheme({
   // tokens de diseño sueltos, así ningún componente los vuelve a escribir
   // como hex a mano -se leen con `useMantineTheme().other.*`-.
   other: {
-    groupCardActiveBg: '#141E28',
+    groupCardActiveBg: '#1C2A24',
     groupCardActiveBorder: '#2E5A4C',
     // `--a-border-soft` del diseño: un borde más sutil que el `dark.4`
     // -"--a-border"- que usa el resto de la app (la barra de acción, el
@@ -265,8 +269,24 @@ export const theme = createTheme({
     // dejar el borde "default" de Mantine. Lo piden la tarjeta de grupo sin
     // seleccionar y, en Estadísticas, las tiles, los paneles y el fondo de
     // las barras -por eso el nombre es el del diseño y no el de un uso-.
-    borderSoft: '#232840',
+    borderSoft: '#272E29',
     switchThumbActiveBg: '#06231A',
+
+    // El papel y la tinta que va encima. No son parte de la escala de
+    // Mantine a propósito: la escala es el ENTORNO -fondos, bordes, texto de
+    // interfaz- y esto es un material, el 原稿用紙 donde vive el kana. Por
+    // eso no cambian con el esquema de color: una hoja de papel no se vuelve
+    // oscura porque la app lo sea.
+    papel: '#E8E1CF',
+    sumi: '#191713',
+    sumiDim: '#5F594E',
+
+    // El tercer color, el único fuera de jade/shu: el ámbar del semáforo de
+    // Estadísticas, entre 60 y 85% de aciertos. Estaba como hex suelto en
+    // StatsBoard. No hay ninguno de Mantine que se le parezca -su `yellow.6`
+    // es `#fab005`, un amarillo anaranjado, contra este latón apagado- y
+    // codifica un estado real, así que el tono importa.
+    ambar: '#C8A23E',
     // `--a-focus` del diseño: el borde de foco de CUALQUIER input es este
     // azul dedicado, no el jade primario que Mantine usa por default para
     // el foco de todo control (`--input-bd-focus: var(--mantine-primary-color-filled)`).

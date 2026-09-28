@@ -391,7 +391,10 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
 }
 
 .knd-quiz-toast {
-  background: #3a2028; /* --a-shu-bg del diseño */
+  /* Shu al 18% sobre la superficie de tinta (`dark.6`). Era `#3a2028`, que
+     era ese mismo lavado pero sobre el índigo de antes y quedaba violáceo
+     contra la escala nueva. */
+  background: #392720;
   border: 1px solid var(--mantine-color-shu-6);
   color: var(--mantine-color-shu-6);
   padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
@@ -561,7 +564,8 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
    arriba del `<input>` real -que es el que de verdad pinta el fondo
    visible-, así que hace falta el selector descendiente. */
 .knd-quiz-answer[data-error] input {
-  background-color: #3a2028;
+  /* El mismo lavado de shu que el toast de arriba. */
+  background-color: #392720;
 }
 
 /* Grilla de grupos: cortes a mano contra el ancho CSS real (no la
