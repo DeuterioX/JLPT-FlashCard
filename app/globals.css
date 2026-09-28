@@ -285,7 +285,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
   min-height: 1.625rem;
 }
 
-/* Fila de carta con acciones por gesto (ver SwipeCardRow.tsx). Los paneles
+/* Fila con acciones por gesto (ver SwipeRow.tsx). Los paneles
    y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
    como el resto de las listas de la app, así que acá no hay nada que
    descubrir. Mismo patrón de dos variantes en el DOM que ya usan
@@ -303,14 +303,14 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
     display: grid;
     place-items: center;
   }
-  .knd-swipe-move { left: 0; background: var(--mantine-color-dark-5); }
+  .knd-swipe-lead { left: 0; background: var(--mantine-color-dark-5); }
   /* Borrar va sobre el fondo de la app: un escalón más HUNDIDO que la fila,
      así se diferencia de Mover por profundidad y el rojo queda sólo en la
      palabra -`.btn.danger` del diseño es texto `shu` sin fondo, y un bloque
      rojo saturado sería el único lugar de la app donde ese color ocupa una
      superficie entera-. Y va del lado opuesto al borde con el que compite el
      gesto "atrás" de Safari. */
-  .knd-swipe-del { right: 0; background: var(--mantine-color-dark-7); }
+  .knd-swipe-trail { right: 0; background: var(--mantine-color-dark-7); }
   .knd-swipe-side button {
     width: 100%;
     height: 100%;
@@ -320,7 +320,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
     font: 500 0.71875rem var(--mantine-font-family);
     color: var(--mantine-color-text);
   }
-  .knd-swipe-del button { color: var(--mantine-color-shu-6); }
+  .knd-swipe-trail button { color: var(--mantine-color-shu-6); }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
@@ -330,8 +330,9 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
     -webkit-user-select: none;
   }
   /* El filete que anuncia el gesto (ver SwipeCardRow). 3px pegados al borde
-     de la cara que se desliza: verde a la izquierda para Mover, shu a la
-     derecha para Borrar, y sólo el de la acción que esa fila tenga
+     de la cara que se desliza: jade a la izquierda para la acción no
+     destructiva de esa lista -Mover una carta, Practicar un mazo- y shu
+     a la derecha para Borrar, y sólo el de la acción que esa fila tenga
      disponible -un filete que no está es una acción que no está-.
 
      De borde a borde de la fila, sin retiro: el `Divider` que separa una
@@ -339,16 +340,16 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
      leen como un tilde por fila sin necesidad de dejarles aire, que
      probado en la maqueta los dejaba como pastillas apoyadas sobre el
      borde de la caja. */
-  .knd-swipe-edge-move::before,
-  .knd-swipe-edge-del::after {
+  .knd-swipe-edge-lead::before,
+  .knd-swipe-edge-trail::after {
     content: '';
     position: absolute;
     top: 0;
     bottom: 0;
     width: 3px;
   }
-  .knd-swipe-edge-move::before { left: 0; background: var(--mantine-color-jade-6); }
-  .knd-swipe-edge-del::after { right: 0; background: var(--mantine-color-shu-6); }
+  .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
+  .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
 
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
      botones no entran en 390px, y bajarlos a su propia línea deja cada carta
@@ -356,6 +357,14 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-2); }
      escanear. Las acciones llegan por gesto, y por el modal que abre el
      toque para quien no lo use. */
   .knd-card-actions { display: none; }
+
+  /* Lo mismo en mazos y grupos, por el mismo motivo: las acciones llegan por
+     gesto y el ancho vuelve al nombre. Medido en 390px antes del cambio, la
+     fila del mazo propio -el único con algo que borrar- le dejaba al nombre y
+     al subtítulo 150 de 390px, partía el subtítulo en cuatro líneas con
+     «Borrar» flotando en el medio y crecía de 71 a 88px de alto. */
+  .knd-deck-actions,
+  .knd-group-actions { display: none; }
 }
 
 /* Aviso de error del quiz (`.toast` del mockup): posición absoluta,

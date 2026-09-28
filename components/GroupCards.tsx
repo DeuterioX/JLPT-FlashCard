@@ -13,7 +13,7 @@ import { BuiltinDot } from './BuiltinDot';
 import { Search, X } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
-import { SwipeCardRow } from './SwipeCardRow';
+import { SwipeRow } from './SwipeRow';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -593,14 +593,16 @@ export function GroupCards({
         {cards.map((c, i) => (
           <Box key={c.id} id={`card-row-${c.id}`}>
             {i > 0 && <Divider color={other.borderSoft} />}
-            <SwipeCardRow
+            <SwipeRow
               label={c.prompt}
-              canMove={!readOnly && manyGroups}
-              canDelete={!readOnly}
               tappable={!readOnly}
               onTap={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
-              onMove={() => { setMoveError(null); setMoving(c); }}
-              onDelete={() => { setDeleteError(null); setDeleting(c); }}
+              leading={!readOnly && manyGroups
+                ? { etiqueta: 'Mover', onAction: () => { setMoveError(null); setMoving(c); } }
+                : undefined}
+              trailing={!readOnly
+                ? { etiqueta: 'Borrar', onAction: () => { setDeleteError(null); setDeleting(c); } }
+                : undefined}
             >
               {/* Los anchos viven en globals.css y no acá porque tienen que
                   cambiar entre escritorio y teléfono, y un `style` inline no
@@ -659,7 +661,7 @@ export function GroupCards({
                   </Group>
                 )}
               </Group>
-            </SwipeCardRow>
+            </SwipeRow>
           </Box>
         ))}
         {cards.length === 0 && <Text p="md" size="sm" c="dimmed">Todavía no hay cartas en este grupo.</Text>}

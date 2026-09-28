@@ -8,7 +8,16 @@ import {
 } from 'react';
 
 /**
- * Fila de carta con acciones por gesto, sólo en teléfono.
+ * Fila con acciones por gesto, sólo en teléfono. La usan las tres listas:
+ * mazos, grupos y cartas.
+ *
+ * Las acciones NO están clavadas en el componente. Cada lista trae las suyas
+ * y el componente sólo decide de qué lado va cada una: el borde DERECHO es
+ * siempre Borrar y el IZQUIERDO la acción no destructiva de esa fila -Mover
+ * una carta, Practicar un mazo-. O sea que el color no dice qué acción es
+ * -eso lo dice la palabra del panel cuando se abre-, dice si te podés
+ * arrepentir. Es la convención de iOS y es la única que sobrevive a que cada
+ * lista tenga verbos distintos.
  *
  * Reglas que hacen que el gesto no moleste, todas verificadas en la maqueta:
  *
@@ -28,31 +37,38 @@ import {
  *   `useMediaQuery` por la desincronización de hidratación).
  *
  * El gesto ACELERA, no habilita: las mismas acciones están en el modal que
- * abre el toque, así que quien no lo descubre igual puede mover y borrar.
+ * abre el toque, así que quien no lo descubre igual puede usarlas.
  */
 const EDGE_GUTTER = 30;
 const OPEN_RATIO = 0.4;
 
-export function SwipeCardRow({
-  children, onTap, onMove, onDelete, canMove, canDelete, tappable, label,
+export type SwipeAction = {
+  /** La palabra del panel. Es lo que dice qué hace ese lado. */
+  etiqueta: string;
+  onAction: () => void;
+};
+
+export function SwipeRow({
+  children, onTap, tappable, label, leading, trailing,
 }: {
   children: ReactNode;
   onTap: () => void;
-  onMove: () => void;
-  onDelete: () => void;
-  canMove: boolean;
-  /**
-   * Un mazo incluido no deja borrar nada. Sin esto el panel de Borrar se
-   * dibujaba SIEMPRE -también en la pantalla que el propio código llama «un
-   * visor»-, y el gesto descubría un botón que borraba de verdad: verificado
-   * en vivo en Hiragana, el swipe dejaba el «Borrar» apretable. El servicio
-   * ahora también lo rechaza, pero un botón que existe y rebota es peor que
-   * un botón que no está.
-   */
-  canDelete: boolean;
-  /** Un mazo incluido es un visor: la fila no lleva a ningún lado. */
+  /** Una fila que no lleva a ningún lado -un mazo incluido es un visor-. */
   tappable: boolean;
+  /** Para el `aria-label` de cada panel: «Borrar けんきゅうしゃ». */
   label: string;
+  /**
+   * La acción no destructiva, a la izquierda y en jade. Ausente cuando no
+   * aplica: sin otros grupos no hay dónde mover una carta, y la lista de
+   * grupos no tiene ninguna -un grupo se renombra desde adentro-.
+   */
+  leading?: SwipeAction;
+  /**
+   * Borrar, a la derecha y en shu. Ausente en un mazo incluido: sin esto el
+   * panel se dibujaba igual y el gesto descubría un botón que borraba de
+   * verdad, en la pantalla que es un visor.
+   */
+  trailing?: SwipeAction;
 }) {
   const frontRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
@@ -60,10 +76,9 @@ export function SwipeCardRow({
   const state = useRef({ x0: 0, y0: 0, dx: 0, dragging: false, decided: false, base: 0, fromEdge: false });
 
   function width() {
-    // El que esté: sin panel derecho -mazo incluido- el ancho lo da el
-    // izquierdo. El 96 de reserva es el `6rem` del CSS a tamaño de raíz
-    // normal, y sólo se usa si no hay ninguno de los dos, que es cuando
-    // tampoco hay gesto que medir.
+    // El panel que haya: sin panel derecho el ancho lo da el izquierdo. El 96
+    // de reserva es el `6rem` del CSS a tamaño de raíz normal, y sólo se usa
+    // si no hay ninguno de los dos, que es cuando tampoco hay gesto.
     return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
   }
 
@@ -106,11 +121,10 @@ export function SwipeCardRow({
       if (mx > 0 && s.fromEdge) { s.dragging = false; return; }
       s.decided = true;
     }
-    // Sin otros grupos a los que mover, el tope superior es 0: el gesto
-    // hacia la derecha no descubre nada. Y sin permiso para borrar, el tope
-    // inferior también: la fila no se mueve para ese lado.
+    // El tope de cada lado es 0 si de ese lado no hay nada: la fila no se
+    // mueve para descubrir un panel que no existe.
     const max = width();
-    s.dx = Math.max(canDelete ? -max : 0, Math.min(canMove ? max : 0, s.base + mx));
+    s.dx = Math.max(trailing ? -max : 0, Math.min(leading ? max : 0, s.base + mx));
     setX(s.dx, false);
   }
 
@@ -123,8 +137,8 @@ export function SwipeCardRow({
     // escritorio.
     if (!s.decided) return;
     const max = width();
-    const openRight = canMove && s.dx > max * OPEN_RATIO;
-    const openLeft = canDelete && s.dx < -max * OPEN_RATIO;
+    const openRight = !!leading && s.dx > max * OPEN_RATIO;
+    const openLeft = !!trailing && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
     setX(s.base, true);
   }
@@ -142,25 +156,25 @@ export function SwipeCardRow({
 
   return (
     <div className="knd-swipe-row">
-      {canMove && (
-        <div className="knd-swipe-side knd-swipe-move" ref={leftRef}>
+      {leading && (
+        <div className="knd-swipe-side knd-swipe-lead" ref={leftRef}>
           <button
             type="button"
-            aria-label={`Mover ${label}`}
-            onClick={() => { close(); onMove(); }}
+            aria-label={`${leading.etiqueta} ${label}`}
+            onClick={() => { close(); leading.onAction(); }}
           >
-            Mover
+            {leading.etiqueta}
           </button>
         </div>
       )}
-      {canDelete && (
-        <div className="knd-swipe-side knd-swipe-del" ref={rightRef}>
+      {trailing && (
+        <div className="knd-swipe-side knd-swipe-trail" ref={rightRef}>
           <button
             type="button"
-            aria-label={`Borrar ${label}`}
-            onClick={() => { close(); onDelete(); }}
+            aria-label={`${trailing.etiqueta} ${label}`}
+            onClick={() => { close(); trailing.onAction(); }}
           >
-            Borrar
+            {trailing.etiqueta}
           </button>
         </div>
       )}
@@ -170,15 +184,25 @@ export function SwipeCardRow({
           'knd-swipe-front',
           tappable ? 'knd-row-tap' : '',
           // Un filete por borde, del color de lo que ese gesto descubre, y
-          // sólo si la acción existe. Hoy las acciones son invisibles hasta
-          // que hacés el gesto: nada dice que están ahí ni para qué lado va
-          // cada una. Van en la cara que se desliza, no en el contenedor,
-          // así se corren con la fila en vez de quedar flotando encima del
-          // panel que se acaba de descubrir.
-          canMove ? 'knd-swipe-edge-move' : '',
-          canDelete ? 'knd-swipe-edge-del' : '',
+          // sólo si la acción existe. Sin esto las acciones son invisibles
+          // hasta hacer el gesto: nada dice que están ahí ni para qué lado va
+          // cada una. Van en la cara que se desliza, no en el contenedor, así
+          // se corren con la fila en vez de quedar flotando encima del panel
+          // que se acaba de descubrir.
+          leading ? 'knd-swipe-edge-lead' : '',
+          trailing ? 'knd-swipe-edge-trail' : '',
         ].filter(Boolean).join(' ')}
         onClick={onClick}
+        // El arrastre NATIVO del navegador le gana al gesto. Con un enlace
+        // adentro de la fila -el nombre del grupo, el del mazo-, arrastrar
+        // dispara un `dragstart`, y eso manda un `pointercancel` que suelta
+        // la captura: la fila se corría los primeros 12px y se quedaba
+        // clavada ahí. Medido con un log de eventos en la lista de grupos:
+        // pointerdown, un pointermove, dragstart, pointercancel,
+        // lostpointercapture. En mazos no saltaba según de dónde agarraras,
+        // pero estaba igual de latente, así que se apaga acá y no en cada
+        // lista.
+        onDragStart={(e) => e.preventDefault()}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={end}

@@ -10,6 +10,7 @@ import {
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
+import { SwipeRow } from './SwipeRow';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -161,8 +162,21 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             {/* Las líneas INTERNAS van en `--a-border-soft`; el `--a-border`
                 más marcado queda para el borde exterior de la lista. */}
             {i > 0 && <Divider color={other.borderSoft} />}
+            {/* En teléfono las acciones llegan por gesto y los botones se
+                esconden: medido en 390px, la fila del único mazo propio le
+                dejaba al nombre y al subtítulo 150 de 390px, el subtítulo se
+                partía en cuatro líneas con «Borrar» flotando en el medio y la
+                fila pasaba de 71 a 88px de alto. */}
+            <SwipeRow
+              label={d.name}
+              tappable
+              onTap={() => router.push(`/decks/${d.id}`)}
+              leading={{ etiqueta: 'Practicar', onAction: () => router.push('/') }}
+              trailing={d.isBuiltin
+                ? undefined
+                : { etiqueta: 'Borrar', onAction: () => openConfirm(d) }}
+            >
             <ListRow
-              onClick={() => router.push(`/decks/${d.id}`)}
               icon={iconFor(d)}
               /* El nombre ES el enlace, por lo mismo que en el listado de
                  grupos: sacado el botón que navegaba -la fila ya lo hace al
@@ -183,6 +197,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 </>
               }
               subtitle={subtitleFor(d)}
+              actionsClassName="knd-deck-actions"
               actions={
                 <>
                   {/* Los incluidos no muestran Borrar: eso ya dice que no se pueden borrar. */}
@@ -203,6 +218,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 </>
               }
             />
+            </SwipeRow>
           </div>
         ))}
       </Paper>

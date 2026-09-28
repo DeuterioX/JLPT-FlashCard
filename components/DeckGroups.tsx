@@ -10,6 +10,7 @@ import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
+import { SwipeRow } from './SwipeRow';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
 
@@ -149,15 +150,23 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
             {i > 0 && <Divider color={other.borderSoft} />}
+            {/* El gesto no trae acción a la izquierda: un grupo se renombra
+                desde adentro, así que Borrar es lo único que esta fila
+                ofrece. Y no lo ofrece cuando es el último -un mazo necesita
+                al menos un grupo-, que en escritorio es el botón apagado de
+                más abajo. */}
+            <SwipeRow
+              label={g.name}
+              tappable
+              onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
+              trailing={readOnly || deck.groups.length === 1
+                ? undefined
+                : { etiqueta: 'Borrar', onAction: () => { setDelError(null); setConfirm(g); } }}
+            >
             <Group
               gap={12}
               wrap="nowrap"
               style={{ padding: '0.625rem 0.8125rem' }}
-              className="knd-row-tap"
-              onClick={(e) => {
-                if ((e.target as HTMLElement).closest('button, a, input')) return;
-                router.push(`/decks/${deck.id}/groups/${g.id}`);
-              }}
             >
               <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
                 {/* El nombre ES el enlace. Antes el único elemento enfocable
@@ -181,7 +190,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                   {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
                 </Text>
               </Stack>
-              <Group gap={5} wrap="nowrap">
+              <Group className="knd-group-actions" gap={5} wrap="nowrap">
                 {/* El último grupo no se borra: una carta siempre pertenece a
                     uno, así que el mazo necesita al menos uno. */}
                 {!readOnly && (
@@ -197,6 +206,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 )}
               </Group>
             </Group>
+            </SwipeRow>
           </div>
         ))}
       </Paper>
