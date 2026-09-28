@@ -1,5 +1,9 @@
 import { test, expect, type Page } from '@playwright/test';
 
+// El botón que arranca la ronda de escribir se llamaba «Comenzar» hasta que
+// entró el segundo verbo («Significados ➜ | Escribir ➜»). Se apunta por id y
+// no por rótulo: el id es parte del contrato de la pantalla, el texto no.
+
 // La tarjeta de grupo entera es el control (role="switch"), no un checkbox de
 // Mantine (ver components/GroupCard.tsx): `.check()` de Playwright apunta a
 // checkboxes/radios nativos y no sirve acá. En su lugar se hace click en la
@@ -57,8 +61,8 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
   const card = await toggleGroup(page, 'Serie K');
   await expect(card).toHaveAttribute('aria-checked', 'true');
 
-  await expect(page.getByRole('button', { name: /Comenzar/ })).toBeEnabled();
-  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await expect(page.locator('#begin-round-btn')).toBeEnabled();
+  await page.locator('#begin-round-btn').click();
 
   const input = page.locator('#answer-input');
   await expect(input).toBeFocused();
@@ -95,7 +99,7 @@ test('una ronda completa: errar, corregir y encadenar', async ({ page }) => {
 
 test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cerrada', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await page.locator('#begin-round-btn').click();
   await expect(page.locator('#answer-input')).toBeFocused();
   const { sessionId: first } = await storedRound(page);
 
@@ -139,7 +143,7 @@ test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cer
 
 test('Esc sale del quiz sin dejar /quiz en el historial', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await page.locator('#begin-round-btn').click();
   await expect(page.locator('#answer-input')).toBeFocused();
 
   await page.keyboard.press('Escape');
@@ -149,12 +153,12 @@ test('Esc sale del quiz sin dejar /quiz en el historial', async ({ page }) => {
 });
 
 test('el botón queda deshabilitado sin ningún grupo', async ({ page }) => {
-  await expect(page.getByRole('button', { name: /Comenzar/ })).toBeDisabled();
+  await expect(page.locator('#begin-round-btn')).toBeDisabled();
 });
 
 test('el input del quiz no deja que el teléfono lo autocorrija', async ({ page }) => {
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await page.locator('#begin-round-btn').click();
 
   const input = page.locator('#answer-input');
   // Sin esto iOS convierte "ka" en "Ka" y sugiere corregir "shi": se
@@ -170,7 +174,7 @@ test('en teléfono el input queda visible con el teclado abierto', async ({ page
   test.skip(!isMobile, 'solo aplica al proyecto de teléfono');
 
   await toggleGroup(page, 'Serie K');
-  await page.getByRole('button', { name: /Comenzar/ }).click();
+  await page.locator('#begin-round-btn').click();
 
   const input = page.locator('#answer-input');
   await input.click();
