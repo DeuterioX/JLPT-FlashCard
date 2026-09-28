@@ -6,7 +6,8 @@ import type { QuizCard } from './engine';
  * que decide qué hacer con una ronda guardada vive acá para poder testearlo.
  */
 export type StoredRound = {
-  sessionId: number; groupIds: number[]; cards: QuizCard[]; mode: 'normal' | 'review';
+  sessionId: number; groupIds: number[]; cards: QuizCard[];
+  mode: 'normal' | 'review' | 'meaning';
   /** Nombre del mazo, para el contexto de la barra superior del quiz
    * ("Hiragana · 6 grupos"). Ausente en un repaso (`mode: 'review'`): sus
    * grupos pueden venir de mazos distintos, no hay un único nombre que
@@ -47,7 +48,9 @@ export function parseStoredRound(raw: string): StoredRound | null {
   const withMode = parsed as StoredRound & { mode?: unknown; deckName?: unknown };
   return {
     ...withMode,
-    mode: withMode.mode === 'review' ? 'review' : 'normal',
+    mode: withMode.mode === 'review' || withMode.mode === 'meaning'
+      ? withMode.mode
+      : 'normal',
     deckName: typeof withMode.deckName === 'string' ? withMode.deckName : undefined,
   };
 }

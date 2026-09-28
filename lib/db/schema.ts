@@ -48,7 +48,10 @@ export const session = sqliteTable('session', {
   startedAt: text('started_at').notNull().$defaultFn(now),
   // NULL = ronda abandonada.
   finishedAt: text('finished_at'),
-  mode: text('mode', { enum: ['normal', 'review'] }).notNull().default('normal'),
+  // `review` es el repaso de las peores que sale de Estadísticas: el mismo
+  // quiz de escribir con otro pool. `meaning` es otra cosa -no se escribe, se
+  // revela y te calificás-, por eso es un valor propio y no ese.
+  mode: text('mode', { enum: ['normal', 'review', 'meaning'] }).notNull().default('normal'),
   total: integer('total').notNull().default(0),
   correct: integer('correct').notNull().default(0),
   incorrect: integer('incorrect').notNull().default(0),

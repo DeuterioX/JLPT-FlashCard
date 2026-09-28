@@ -1,4 +1,4 @@
-import { eq, inArray, asc, count, sql } from 'drizzle-orm';
+import { eq, and, inArray, isNotNull, asc, count, sql } from 'drizzle-orm';
 import type { Db } from '../db/client';
 import { deck, cardGroup, card, cardAnswer } from '../db/schema';
 import { normalizeAnswer } from '../kana/normalize';
@@ -17,6 +17,12 @@ export type GroupPreviewCard = { prompt: string; romaji: string };
 export type GroupSummary = {
   id: number; name: string; section: string | null;
   sortOrder: number; cardCount: number; preview: GroupPreviewCard[];
+  /**
+   * Cuántas de sus cartas tienen significado. Es lo que decide si un grupo
+   * puede entrar en una ronda de Significados: preguntar qué quiere decir あ
+   * no significa nada, y `card.meaning` es NULL en los mazos incluidos.
+   */
+  meaningCount: number;
 };
 
 export type DeckSummary = {
@@ -41,6 +47,16 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
         .where(inArray(card.groupId, groupIds)).groupBy(card.groupId).all()
     : [];
   const countByGroup = new Map(counts.map((c) => [c.groupId, c.n]));
+
+  // Las que tienen significado, por grupo. Va como segundo conteo y no como
+  // un `sum(case when ...)` sobre el primero porque Drizzle no modela ese
+  // agregado condicional y el SQL a mano acá no se gana nada.
+  const withMeaning = groupIds.length
+    ? db.select({ groupId: card.groupId, n: count() }).from(card)
+        .where(and(inArray(card.groupId, groupIds), isNotNull(card.meaning)))
+        .groupBy(card.groupId).all()
+    : [];
+  const meaningByGroup = new Map(withMeaning.map((c) => [c.groupId, c.n]));
 
   /**
    * Las primeras `PREVIEW_LIMIT` de CADA grupo, con su romanización primaria,
@@ -84,6 +100,7 @@ function buildSummaries(db: Db, deckRows: (typeof deck.$inferSelect)[]): DeckSum
     const own = groups.filter((g) => g.deckId === d.id).map<GroupSummary>((g) => ({
       id: g.id, name: g.name, section: g.section, sortOrder: g.sortOrder,
       cardCount: countByGroup.get(g.id) ?? 0,
+      meaningCount: meaningByGroup.get(g.id) ?? 0,
       preview: previewByGroup.get(g.id) ?? [],
     }));
     return {
@@ -198,7 +215,7 @@ export function createGroup(db: Db, deckId: number, name: string): GroupSummary 
     .returning().all();
 
   return { id: row.id, name: row.name, section: row.section, sortOrder: row.sortOrder,
-           cardCount: 0, preview: [] };
+           cardCount: 0, meaningCount: 0, preview: [] };
 }
 
 export function renameGroup(db: Db, id: number, name: string): void {

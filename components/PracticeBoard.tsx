@@ -101,7 +101,12 @@ export function PracticeBoard({
   const chosen = deck ? deck.groups.filter((g) => selected.has(g.id)) : [];
   const cardCount = chosen.reduce((n, g) => n + g.cardCount, 0);
 
-  async function begin() {
+  // Cuántas de las cartas elegidas tienen significado. Es lo que decide si
+  // «Significados» se puede apretar: en un mazo de kana no hay ninguno, y
+  // preguntar qué quiere decir あ no significa nada.
+  const meaningCount = chosen.reduce((n, g) => n + g.meaningCount, 0);
+
+  async function begin(mode: 'normal' | 'meaning' = 'normal') {
     if (busyRef.current) return;
     busyRef.current = true;
     setBusy(true);
@@ -110,7 +115,7 @@ export function PracticeBoard({
       const res = await fetch('/api/sessions', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ groupIds: chosen.map((g) => g.id) }),
+        body: JSON.stringify({ groupIds: chosen.map((g) => g.id), mode }),
       });
       if (!res.ok) {
         setError(await errorFrom(res, START_ROUND_ERROR));
@@ -258,15 +263,31 @@ export function PracticeBoard({
               {error}
             </Text>
           )}
-          <Button
-            id="begin-round-btn"
-            ml="auto"
-            onClick={begin}
-            loading={busy || pending}
-            disabled={chosen.length === 0 || busy || pending}
-          >
-            Comenzar ➜
-          </Button>
+          {/* Los dos verbos con los que arranca una ronda. El modo no es un
+              selector aparte: es la acción, y el que apretás decide de qué
+              ronda se trata. «Significados» se apaga cuando ninguna de las
+              cartas elegidas tiene uno -un mazo de kana entero-, con el
+              motivo en el `title`. */}
+          <Group gap="xs" ml="auto" wrap="nowrap">
+            <Button
+              id="begin-meaning-btn"
+              variant="default"
+              onClick={() => begin('meaning')}
+              loading={busy || pending}
+              disabled={chosen.length === 0 || meaningCount === 0 || busy || pending}
+              title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
+            >
+              Significados ➜
+            </Button>
+            <Button
+              id="begin-round-btn"
+              onClick={() => begin('normal')}
+              loading={busy || pending}
+              disabled={chosen.length === 0 || busy || pending}
+            >
+              Escribir ➜
+            </Button>
+          </Group>
         </ActionBar>
       </Stack>
     </>

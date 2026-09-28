@@ -9,7 +9,8 @@ export type RoundCard = {
   answers: string[]; primary: string;
 };
 export type RoundPayload = {
-  sessionId: number; groupIds: number[]; cards: RoundCard[]; mode: 'normal' | 'review';
+  sessionId: number; groupIds: number[]; cards: RoundCard[];
+  mode: 'normal' | 'review' | 'meaning';
 };
 
 /**
@@ -47,15 +48,22 @@ export function cardsForGroups(db: Db, groupIds: number[]): RoundCard[] {
 }
 
 export function openRound(
-  db: Db, groupIds: number[], mode: 'normal' | 'review' = 'normal',
+  db: Db, groupIds: number[], mode: 'normal' | 'review' | 'meaning' = 'normal',
 ): RoundPayload {
   if (groupIds.length === 0) throw badRequest('Elegí al menos un grupo para practicar');
 
   const found = db.select().from(cardGroup).where(inArray(cardGroup.id, groupIds)).all();
   if (found.length !== new Set(groupIds).size) throw notFound('alguno de los grupos');
 
-  const cards = cardsForGroups(db, groupIds);
-  if (cards.length === 0) throw badRequest('Los grupos elegidos no tienen cartas');
+  const todas = cardsForGroups(db, groupIds);
+  // Una ronda de significados sólo puede correr sobre cartas que TENGAN uno.
+  // El filtro va acá y no en la consulta para que el mensaje de error pueda
+  // distinguir «no hay cartas» de «no hay significados», que no es lo mismo.
+  const cards = mode === 'meaning' ? todas.filter((c) => c.meaning) : todas;
+  if (todas.length === 0) throw badRequest('Los grupos elegidos no tienen cartas');
+  if (cards.length === 0) {
+    throw badRequest('Ninguna de esas cartas tiene significado para repasar');
+  }
 
   let sessionId = 0;
   db.transaction((tx) => {

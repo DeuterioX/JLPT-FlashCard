@@ -24,6 +24,9 @@ export const updateCardSchema = z.object({
 
 export const openRoundSchema = z.object({
   groupIds: z.array(z.number().int().positive()).min(1, 'Elegí al menos un grupo'),
+  // `review` no se abre por acá -sale de su propia ruta, con el pool de las
+  // peores-, así que el cliente sólo puede pedir estos dos.
+  mode: z.enum(['normal', 'meaning']).default('normal'),
 });
 
 export const reviewRoundSchema = z.object({

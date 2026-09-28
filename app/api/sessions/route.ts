@@ -4,4 +4,7 @@ import { openRoundSchema } from '@/lib/api/schemas';
 import { openRound } from '@/lib/services/sessions';
 
 export const POST = async (req: Request) =>
-  route(async () => openRound(db, openRoundSchema.parse(await readJson(req)).groupIds), 201);
+  route(async () => {
+    const { groupIds, mode } = openRoundSchema.parse(await readJson(req));
+    return openRound(db, groupIds, mode);
+  }, 201);

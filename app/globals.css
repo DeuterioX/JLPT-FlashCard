@@ -1337,6 +1337,13 @@ input:-webkit-autofill:active {
   --knd-gc-paso: 1.6875rem;
   --knd-gc-kana: 0.875rem;
   --knd-gc-romaji: 0.5625rem;
+  /* El aire entre el primer y el último renglón y el borde de la hoja. En el
+     diseño sale solo: la tarjeta tiene alto FIJO y sobra papel, así que los
+     renglones quedan centrados con holgura. Acá la tarjeta la estira la
+     grilla al alto de la más alta de su fila, y con cinco renglones la hoja
+     medía exactamente lo que sumaban: el primero y el último quedaban
+     pegados al borde. */
+  --knd-gc-aire: 0.3125rem;
   flex: 1;
   width: 100%;
   min-width: 0;
@@ -1344,6 +1351,7 @@ input:-webkit-autofill:active {
   flex-direction: column;
   justify-content: center;
   overflow: hidden;
+  padding-block: var(--knd-gc-aire);
   border-radius: 3px;
   background-color: var(--knd-papel);
   background-image: repeating-linear-gradient(
@@ -1351,6 +1359,10 @@ input:-webkit-autofill:active {
     var(--knd-pauta) 0 1px,
     transparent 1px var(--knd-gc-paso)
   );
+  /* La pauta arranca donde arranca el CONTENIDO, no en el borde: con el
+     origen por defecto -la caja de relleno- las líneas se corrían el alto del
+     aire y dejaban de caer sobre los renglones, que es todo el punto. */
+  background-origin: content-box;
 }
 .knd-gc-papel[data-off] {
   background-color: var(--knd-papel-off);
@@ -1391,6 +1403,7 @@ input:-webkit-autofill:active {
     --knd-gc-paso: 2.4rem;
     --knd-gc-kana: 1.1875rem;
     --knd-gc-romaji: 0.59375rem;
+    --knd-gc-aire: 0.4375rem;
   }
 }
 
@@ -1403,3 +1416,41 @@ input:-webkit-autofill:active {
 
 .knd-gc-kana { font-size: var(--knd-gc-kana); }
 .knd-gc-romaji { font-size: var(--knd-gc-romaji); }
+
+/* La pantalla de Significados (ver MeaningRunner.tsx). */
+
+/* El hueco del significado, reservado también sin revelar: si apareciera de
+   la nada, la hoja saltaría hacia arriba al revelar. */
+.knd-meaning-slot {
+  min-height: 4rem;
+}
+
+/* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
+   `Espacio` o un `1` ahí prometen algo que no se puede apretar. */
+@media (max-width: 640px) {
+  .knd-solo-escritorio { display: none; }
+}
+
+/* El pie: las métricas a la izquierda, la calificación en el centro y el
+   interruptor de revelar a la derecha, que es la misma ranura donde el quiz
+   pone su Revelar. En teléfono los tres bloques se apilan en dos filas. */
+.knd-meaning-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+}
+.knd-meaning-actions { flex: 1; justify-content: center; }
+@media (max-width: 640px) {
+  .knd-meaning-footer { justify-content: center; }
+  .knd-meaning-actions,
+  .knd-meaning-reveal { flex: 1 1 auto; justify-content: center; }
+}
+@media (min-width: 641px) {
+  .knd-meaning-footer {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+  .knd-meaning-actions { justify-self: center; }
+  .knd-meaning-reveal { justify-self: end; }
+}

@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { createDb, migrate, type Db } from '../../lib/db/client';
 import { seedKana } from '../../lib/db/seed';
-import { listDecks } from '../../lib/services/decks';
+import { listDecks, createDeck, createCard } from '../../lib/services/decks';
 import { openRound, recordAttempt, closeRound } from '../../lib/services/sessions';
 import { session, sessionGroup, attempt } from '../../lib/db/schema';
 import { AppError } from '../../lib/services/errors';
@@ -147,5 +147,34 @@ describe('recordAttempt y closeRound', () => {
 
   it('closeRound da 404 si la ronda no existe', () => {
     expect(() => closeRound(db, 999999)).toThrow(expect.objectContaining({ status: 404 }));
+  });
+});
+
+describe('ronda de significados', () => {
+  it('sólo toma las cartas que TIENEN significado', () => {
+    const d = createDeck(db, { name: 'Comidas', groups: ['Pescado'] });
+    const g = d.groups[0].id;
+    createCard(db, g, { prompt: 'さかな', meaning: 'pescado', answers: ['sakana'] });
+    createCard(db, g, { prompt: 'えび', answers: ['ebi'] });
+
+    const r = openRound(db, [g], 'meaning');
+    expect(r.mode).toBe('meaning');
+    expect(r.cards.map((c) => c.prompt)).toEqual(['さかな']);
+  });
+
+  it('se niega cuando ninguna lo tiene, y lo dice distinto de «no hay cartas»', () => {
+    const d = createDeck(db, { name: 'Kana propio', groups: ['Uno'] });
+    const g = d.groups[0].id;
+    createCard(db, g, { prompt: 'あ', answers: ['a'] });
+
+    let msg = '';
+    try {
+      openRound(db, [g], 'meaning');
+    } catch (e) {
+      msg = (e as Error).message;
+    }
+    expect(msg).toContain('significado');
+    // El mismo grupo sí puede practicarse escribiendo.
+    expect(openRound(db, [g], 'normal').cards).toHaveLength(1);
   });
 });

@@ -21,7 +21,7 @@ export function RoundSummary({
   state: RoundState;
   elapsedMs: number;
   misses: MissEntry[];
-  mode: 'normal' | 'review';
+  mode: 'normal' | 'review' | 'meaning';
 }) {
   const sorted = [...misses].sort((a, b) => b.count - a.count).slice(0, 5);
   const mins = Math.floor(elapsedMs / 60000);
