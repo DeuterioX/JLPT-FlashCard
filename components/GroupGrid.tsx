@@ -28,6 +28,17 @@ const SECTION_SUFFIX: Record<string, string | undefined> = {
   'Contracciones': 'yōon',
 };
 
+// El glifo que el diseño le pone a cada sección. Mismo criterio que el mapa
+// de arriba: es presentación, no un valor del modelo. Son los términos reales
+// -濁点 dakuten, 拗音 yōon, 外来 de 外来語 para los extendidos del katakana-,
+// no glifos elegidos por cómo se ven.
+const SECTION_JP: Record<string, string | undefined> = {
+  'Básicos': '基本',
+  'Dakuten': '濁点',
+  'Contracciones': '拗音',
+  'Extendidos': '外来',
+};
+
 export function GroupGrid({
   groups, selected, onToggle,
 }: {
@@ -44,7 +55,13 @@ export function GroupGrid({
       {bySection(groups).map((section, i) => (
         <Stack gap="md" key={section.label ?? `sin-seccion-${i}`}>
           {section.label && (
-            <SectionLabel suffix={SECTION_SUFFIX[section.label]}>{section.label}</SectionLabel>
+            // El diseño rotula la sección con su glifo y su término japonés
+            // -«基本 gojūon»- en vez de la palabra en castellano. Si de
+            // alguna no hay término, queda la palabra, que es mejor que
+            // nada.
+            <SectionLabel jp={SECTION_JP[section.label]}>
+              {SECTION_SUFFIX[section.label] ?? section.label}
+            </SectionLabel>
           )}
           {/* 8 columnas en escritorio, 5 en tablet, 3 en teléfono (ver
               `.knd-group-grid` en app/globals.css). No se usa `SimpleGrid`

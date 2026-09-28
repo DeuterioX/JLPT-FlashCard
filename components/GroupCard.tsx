@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Switch, Stack, Text } from '@mantine/core';
+import { Card, Switch, Stack, Group, Text } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 
 /**
@@ -101,46 +101,46 @@ export function GroupCard({
         borderColor: 'var(--knd-border-soft)',
       }}
     >
-      <Stack gap={6} align="center">
-        {/* Tamaño, riel y color de la bolita salen enteros de
-            `theme.components.Switch` -incluido el estado prendido, que
-            ese `styles` lee directo del `checked` que se le pasa acá-. */}
-        <Switch
-          checked={checked}
-          readOnly
-          tabIndex={-1}
-          aria-hidden
-          style={{ pointerEvents: 'none' }}
-        />
-        {/* El nombre va en la misma tipografía que el kana -Zen Kaku
-            Gothic New-, como en el diseño original (ahí decía "あ行" con
-            esta letra): que ahora diga "Serie A" no cambia la fuente.
-            `wordBreak` cubre un mazo propio con un nombre de grupo o una
-            palabra sin espacios más larga que la tarjeta -en el grid de
-            3 columnas de teléfono desbordaba de verdad, pasó probando
-            con "arigatougozaimasu"-. */}
-        {/* `lh` explícito: al pasarle a `size` un string libre ("11px")
-            en vez de un nombre de la escala, Mantine no encuentra en qué
-            entrada de `theme.lineHeights` buscar y termina devolviendo un
-            line-height MENOR que el propio tamaño de letra (11px de alto
-            de línea con 11px de fuente) -las líneas se pisaban de
-            verdad-. Con un múltiplo sin unidad escala bien con cualquier
-            tamaño. */}
-        {/* Mismo color que el kana grande de abajo -brillante cuando está
-            prendida, `dark.3` cuando está apagada-, ya no el "dimmed"
-            genérico: así queda igual de vivo que el resto de la
-            tarjeta, no más apagado que ella. */}
-        {/* `textAlign` además del `align="center"` del Stack: ese centra la
-            CAJA, y un nombre que envuelve hace que la caja pase a ocupar el
-            ancho entero -con lo que deja de haber nada que centrar- y el
-            texto de adentro queda pegado a la izquierda. Pasa con «Unidad 3 -
-            Gran almacén» y con «Expresiones de uso en clase». */}
-        <Text
-          size="11px" lh={1.4} c={nameColor} className="kana"
-          style={{ wordBreak: 'break-word', maxWidth: '100%', textAlign: 'center' }}
-        >
-          {group.name}
-        </Text>
+      {/* `flex: 1` para que la hoja llene la tarjeta: la grilla ya estira
+          todas las tarjetas de una fila al mismo alto, pero sin esto el Stack
+          medía lo que medían sus hijos y a un grupo de tres cartas le quedaba
+          media tarjeta de tinta vacía abajo. */}
+      <Stack gap={6} style={{ flex: 1, minHeight: 0 }}>
+        {/* Una sola fila: el nombre a la izquierda y el interruptor a la
+            derecha, como una franja de tinta arriba de la hoja. Antes el
+            interruptor iba centrado ARRIBA del nombre, en dos renglones, que
+            es el tratamiento del mockup viejo: comía alto y dejaba el nombre
+            sin un borde contra el cual alinearse. */}
+        <Group gap={6} wrap="nowrap" justify="space-between" style={{ padding: '0 0.125rem' }}>
+          {/* El nombre va en la misma tipografía que el kana -Zen Kaku
+              Gothic New-, como en el diseño original (ahí decía "あ行" con
+              esta letra): que ahora diga "Serie A" no cambia la fuente.
+              `wordBreak` cubre un mazo propio con un nombre de grupo o una
+              palabra sin espacios más larga que la tarjeta -en el grid de
+              3 columnas de teléfono desbordaba de verdad, pasó probando
+              con "arigatougozaimasu"-. */}
+          {/* `lh` explícito: al pasarle a `size` un string libre ("11px")
+              en vez de un nombre de la escala, Mantine no encuentra en qué
+              entrada de `theme.lineHeights` buscar y termina devolviendo un
+              line-height MENOR que el propio tamaño de letra -las líneas se
+              pisaban de verdad-. */}
+          <Text
+            size="11.5px" lh={1.4} fw={500} c={nameColor} className="kana"
+            style={{ wordBreak: 'break-word', minWidth: 0 }}
+          >
+            {group.name}
+          </Text>
+          {/* Tamaño, riel y color de la bolita salen enteros de
+              `theme.components.Switch` -incluido el estado prendido, que
+              ese `styles` lee directo del `checked` que se le pasa acá-. */}
+          <Switch
+            checked={checked}
+            readOnly
+            tabIndex={-1}
+            aria-hidden
+            style={{ pointerEvents: 'none' }}
+          />
+        </Group>
 
         {/* Una línea por carta, recortada con puntos suspensivos. Partir no
             es una opción: con el kana envuelto, un yōon chico -el ゃ de
@@ -156,18 +156,17 @@ export function GroupCard({
             El alto del renglón y el paso de la pauta salen de la MISMA
             variable de CSS: separados, los renglones dejan de caer sobre las
             líneas, que es todo el punto del papel de manuscrito. */}
-        <div className="knd-gc-papel knd-gc-words" data-off={checked ? undefined : ''}>
+        <div
+          className="knd-gc-papel knd-gc-words"
+          data-off={checked ? undefined : ''}
+          data-palabras={palabras ? '' : undefined}
+        >
           {group.preview.map((p) => (
             <div key={p.prompt} className="knd-gc-fila">
-              <Text
-                className="kana knd-gc-cut"
-                size={palabras ? '13px' : '15px'}
-                lh={1.2}
-                c={kanaColor}
-              >
+              <Text className="kana knd-gc-cut knd-gc-kana" lh={1.2} c={kanaColor}>
                 {p.prompt}
               </Text>
-              <Text className="romaji knd-gc-cut" size="10px" c={romajiColor} lh={1.2}>
+              <Text className="romaji knd-gc-cut knd-gc-romaji" c={romajiColor} lh={1.2}>
                 {p.romaji}
               </Text>
             </div>
