@@ -145,7 +145,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
       <Navbar id="decks-header-crumb" currentId="decks-title" levels={[{ label: 'Mazos' }]} />
 
       <Group id="decks-header" gap={10} wrap="nowrap">
-        <SectionLabel id="decks-count">
+        <SectionLabel id="decks-count" jp="冊">
           {`${decks.length} mazos · ${totalCards} cartas`}
         </SectionLabel>
         <Button id="new-deck-btn" size="compact-sm" onClick={openCreate}>

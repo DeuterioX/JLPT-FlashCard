@@ -43,6 +43,14 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
   const [newError, setNewError] = useState<string | null>(null);
   const newRef = useRef(false);
 
+  // Renombrar un GRUPO, que es distinto de renombrar el mazo de arriba. El
+  // diseño lo pone en cada fila; antes sólo se podía desde adentro del grupo.
+  const [gRename, setGRename] = useState<DeckSummary['groups'][number] | null>(null);
+  const [gRenameValue, setGRenameValue] = useState('');
+  const [gRenameBusy, setGRenameBusy] = useState(false);
+  const [gRenameError, setGRenameError] = useState<string | null>(null);
+  const gRenameRef = useRef(false);
+
   const [confirm, setConfirm] = useState<DeckSummary['groups'][number] | null>(null);
   const [delBusy, setDelBusy] = useState(false);
   const [delError, setDelError] = useState<string | null>(null);
@@ -99,6 +107,37 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
     }
   }
 
+  function openGRename(g: DeckSummary['groups'][number]) {
+    setGRenameValue(g.name);
+    setGRenameError(null);
+    setGRename(g);
+  }
+
+  async function renameGroupName() {
+    if (gRenameRef.current || !gRename) return;
+    gRenameRef.current = true;
+    setGRenameBusy(true);
+    setGRenameError(null);
+    try {
+      const res = await fetch(`/api/groups/${gRename.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ name: gRenameValue }),
+      });
+      if (!res.ok) {
+        setGRenameError(await errorFrom(res));
+        return;
+      }
+      setGRename(null);
+      router.refresh();
+    } catch {
+      setGRenameError(NETWORK_ERROR);
+    } finally {
+      gRenameRef.current = false;
+      setGRenameBusy(false);
+    }
+  }
+
   async function deleteGroup() {
     if (delRef.current || !confirm) return;
     delRef.current = true;
@@ -133,7 +172,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       />
 
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
-        <SectionLabel id="groups-count">
+        <SectionLabel id="groups-count" jp="組">
           {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
         </SectionLabel>
         {readOnly
@@ -149,15 +188,16 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
             {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
-            {/* El gesto no trae acción a la izquierda: un grupo se renombra
-                desde adentro, así que Borrar es lo único que esta fila
-                ofrece. Y no lo ofrece cuando es el último -un mazo necesita
-                al menos un grupo-, que en escritorio es el botón apagado de
-                más abajo. */}
+            {/* Renombrar a la izquierda, Borrar a la derecha, y Borrar no
+                aparece cuando es el último grupo -un mazo necesita al menos
+                uno-, que en escritorio es el botón apagado de más abajo. */}
             <SwipeRow
               label={g.name}
               tappable
               onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
+              leading={readOnly
+                ? undefined
+                : { etiqueta: 'Renombrar', onAction: () => openGRename(g) }}
               trailing={readOnly || deck.groups.length === 1
                 ? undefined
                 : { etiqueta: 'Borrar', onAction: () => { setDelError(null); setConfirm(g); } }}
@@ -203,6 +243,15 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     Borrar
                   </Button>
                 )}
+                {!readOnly && (
+                  <Button
+                    id={`group-rename-${g.id}`}
+                    variant="default" size="compact-xs"
+                    onClick={() => openGRename(g)}
+                  >
+                    Renombrar
+                  </Button>
+                )}
               </Group>
             </Group>
             </SwipeRow>
@@ -225,6 +274,31 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           />
           {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
           <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+            Guardar
+          </Button>
+        </Stack>
+      </Modal>
+
+      <Modal
+        id="rename-group-row-modal"
+        opened={!!gRename}
+        onClose={() => setGRename(null)}
+        title="Renombrar grupo"
+      >
+        <Stack
+          component="form"
+          onSubmit={(e: FormEvent) => {
+            e.preventDefault();
+            if (!gRenameValue.trim() || gRenameBusy) return;
+            void renameGroupName();
+          }}
+        >
+          <TextInput
+            id="rename-group-row-input" label="Nombre"
+            value={gRenameValue} onChange={(e) => setGRenameValue(e.currentTarget.value)}
+          />
+          {gRenameError && <Text c="shu.6" size="sm">{gRenameError}</Text>}
+          <Button type="submit" disabled={!gRenameValue.trim() || gRenameBusy} loading={gRenameBusy}>
             Guardar
           </Button>
         </Stack>

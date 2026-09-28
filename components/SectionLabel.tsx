@@ -1,4 +1,4 @@
-import { Group, Text, Divider, rem } from '@mantine/core';
+import { Group, Text, rem } from '@mantine/core';
 
 /**
  * `.sect-label` del diseño: el encabezado de sección que se repite en toda
@@ -13,9 +13,11 @@ import { Group, Text, Divider, rem } from '@mantine/core';
  * separaciones internas.
  */
 export function SectionLabel({
-  id, children, suffix,
+  id, jp, children, suffix,
 }: {
   id?: string;
+  /** El glifo que identifica la sección: 冊 mazos, 組 grupos, 語 palabras. */
+  jp?: string;
   children: React.ReactNode;
   /**
    * Término japonés que el diseño agrega en escritorio ("Básicos · gojūon")
@@ -27,21 +29,28 @@ export function SectionLabel({
 }) {
   return (
     <Group id={id} gap={10} wrap="nowrap" style={{ flex: 1 }}>
-      <Text
-        className="romaji"
-        size={rem(9.5)}
-        lh={1.5}
-        tt="uppercase"
-        c="dark.3"
-        style={{ letterSpacing: '0.11em', whiteSpace: 'nowrap' }}
-      >
+      {/* El glifo japonés que identifica la sección. Va en la mincho del
+          diseño y es lo primero de la fila. */}
+      {jp && (
+        <Text className="kana" size={rem(19)} lh={1} c="dark.0" style={{ whiteSpace: 'nowrap' }}>
+          {jp}
+        </Text>
+      )}
+      {/* 11px en caja normal. Era mono de 9,5px en versalitas con
+          `letter-spacing`, que es el tratamiento del mockup viejo: el de
+          «tinta y papel» deja el rótulo como texto común y le da el peso al
+          glifo de al lado. */}
+      <Text size={rem(11)} lh={1.5} c="dark.3" style={{ whiteSpace: 'nowrap' }}>
         {children}
         {/* Template literal y no texto suelto con un espacio al lado del
             tag: un espacio pegado al cierre de un tag puede colapsar a
             ancho cero (ver la regla en CLAUDE.md). */}
         {suffix && <span className="knd-sect-suffix">{` · ${suffix}`}</span>}
       </Text>
-      <Divider style={{ flex: 1 }} color={'var(--knd-border-soft)'} />
+      {/* La línea lleva una marca de 18px en shu en su arranque: es el único
+          lugar donde el acento aparece sin codificar un estado, y es lo que
+          ata el encabezado al resto de la identidad. */}
+      <span className="knd-sect-rule" />
     </Group>
   );
 }

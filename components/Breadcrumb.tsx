@@ -34,6 +34,12 @@ export function Breadcrumb({
   currentId?: string;
   children?: React.ReactNode;
 }) {
+  // En el primer nivel la miga sería una sola palabra que repite lo que ya
+  // dice la pestaña activa de arriba, así que el diseño no la dibuja: Mazos
+  // arranca directo en el encabezado de sección. Recién aparece cuando hay a
+  // dónde volver, o cuando la pantalla cuelga un control de su cabecera.
+  if (trail.length === 0 && !children) return null;
+
   return (
     <Group id={id} className="knd-crumb-row" gap="0.5rem">
       {trail.map((c) => (

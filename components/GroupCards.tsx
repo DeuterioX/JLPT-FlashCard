@@ -576,7 +576,7 @@ export function GroupCards({
       )}
 
       <Group className="knd-sect-row" gap={10} wrap="nowrap">
-        <SectionLabel id="cards-count">
+        <SectionLabel id="cards-count" jp="語">
           {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
         </SectionLabel>
         {readOnly && !manyGroups && (

@@ -1341,3 +1341,22 @@ input:-webkit-autofill:active {
   align-items: center;
   justify-content: center;
 }
+
+/* La línea del encabezado de sección, con su marca de 18px en shu al
+   arranque (ver SectionLabel.tsx). Era un `Divider` pelado. */
+.knd-sect-rule {
+  position: relative;
+  flex: 1;
+  min-width: 1.25rem;
+  height: 1px;
+  background: var(--knd-border-soft);
+}
+.knd-sect-rule::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1.125rem;
+  height: 1px;
+  background: var(--mantine-color-shu-6);
+}
