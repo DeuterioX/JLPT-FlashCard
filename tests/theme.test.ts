@@ -40,13 +40,24 @@ describe('tema de Mantine', () => {
     expect(c(t[2], t[6])).toBeGreaterThan(4.5);
     // El romaji bajo cada kana, sobre el papel. Es el que menos aire tiene.
     expect(c(theme.other!.sumiDim, theme.other!.papel)).toBeGreaterThan(4.5);
+
+    // Los dos acentos son TEXTO, no sólo relleno: jade en la pestaña activa
+    // y en el significado revelado, shu en cada mensaje de error y en cada
+    // botón de Borrar -31 lugares-. Por esto shu se quedó en #E2604A: el
+    // #C4402E de la propuesta da 3,21:1 acá y no se lee.
+    expect(c(theme.colors!.jade![6], t[6])).toBeGreaterThan(4.5);
+    expect(c(theme.colors!.shu![6], t[6])).toBeGreaterThan(4.5);
   });
 
   it('usa jade como color primario, con el shade correcto en modo oscuro', () => {
     expect(theme.primaryColor).toBe('jade');
-    expect(theme.colors?.jade?.[6]).toBe('#3FBF8F');
+    expect(theme.colors?.jade?.[6]).toBe('#4FA37B');
     // Por defecto Mantine usa el shade 8 en dark, que sería demasiado apagado.
     expect(theme.primaryShade).toEqual({ light: 6, dark: 6 });
+    // El jade nuevo mide 0.2944 de luminancia y el umbral por defecto de
+    // autoContrast es 0.3: sin bajarlo, el botón primario queda con letra
+    // blanca a 3,05:1 en vez de tinta a 6,89:1.
+    expect(theme.luminanceThreshold).toBeLessThan(0.2944);
   });
 
   it('define shu para los estados de error', () => {

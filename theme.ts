@@ -21,13 +21,24 @@ const dark: MantineColorsTuple = [
   '#080A09', // 9
 ];
 
-// Acción y acierto. Generado desde #3FBF8F con el generador de Mantine.
+// Acción y acierto. Antes salía de #3FBF8F, un jade brillante que contra la
+// escala de tinta se veía neón. Ahora de #4FA37B, el verde de «tinta y
+// papel»: misma familia de tono que la tinta y no un acento que le grita.
+//
+// La rampa NO se generó de cero: se midió, para cada tono de la vieja, qué
+// proporción de blanco o de negro tenía respecto de su propio tono 6, y se
+// reaplicó sobre el ancla nueva. Así conserva la trayectoria que había
+// generado Mantine y sólo se mueve el ancla.
 const jade: MantineColorsTuple = [
-  '#E9F9F2', '#CDEFE2', '#A6E2CB', '#7BD4B2', '#57C79D',
-  '#4BC796', '#3FBF8F', '#339C76', '#27795C', '#1A5641',
+  '#ECF5F1', '#D2E7DD', '#AED5C2', '#87C0A5', '#65AE8C',
+  '#5EAB86', '#4FA37B', '#418565', '#32674E', '#234836',
 ];
 
-// Error. Generado desde #E2604A.
+// Error. Sigue en #E2604A, y NO pasa al #C4402E de la propuesta a propósito:
+// `shu.6` es TEXTO en 31 lugares -los mensajes de error, los botones de
+// Borrar-, y ahí el shu de la propuesta da 3,21:1 contra una superficie,
+// debajo del mínimo para texto. Éste da 4,69:1. El #C4402E va a servir
+// cuando entre el tema claro -ahí mide 4,56:1-, pero en oscuro no se lee.
 const shu: MantineColorsTuple = [
   '#FDEEEB', '#F9D6CF', '#F2B4A7', '#EC917F', '#E7755F',
   '#E56B55', '#E2604A', '#C74E3A', '#A43D2C', '#7F2C1F',
@@ -53,6 +64,13 @@ export const theme = createTheme({
   // según la luminosidad del fondo, componente por componente, en vez de
   // asumir blanco siempre.
   autoContrast: true,
+  // El umbral por defecto de Mantine es 0.3, y el jade nuevo (#4FA37B) mide
+  // 0.2944 de luminancia: cae del lado equivocado por seis milésimas y
+  // autoContrast le pone letra BLANCA al botón primario, que sobre ese verde
+  // da 3,05:1. Con letra oscura da 6,89:1, que además es lo que pide el
+  // diseño -el verde lleno siempre lleva tinta encima-. El jade viejo era
+  // más claro (0.4076) y caía del lado bueno solo.
+  luminanceThreshold: 0.25,
   // El diseño distingue controles (botones, cards, inputs → 7px) de
   // contenedores (Paper, paneles → 9px). El default de Mantine (`sm` =
   // 4px) no llegaba a ninguno de los dos. `defaultRadius: 'sm'` cubre los
