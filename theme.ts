@@ -301,6 +301,14 @@ export const theme = createTheme({
     papel: '#E8E1CF',
     sumi: '#191713',
     sumiDim: '#5F594E',
+    // La misma hoja, sin elegir. Es lo que dice si un grupo entra o no en la
+    // ronda: el interruptor lo repite, pero el que se ve de lejos es el
+    // papel. 33 puntos de L* por debajo del papel elegido.
+    papelOff: '#8E897A',
+    papelInk: '#23211C',
+    papelInkDim: '#3E3A33',
+    // La pauta del 原稿用紙: shu al 16%, un renglón por carta.
+    pauta: 'rgb(196 64 46 / 16%)',
 
     // El tercer color, el único fuera de jade/shu: el ámbar del semáforo de
     // Estadísticas, entre 60 y 85% de aciertos. Estaba como hex suelto en
@@ -336,6 +344,10 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--knd-papel': t.other.papel,
     '--knd-sumi': t.other.sumi,
     '--knd-sumi-dim': t.other.sumiDim,
+    '--knd-papel-off': t.other.papelOff,
+    '--knd-papel-ink': t.other.papelInk,
+    '--knd-papel-ink-dim': t.other.papelInkDim,
+    '--knd-pauta': t.other.pauta,
     '--knd-focus': t.other.inputFocusBorder,
   },
   light: {},

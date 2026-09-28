@@ -1292,3 +1292,43 @@ input:-webkit-autofill:active {
   border-radius: 3px;
   box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
 }
+
+/* La columna de papel de la tarjeta de grupo (ver GroupCard.tsx).
+
+   La tarjeta pasa a ser dos cosas: una franja de tinta arriba -interruptor y
+   nombre- y una hoja abajo con las cartas. El estado lo dice el PAPEL, que es
+   lo que se ve de lejos en una grilla de doce tarjetas: crema cuando el grupo
+   entra en la ronda, gris cuando no.
+
+   El paso de la pauta y el alto del renglón son la MISMA variable: si se
+   separan, los renglones dejan de caer sobre las líneas -que es todo el punto
+   del papel de manuscrito-. */
+.knd-gc-papel {
+  --knd-gc-paso: 1.75rem;
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 3px;
+  background-color: var(--knd-papel);
+  background-image: repeating-linear-gradient(
+    to bottom,
+    var(--knd-pauta) 0 1px,
+    transparent 1px var(--knd-gc-paso)
+  );
+}
+.knd-gc-papel[data-off] {
+  background-color: var(--knd-papel-off);
+}
+
+.knd-gc-fila {
+  height: var(--knd-gc-paso);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}

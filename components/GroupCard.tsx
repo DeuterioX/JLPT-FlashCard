@@ -29,9 +29,13 @@ export function GroupCard({
   // grupo en el medio, romaji el más apagado- en los dos estados: apagada
   // corre toda la escala un tono más oscuro, pero mantiene el mismo orden
   // relativo entre los tres en vez de emparejarlos.
-  const kanaColor = checked ? undefined : 'dark.2';
-  const nameColor = checked ? 'dark.2' : 'dark.3';
-  const romajiColor = checked ? 'dark.3' : 'dark.4';
+  // El kana y el romaji van sobre PAPEL, así que su color es tinta y no la
+  // escala de la interfaz: `dark.2` sobre crema daba 2,2:1. Apagados, la
+  // tinta se va con el papel -lo que se lee es la hoja entera, no cada
+  // renglón por separado-. El nombre sigue sobre la franja de tinta.
+  const kanaColor = checked ? 'var(--knd-sumi)' : 'var(--knd-papel-ink)';
+  const romajiColor = checked ? 'var(--knd-sumi-dim)' : 'var(--knd-papel-ink-dim)';
+  const nameColor = checked ? 'dark.0' : 'dark.3';
 
   // Cuántas quedan afuera de la previsualización. 0 = el grupo entra entero.
   const resto = group.cardCount - group.preview.length;
@@ -77,7 +81,9 @@ export function GroupCard({
       // a mano apenas el componente se remonta desde cero -pasó de verdad,
       // al cambiar de Hiragana a Katakana y volver-. Pasando todo por `bg`
       // no hay dos mecanismos compitiendo por la misma propiedad CSS.
-      bg={checked ? other.groupCardActiveBg : undefined}
+      // El contenedor ya no codifica el estado: lo dice el papel de adentro.
+      // Dos señales para lo mismo -fondo de la tarjeta y color de la hoja-
+      // se pelean, y la que se ve de lejos es la hoja.
       style={{
         cursor: 'pointer',
         minHeight: 44,
@@ -93,7 +99,7 @@ export function GroupCard({
         // Sin seleccionar usa el borde "suave" del diseño
         // (`borderSoft`), no el `dark.4` -"default"- que trae
         // Mantine solo con `withBorder`: son dos tonos distintos.
-        borderColor: checked ? other.groupCardActiveBorder : other.borderSoft,
+        borderColor: other.borderSoft,
       }}
     >
       <Stack gap={6} align="center">
@@ -143,13 +149,21 @@ export function GroupCard({
             composición japonesa eso está mal, no sólo feo. Y ningún tamaño
             de letra garantiza que cualquier palabra entre, así que el recorte
             es lo único que cubre también lo que todavía no cargaste. */}
-        <Stack className="knd-gc-words" gap={2} align="center">
+        {/* Las cartas viven en una HOJA, no sobre la tinta: es la misma
+            decisión que la del quiz, un escalón más chico. Y el estado del
+            grupo lo dice el papel -crema si entra en la ronda, gris si no-,
+            que es lo que se ve de lejos en una grilla de doce tarjetas; el
+            interruptor de arriba lo repite de cerca.
+            El alto del renglón y el paso de la pauta salen de la MISMA
+            variable de CSS: separados, los renglones dejan de caer sobre las
+            líneas, que es todo el punto del papel de manuscrito. */}
+        <div className="knd-gc-papel knd-gc-words" data-off={checked ? undefined : ''}>
           {group.preview.map((p) => (
-            <Stack key={p.prompt} gap={0} align="center" style={{ maxWidth: '100%', width: '100%' }}>
+            <div key={p.prompt} className="knd-gc-fila">
               <Text
                 className="kana knd-gc-cut"
                 size={palabras ? '13px' : '15px'}
-                lh={1.5}
+                lh={1.2}
                 c={kanaColor}
               >
                 {p.prompt}
@@ -157,9 +171,9 @@ export function GroupCard({
               <Text className="romaji knd-gc-cut" size="10px" c={romajiColor} lh={1.2}>
                 {p.romaji}
               </Text>
-            </Stack>
+            </div>
           ))}
-        </Stack>
+        </div>
         {resto > 0 && (
           <Text size="xs" c={nameColor} className="tabular">{resto} palabras más</Text>
         )}
