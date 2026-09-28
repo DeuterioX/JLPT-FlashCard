@@ -1,4 +1,4 @@
-import { Group, Text, Divider, rem, useMantineTheme } from '@mantine/core';
+import { Group, Text, Divider, rem } from '@mantine/core';
 
 /**
  * `.sect-label` del diseño: el encabezado de sección que se repite en toda
@@ -25,7 +25,6 @@ export function SectionLabel({
    */
   suffix?: string;
 }) {
-  const { other } = useMantineTheme();
   return (
     <Group id={id} gap={10} wrap="nowrap" style={{ flex: 1 }}>
       <Text
@@ -42,7 +41,7 @@ export function SectionLabel({
             ancho cero (ver la regla en CLAUDE.md). */}
         {suffix && <span className="knd-sect-suffix">{` · ${suffix}`}</span>}
       </Text>
-      <Divider style={{ flex: 1 }} color={other.borderSoft} />
+      <Divider style={{ flex: 1 }} color={'var(--knd-border-soft)'} />
     </Group>
   );
 }

@@ -1,5 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { theme } from '../theme';
+import { theme, cssVariablesResolver } from '../theme';
+
+function contraste(a: string, b: string) {
+  const Y = (h: string) => {
+    const f = (i: number) => {
+      const v = parseInt(h.slice(i, i + 2), 16) / 255;
+      return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * f(1) + 0.7152 * f(3) + 0.0722 * f(5);
+  };
+  const [hi, lo] = [Y(a), Y(b)].sort((x, y) => y - x);
+  return (hi + 0.05) / (lo + 0.05);
+}
 
 describe('tema de Mantine', () => {
   it('reemplaza el gris neutro de Mantine por la escala de tinta', () => {
@@ -22,17 +34,7 @@ describe('tema de Mantine', () => {
   it('el texto se lee sobre el fondo, y el romaji sobre el papel', () => {
     // Las razones importan más que los hexes: un cambio de paleta que baje
     // de estos números rompe el test aunque los colores «se vean bien».
-    const c = (a: string, b: string) => {
-      const Y = (h: string) => {
-        const f = (i: number) => {
-          const v = parseInt(h.slice(i, i + 2), 16) / 255;
-          return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
-        };
-        return 0.2126 * f(1) + 0.7152 * f(3) + 0.0722 * f(5);
-      };
-      const [hi, lo] = [Y(a), Y(b)].sort((x, y) => y - x);
-      return (hi + 0.05) / (lo + 0.05);
-    };
+    const c = contraste;
     const t = theme.colors!.dark!;
     // Texto principal sobre el fondo de página.
     expect(c(t[0], t[7])).toBeGreaterThan(14);
@@ -62,5 +64,26 @@ describe('tema de Mantine', () => {
 
   it('define shu para los estados de error', () => {
     expect(theme.colors?.shu?.[6]).toBe('#E2604A');
+  });
+
+  it('el esquema claro se lee tan bien como el oscuro', () => {
+    // El bloque `light` del resolver redefine la escala `dark` de Mantine,
+    // que es la que esta app usa como SU escala semántica. Si esos valores se
+    // tocan sin mirar, acá se nota.
+    const l = cssVariablesResolver(theme as never).light as Record<string, string>;
+    const fondo = l['--mantine-color-dark-7'];
+    const sup = l['--mantine-color-dark-6'];
+
+    expect(contraste(l['--mantine-color-dark-0'], fondo)).toBeGreaterThan(14);
+    expect(contraste(l['--mantine-color-dark-2'], sup)).toBeGreaterThan(4.5);
+    // Los acentos son TEXTO también en claro: el jade y el shu de esquema
+    // oscuro dan 2,7:1 y 3,2:1 sobre una página clara, por eso acá bajan.
+    expect(contraste(l['--mantine-color-jade-6'], sup)).toBeGreaterThan(4.5);
+    expect(contraste(l['--mantine-color-shu-6'], sup)).toBeGreaterThan(4.5);
+    // La letra sobre el botón primario lleno.
+    expect(contraste('#FFFFFF', l['--mantine-primary-color-filled'])).toBeGreaterThan(4.5);
+    // El papel no cambia de esquema, así que el romaji sigue midiéndose
+    // contra el mismo crema.
+    expect(contraste(theme.other!.sumiDim, theme.other!.papel)).toBeGreaterThan(4.5);
   });
 });

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { CollectionFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import {
-  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput, useMantineTheme,
+  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
@@ -58,7 +58,6 @@ function iconFor(d: DeckSummary): React.ReactNode {
 
 export function DeckList({ decks }: { decks: DeckSummary[] }) {
   const router = useRouter();
-  const { other } = useMantineTheme();
 
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
@@ -161,7 +160,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           <div key={d.id} id={`deck-row-${d.id}`}>
             {/* Las líneas INTERNAS van en `--a-border-soft`; el `--a-border`
                 más marcado queda para el borde exterior de la lista. */}
-            {i > 0 && <Divider color={other.borderSoft} />}
+            {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
             {/* En teléfono las acciones llegan por gesto y los botones se
                 esconden: medido en 390px, la fila del único mazo propio le
                 dejaba al nombre y al subtítulo 150 de 390px, el subtítulo se

@@ -3,7 +3,7 @@
 import { useRef, useState, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress, useMantineTheme,
+  Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress,
 } from '@mantine/core';
 import { MetricTile } from './MetricTile';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -129,8 +129,7 @@ export function StatsBoard({
   }
 
   const reviewCount = Math.min(REVIEW_LIMIT, worst.length);
-  const { other } = useMantineTheme();
-  const panelStyle = { padding: '0.8125rem', borderColor: other.borderSoft };
+  const panelStyle = { padding: '0.8125rem', borderColor: 'var(--knd-border-soft)' };
   const rangeDays = RANGE_DAYS[range];
   const rangeLabel = RANGE_LABEL[range];
   // "1,4 por día" del diseño. Con el rango "Siempre" no hay denominador
@@ -210,7 +209,7 @@ export function StatsBoard({
                 <Text className="romaji" size="0.71875rem" c="dimmed" w={46}>{w.primary}</Text>
                 <Progress
                   value={w.rate * 100} color="shu.6" size={4} radius={2}
-                  style={{ flex: 1 }} styles={{ root: { backgroundColor: other.borderSoft } }}
+                  style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
                 <Text size="0.71875rem" lh={1.4} c="dark.3" className="tabular">{w.errors}/{w.seen}</Text>
               </Group>
@@ -233,8 +232,8 @@ export function StatsBoard({
               <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
                 <Text className="kana" size="0.6875rem" lh={1.4} w={62} c="dimmed">{g.name}</Text>
                 <Progress
-                  value={g.accuracy * 100} color={tone(g.accuracy, other.ambar)} size={6} radius={3}
-                  style={{ flex: 1 }} styles={{ root: { backgroundColor: other.borderSoft } }}
+                  value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
+                  style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
                 <Text size="0.6875rem" lh={1.4} c="dimmed" className="tabular" w={30} ta="right">
                   {Math.round(g.accuracy * 100)}%

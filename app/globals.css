@@ -53,7 +53,8 @@ html { font-size: 100%; }
    de verdad, medido: el `:root` solo no tenía ningún efecto-. Repetir el
    mismo selector empata la especificidad, y ahí sí gana el orden de carga. */
 :root,
-:root[data-mantine-color-scheme='dark'] {
+:root[data-mantine-color-scheme='dark'],
+:root[data-mantine-color-scheme='light'] {
   --mantine-color-error: var(--mantine-color-shu-6);
 }
 

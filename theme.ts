@@ -135,8 +135,11 @@ export const theme = createTheme({
       styles: (t: MantineTheme, props: { checked?: boolean }) => ({
         thumb: {
           border: 'none',
+          // Por variable de CSS y no por `t.other`: el tema se construye una
+          // vez y no sabe de esquemas, así que en claro se habría quedado con
+          // la bolita oscura sobre el verde hondo.
           backgroundColor: props.checked
-            ? t.other.switchThumbActiveBg
+            ? 'var(--knd-switch-thumb)'
             : 'var(--mantine-color-dark-2)',
         },
       }),
@@ -282,8 +285,7 @@ export const theme = createTheme({
   // tokens de diseño sueltos, así ningún componente los vuelve a escribir
   // como hex a mano -se leen con `useMantineTheme().other.*`-.
   other: {
-    groupCardActiveBg: '#1C2A24',
-    groupCardActiveBorder: '#2E5A4C',
+
     // `--a-border-soft` del diseño: un borde más sutil que el `dark.4`
     // -"--a-border"- que usa el resto de la app (la barra de acción, el
     // riel del switcher). No es el mismo tono, así que no alcanza con
@@ -339,17 +341,86 @@ export const theme = createTheme({
  * papel es un MATERIAL -una hoja no se vuelve oscura porque la app lo sea- y
  * el foco es el mismo en los dos.
  */
+/**
+ * Lo de `theme.other` que también hace falta desde CSS, y la versión clara de
+ * todo lo que cambia con el esquema.
+ *
+ * `other` sólo existe en JS y no sabe de esquemas, así que cualquier token
+ * que tenga que cambiar entre claro y oscuro TIENE que viajar por acá. Por
+ * eso `borderSoft` y el ámbar dejaron de leerse con `useMantineTheme()` en
+ * los componentes: en JS se habrían quedado con el valor oscuro.
+ *
+ * El bloque `light` redefine la escala `dark` de Mantine. Suena raro, pero es
+ * lo correcto: esta app usa `dark.N` como SU escala semántica -`dark.3` es
+ * «placeholder», no «gris oscuro»- y la usa en todos lados. Redefiniendo esas
+ * diez variables en esquema claro, cada componente se acomoda solo, igual que
+ * pasó al cambiar el array de índigo a tinta.
+ *
+ * `jade.6` y `shu.6` también se redefinen. Los dos son TEXTO en la app -la
+ * pestaña activa, cada mensaje de error, cada botón de Borrar- y sobre una
+ * página clara el jade da 2,7:1 y el shu 3,2:1. Los tonos 8 de sus propias
+ * escalas dan 5,96:1 y 5,72:1, así que no hace falta inventar colores: ya
+ * están en la rampa.
+ */
 export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
   variables: {
+    // El papel y la tinta que va encima NO cambian: son un material.
     '--knd-papel': t.other.papel,
     '--knd-sumi': t.other.sumi,
     '--knd-sumi-dim': t.other.sumiDim,
+    '--knd-pauta': t.other.pauta,
+    '--knd-focus': t.other.inputFocusBorder,
+    // Éstos sí cambian; acá van sus valores de esquema oscuro.
     '--knd-papel-off': t.other.papelOff,
     '--knd-papel-ink': t.other.papelInk,
     '--knd-papel-ink-dim': t.other.papelInkDim,
-    '--knd-pauta': t.other.pauta,
-    '--knd-focus': t.other.inputFocusBorder,
+    '--knd-border-soft': t.other.borderSoft,
+    '--knd-ambar': t.other.ambar,
+    '--knd-switch-thumb': t.other.switchThumbActiveBg,
   },
-  light: {},
+  light: {
+    // La escala de tinta, invertida en VALOR y no en nombre: `dark.0` sigue
+    // siendo el texto más fuerte y `dark.7` el fondo de la página.
+    '--mantine-color-dark-0': '#1B211D',
+    '--mantine-color-dark-1': '#39423B',
+    '--mantine-color-dark-2': '#5C655D',
+    '--mantine-color-dark-3': '#8A928A',
+    '--mantine-color-dark-4': '#CBD0C9',
+    '--mantine-color-dark-5': '#E6E9E3',
+    '--mantine-color-dark-6': '#FBFCF9',
+    '--mantine-color-dark-7': '#F1F3EE',
+    '--mantine-color-dark-8': '#FDFEFC',
+    '--mantine-color-dark-9': '#FFFFFF',
+
+    // Las semánticas que Mantine no deriva de `dark` en esquema claro.
+    '--mantine-color-body': '#F1F3EE',
+    '--mantine-color-text': '#1B211D',
+    '--mantine-color-default': '#FBFCF9',
+    '--mantine-color-default-hover': '#E6E9E3',
+    '--mantine-color-default-border': '#CBD0C9',
+    '--mantine-color-default-color': '#1B211D',
+    '--mantine-color-dimmed': '#5C655D',
+    '--mantine-color-placeholder': '#8A928A',
+
+    // Los acentos, bajados hasta que se lean como texto sobre papel claro.
+    '--mantine-color-jade-6': '#32674E',
+    '--mantine-color-jade-filled': '#32674E',
+    '--mantine-color-jade-filled-hover': '#234836',
+    '--mantine-primary-color-filled': '#32674E',
+    '--mantine-primary-color-filled-hover': '#234836',
+    '--mantine-color-shu-6': '#A43D2C',
+
+    // El papel apagado se va en TEMPERATURA, no en claridad: en claro no hay
+    // lugar para bajar 33 puntos de L* sin quedar más oscuro que la página.
+    // Deja de ser crema y pasa a ser un gris neutro, que al lado de una hoja
+    // cálida se lee como apagado aunque la diferencia de luz sea chica.
+    '--knd-papel-off': '#D2D1CB',
+    '--knd-papel-ink': '#6E6A62',
+    '--knd-papel-ink-dim': '#908B81',
+    '--knd-border-soft': '#E6E9E3',
+    '--knd-ambar': '#8A6A12',
+    // Sobre el verde hondo de claro, la bolita va clara.
+    '--knd-switch-thumb': '#F2F7F4',
+  },
   dark: {},
 });

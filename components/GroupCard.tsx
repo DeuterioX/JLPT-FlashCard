@@ -1,6 +1,6 @@
 'use client';
 
-import { Card, Switch, Stack, Text, useMantineTheme } from '@mantine/core';
+import { Card, Switch, Stack, Text } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 
 /**
@@ -24,7 +24,6 @@ export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
-  const { other } = useMantineTheme();
   // Jerarquía de brillo de tres niveles -kana más brillante, nombre del
   // grupo en el medio, romaji el más apagado- en los dos estados: apagada
   // corre toda la escala un tono más oscuro, pero mantiene el mismo orden
@@ -99,7 +98,7 @@ export function GroupCard({
         // Sin seleccionar usa el borde "suave" del diseño
         // (`borderSoft`), no el `dark.4` -"default"- que trae
         // Mantine solo con `withBorder`: son dos tonos distintos.
-        borderColor: other.borderSoft,
+        borderColor: 'var(--knd-border-soft)',
       }}
     >
       <Stack gap={6} align="center">

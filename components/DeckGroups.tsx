@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem, useMantineTheme,
+  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
@@ -29,7 +29,6 @@ import type { DeckSummary } from '@/lib/services/decks';
  */
 export function DeckGroups({ deck }: { deck: DeckSummary }) {
   const router = useRouter();
-  const { other } = useMantineTheme();
   const readOnly = deck.isBuiltin;
 
   const [renameOpen, setRenameOpen] = useState(false);
@@ -149,7 +148,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
-            {i > 0 && <Divider color={other.borderSoft} />}
+            {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
             {/* El gesto no trae acción a la izquierda: un grupo se renombra
                 desde adentro, así que Borrar es lo único que esta fila
                 ofrece. Y no lo ofrece cuando es el último -un mazo necesita

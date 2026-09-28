@@ -18,7 +18,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
     <MantineProvider
       theme={theme}
       cssVariablesResolver={cssVariablesResolver}
-      defaultColorScheme="dark"
+      defaultColorScheme="auto"
     >
       {children}
     </MantineProvider>

@@ -1,4 +1,4 @@
-import { Paper, Stack, Text, useMantineTheme } from '@mantine/core';
+import { Paper, Stack, Text } from '@mantine/core';
 
 /**
  * Tile de métrica de Estadísticas (`.tile` del diseño). Los tres tamaños de
@@ -18,7 +18,6 @@ export function MetricTile({
   hint?: string;
   tone?: 'normal' | 'bad';
 }) {
-  const { other } = useMantineTheme();
   return (
     <Paper
       id={id}
@@ -26,7 +25,7 @@ export function MetricTile({
       radius={8}
       // Padding asimétrico 11/13 y borde `--a-border-soft` del diseño: el
       // `withBorder` de Mantine trae `dark.4`, un tono más claro.
-      style={{ padding: '0.6875rem 0.8125rem', borderColor: other.borderSoft }}
+      style={{ padding: '0.6875rem 0.8125rem', borderColor: 'var(--knd-border-soft)' }}
     >
       <Stack gap={2}>
         <Text size="0.5625rem" lh={1.4} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.06em' }}>

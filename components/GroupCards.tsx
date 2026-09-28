@@ -4,7 +4,7 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box,
-  rem, useMantineTheme,
+  rem,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
@@ -184,7 +184,6 @@ export function GroupCards({
   dictionaryLoaded: boolean;
 }) {
   const router = useRouter();
-  const { other } = useMantineTheme();
   const readOnly = deck.isBuiltin;
   const manyGroups = deck.groups.length > 1;
 
@@ -405,7 +404,7 @@ export function GroupCards({
       />
 
       {!readOnly && (
-        <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: other.borderSoft }}>
+        <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: 'var(--knd-border-soft)' }}>
           {/* Un `form` de verdad y no un `div` con botón: así Enter agrega
               desde cualquiera de los campos -incluidas las romanizaciones
               alternativas, que están acá adentro- y en teléfono el teclado
@@ -592,7 +591,7 @@ export function GroupCards({
       <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
           <Box key={c.id} id={`card-row-${c.id}`}>
-            {i > 0 && <Divider color={other.borderSoft} />}
+            {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
             <SwipeRow
               label={c.prompt}
               tappable={!readOnly}
