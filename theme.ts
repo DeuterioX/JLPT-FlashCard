@@ -318,13 +318,6 @@ export const theme = createTheme({
     // es `#fab005`, un amarillo anaranjado, contra este latón apagado- y
     // codifica un estado real, así que el tono importa.
     ambar: '#C8A23E',
-    // `--a-focus` del diseño: el borde de foco de CUALQUIER input es este
-    // azul dedicado, no el jade primario que Mantine usa por default para
-    // el foco de todo control (`--input-bd-focus: var(--mantine-primary-color-filled)`).
-    // Confirmado contra el mockup real: el mismo token aparece tanto en el
-    // input de respuesta del quiz (`.answer`) como en los campos del editor
-    // de mazo (`.field.focus`) -es compartido, no exclusivo del quiz-.
-    inputFocusBorder: '#6C8CFF',
   },
 });
 
@@ -369,7 +362,6 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--knd-sumi': t.other.sumi,
     '--knd-sumi-dim': t.other.sumiDim,
     '--knd-pauta': t.other.pauta,
-    '--knd-focus': t.other.inputFocusBorder,
     // Éstos sí cambian; acá van sus valores de esquema oscuro.
     '--knd-papel-off': t.other.papelOff,
     '--knd-papel-ink': t.other.papelInk,

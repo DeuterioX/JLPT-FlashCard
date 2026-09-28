@@ -72,8 +72,17 @@ html { font-size: 100%; }
    mínimo que evita el zoom en cualquier navegador móvil, así que se pisa
    acá para cualquier input de la app, no solo el del quiz. */
 .mantine-TextInput-input {
-  background-color: var(--mantine-color-dark-7);
+  /* Se escribe sobre PAPEL. Era el fondo de la página, que es lo que pedía
+     el mockup viejo; «tinta y papel» pone todos los campos en la misma hoja
+     donde vive el kana -el del quiz, los del editor, el del diccionario-,
+     que es de lo que se trata la dirección. */
+  background-color: var(--knd-papel);
+  color: var(--knd-sumi);
+  border-color: rgb(25 23 19 / 28%);
   font-size: 1rem;
+}
+.mantine-TextInput-input::placeholder {
+  color: var(--knd-sumi-dim);
 }
 
 /* El borde de foco de CUALQUIER input (el de respuesta del quiz, los del
@@ -94,7 +103,13 @@ html { font-size: 100%; }
    mostraba el azul de foco en vez del rojo `shu`). */
 .mantine-TextInput-input:focus:not([data-error]),
 .mantine-TextInput-input:focus-within:not([data-error]) {
-  border-color: var(--knd-focus);
+  /* El foco es tinta más un halo de shu, no un azul prestado. Sobre un campo
+     oscuro ese halo se habría leído como error -shu es el color de error de
+     la app-; sobre papel se lee como lo que es, la pauta del 原稿用紙
+     marcando dónde estás escribiendo. Por eso este cambio no podía entrar
+     antes que el papel. */
+  border-color: var(--knd-sumi);
+  box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
 }
 
 * {
@@ -398,9 +413,8 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 }
 
 .knd-quiz-toast {
-  /* Shu al 18% sobre la superficie de tinta (`dark.6`). Era `#3a2028`, que
-     era ese mismo lavado pero sobre el índigo de antes y quedaba violáceo
-     contra la escala nueva. */
+  /* Shu al 18% sobre la superficie de tinta (`dark.6`). El aviso flota sobre
+     el escenario, no sobre el papel, así que sigue siendo un lavado oscuro. */
   background: #392720;
   border: 1px solid var(--mantine-color-shu-6);
   color: var(--mantine-color-shu-6);
@@ -571,8 +585,10 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
    arriba del `<input>` real -que es el que de verdad pinta el fondo
    visible-, así que hace falta el selector descendiente. */
 .knd-quiz-answer[data-error] input {
-  /* El mismo lavado de shu que el toast de arriba. */
-  background-color: #392720;
+  /* El input SÍ es papel, así que su error es un lavado de shu sobre el
+     crema y no sobre la tinta: el mismo `#392720` de antes lo habría
+     ensuciado hasta volverlo marrón. */
+  background-color: color-mix(in srgb, var(--mantine-color-shu-6) 14%, var(--knd-papel));
 }
 
 /* Grilla de grupos: cortes a mano contra el ancho CSS real (no la
@@ -658,7 +674,8 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   font-size: 0.5625rem; /* 9px */
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--mantine-color-dark-3); /* --a-dimmer */
+  /* Va sobre papel, así que es tinta atenuada y no el gris de la interfaz. */
+  color: var(--knd-sumi-dim);
   white-space: nowrap;
 }
 
