@@ -14,6 +14,7 @@ import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
+import { GenkoSheet } from './GenkoSheet';
 import { Brand } from '../Brand';
 
 export type Round = StoredRound;
@@ -569,9 +570,11 @@ function QuizPlay({
         </Group>
       </Group>
 
-      {/* Degradé radial sutil del mockup (`.quiz-stage`), el mismo azul del
-          borde de foco (`--a-focus`, #6C8CFF) casi invisible al 7% de
-          opacidad: hoy era un fondo plano, faltaba por completo.
+      {/* Degradé radial sutil del mockup (`.quiz-stage`): hoy era un fondo
+          plano, faltaba por completo. El centro era `rgb(22,27,48)`, un
+          lavado del azul del foco, que contra la escala de tinta se veía como
+          un halo celeste alrededor de la hoja. Ahora es la superficie de la
+          propia escala (`dark.6`) apagándose hacia el fondo de página.
           Centro en 50% vertical, no el 42% del mockup: ese valor está
           calibrado contra SU stage fijo de 300px, donde el kana no queda
           exactamente centrado; acá el kana sí se centra de verdad
@@ -627,7 +630,7 @@ function QuizPlay({
           flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
           display: 'grid', placeItems: 'center',
           paddingBlock: '0.5rem',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, rgb(22,27,48), var(--mantine-color-dark-7) 100%)',
+          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--mantine-color-dark-6), var(--mantine-color-dark-7) 100%)',
         }}
       >
         {card && (
@@ -651,22 +654,19 @@ function QuizPlay({
             <div className="knd-quiz-persp">
               <div className={`knd-quiz-turn${flipped ? ' is-revealed' : ''}`}>
                 <div className="knd-quiz-face">
-                  <Text
+                  {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
+                      por carácter. El tamaño de la celda lo decide el CSS y
+                      sigue achicándose cuando el teclado deja poco alto -el
+                      `42cqh` de `--knd-genko-lado` cumple el papel que hacía
+                      el `clamp` que estaba acá-, pero además ahora una
+                      palabra larga reparte el ancho entre sus caracteres en
+                      vez de encogerse entera. */}
+                  <GenkoSheet
                     id="quiz-kana"
-                className="kana"
-                data-testid="quiz-prompt"
-                // El `min(18vw, 42cqh)` es lo que hace que el kana se achique
-                // cuando el teclado deja poco alto: `18vw` sigue mandando
-                // mientras sobre espacio (es el valor del diseño), pero
-                // `42cqh` -42% del alto del stage, que es un container de
-                // tamaño, ver arriba- lo pisa cuando el alto se vuelve el
-                // recurso escaso. Antes el mínimo de 64px era fijo y el kana
-                // era parte del piso del layout que dejaba al input afuera.
-                    style={{ fontSize: 'clamp(2rem, min(18vw, 42cqh), 162px)', lineHeight: 1 }}
-                    c={flash === 'wrong' ? 'shu.6' : undefined}
-                  >
-                    {card.prompt}
-                  </Text>
+                    testId="quiz-prompt"
+                    text={card.prompt}
+                    tone={flash === 'wrong' ? 'var(--mantine-color-shu-6)' : undefined}
+                  />
                 </div>
                 {/* El dorso: la lectura y el significado, sin repetir el
                     kana. El kana no hace falta acá porque volver a verlo
@@ -693,15 +693,28 @@ function QuizPlay({
                            26cqh)`. El dorso es el premio del giro y tiene
                            que leerse de un vistazo, no ser una nota al pie
                            del signo que reemplaza. */
-                        style={{ fontSize: 'clamp(1.5rem, min(12vw, 26cqh), 88px)', lineHeight: 1.1 }}
+                        style={{
+                          fontSize: 'clamp(1.5rem, min(12vw, 26cqh), 88px)',
+                          lineHeight: 1.1,
+                          // El dorso ahora es papel: la lectura va en tinta,
+                          // no en el color de texto del tema oscuro.
+                          color: 'var(--knd-sumi)',
+                        }}
                       >
                         {shown}
                       </Text>
                       {card.meaning && (
                         <Text
                           id="quiz-revealed-meaning"
-                          c="jade.6"
-                          style={{ fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)', lineHeight: 1.25 }}
+                          style={{
+                            fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)',
+                            lineHeight: 1.25,
+                            // Era `jade.6`, que sobre el papel da 2,41:1 y no
+                            // se lee. El sumi atenuado da 5,3:1 y además deja
+                            // la jerarquía donde va: la lectura primero, el
+                            // significado un escalón atrás.
+                            color: 'var(--knd-sumi-dim)',
+                          }}
                         >
                           {card.meaning}
                         </Text>

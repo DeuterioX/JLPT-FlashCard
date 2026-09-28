@@ -1204,3 +1204,91 @@ input:-webkit-autofill:active {
   cursor: pointer;
   color: inherit;
 }
+
+/* ─────────────────────────────────────────────────────────────────────────
+   La hoja de 原稿用紙 del quiz (ver components/quiz/GenkoSheet.tsx).
+
+   Las LÍNEAS no son bordes: el contenedor se pinta del color de la línea y
+   las celdas se separan con `gap: 1px`, así que cada línea mide exactamente
+   un píxel y las dos direcciones salen idénticas por construcción. Con un
+   borde por celda hay que ir sacando el de arriba y el de la izquierda para
+   no dibujarlos dos veces, y eso cambia el tamaño de la caja de relleno según
+   qué bordes le queden: la cruz de adentro caía en medio píxel en un eje y en
+   entero en el otro, y una de las dos guías se veía siempre más gruesa.
+   ───────────────────────────────────────────────────────────────────────── */
+.knd-genko {
+  /* El ancho útil: el del stage menos aire a los costados, con un techo para
+     que en una pantalla ancha la tira no se estire de punta a punta. */
+  --knd-genko-disp: min(100cqw - 3rem, 62rem);
+  /* El lado de la celda es el ancho útil repartido entre los caracteres, con
+     techo -para que un kana solo no ocupe media pantalla- y piso -para que
+     una frase larga no quede ilegible-. Por debajo del piso las celdas ya no
+     entran en una fila y la grilla envuelve, que es lo que hace el papel de
+     verdad. El `42cqh` entra a mandar cuando el recurso escaso es el ALTO,
+     que es lo que pasa con el teclado abierto. */
+  --knd-genko-lado: clamp(
+    2.5rem,
+    min(calc(var(--knd-genko-ancho-celdas) / var(--knd-genko-n)), 42cqh),
+    22.5rem
+  );
+  /* Lo que queda para las CELDAS: el ancho útil menos las líneas. Son
+     `n - 1` separaciones de un píxel más los dos de relleno del contenedor.
+     Sin descontarlas el total se pasaba del tope por unos pocos píxeles y la
+     grilla envolvía cuando no hacía falta -medido: en escritorio una palabra
+     de cinco kana daba 5 × 198,4 = 992 justo, y los 6px de líneas la partían
+     en dos filas-. */
+  --knd-genko-ancho-celdas: calc(
+    var(--knd-genko-disp) - var(--knd-genko-n) * 1px - 1px
+  );
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, var(--knd-genko-lado));
+  justify-content: center;
+  /* Sin este tope la hoja mide `max-content` -es un ítem flex- y nunca
+     envuelve: las celdas entrarían siempre en una fila por más chicas que
+     quedaran. */
+  max-width: var(--knd-genko-disp);
+  gap: 1px;
+  padding: 1px;
+  background: rgb(25 23 19 / 16%);
+  border-radius: 3px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+}
+
+.knd-genko-celda {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--knd-papel);
+}
+
+.knd-genko-cruz {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* `non-scaling-stroke` mantiene el trazo en un píxel de CSS sin importar
+   cuánto escale el viewBox, y sin tener que calcular el grosor en unidades
+   del viewBox desde el lado de la celda. */
+.knd-genko-cruz line {
+  stroke: rgb(160 66 50 / 20%);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.knd-genko-glifo {
+  font-size: calc(var(--knd-genko-lado) * 0.62);
+  line-height: 1;
+  color: var(--knd-sumi);
+}
+
+/* El dorso del giro es la MISMA hoja dada vuelta, no texto flotando sobre el
+   fondo de la app. Como es `inset: 0` dentro de la celda que dimensiona el
+   frente, hereda su tamaño exacto sin tener que calcularlo. */
+.knd-quiz-face-back {
+  background: var(--knd-papel);
+  border-radius: 3px;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+}
