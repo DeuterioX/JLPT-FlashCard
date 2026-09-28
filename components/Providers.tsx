@@ -1,7 +1,7 @@
 'use client';
 
 import { MantineProvider } from '@mantine/core';
-import { theme } from '../theme';
+import { theme, cssVariablesResolver } from '../theme';
 
 /**
  * El tema importa acá adentro -no en app/layout.tsx-, que es un Server
@@ -15,7 +15,11 @@ import { theme } from '../theme';
  */
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
-    <MantineProvider theme={theme} defaultColorScheme="dark">
+    <MantineProvider
+      theme={theme}
+      cssVariablesResolver={cssVariablesResolver}
+      defaultColorScheme="dark"
+    >
       {children}
     </MantineProvider>
   );

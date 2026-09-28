@@ -93,7 +93,7 @@ html { font-size: 100%; }
    mostraba el azul de foco en vez del rojo `shu`). */
 .mantine-TextInput-input:focus:not([data-error]),
 .mantine-TextInput-input:focus-within:not([data-error]) {
-  border-color: #6c8cff;
+  border-color: var(--knd-focus);
 }
 
 * {

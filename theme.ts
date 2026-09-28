@@ -1,4 +1,7 @@
-import { createTheme, rem, type MantineColorsTuple, type MantineTheme } from '@mantine/core';
+import {
+  createTheme, rem,
+  type CSSVariablesResolver, type MantineColorsTuple, type MantineTheme,
+} from '@mantine/core';
 
 // Tinta, no negro ni índigo. Reemplaza el `dark` gris neutro de Mantine.
 // Mantine deriva de este array TODAS sus variables semánticas, así que
@@ -313,4 +316,28 @@ export const theme = createTheme({
     // de mazo (`.field.focus`) -es compartido, no exclusivo del quiz-.
     inputFocusBorder: '#6C8CFF',
   },
+});
+
+/**
+ * Lo de `theme.other` que también hace falta desde CSS.
+ *
+ * `other` sólo existe en JS, así que hasta acá el azul del foco vivía dos
+ * veces: como token acá y como `#6c8cff` escrito a mano en globals.css -y el
+ * token, de hecho, no lo leía nadie-. El papel y el sumi van a hacer falta
+ * en CSS sí o sí cuando la hoja de 原稿用紙 entre en el quiz, así que en vez
+ * de sumar una segunda copia se expone el diccionario.
+ *
+ * Van en `variables` y no en `dark`: no dependen del esquema de color. El
+ * papel es un MATERIAL -una hoja no se vuelve oscura porque la app lo sea- y
+ * el foco es el mismo en los dos.
+ */
+export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
+  variables: {
+    '--knd-papel': t.other.papel,
+    '--knd-sumi': t.other.sumi,
+    '--knd-sumi-dim': t.other.sumiDim,
+    '--knd-focus': t.other.inputFocusBorder,
+  },
+  light: {},
+  dark: {},
 });
