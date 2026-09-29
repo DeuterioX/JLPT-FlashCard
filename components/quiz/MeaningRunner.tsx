@@ -129,6 +129,14 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
           justifyContent: 'center', gap: '1rem', position: 'relative',
           background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--mantine-color-dark-6), var(--mantine-color-dark-7) 100%)',
         }}
+        /* En teléfono el escenario ES el interruptor de revelar: el botón se
+           esconde y el toque sobre la carta muestra y tapa el significado.
+           Sigue siendo un interruptor, como el botón que reemplaza. */
+        onClick={() => {
+          if (terminada) return;
+          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          setRevelado((v) => !v);
+        }}
       >
         {card && (
           <>
@@ -148,6 +156,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
             <Text id="meaning-caption" className="knd-quiz-caption tabular">
               {`carta ${i + 1} de ${cards.length}`}
             </Text>
+            {/* El botón de revelar no está en teléfono, así que algo tiene que
+                decir que la carta se toca. Sólo mientras está tapada: una vez
+                revelada, que se vuelva a tocar para ocultar ya se deduce. */}
+            {!revelado && (
+              <Text className="knd-tocar knd-solo-telefono">tocá la carta para revelar</Text>
+            )}
           </>
         )}
         {terminada && (

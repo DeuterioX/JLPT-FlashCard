@@ -1889,3 +1889,27 @@ input:-webkit-autofill:active {
   --button-fz: 0.75rem !important;
   --button-padding-x: 0.5rem !important;
 }
+
+/* Lo que sólo existe en teléfono, al revés de `.knd-solo-escritorio`. */
+.knd-solo-telefono { display: none; }
+@media (max-width: 640px) {
+  .knd-solo-telefono { display: block; }
+
+  /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
+     `onClick` del escenario en QuizRunner.tsx y MeaningRunner.tsx. En el quiz
+     eso le devuelve el ancho del pie al input, que es lo único que ahí hace
+     falta; en Significados deja los dos de calificarse repartiéndose la fila. */
+  .knd-quiz-reveal,
+  .knd-meaning-reveal { display: none; }
+  .knd-meaning-footer { grid-template-columns: repeat(2, 1fr); }
+
+  /* La única pista de que la carta se toca. Va bajo el «carta N de M», en el
+     mismo gris apagado y un escalón más chica: es una instrucción que se lee
+     una vez y después estorba. */
+  .knd-tocar {
+    font-size: 0.6875rem;
+    line-height: 1.4;
+    color: var(--mantine-color-dark-3);
+    text-align: center;
+  }
+}

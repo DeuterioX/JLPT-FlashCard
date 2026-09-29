@@ -632,6 +632,27 @@ function QuizPlay({
           paddingBlock: '0.5rem',
           background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--mantine-color-dark-6), var(--mantine-color-dark-7) 100%)',
         }}
+        /* En teléfono el escenario ES el botón de revelar: el botón se
+           esconde y el toque sobre la carta la da vuelta. Es el gesto que
+           uno hace con una tarjeta de verdad, y devuelve el ancho del pie al
+           input, que es lo único que ahí hace falta.
+
+           `preventDefault` en el `pointerdown` y no un `onClick` pelado: sin
+           eso, tocar el escenario le saca el foco al input y se cierra el
+           teclado, o sea que revelar te cuesta volver a tocar el campo para
+           seguir escribiendo. Previniendo el default del puntero el foco no
+           se mueve y el teclado se queda donde está.
+
+           En escritorio no hace nada: ahí está el botón, y está la barra
+           espaciadora. */
+        onPointerDown={(e) => {
+          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          e.preventDefault();
+        }}
+        onClick={() => {
+          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          onReveal();
+        }}
       >
         {card && (
           // `pos="relative"` acá, no solo en `quiz-stage`: el mockup posiciona
@@ -733,6 +754,13 @@ function QuizPlay({
                 giro, que ocupa la misma celda que el kana y por lo tanto
                 tampoco mueve nada. */}
             <Stack id="quiz-under-kana" className="knd-quiz-under" align="center" gap={5}>
+              {/* El botón de revelar no está en teléfono, así que algo tiene
+                  que decir que la carta se toca. Cuelga del kana, como todo lo
+                  demás de este bloque, y sólo mientras está tapada: que se
+                  vuelva a tocar para ocultar ya se deduce. */}
+              {!flipped && (
+                <Text className="knd-tocar knd-solo-telefono">tocá la carta para revelar</Text>
+              )}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
               {flash === 'wrong' && (
                 <Text id="quiz-wrong-hint" className="knd-quiz-toast">
