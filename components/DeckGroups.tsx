@@ -187,7 +187,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           )}
       </Group>
 
-      <Paper id="groups-list" className="knd-lista" withBorder style={{ overflow: 'hidden' }}>
+      <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
             {i > 0 && <Divider color={'var(--knd-border-soft)'} />}

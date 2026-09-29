@@ -159,7 +159,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
       {/* `overflow: hidden` para que el fondo de la primera y la última
           fila siga el radio de la caja (`.rowlist` del diseño). */}
-      <Paper id="decks-list" className="knd-lista" withBorder style={{ overflow: 'hidden' }}>
+      <Paper id="decks-list" withBorder style={{ overflow: 'hidden' }}>
         {decks.map((d, i) => (
           <div key={d.id} id={`deck-row-${d.id}`}>
             {/* Las líneas INTERNAS van en `--a-border-soft`; el `--a-border`

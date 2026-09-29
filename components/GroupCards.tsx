@@ -609,7 +609,7 @@ export function GroupCards({
 
       {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
 
-      <Paper id="cards-list" className="knd-lista" withBorder style={{ overflow: 'hidden' }}>
+      <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
           <Box key={c.id} id={`card-row-${c.id}`}>
             {i > 0 && <Divider color={'var(--knd-border-soft)'} />}

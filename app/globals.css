@@ -346,11 +346,8 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 .knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
 
 @media (max-width: 640px) {
-  /* El panel entra desde su borde POR ENCIMA de la fila, y a la fila no se la
-     mueve. Lo mueve `--knd-swipe-x`, que escribe `SwipeRow.tsx` mientras dura
-     el arrastre: a 0 el panel está justo afuera de cuadro y al llegar a su
-     ancho queda al ras del borde. El `overflow: hidden` de la fila lo recorta
-     mientras tanto, así que cerrado no existe para el ojo ni para el dedo. */
+  /* El panel vive detrás de la fila, pegado a su borde, y la fila se corre para
+     descubrirlo. */
   .knd-swipe-side {
     position: absolute;
     top: 0;
@@ -358,13 +355,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     width: 6rem;
     display: grid;
     place-items: center;
-    z-index: 1;
-    transition: var(--knd-swipe-anim, none);
-    /* Cerrado no recibe toques: está fuera de cuadro pero sigue siendo parte
-       de la fila, y sin esto se comería los toques de esa franja. */
-    pointer-events: none;
   }
-  .knd-swipe-row[data-open] .knd-swipe-side { pointer-events: auto; }
   /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
      izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
      pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
@@ -373,14 +364,12 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   .knd-swipe-lead {
     left: 0;
     background: var(--mantine-color-jade-6);
-    transform: translateX(calc(var(--knd-swipe-x, 0px) - 100%));
   }
   /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
      Safari. */
   .knd-swipe-trail {
     right: 0;
     background: var(--mantine-color-shu-6);
-    transform: translateX(calc(var(--knd-swipe-x, 0px) + 100%));
   }
   .knd-swipe-side button {
     width: 100%;
@@ -393,9 +382,11 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   }
   .knd-swipe-trail button { color: #f7f3ea; }
 
-  /* Los dos paneles viven siempre en el DOM, uno pegado a cada borde. No hace
-     falta esconder ninguno: arrastrando para un lado, el del otro lado se va
-     más afuera todavía, así que nunca se ven los dos a la vez. */
+  /* El panel abierto va por encima de la cara: ver `marcarAbierto` en
+     `SwipeRow.tsx`. Sin esto un toque sobre el botón dentro de los 180ms de la
+     animación caía en la cara, que todavía lo tapaba. */
+  .knd-swipe-row[data-open='lead'] .knd-swipe-lead,
+  .knd-swipe-row[data-open='trail'] .knd-swipe-trail { z-index: 2; }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
@@ -415,32 +406,29 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      leen como un tilde por fila sin necesidad de dejarles aire, que
      probado en la maqueta los dejaba como pastillas apoyadas sobre el
      borde de la caja. */
-  /* El filete que anuncia el gesto: un tilde por fila, METIDO adentro de la
-     caja y con las puntas redondeadas.
+  /* El filete que anuncia el gesto: 3px pegados al borde de la fila, de punta
+     a punta, sin retiro y sin radio. Jade a la izquierda para la acción no
+     destructiva de esa lista -Mover una carta, Renombrar un grupo, Practicar
+     un mazo- y shu a la derecha para Borrar, y sólo el de la acción que esa
+     fila tenga disponible: un filete que no está es una acción que no está.
 
-     Antes iba a tope -de borde a borde de la fila y pegado al costado-, y ahí
-     hace dos cosas feas a la vez: se apoya encima del borde de 1px de la lista
-     -así que el marco deja de ser un marco y pasa a tener dos lados de color-
-     y, en la primera y la última fila, choca de frente contra la esquina
-     redondeada, donde el recorte le deja una punta cortada que se lee como si
-     el color se derramara fuera de la caja.
-
-     Retirado 3px del costado nunca toca el borde, y retirado 8px arriba y
-     abajo nunca llega a las esquinas: el marco queda entero y gris, y cada
-     fila lleva su tilde de color adentro. Es lo que el tilde quiere decir -de
-     este lado hay una acción- sin disputarle el contorno a la caja. */
+     Es tal cual `filos_swipe` en el canvas, y ahí está probado y descartado
+     retirarlo: con 8px arriba y abajo el filete queda de 3x39 apoyado ENCIMA
+     del borde de 1px de la lista, el borde asoma en el hueco entre un filete y
+     el siguiente, y el marco entero termina pareciendo un borde punteado rojo.
+     Que en una lista donde todas las filas tienen la misma acción quede una
+     línea corrida no es un problema: es verdad. Lo que tiene que distinguirse
+     es la fila que NO la tiene. */
   .knd-swipe-edge-lead::before,
   .knd-swipe-edge-trail::after {
     content: '';
     position: absolute;
-    top: 0.5rem;
-    bottom: 0.5rem;
+    top: 0;
+    bottom: 0;
     width: 3px;
-    border-radius: 2px;
   }
-  .knd-swipe-edge-lead::before { left: 3px; background: var(--mantine-color-jade-6); }
-  .knd-swipe-edge-trail::after { right: 3px; background: var(--mantine-color-shu-6); }
-  .knd-lista > *:last-child .knd-swipe-edge-trail::after { bottom: var(--mantine-radius-md); }
+  .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
+  .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
 
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
      botones no entran en 390px, y bajarlos a su propia línea deja cada carta

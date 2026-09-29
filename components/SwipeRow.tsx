@@ -83,33 +83,26 @@ export function SwipeRow({
     return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
   }
 
-  /**
-   * El desplazamiento del gesto, como variable en el contenedor.
-   *
-   * Lo que se mueve es el PANEL, no la fila. Antes se corría la fila entera y
-   * eso rompía lo único que el gesto tiene que dejar claro: cuál es la fila.
-   * Medido en la lista de grupos: el nombre arranca a 13px del borde y el
-   * panel mide 96, así que al descubrir Borrar la fila se iba 96px a la
-   * izquierda y «Unidad 1» quedaba entera fuera de la pantalla -la caja se
-   * veía vacía, con un bloque rojo al costado y nada que dijera qué estabas
-   * por borrar-. Para una acción destructiva eso no es un detalle.
-   *
-   * Ahora el panel entra desde su borde por encima de la fila: el nombre se
-   * queda donde está todo el tiempo y lo que tapa es la cola de la fila, que
-   * no tiene información. El gesto sigue siguiendo al dedo igual.
-   */
+  /** La fila se corre y descubre el panel que tiene detrás, como en iOS. */
   function setX(px: number, animate: boolean) {
-    const el = rootRef.current;
+    const el = frontRef.current;
     if (!el) return;
-    el.style.setProperty('--knd-swipe-anim', animate ? 'transform .18s ease' : 'none');
-    el.style.setProperty('--knd-swipe-x', `${px}px`);
+    el.style.transition = animate ? 'transform .18s ease' : 'none';
+    el.style.transform = `translateX(${px}px)`;
   }
 
   /**
-   * Qué lado está descubierto, como atributo en el contenedor. Lo usa el CSS
-   * para dejar pasar los toques al panel sólo cuando está a la vista: con el
-   * panel siempre por encima de la fila, sin esto se comería los toques de esa
-   * franja aunque estuviera corrido fuera de cuadro.
+   * Qué lado está descubierto, como atributo en el contenedor.
+   *
+   * El panel descubierto se pone POR ENCIMA de la cara mientras está abierto,
+   * y eso arregla un toque que se perdía: la cara tarda 180ms en llegar a su
+   * lugar y el navegador prueba el impacto contra la posición ANIMADA, así que
+   * un toque sobre el botón apenas soltabas el dedo caía en la cara, que
+   * todavía lo estaba tapando.
+   *
+   * Sólo mientras está abierto, porque el panel mide 6rem pegadas al borde: si
+   * quedara arriba siempre se comería los toques de esa franja de la fila
+   * cerrada, que es justo donde está el nombre.
    */
   function marcarAbierto(lado: 'lead' | 'trail' | null) {
     const el = rootRef.current;
@@ -136,6 +129,11 @@ export function SwipeRow({
     s.decided = false;
     s.dragging = true;
     s.fromEdge = e.clientX - r.left < EDGE_GUTTER;
+    // La marca del gesto ANTERIOR se levanta acá y no al soltar. Si no, un
+    // panel que quedó abierto de un lado se queda por encima de la cara
+    // mientras arrastrás para el OTRO lado, y entonces se ven los dos a la vez
+    // -Renombrar de un lado y Borrar del otro-. Pasó de verdad.
+    marcarAbierto(null);
     el.setPointerCapture(e.pointerId);
   }
 
