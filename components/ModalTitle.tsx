@@ -13,13 +13,20 @@ import { Group, Text, rem } from '@mantine/core';
  * por su botón rojo, que es donde está la acción, y gritar en dos lugares le
  * quita peso al botón. Además se leía peor: medido, el título en shu da
  * 3,21:1 contra el fondo del modal y en tinta 13,75:1.
+ *
+ * El shu del glifo es `shu.6` -el `#C4402E` del canvas- y no `--knd-shu-txt`,
+ * que es la variante aclarada para texto. Acá no hace falta: el glifo no se
+ * lee, se reconoce -el que dice qué hace el modal es el texto de al lado-, y
+ * es la misma marca que la del filete de los encabezados de sección, así que
+ * tiene que ser el mismo rojo. Con el aclarado quedaba salmón y no coincidía
+ * con ningún otro shu de la pantalla.
  */
 export function ModalTitle({ jp, children }: { jp: string; children: React.ReactNode }) {
   return (
     // `baseline` y no `center`: el glifo tiene otra caja de línea que el
     // latino, y centrados por caja quedan a distinta altura visual.
     <Group gap={rem(9)} wrap="nowrap" align="baseline">
-      <Text className="mincho" size={rem(18)} lh={1} c="var(--knd-shu-txt)">{jp}</Text>
+      <Text className="mincho" size={rem(18)} lh={1} c="var(--mantine-color-shu-6)">{jp}</Text>
       <Text size={rem(14)} fw={700}>{children}</Text>
     </Group>
   );

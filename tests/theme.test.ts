@@ -47,12 +47,21 @@ describe('tema de Mantine', () => {
     // revelado-, así que tiene que leerse como tal.
     expect(c(theme.colors!.jade![6], t[6])).toBeGreaterThan(4.5);
 
-    // Shu tiene DOS papeles y por eso dos valores. `shu.6` es el del diseño
-    // y es RELLENO -el botón de borrar, el filete del gesto, la marca del
-    // encabezado, el glifo de los modales-: le alcanza con el 3:1 que pide
-    // una marca. `shuTxt` es el que se lee, y ése sí necesita 4,5.
+    // Shu es UNO SOLO, el `#C4402E` del canvas, y sirve de relleno y de texto.
+    // Como relleno -el botón de borrar, el filete del gesto, la marca del
+    // encabezado, el glifo de los modales- pasa el 3:1 que pide una marca.
+    //
+    // Como texto NO llega a 4,5:1 y es a propósito: da 3,21:1. Se probó
+    // partirlo en dos, un shu aclarado para texto, y el resultado fue una
+    // pantalla con dos rojos distintos donde el aclarado se leía salmón al
+    // lado de cualquier relleno. La decisión es fidelidad a la paleta, con el
+    // costo medido y acotado: este rojo es el de los mensajes de error y las
+    // cifras de error, nunca el de un texto largo, y la palabra siempre dice
+    // lo mismo que el color. Si alguien sube este número, que sea cambiando la
+    // paleta del canvas primero.
     expect(c(theme.colors!.shu![6], t[7])).toBeGreaterThan(3);
-    expect(c(theme.other!.shuTxt, t[6])).toBeGreaterThan(4.5);
+    expect(theme.other!.shuTxt).toBe(theme.colors!.shu![6]);
+    expect(c(theme.other!.shuTxt, t[6])).toBeGreaterThan(3);
   });
 
   it('usa jade como color primario, con el shade correcto en modo oscuro', () => {
@@ -86,9 +95,10 @@ describe('tema de Mantine', () => {
     // Los acentos son TEXTO también en claro: el jade y el shu de esquema
     // oscuro dan 2,7:1 y 3,2:1 sobre una página clara, por eso acá bajan.
     expect(contraste(l['--mantine-color-jade-6'], sup)).toBeGreaterThan(4.5);
-    // Sobre papel claro el relleno del diseño ya se lee solo, así que acá
-    // `shu.6` no se redefine; lo que cambia de lado es el shu de texto.
+    // El mismo y único shu también acá: sobre la página clara se lee mejor que
+    // sobre la oscura -4,60:1- así que en claro ni siquiera hay costo.
     expect(contraste(theme.colors!.shu![6], fondo)).toBeGreaterThan(3);
+    expect(l['--knd-shu-txt']).toBe(theme.colors!.shu![6]);
     expect(contraste(l['--knd-shu-txt'], sup)).toBeGreaterThan(4.5);
     // La letra sobre el botón primario lleno.
     expect(contraste('#FFFFFF', l['--mantine-primary-color-filled'])).toBeGreaterThan(4.5);

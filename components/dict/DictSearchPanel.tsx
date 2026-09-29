@@ -122,7 +122,7 @@ export function DictSearchPanel({
       // Centrado, cada tecleo lo reacomoda vertical y el campo de búsqueda
       // se mueve solo bajo el cursor.
       centered={false}
-      title={<ModalTitle jp="辞">Buscar en el diccionario</ModalTitle>}
+      title={<ModalTitle jp="辞">Diccionario</ModalTitle>}
     >
       {/* Tres bandas: el buscador arriba, los resultados con su propio
           scroll en el medio, y el pie abajo. Antes scrolleaba el cuerpo

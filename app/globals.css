@@ -385,6 +385,13 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      animación caía en la cara, que todavía lo tapaba. */
   .knd-swipe-row[data-open='lead'] .knd-swipe-lead,
   .knd-swipe-row[data-open='trail'] .knd-swipe-trail { z-index: 2; }
+
+  /* Sólo se ve el panel del lado que estás descubriendo. Los dos viven siempre
+     en el DOM, uno pegado a cada borde, y mientras arrastrabas asomaban los
+     dos: Renombrar de un lado y Borrar del otro, al mismo tiempo. El gesto
+     tiene UNA consecuencia y tiene que mostrar una sola. */
+  .knd-swipe-row[data-dir='lead'] .knd-swipe-trail,
+  .knd-swipe-row[data-dir='trail'] .knd-swipe-lead { visibility: hidden; }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
@@ -414,6 +421,17 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   }
   .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
   .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
+
+  /* En la PRIMERA y la ÚLTIMA fila el filete se retira del extremo lo que mide
+     el radio de la caja. Sin esto el filete llega a tope y ahí la caja tiene
+     una esquina redondeada: el recorte parte la punta del filete en una cuña y
+     la deja asomando por fuera de la curva, encima del borde. Se veía como si
+     el rojo y el verde se derramaran fuera de la lista. Retirado, el filete
+     arranca donde la caja ya es recta y las esquinas vuelven a ser esquinas. */
+  .knd-lista > *:first-child .knd-swipe-edge-lead::before,
+  .knd-lista > *:first-child .knd-swipe-edge-trail::after { top: var(--mantine-radius-md); }
+  .knd-lista > *:last-child .knd-swipe-edge-lead::before,
+  .knd-lista > *:last-child .knd-swipe-edge-trail::after { bottom: var(--mantine-radius-md); }
 
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
      botones no entran en 390px, y bajarlos a su propia línea deja cada carta
@@ -1725,17 +1743,15 @@ input:-webkit-autofill:active {
 /* El círculo del diseño: un anillo de 1px con un punto adentro, no el disco
    lleno con un punto NEGRO que trae Mantine -su `--radio-icon-color` es
    `--mantine-color-black`, el único negro puro que aparecería en la app-. El
-   anillo se enciende en jade al elegirlo y el punto es del mismo jade, así que
-   la marca es de un solo color. */
+   anillo se enciende en jade al elegirlo. El punto de adentro no se puede
+   pintar desde acá -Mantine escribe `--radio-icon-color` inline en la raíz del
+   control- y va por el prop `iconColor`, en GroupCards.tsx. */
 .knd-move-opt .mantine-Radio-radio {
   background-color: transparent;
   border-color: var(--mantine-color-dark-4);
 }
 .knd-move-opt[data-checked] .mantine-Radio-radio {
   border-color: var(--mantine-color-jade-6);
-}
-.knd-move-opt {
-  --radio-icon-color: var(--mantine-color-jade-6);
 }
 /* `label` de Mantine trae su propio `padding-left`; acá el espacio entre la
    bolita y el nombre lo pone el `gap` del cuerpo, que es el del diseño. */
@@ -1798,4 +1814,22 @@ input:-webkit-autofill:active {
   .knd-worst-rom { width: 3.625rem; }
   .knd-worst-num { width: 2.75rem; }
   .knd-group-name { width: 5.625rem; }
+}
+
+/* El «Borrar» de una fila de lista: 12px, peso 600 y 8px de relleno lateral,
+   que son los del canvas -su `.btn.danger` de fila es un texto shu, no un
+   botón lleno-. `compact-xs` trae 11px y 9px, que es la medida del resto de
+   los botones chicos de la app.
+
+   El color va por el prop `color="shu.6"` y no por `c=`: es el `#C4402E` del
+   diseño, el mismo rojo del filete del encabezado de sección y del glifo de
+   los modales. Estaba en `--knd-shu-txt`, la variante aclarada para texto
+   corrido, y al lado de cualquier otro shu de la pantalla se leía salmón. */
+.knd-borrar-fila {
+  /* `!important` porque el tamaño `compact-xs` llega como estilo INLINE -lo
+     escribe el `vars` del tema-, y contra un inline no gana ninguna clase por
+     especificidad. Es el único lugar donde hace falta y está acotado a estos
+     tres botones. */
+  --button-fz: 0.75rem !important;
+  --button-padding-x: 0.5rem !important;
 }

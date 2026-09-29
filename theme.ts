@@ -393,11 +393,21 @@ export const theme = createTheme({
     // es `#fab005`, un amarillo anaranjado, contra este latón apagado- y
     // codifica un estado real, así que el tono importa.
     ambar: '#C8A23E',
-    // El shu que se LEE. El relleno va en `shu.6`, el del diseño; como texto
-    // ese da 3,21:1 sobre una superficie oscura. Éste es el mismo shu unos
-    // tonos más claro: 5,47:1. En claro hace falta el camino inverso y lo
-    // resuelve el bloque `light` del resolver.
-    shuTxt: '#D77C70',
+    // El shu, y hay UNO SOLO: el `#C4402E` del canvas, igual de relleno que de
+    // texto y en los dos esquemas. Acá hubo un intento de partirlo en dos -un
+    // rojo aclarado para texto, `#D77C70`, y otro oscurecido para claro- para
+    // llegar a 4,5:1 de contraste. Se descartó: al lado del relleno de un
+    // botón de borrar, del filete de un encabezado y del glifo de un modal,
+    // ese aclarado se lee salmón y la pantalla queda con dos rojos que no son
+    // el mismo color. La paleta del canvas tiene un solo shu y no tiene
+    // variante por tema, a propósito -es el acento de la marca-.
+    //
+    // El precio está medido y es consciente: como texto sobre la superficie
+    // oscura da 3,21:1, por debajo del 4,5:1 que pide un texto corrido. Es el
+    // color de los mensajes de error y de las cifras de error, nunca de algo
+    // que haya que leer largo, y siempre acompañado por la palabra que dice lo
+    // mismo. Sobre la página clara da 4,60:1.
+    shuTxt: '#C4402E',
     // La tinta que se apoya SOBRE el verde: el rótulo del botón primario y la
     // bolita del switch encendido. En el diseño es un token propio
     // (`verdeInk`) justamente porque se da vuelta por tema -tinta casi negra
@@ -506,10 +516,9 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--mantine-color-jade-filled-hover': '#234836',
     '--mantine-primary-color-filled': '#2C7A54',
     '--mantine-primary-color-filled-hover': '#234836',
-    // Sobre papel claro el relleno del diseño ya se lee solo (4,56:1), así
-    // que `shu.6` NO se toca acá. Lo que cambia es el texto, que necesita ir
-    // al otro lado: 6,64:1.
-    '--knd-shu-txt': '#A23526',
+    // `shu.6` no se toca acá y el texto tampoco: es el mismo `#C4402E` que en
+    // oscuro. Un solo shu, como en la paleta del canvas.
+    '--knd-shu-txt': '#C4402E',
     // Sobre el verde claro la letra se da vuelta: la regla del diseño es «lo
     // que se apoya sobre verde va en verdeInk», y ese token cambia por tema.
     '--knd-verde-ink': '#F2F7F4',

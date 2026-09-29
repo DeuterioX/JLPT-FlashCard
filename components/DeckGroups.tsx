@@ -187,7 +187,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           )}
       </Group>
 
-      <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
+      <Paper id="groups-list" className="knd-lista" withBorder style={{ overflow: 'hidden' }}>
         {deck.groups.map((g, i) => (
           <div key={g.id} id={`group-row-${g.id}`}>
             {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
@@ -238,7 +238,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 {!readOnly && (
                   <Button
                     id={`group-delete-${g.id}`}
-                    variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
+                    variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila"
                     disabled={deck.groups.length === 1}
                     title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
                     onClick={() => { setDelError(null); setConfirm(g); }}

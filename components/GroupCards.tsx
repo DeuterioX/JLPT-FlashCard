@@ -89,7 +89,7 @@ function EditCardModal({
       opened={opened}
       keepMounted
       onClose={onClose}
-      title={<ModalTitle jp="編">Editar carta</ModalTitle>}
+      title={<ModalTitle jp="編">Editar palabra</ModalTitle>}
     >
       <Stack
         component="form"
@@ -543,7 +543,13 @@ export function GroupCards({
                 leftSectionWidth={rem(84)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
                 value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
               />
-              <Button type="submit" disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
+              {/* `default` y no el primario: en el canvas el alta de palabra
+                  cierra con `boton("Agregar", h=36)`, o sea el botón neutro. El
+                  verde del formulario se lo lleva «Agregar» del DICCIONARIO,
+                  que ahí sí es `primario`. Tiene sentido: éste es el paso
+                  final de un formulario que ya estás completando, no la acción
+                  que te invita a empezar algo. */}
+              <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
                 Agregar
               </Button>
             </div>
@@ -603,7 +609,7 @@ export function GroupCards({
 
       {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
 
-      <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
+      <Paper id="cards-list" className="knd-lista" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
           <Box key={c.id} id={`card-row-${c.id}`}>
             {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
@@ -656,7 +662,7 @@ export function GroupCards({
                   <Group className="knd-card-actions" gap={5} wrap="nowrap">
                     <Button
                       id={`card-delete-${c.id}`}
-                      variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
+                      variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila"
                       onClick={() => { setDeleteError(null); setDeleting(c); }}
                       loading={deletingId === c.id}
                       disabled={deletingId !== null}
@@ -738,7 +744,7 @@ export function GroupCards({
         id="move-card-modal"
         opened={!!moving}
         onClose={() => { setMoving(null); setDestino(null); }}
-        title={<ModalTitle jp="移">{moving ? `Mover «${moving.prompt}» a…` : 'Mover'}</ModalTitle>}
+        title={<ModalTitle jp="移">Mover palabra</ModalTitle>}
       >
         {/* Una lista de opciones con su confirmación, no un botón por grupo
             que mueve al tocarlo. Mover es una acción con destino: elegir el
@@ -753,22 +759,35 @@ export function GroupCards({
             </Text>
             {' a:'}
           </Text>
+          {/* El grupo actual NO aparece. Estaba listado y deshabilitado, con un
+              «· acá está» al lado, para decir dónde estabas parado; pero una
+              lista de destinos posibles no es el lugar para eso -el destino
+              que no se puede elegir no es un destino-, y el nombre del grupo
+              ya está en la miga de arriba de la pantalla. */}
           <Radio.Group value={destino === null ? '' : String(destino)} onChange={(v) => setDestino(Number(v))}>
             <Stack gap={2}>
-              {deck.groups.map((g) => (
+              {deck.groups.filter((g) => g.id !== group.id).map((g) => (
                 <Radio
                   key={g.id}
                   id={`move-to-${g.id}`}
                   value={String(g.id)}
-                  disabled={g.id === group.id || moveBusy}
+                  disabled={moveBusy}
                   className="knd-move-opt"
                   /* 16px, el preset más chico: el círculo del diseño mide 14 y
                      los 20 del default de Mantine, al lado de un nombre de
                      13px, pesan más que el nombre. */
                   size="xs"
+                  /* El punto de adentro va en jade, no en el negro que Mantine
+                     mete por default. Y va como PROP y no por CSS: Mantine
+                     escribe `--radio-icon-color` como estilo INLINE en la raíz
+                     del control -medido: `--radio-icon-color:
+                     var(--mantine-color-black)`-, así que una regla de clase
+                     nunca le iba a ganar. La marca queda de un solo color:
+                     anillo y punto en jade. */
+                  iconColor="jade.6"
                   label={
                     <Group gap={10} wrap="nowrap" justify="space-between" style={{ flex: 1 }}>
-                      <Text size={rem(13)}>{g.id === group.id ? `${g.name} · acá está` : g.name}</Text>
+                      <Text size={rem(13)}>{g.name}</Text>
                       <Text size={rem(11)} c="dark.3" className="tabular">{g.cardCount}</Text>
                     </Group>
                   }
