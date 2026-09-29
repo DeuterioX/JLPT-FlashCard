@@ -83,27 +83,33 @@ export function SwipeRow({
     return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
   }
 
+  /**
+   * El desplazamiento del gesto, como variable en el contenedor.
+   *
+   * Lo que se mueve es el PANEL, no la fila. Antes se corría la fila entera y
+   * eso rompía lo único que el gesto tiene que dejar claro: cuál es la fila.
+   * Medido en la lista de grupos: el nombre arranca a 13px del borde y el
+   * panel mide 96, así que al descubrir Borrar la fila se iba 96px a la
+   * izquierda y «Unidad 1» quedaba entera fuera de la pantalla -la caja se
+   * veía vacía, con un bloque rojo al costado y nada que dijera qué estabas
+   * por borrar-. Para una acción destructiva eso no es un detalle.
+   *
+   * Ahora el panel entra desde su borde por encima de la fila: el nombre se
+   * queda donde está todo el tiempo y lo que tapa es la cola de la fila, que
+   * no tiene información. El gesto sigue siguiendo al dedo igual.
+   */
   function setX(px: number, animate: boolean) {
-    const el = frontRef.current;
+    const el = rootRef.current;
     if (!el) return;
-    el.style.transition = animate ? 'transform .18s ease' : 'none';
-    el.style.transform = `translateX(${px}px)`;
+    el.style.setProperty('--knd-swipe-anim', animate ? 'transform .18s ease' : 'none');
+    el.style.setProperty('--knd-swipe-x', `${px}px`);
   }
 
   /**
-   * Qué lado está descubierto, como atributo en el contenedor.
-   *
-   * No es decoración: el panel descubierto se pone POR ENCIMA de la cara que
-   * se desliza mientras está abierto, y eso arregla un toque que se perdía.
-   * La cara tarda 180ms en llegar a su lugar, y el navegador hace la prueba
-   * de impacto contra la posición ANIMADA: un toque sobre el botón apenas
-   * soltabas el dedo caía en la cara, que todavía lo estaba tapando, y no
-   * pasaba nada; esperando un momento sí funcionaba. Con el panel arriba el
-   * botón recibe el toque desde el primer cuadro.
-   *
-   * Sólo mientras está abierto, porque el panel mide 6rem pegadas al borde: si
-   * quedara arriba siempre se comería los toques de esa franja de la fila
-   * cerrada -que es justo donde está el nombre del mazo o del grupo-.
+   * Qué lado está descubierto, como atributo en el contenedor. Lo usa el CSS
+   * para dejar pasar los toques al panel sólo cuando está a la vista: con el
+   * panel siempre por encima de la fila, sin esto se comería los toques de esa
+   * franja aunque estuviera corrido fuera de cuadro.
    */
   function marcarAbierto(lado: 'lead' | 'trail' | null) {
     const el = rootRef.current;
@@ -112,29 +118,9 @@ export function SwipeRow({
     else delete el.dataset.open;
   }
 
-  /**
-   * Qué lado se está descubriendo, desde el primer píxel del arrastre.
-   *
-   * Los dos paneles viven siempre en el DOM, uno pegado a cada borde, y hasta
-   * ahora los dos estaban visibles: al arrastrar se veían Renombrar Y Borrar a
-   * la vez, uno de cada lado, y el gesto dejaba de decir qué iba a pasar. El
-   * panel del lado contrario no tiene por qué estar: nunca vas a llegar a él
-   * sin soltar y arrastrar para el otro lado.
-   *
-   * Se marca en cuanto el gesto se decide -no al soltar-, así el panel que no
-   * corresponde desaparece antes de asomar.
-   */
-  function marcarDireccion(lado: 'lead' | 'trail' | null) {
-    const el = rootRef.current;
-    if (!el) return;
-    if (lado) el.dataset.dir = lado;
-    else delete el.dataset.dir;
-  }
-
   function close() {
     state.current.base = 0;
     marcarAbierto(null);
-    marcarDireccion(null);
     setX(0, true);
   }
 
@@ -169,8 +155,6 @@ export function SwipeRow({
     // mueve para descubrir un panel que no existe.
     const max = width();
     s.dx = Math.max(trailing ? -max : 0, Math.min(leading ? max : 0, s.base + mx));
-    // Arrastrar hacia la DERECHA descubre el panel de la izquierda, y al revés.
-    marcarDireccion(s.dx > 0 ? 'lead' : (s.dx < 0 ? 'trail' : null));
     setX(s.dx, false);
   }
 
@@ -187,10 +171,6 @@ export function SwipeRow({
     const openLeft = !!trailing && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
     marcarAbierto(openRight ? 'lead' : (openLeft ? 'trail' : null));
-    // Si no quedó abierta, la fila vuelve sola y con ella el panel se va: la
-    // marca de dirección se levanta recién cuando terminó de volver, así no se
-    // ve el panel desaparecer antes que la cara lo tape.
-    if (s.base === 0) window.setTimeout(() => marcarDireccion(null), 190);
     setX(s.base, true);
   }
 

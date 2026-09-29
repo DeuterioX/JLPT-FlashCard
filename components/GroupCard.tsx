@@ -173,7 +173,10 @@ export function GroupCard({
           ))}
         </div>
         {resto > 0 && (
-          <Text size="xs" c={nameColor} className="tabular">
+          // Centrado: cuelga debajo de la hoja, que es un bloque centrado, y
+          // pegado a la izquierda quedaba desalineado con todo lo que tiene
+          // arriba.
+          <Text size="xs" c={nameColor} className="tabular" ta="center">
             {resto === 1 ? '1 palabra más' : `${resto} palabras más`}
           </Text>
         )}

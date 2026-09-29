@@ -346,6 +346,11 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 .knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
 
 @media (max-width: 640px) {
+  /* El panel entra desde su borde POR ENCIMA de la fila, y a la fila no se la
+     mueve. Lo mueve `--knd-swipe-x`, que escribe `SwipeRow.tsx` mientras dura
+     el arrastre: a 0 el panel está justo afuera de cuadro y al llegar a su
+     ancho queda al ras del borde. El `overflow: hidden` de la fila lo recorta
+     mientras tanto, así que cerrado no existe para el ojo ni para el dedo. */
   .knd-swipe-side {
     position: absolute;
     top: 0;
@@ -353,7 +358,13 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     width: 6rem;
     display: grid;
     place-items: center;
+    z-index: 1;
+    transition: var(--knd-swipe-anim, none);
+    /* Cerrado no recibe toques: está fuera de cuadro pero sigue siendo parte
+       de la fila, y sin esto se comería los toques de esa franja. */
+    pointer-events: none;
   }
+  .knd-swipe-row[data-open] .knd-swipe-side { pointer-events: auto; }
   /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
      izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
      pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
@@ -362,12 +373,14 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   .knd-swipe-lead {
     left: 0;
     background: var(--mantine-color-jade-6);
+    transform: translateX(calc(var(--knd-swipe-x, 0px) - 100%));
   }
   /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
      Safari. */
   .knd-swipe-trail {
     right: 0;
     background: var(--mantine-color-shu-6);
+    transform: translateX(calc(var(--knd-swipe-x, 0px) + 100%));
   }
   .knd-swipe-side button {
     width: 100%;
@@ -380,18 +393,9 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   }
   .knd-swipe-trail button { color: #f7f3ea; }
 
-  /* El panel abierto va por encima de la cara: ver `marcarAbierto` en
-     `SwipeRow.tsx`. Sin esto un toque sobre el botón dentro de los 180ms de la
-     animación caía en la cara, que todavía lo tapaba. */
-  .knd-swipe-row[data-open='lead'] .knd-swipe-lead,
-  .knd-swipe-row[data-open='trail'] .knd-swipe-trail { z-index: 2; }
-
-  /* Sólo se ve el panel del lado que estás descubriendo. Los dos viven siempre
-     en el DOM, uno pegado a cada borde, y mientras arrastrabas asomaban los
-     dos: Renombrar de un lado y Borrar del otro, al mismo tiempo. El gesto
-     tiene UNA consecuencia y tiene que mostrar una sola. */
-  .knd-swipe-row[data-dir='lead'] .knd-swipe-trail,
-  .knd-swipe-row[data-dir='trail'] .knd-swipe-lead { visibility: hidden; }
+  /* Los dos paneles viven siempre en el DOM, uno pegado a cada borde. No hace
+     falta esconder ninguno: arrastrando para un lado, el del otro lado se va
+     más afuera todavía, así que nunca se ven los dos a la vez. */
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
@@ -411,26 +415,31 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      leen como un tilde por fila sin necesidad de dejarles aire, que
      probado en la maqueta los dejaba como pastillas apoyadas sobre el
      borde de la caja. */
+  /* El filete que anuncia el gesto: un tilde por fila, METIDO adentro de la
+     caja y con las puntas redondeadas.
+
+     Antes iba a tope -de borde a borde de la fila y pegado al costado-, y ahí
+     hace dos cosas feas a la vez: se apoya encima del borde de 1px de la lista
+     -así que el marco deja de ser un marco y pasa a tener dos lados de color-
+     y, en la primera y la última fila, choca de frente contra la esquina
+     redondeada, donde el recorte le deja una punta cortada que se lee como si
+     el color se derramara fuera de la caja.
+
+     Retirado 3px del costado nunca toca el borde, y retirado 8px arriba y
+     abajo nunca llega a las esquinas: el marco queda entero y gris, y cada
+     fila lleva su tilde de color adentro. Es lo que el tilde quiere decir -de
+     este lado hay una acción- sin disputarle el contorno a la caja. */
   .knd-swipe-edge-lead::before,
   .knd-swipe-edge-trail::after {
     content: '';
     position: absolute;
-    top: 0;
-    bottom: 0;
+    top: 0.5rem;
+    bottom: 0.5rem;
     width: 3px;
+    border-radius: 2px;
   }
-  .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
-  .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
-
-  /* En la PRIMERA y la ÚLTIMA fila el filete se retira del extremo lo que mide
-     el radio de la caja. Sin esto el filete llega a tope y ahí la caja tiene
-     una esquina redondeada: el recorte parte la punta del filete en una cuña y
-     la deja asomando por fuera de la curva, encima del borde. Se veía como si
-     el rojo y el verde se derramaran fuera de la lista. Retirado, el filete
-     arranca donde la caja ya es recta y las esquinas vuelven a ser esquinas. */
-  .knd-lista > *:first-child .knd-swipe-edge-lead::before,
-  .knd-lista > *:first-child .knd-swipe-edge-trail::after { top: var(--mantine-radius-md); }
-  .knd-lista > *:last-child .knd-swipe-edge-lead::before,
+  .knd-swipe-edge-lead::before { left: 3px; background: var(--mantine-color-jade-6); }
+  .knd-swipe-edge-trail::after { right: 3px; background: var(--mantine-color-shu-6); }
   .knd-lista > *:last-child .knd-swipe-edge-trail::after { bottom: var(--mantine-radius-md); }
 
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
@@ -917,11 +926,21 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
   justify-content: center;
   transition: opacity 200ms ease, transform 260ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
+/* El dorso comparte la celda de la grilla con el frente, NO va en posición
+   absoluta encima. Absoluto quedaba clavado al tamaño del frente, que lo fija
+   la hoja de 原稿用紙: con una frase larga -«すみません» y «Disculpe (se utiliza
+   al comienzo de una expresión)»- el texto del dorso no entraba y se derramaba
+   por arriba y por abajo del papel, encima del fondo de la pantalla.
+
+   Compartiendo celda, la caja mide lo que mide la cara más alta de las dos y
+   el papel siempre contiene su texto. De paso desaparece el salto al revelar:
+   el alto ya está reservado desde antes, no cambia cuando la cara se cruza. */
 .knd-quiz-face-back {
-  position: absolute;
-  inset: 0;
   opacity: 0;
   transform: scale(1.04);
+  /* El papel necesita margen propio: el frente es una grilla de celdas que ya
+     trae el suyo, el dorso es texto suelto sobre la hoja. */
+  padding: 1rem 1.25rem;
 }
 .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) {
   opacity: 0;
@@ -1407,6 +1426,22 @@ input:-webkit-autofill:active {
   background: var(--knd-papel);
   border-radius: 3px;
   box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+  /* Nunca más ancho que la hoja del frente ni que la pantalla. */
+  max-width: min(100cqw - 3rem, 62rem);
+}
+
+/* Y lo de adentro se ata al ancho de la hoja. Sin esto el texto se salía por
+   los dos costados: el romaji de una frase es UNA sola palabra sin espacios
+   -«korehanihongodenantoiimasuka»- así que no tiene dónde cortar solo, y el
+   significado tampoco tenía contra qué medirse porque el `Stack` que lo
+   contiene mide lo que mide su contenido. `anywhere` le da permiso de cortar
+   la transcripción en cualquier letra, que para un romaji largo es preferible
+   a que se vaya de la hoja. */
+.knd-quiz-face-back > * { width: 100%; }
+.knd-quiz-face-back .mantine-Text-root {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 
 /* La columna de papel de la tarjeta de grupo (ver GroupCard.tsx).
@@ -1439,7 +1474,13 @@ input:-webkit-autofill:active {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  /* Los renglones arrancan ARRIBA, no centrados en la hoja. Centrados, un
+     grupo de tres kana quedaba flotando en el medio del papel con aire arriba
+     y abajo, y al lado de otro de cinco las dos hojas no compartían ningún
+     renglón: la pauta dejaba de leerse como pauta. Desde arriba, el primer
+     renglón de todas las tarjetas cae a la misma altura, que es lo que hace
+     una hoja rayada de verdad. Horizontalmente cada renglón sigue centrado. */
+  justify-content: flex-start;
   overflow: hidden;
   padding-block: var(--knd-gc-aire);
   border-radius: 3px;
