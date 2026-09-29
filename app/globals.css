@@ -905,74 +905,87 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
 /* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
    Antes la respuesta se agregaba debajo; ahora está en el dorso.
 
-   El revelado es un FUNDIDO, no un giro sobre Y. El giro estaba en la maqueta
-   y en la app, y visto sobre las cartas de verdad no funciona: lo que gira es
-   una hoja de 原稿用紙 de una o dos celdas, o sea un cuadrado chico con una
-   cruz de guía adentro, y al pasar por el canto el rotateY lo deja en una
-   línea vertical de dos píxeles con el glifo estirado -la cruz, que es lo que
-   dice que eso es papel de manuscrito, se aplasta contra sí misma-. Una hoja
-   grande puede dar vuelta; un cuadrito de 44px se deforma.
+   El revelado es un GIRO SOBRE EL EJE X: la hoja cae hacia adelante, pasa de
+   canto y sube por atrás con la lectura. Elegido contra dos alternativas que
+   se maquetaron y se miraron en movimiento (canvas, fila «Revelar · dos
+   maquetas para elegir»): ésta, que gira la hoja entera como un solo objeto, y
+   una que giraba celda por celda con 90ms de diferencia. La segunda se
+   descartó porque al pasar cada celda por su canto se ve el fondo de la
+   pantalla a través de ella y la hoja deja de ser una superficie.
 
-   Así que las dos caras se cruzan: la de adelante se va apagando y achicándose
-   un 4% -como si se alejara- y la de atrás entra desde un 4% más grande. Queda
-   el mismo mensaje -una cara reemplaza a la otra en el mismo lugar- sin
-   deformar nada, y dura menos: 260ms contra 380.
+   Sobre X y no sobre Y, que es lo que hubo al principio: girando sobre Y, una
+   hoja de una o dos celdas -un cuadrado chico con una cruz de guía adentro-
+   queda de canto en una línea vertical de dos píxeles con el glifo estirado, y
+   la cruz, que es lo que dice que eso es papel de manuscrito, se aplasta
+   contra sí misma. Sobre X el eje de giro es el lado largo de la hoja, así que
+   hasta una frase de dos renglones gira como una página que se da vuelta.
 
-   Tres cosas que no son negociables acá:
+   Cuatro cosas que no son negociables acá:
 
-   - El frente ocupa la celda y el dorso va ENCIMA, en posición absoluta:
-     así el alto del bloque lo fija siempre el kana grande del frente, y las
-     tres líneas del dorso no empujan lo que cuelga abajo ni crean un piso
-     de layout de los que ya nos costaron caro con el teclado abierto.
-   - La regla del frente tiene que excluir al dorso (`:not(.knd-quiz-face-back)`):
-     el dorso lleva las dos clases, y sin la exclusión se apagaría junto con
-     el frente y no se vería nada.
-   - Nada de `filter` sobre las caras: crea un contexto de apilado propio y
-     rompe el cruce. */
+   - La `perspective` va en el PADRE DIRECTO de lo que gira, y en un div
+     propio, no en el `Box` de afuera: `perspective` convierte al elemento en
+     bloque contenedor de sus descendientes absolutos, y el layout de
+     emergencia de más abajo -el que con el teclado abierto pone
+     `.knd-quiz-kana-wrap` en `static` para que el aviso de error se ancle al
+     piso del stage- dejaría de funcionar si el Box la tuviera.
+   - El dorso va en posición absoluta y CENTRADO sobre el eje de giro, con su
+     alto natural. Las tres combinaciones se probaron: con `inset: 0` queda
+     clavado al tamaño del frente y una frase larga se derrama fuera del papel;
+     compartiendo la celda de la grilla el papel contiene su texto pero la caja
+     pasa a medir lo que mide la cara MÁS ALTA, y entonces la hoja flota en el
+     medio de un hueco reservado y lo que cuelga abajo -la pista, el aviso de
+     error- queda a 126px en vez de a 14. Centrado y absoluto no dimensiona
+     nada: la caja sigue siendo la hoja, el dorso crece hacia los dos lados
+     desde el mismo centro sobre el que gira, y el texto lo contiene su propio
+     papel.
+   - `backface-visibility: hidden` en las dos caras y el dorso pre-girado
+     180°: es lo que hace que en cada mitad del giro se vea una sola.
+   - Nada de `filter` sobre las caras: aplana el contexto 3D y el giro se ve
+     como un aplastado lineal, sin volumen. */
+.knd-quiz-persp { perspective: 1400px; }
+
 .knd-quiz-turn {
   display: grid;
   position: relative;
+  transform-style: preserve-3d;
+  /* 380ms, y la curva de la maqueta: arranca lento, cruza el canto rápido y
+     frena al llegar. Es lo que hace que se lea como una hoja con peso. */
+  transition: transform 380ms cubic-bezier(0.45, 0.05, 0.35, 1);
 }
+.knd-quiz-turn.is-revealed { transform: rotateX(180deg); }
 
 .knd-quiz-face {
   grid-area: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 200ms ease, transform 260ms cubic-bezier(0.2, 0.75, 0.25, 1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
-/* El dorso comparte la celda de la grilla con el frente, NO va en posición
-   absoluta encima. Absoluto quedaba clavado al tamaño del frente, que lo fija
-   la hoja de 原稿用紙: con una frase larga -«すみません» y «Disculpe (se utiliza
-   al comienzo de una expresión)»- el texto del dorso no entraba y se derramaba
-   por arriba y por abajo del papel, encima del fondo de la pantalla.
-
-   Compartiendo celda, la caja mide lo que mide la cara más alta de las dos y
-   el papel siempre contiene su texto. De paso desaparece el salto al revelar:
-   el alto ya está reservado desde antes, no cambia cuando la cara se cruza. */
 .knd-quiz-face-back {
-  opacity: 0;
-  transform: scale(1.04);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* El orden importa: primero se centra y después se da vuelta, así el eje de
+     giro del dorso es el mismo que el de la hoja. */
+  transform: translate(-50%, -50%) rotateX(180deg);
+  width: max-content;
   /* El papel necesita margen propio: el frente es una grilla de celdas que ya
      trae el suyo, el dorso es texto suelto sobre la hoja. */
   padding: 1rem 1.25rem;
 }
-.knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) {
-  opacity: 0;
-  transform: scale(0.96);
-}
-.knd-quiz-turn.is-revealed .knd-quiz-face-back {
-  opacity: 1;
-  transform: none;
+
+/* Con movimiento reducido el giro se cambia por un fundido entre las dos
+   caras: se saca el movimiento, no la función de revelar. */
+@media (prefers-reduced-motion: reduce) {
+  .knd-quiz-turn { transition: none; }
+  .knd-quiz-turn.is-revealed { transform: none; }
+  .knd-quiz-face { transition: opacity 160ms ease; }
+  .knd-quiz-face-back { transform: translate(-50%, -50%); opacity: 0; }
+  .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) { opacity: 0; }
+  .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
 }
 
-/* Con movimiento reducido queda el fundido solo, sin el acercamiento: se saca
-   el movimiento, no la función de revelar. */
-@media (prefers-reduced-motion: reduce) {
-  .knd-quiz-face { transition: opacity 160ms ease; }
-  .knd-quiz-face-back { transform: none; }
-  .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) { transform: none; }
-}
 
 /* Las tres columnas de una fila de carta.
 

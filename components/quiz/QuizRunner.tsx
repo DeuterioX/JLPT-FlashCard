@@ -665,9 +665,14 @@ function QuizPlay({
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
           <Box pos="relative" className="knd-quiz-kana-wrap">
-            {/* El bloque que se cruza al revelar: la hoja se apaga y en su
-                lugar entra la respuesta, las dos en la misma celda. */}
-            <div>
+            {/* El bloque que gira al revelar. La perspectiva va en ESTE div y
+                no en el `Box` de afuera: `perspective` convierte al elemento
+                en bloque contenedor de sus descendientes absolutos, y el
+                layout de emergencia de globals.css -el que con el teclado
+                abierto pone `.knd-quiz-kana-wrap` en `static` para que el
+                aviso de error se ancle al piso del stage- dejaría de
+                funcionar si el Box la tuviera. */}
+            <div className="knd-quiz-persp">
               <div className={`knd-quiz-turn${flipped ? ' is-revealed' : ''}`}>
                 <div className="knd-quiz-face">
                   {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
@@ -689,17 +694,25 @@ function QuizPlay({
                     cuesta un toque -«Revelar» alterna y escribir devuelve al
                     frente solo-, así que duplicarlo sería ruido.
 
-                    Va en posición absoluta y no compartiendo la celda con el
-                    frente: así el alto del bloque lo fija SIEMPRE el kana
-                    grande del frente, y el dorso no empuja lo que cuelga
-                    abajo por más líneas que tenga. */}
-                <div className="knd-quiz-face knd-quiz-face-back">
+                    Está SIEMPRE renderizado, no sólo una vez revelado:
+                    comparte la celda de la grilla con el frente, así que es él
+                    quien fija el alto de la caja cuando es más alto -y con una
+                    frase y un significado largo lo es-. Agregándolo al
+                    revelar, la caja crecía en el mismo momento del giro:
+                    medido en teléfono con けんきゅうしゃ, de 83 a 308px. Como
+                    está dado vuelta y con `backface-visibility: hidden`, no se
+                    ve hasta que la hoja gira.
+
+                    `aria-hidden` mientras no esté revelado: escondido para el
+                    ojo pero presente en el DOM, un lector de pantalla cantaría
+                    la respuesta antes de que la pidas. */}
+                <div className="knd-quiz-face knd-quiz-face-back" aria-hidden={!flipped}>
                   {/* El hueco entre la lectura y el significado es más grande
                       que el de un Stack normal a propósito: son dos datos
                       distintos -cómo se dice y qué quiere decir-, no dos
                       renglones del mismo. Pegados se leen como una sola cosa
                       partida en dos. */}
-                  {shown && (
+                  {(shown ?? card.primary) && (
                     <Stack align="center" gap={14}>
                       <Text
                         id="quiz-revealed-answer"
@@ -717,7 +730,7 @@ function QuizPlay({
                           color: 'var(--knd-sumi)',
                         }}
                       >
-                        {shown}
+                        {shown ?? card.primary}
                       </Text>
                       {card.meaning && (
                         <Text
