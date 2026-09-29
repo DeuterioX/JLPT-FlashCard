@@ -837,24 +837,31 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
 }
 
-/* Un botón deshabilitado se APAGA, no se repinta: es el `apagado` de
-   `boton()` en el diseño, `opacity: .42` sobre el botón entero -fondo, borde y
-   palabra a la vez-. Así sigue siendo reconocible como el mismo botón, sólo
-   que fuera de alcance, y no hay que inventarle ningún color.
+/* Un botón deshabilitado: superficie de control apagada y palabra atenuada,
+   con su contorno. Los dos salen de la escala de tinta, así que funcionan en
+   los dos esquemas sin una sola rama.
 
-   Los colores de Mantine para esto no sirven en ninguno de los dos esquemas.
-   En oscuro `--mantine-color-disabled` resuelve al mismo tono de los paneles y
-   el botón desaparecía dentro de la caja. En claro es peor y está medido: el
-   fondo salía `rgb(233 236 239)` y la letra `rgb(173 181 189)`, o sea el
-   gris-azulado de la paleta de fábrica de Mantine, los dos únicos colores de
-   toda la pantalla que no pertenecen a esta paleta. Reasertar `--button-bg` y
-   `--button-color` le devuelve los suyos, y la opacidad hace el resto. */
+   Acá hubo dos intentos peores. Los colores de Mantine no sirven: en claro el
+   fondo salía `rgb(233 236 239)` y la letra `rgb(173 181 189)`, el
+   gris-azulado de su paleta de fábrica, los únicos colores de la pantalla
+   fuera de esta paleta. Y el `opacity: .42` del `apagado` del diseño tampoco,
+   por un motivo que sólo se ve midiendo: la opacidad mezcla al botón CONTRA SU
+   SUPERFICIE, y el rótulo del primario es casi del color de la página
+   -`#F2F7F4` contra `#FBFCF9`-, así que al apagarse se funde con ella. Medido
+   sobre el modal de mover: fondo efectivo y superficie daban 1,00:1 y la letra
+   contra su fondo 1,02:1 en claro y 1,05:1 en oscuro. O sea que el botón
+   deshabilitado era literalmente invisible en los dos temas. La opacidad
+   funciona en el canvas porque ahí el apagado se dibuja sobre tableros
+   oscuros; en una página clara no.
+
+   Con estos dos tonos la palabra da 5,5:1 en oscuro y 4,9:1 en claro contra su
+   propio fondo, y el fondo se despega de la superficie del modal. */
 .mantine-Button-root:disabled:not([data-loading]),
 .mantine-Button-root[data-disabled]:not([data-loading]) {
-  opacity: 0.42;
-  background: var(--button-bg, var(--mantine-color-default));
-  color: var(--button-color, var(--mantine-color-default-color));
-  border: 1px solid var(--button-bd, var(--mantine-color-dark-4));
+  opacity: 1;
+  background: var(--mantine-color-dark-5);
+  color: var(--mantine-color-dark-2);
+  border: 1px solid var(--mantine-color-dark-4);
 }
 
 /* En teléfono los botones suben a 30px de alto, que es el número del diseño
@@ -1395,7 +1402,7 @@ input:-webkit-autofill:active {
   padding: 1px;
   background: rgb(25 23 19 / 16%);
   border-radius: 3px;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+  box-shadow: var(--knd-sombra-hoja);
 }
 
 .knd-genko-celda {
@@ -1433,7 +1440,7 @@ input:-webkit-autofill:active {
 .knd-quiz-face-back {
   background: var(--knd-papel);
   border-radius: 3px;
-  box-shadow: 0 10px 30px rgb(0 0 0 / 35%);
+  box-shadow: var(--knd-sombra-hoja);
   /* Nunca más ancho que la hoja del frente ni que la pantalla. */
   max-width: min(100cqw - 3rem, 62rem);
 }

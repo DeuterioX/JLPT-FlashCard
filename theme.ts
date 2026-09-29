@@ -369,6 +369,12 @@ export const theme = createTheme({
     // claro no se notaba porque el bloque `light` del resolver las define.
     scrim: 'rgba(8,10,9,.72)',
     sombraModal: '0 20px 60px rgba(0,0,0,.5)',
+    // La sombra de la hoja de 原稿用紙. Es negro al 35% y eso sirve SOBRE una
+    // página oscura; estaba escrita a mano en globals.css, o sea que la misma
+    // sombra negra caía también sobre la página clara, donde una hoja crema no
+    // proyecta una mancha negra: proyecta sumi muy tenue. El bloque `light`
+    // del resolver la cambia.
+    sombraHoja: '0 10px 30px rgba(0,0,0,.35)',
 
     // El papel y la tinta que va encima. No son parte de la escala de
     // Mantine a propósito: la escala es el ENTORNO -fondos, bordes, texto de
@@ -479,6 +485,7 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--knd-shu-txt': t.other.shuTxt,
     '--knd-scrim': t.other.scrim,
     '--knd-sombra-modal': t.other.sombraModal,
+    '--knd-sombra-hoja': t.other.sombraHoja,
     '--knd-switch-thumb': t.other.switchThumbActiveBg,
     '--knd-verde-ink': t.other.verdeInk,
     '--knd-ambar-txt': t.other.ambarTxt,
@@ -529,6 +536,9 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--knd-ambar-txt': '#8A6A12',
     '--knd-scrim': 'rgba(27,33,29,.34)',
     '--knd-sombra-modal': '0 18px 48px rgba(25,23,19,.18)',
+    // Más corta y mucho más liviana: sobre una página clara, el negro al 35%
+    // del tema oscuro es una mancha. Son los valores del canvas.
+    '--knd-sombra-hoja': '0 8px 24px rgba(25,23,19,.14)',
 
     // El papel apagado se va en TEMPERATURA, no en claridad: en claro no hay
     // lugar para bajar 33 puntos de L* sin quedar más oscuro que la página.
