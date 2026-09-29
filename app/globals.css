@@ -1596,15 +1596,20 @@ input:-webkit-autofill:active {
   from { opacity: 0; transform: translateY(0.5rem); }
   to { opacity: 1; transform: none; }
 }
-.knd-meaning-reading,
-.knd-meaning-answer {
+/* La animación corre cuando el hueco pasa a estar VISIBLE, no al montarse: la
+   respuesta está montada todo el tiempo -ver el comentario en
+   MeaningRunner.tsx- así que atarla al montaje la dispararía una sola vez, al
+   entrar a la carta. Colgada del estado del hueco, arranca en cada revelado. */
+.knd-meaning-slot[data-oculto] { visibility: hidden; }
+.knd-meaning-slot:not([data-oculto]) .knd-meaning-reading,
+.knd-meaning-slot:not([data-oculto]) .knd-meaning-answer {
   animation: knd-revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
-.knd-meaning-answer { animation-delay: 70ms; }
+.knd-meaning-slot:not([data-oculto]) .knd-meaning-answer { animation-delay: 70ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .knd-meaning-reading,
-  .knd-meaning-answer { animation: none; }
+  .knd-meaning-slot .knd-meaning-reading,
+  .knd-meaning-slot .knd-meaning-answer { animation: none; }
 }
 
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
@@ -1912,4 +1917,6 @@ input:-webkit-autofill:active {
     color: var(--mantine-color-dark-3);
     text-align: center;
   }
+  /* Sigue ocupando su lugar: ver el comentario en MeaningRunner.tsx. */
+  .knd-tocar[data-oculto] { visibility: hidden; }
 }

@@ -143,25 +143,44 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
             <GenkoSheet id="meaning-kana" testId="meaning-prompt" text={card.prompt} />
             {/* El hueco está reservado también sin revelar: si apareciera de
                 la nada, la hoja saltaría hacia arriba al revelar. */}
-            <Stack className="knd-meaning-slot" gap={2} align="center" justify="center">
-              {revelado && (
-                <>
-                  <Text id="meaning-reading" className="romaji knd-meaning-reading" c="dimmed">
-                    {card.primary}
-                  </Text>
-                  <Text id="meaning-answer" className="knd-meaning-answer">{card.meaning}</Text>
-                </>
-              )}
+            {/* La respuesta está SIEMPRE montada y se esconde con
+                `visibility`, no se agrega al revelar. Montándola, el hueco
+                mide lo que mide ella -y un significado largo mide más que el
+                mínimo reservado-, así que al revelar la columna crecía y la
+                hoja pegaba un salto: medido, 18,5px hacia arriba con
+                «Disculpe (se utiliza al comienzo de una expresión…)». Ahora el
+                hueco ya tiene el alto correcto desde antes y no se mueve nada.
+
+                `visibility` y no `opacity`: saca el texto del árbol de
+                accesibilidad, así un lector de pantalla no canta la respuesta
+                antes de que la pidas. */}
+            <Stack
+              className="knd-meaning-slot" gap={2} align="center" justify="center"
+              data-oculto={!revelado || undefined}
+            >
+              <Text id="meaning-reading" className="romaji knd-meaning-reading" c="dimmed">
+                {card.primary}
+              </Text>
+              <Text id="meaning-answer" className="knd-meaning-answer">{card.meaning}</Text>
             </Stack>
             <Text id="meaning-caption" className="knd-quiz-caption tabular">
               {`carta ${i + 1} de ${cards.length}`}
             </Text>
             {/* El botón de revelar no está en teléfono, así que algo tiene que
                 decir que la carta se toca. Sólo mientras está tapada: una vez
-                revelada, que se vuelva a tocar para ocultar ya se deduce. */}
-            {!revelado && (
-              <Text className="knd-tocar knd-solo-telefono">tocá la carta para revelar</Text>
-            )}
+                revelada, que se vuelva a tocar para ocultar ya se deduce.
+
+                Se ESCONDE, no se desmonta. Acá la pista está en el flujo de la
+                columna -a diferencia del quiz, donde el bloque que cuelga del
+                kana es absoluto-, así que sacarla del árbol le cambia el alto
+                al contenido centrado y la hoja da un salto: medido, 15,7px
+                hacia abajo al revelar. Escondida ocupa lo mismo y no mueve
+                nada, y `visibility` igual la saca del árbol de accesibilidad,
+                que es lo que importa para que no se lea una instrucción que ya
+                no aplica. */}
+            <Text className="knd-tocar knd-solo-telefono" data-oculto={revelado || undefined}>
+              tocá la carta para revelar
+            </Text>
           </>
         )}
         {terminada && (
