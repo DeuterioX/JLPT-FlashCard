@@ -1,4 +1,6 @@
-import type { ReactNode } from 'react';
+'use client';
+
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 
 /**
  * La hoja de 原稿用紙: una celda por carácter, con la cruz de guía adentro.
@@ -37,8 +39,11 @@ export function GenkoSheet({
   // `[...text]` y no `text.split('')`: きゃ son dos unidades de código pero
   // hay kana fuera del plano básico, y partir por code unit los rompería.
   const chars = [...text];
+  const hoja = useRef<HTMLDivElement>(null);
+  const relleno = useRellenoDeFila(hoja, chars.length);
   return (
     <div
+      ref={hoja}
       id={id}
       data-testid={testId}
       className="knd-genko"
@@ -57,8 +62,51 @@ export function GenkoSheet({
           )}
         </span>
       ))}
+      {/* Las celdas que completan el último renglón. En el papel impreso están
+          TODAS dibujadas, se llenen o no, y sin esto el tramo sobrante de la
+          última fila se veía como un bloque gris: el fondo del contenedor, que
+          es el color de la línea, asomando donde no hay celdas. */}
+      {Array.from({ length: relleno }, (_, i) => (
+        <span key={`hueco-${i}`} className="knd-genko-celda" aria-hidden>
+          <Cruz />
+        </span>
+      ))}
     </div>
   );
+}
+
+/**
+ * Cuántas celdas faltan para completar el último renglón.
+ *
+ * Cuántas entran por fila lo decide el CSS -`auto-fit` con una pista de tamaño
+ * fijo-, así que desde acá no se puede calcular: hay que preguntárselo al
+ * layout ya resuelto. Se lee la lista de pistas que quedó en
+ * `grid-template-columns`, que tiene una entrada por columna, y se mide de
+ * nuevo cada vez que la hoja cambia de tamaño -girar el teléfono, abrir el
+ * teclado, entrar una carta más larga-.
+ *
+ * Arranca en 0 y se completa después de montar, a propósito: el servidor no
+ * tiene layout, así que cualquier número que inventara acá sería distinto del
+ * que calcula el cliente y rompería la hidratación. Las celdas de relleno no
+ * llevan contenido, así que aparecer un cuadro después no mueve nada.
+ */
+function useRellenoDeFila(ref: React.RefObject<HTMLDivElement | null>, n: number) {
+  const [cols, setCols] = useState(0);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const medir = () => {
+      const pistas = getComputedStyle(el).gridTemplateColumns;
+      setCols(pistas === 'none' ? 0 : pistas.split(' ').filter(Boolean).length);
+    };
+    medir();
+    const obs = new ResizeObserver(medir);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [ref, n]);
+  if (cols <= 0 || n <= cols) return 0;
+  const sobran = n % cols;
+  return sobran === 0 ? 0 : cols - sobran;
 }
 
 /**

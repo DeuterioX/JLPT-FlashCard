@@ -89,8 +89,10 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       if (e.key === 'Escape') { router.replace('/'); return; }
       if (terminada) return;
       if (e.key === ' ') { e.preventDefault(); setRevelado((v) => !v); return; }
-      if (e.key === '1') { e.preventDefault(); calificar(false); return; }
-      if (e.key === '2') { e.preventDefault(); calificar(true); }
+      // 1 y 2 son la POSICIÓN de cada botón, no su respuesta: el 1 es el de
+      // la izquierda, que es «La sabía».
+      if (e.key === '1') { e.preventDefault(); calificar(true); return; }
+      if (e.key === '2') { e.preventDefault(); calificar(false); }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
@@ -177,17 +179,24 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
           {/* El centro es siempre lo que hay que hacer ahora -donde el quiz
               tiene el input-, y la derecha con qué tecla, que es la misma
               ranura donde el quiz pone Revelar. */}
+          {/* «La sabía» va primero, y por lo tanto se queda con el 1: la tecla
+              la da la POSICIÓN, no la respuesta -1 es «el primero de los dos»-,
+              que es justamente el motivo por el que son números y no iniciales.
+              Y primero va la respuesta afirmativa porque es la esperada: en un
+              repaso la mayoría de las cartas se saben, así que el camino corto
+              tiene que ser ése. El destructivo-ish queda segundo, igual que
+              Cancelar antes de la acción en los modales. */}
           <Group className="knd-meaning-actions" gap="xs" wrap="nowrap">
             <Kbd className="knd-solo-escritorio">1</Kbd>
+            <Button id="meaning-si" onClick={() => calificar(true)} disabled={terminada}>
+              La sabía
+            </Button>
+            <Kbd className="knd-solo-escritorio">2</Kbd>
             <Button
               id="meaning-no" color="shu" onClick={() => calificar(false)}
               disabled={terminada}
             >
               No la sabía
-            </Button>
-            <Kbd className="knd-solo-escritorio">2</Kbd>
-            <Button id="meaning-si" onClick={() => calificar(true)} disabled={terminada}>
-              La sabía
             </Button>
           </Group>
 
