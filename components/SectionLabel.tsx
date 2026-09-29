@@ -32,7 +32,7 @@ export function SectionLabel({
       {/* El glifo japonés que identifica la sección. Va en la mincho del
           diseño y es lo primero de la fila. */}
       {jp && (
-        <Text className="kana" size={rem(19)} lh={1} c="dark.0" style={{ whiteSpace: 'nowrap' }}>
+        <Text className="mincho" size={rem(19)} lh={1} c="dark.0" style={{ whiteSpace: 'nowrap' }}>
           {jp}
         </Text>
       )}

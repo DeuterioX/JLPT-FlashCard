@@ -142,7 +142,7 @@ export function DictSearchPanel({
             </Text>
           }
         />
-        {searchError && <Text c="shu.6" size="sm">{searchError}</Text>}
+        {searchError && <Text c="var(--knd-shu-txt)" size="sm">{searchError}</Text>}
       </div>
 
       <div className="knd-dict-results">
@@ -202,7 +202,7 @@ export function DictSearchPanel({
           </Text>
         )}
 
-        {addError && <Text c="shu.6" size="sm">{addError}</Text>}
+        {addError && <Text c="var(--knd-shu-txt)" size="sm">{addError}</Text>}
 
       </div>
 

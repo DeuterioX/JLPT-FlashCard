@@ -173,7 +173,9 @@ export function GroupCard({
           ))}
         </div>
         {resto > 0 && (
-          <Text size="xs" c={nameColor} className="tabular">{resto} palabras más</Text>
+          <Text size="xs" c={nameColor} className="tabular">
+            {resto === 1 ? '1 palabra más' : `${resto} palabras más`}
+          </Text>
         )}
       </Stack>
     </Card>

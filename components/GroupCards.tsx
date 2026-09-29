@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box,
+  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box, Radio,
   rem,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
@@ -15,6 +15,8 @@ import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeRow } from './SwipeRow';
 import { ModalTitle } from './ModalTitle';
+import { ModalActions } from './ModalActions';
+import { CampoPapel } from './CampoPapel';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
@@ -97,8 +99,8 @@ function EditCardModal({
           onSave({ prompt, romaji, meaning, alts });
         }}
       >
-        <TextInput id="edit-kana" label="Kana" value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)} />
-        <TextInput id="edit-romaji" label="Romaji" value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)} />
+        <CampoPapel id="edit-kana" label="Kana" value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)} />
+        <CampoPapel id="edit-romaji" label="Romaji" value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)} />
         {/* Los mismos dos botones del alta, y por lo mismo: acá también se
             puede querer escribir el kana sin teclado japonés. Debajo del
             romaji y después de él en el DOM, así el tabulador va romaji →
@@ -124,16 +126,17 @@ function EditCardModal({
           </Button>
         </div>
         {alts.map((a, i) => (
-          <Group key={i} gap="xs" wrap="nowrap" align="flex-end">
-            <TextInput
-              label={i === 0 ? 'Romanizaciones alternativas' : undefined}
-              aria-label={`Romanización alternativa ${i + 1}`}
-              style={{ flex: 1 }}
-              value={a}
-              onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
-            />
+          <Group key={i} gap="xs" wrap="nowrap">
+            <div style={{ flex: 1 }}>
+              <CampoPapel
+                label="Alt"
+                aria-label={`Romanización alternativa ${i + 1}`}
+                value={a}
+                onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
+              />
+            </div>
             <Button
-              variant="subtle" color="shu.6" size="compact-sm"
+              variant="subtle" c="var(--knd-shu-txt)" size="compact-sm"
               aria-label={`Quitar romanización alternativa ${i + 1}`}
               onClick={() => setAlts(alts.filter((_, j) => j !== i))}
             >
@@ -141,7 +144,13 @@ function EditCardModal({
             </Button>
           </Group>
         ))}
-        <TextInput id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
+        <CampoPapel id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
+        {/* La nota del diseño, debajo del último campo: dice qué hace el
+            formulario solo, así los dos botones de arriba no necesitan
+            explicarse. */}
+        <Text className="knd-campo-nota">
+          El romaji se completa solo desde el kana. Editalo si hace falta.
+        </Text>
         {/* Al final, después de los campos, como en el formulario de alta:
             es una acción sobre el formulario, no un campo más. */}
         <Anchor
@@ -150,18 +159,20 @@ function EditCardModal({
         >
           + romanización alternativa
         </Anchor>
-        {error && <Text c="shu.6" size="sm">{error}</Text>}
+        {error && <Text c="var(--knd-shu-txt)" size="sm">{error}</Text>}
         {/* `type="submit"` y no un `onClick`: sin un botón de submit, un form
             con más de un campo no se manda con Enter -esa es la regla de
             "envío implícito" del HTML-, y el Enter del modal no hacía nada. */}
-        <Button
-          id="edit-card-save"
-          type="submit"
-          disabled={!prompt.trim() || !romaji.trim() || busy}
-          loading={busy}
-        >
-          Guardar
-        </Button>
+        <ModalActions onCancel={onClose} busy={busy}>
+          <Button
+            id="edit-card-save"
+            type="submit"
+            disabled={!prompt.trim() || !romaji.trim() || busy}
+            loading={busy}
+          >
+            Guardar
+          </Button>
+        </ModalActions>
       </Stack>
     </Modal>
   );
@@ -229,6 +240,9 @@ export function GroupCards({
   const [moving, setMoving] = useState<EditorCard | null>(null);
   const [moveBusy, setMoveBusy] = useState(false);
   const [moveError, setMoveError] = useState<string | null>(null);
+  // El grupo elegido en el modal de mover. `null` hasta que se elige uno, que
+  // es lo que mantiene apagado el botón que ejecuta.
+  const [destino, setDestino] = useState<number | null>(null);
   const moveRef = useRef(false);
 
   function onPrompt(v: string) {
@@ -546,7 +560,7 @@ export function GroupCards({
                       onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
                     />
                     <Button
-                      variant="subtle" color="shu.6" size="compact-xs"
+                      variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
                       aria-label={`Quitar romanización alternativa ${i + 1}`}
                       onClick={() => setAlts(alts.filter((_, j) => j !== i))}
                     >
@@ -556,7 +570,7 @@ export function GroupCards({
                 ))}
               </Group>
             )}
-            {addError && <Text c="shu.6" size="sm">{addError}</Text>}
+            {addError && <Text c="var(--knd-shu-txt)" size="sm">{addError}</Text>}
             {/* Sin el `·` que separaba la frase del link: con el formulario
                 en una columna la ayuda ocupa dos líneas, y el punto quedaba
                 abriendo la segunda como si fuera una viñeta. El link se
@@ -587,7 +601,7 @@ export function GroupCards({
         )}
       </Group>
 
-      {deleteError && <Text c="shu.6" size="sm">{deleteError}</Text>}
+      {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
 
       <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
@@ -598,7 +612,7 @@ export function GroupCards({
               tappable={!readOnly}
               onTap={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
               leading={!readOnly && manyGroups
-                ? { etiqueta: 'Mover', onAction: () => { setMoveError(null); setMoving(c); } }
+                ? { etiqueta: 'Mover', onAction: () => { setMoveError(null); setDestino(null); setMoving(c); } }
                 : undefined}
               trailing={!readOnly
                 ? { etiqueta: 'Borrar', onAction: () => { setDeleteError(null); setDeleting(c); } }
@@ -642,7 +656,7 @@ export function GroupCards({
                   <Group className="knd-card-actions" gap={5} wrap="nowrap">
                     <Button
                       id={`card-delete-${c.id}`}
-                      variant="subtle" color="shu.6" size="compact-xs"
+                      variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
                       onClick={() => { setDeleteError(null); setDeleting(c); }}
                       loading={deletingId === c.id}
                       disabled={deletingId !== null}
@@ -653,7 +667,7 @@ export function GroupCards({
                       <Button
                         id={`card-move-${c.id}`}
                         variant="default" bg="transparent" size="compact-xs"
-                        onClick={() => { setMoveError(null); setMoving(c); }}
+                        onClick={() => { setMoveError(null); setDestino(null); setMoving(c); }}
                       >
                         Mover
                       </Button>
@@ -676,14 +690,16 @@ export function GroupCards({
             void renameGroup();
           }}
         >
-          <TextInput
+          <CampoPapel
             id="rename-group-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
-          {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
-          <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
-            Guardar
-          </Button>
+          {renameError && <Text c="var(--knd-shu-txt)" size="sm">{renameError}</Text>}
+          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameBusy}>
+            <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+              Guardar
+            </Button>
+          </ModalActions>
         </Stack>
       </Modal>
 
@@ -695,48 +711,82 @@ export function GroupCards({
         onClose={() => setDeleting(null)}
         title={<ModalTitle jp="削">¿Borrar la palabra?</ModalTitle>}
       >
-        <Stack>
-          {/* El diálogo nombra la carta y lo que se lleva puesto: los intentos
-              de esa carta se borran con ella, así que la estadística cambia. */}
-          <Text size="sm">
-            {deleting && `Se va «${deleting.prompt}»${
-              deleting.meaning ? ` (${deleting.meaning})` : ''
-            } y sus intentos registrados. No se puede deshacer.`}
+        <Stack gap={14}>
+          {/* La frase del diseño, con lo que se lleva puesto en negrita: el
+              verbo adelante -«Se va a borrar»- y resaltado sólo lo que
+              desaparece, que es lo que hay que leer antes de decidir. Los
+              intentos de esa carta se borran con ella, así que la estadística
+              cambia y el diálogo lo dice. */}
+          <Text className="knd-borrar-nota">
+            {'Se va a borrar '}
+            <b>{`«${deleting?.prompt ?? ''}»`}</b>
+            {deleting?.meaning ? ` (${deleting.meaning})` : ''}
+            {' y sus '}
+            <b>intentos registrados</b>
+            {'. No se puede deshacer.'}
           </Text>
-          {deleteError && <Text c="shu.6" size="sm">{deleteError}</Text>}
-          <Group>
-            <Button variant="default" onClick={() => setDeleting(null)} disabled={deletingId !== null}>
-              Cancelar
-            </Button>
+          {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
+          <ModalActions onCancel={() => setDeleting(null)} busy={deletingId !== null}>
             <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={deletingId !== null}>
-              Borrar palabra
+              Borrar la palabra
             </Button>
-          </Group>
+          </ModalActions>
         </Stack>
       </Modal>
 
       <Modal
         id="move-card-modal"
         opened={!!moving}
-        onClose={() => setMoving(null)}
+        onClose={() => { setMoving(null); setDestino(null); }}
         title={<ModalTitle jp="移">{moving ? `Mover «${moving.prompt}» a…` : 'Mover'}</ModalTitle>}
       >
-        <Stack gap={4}>
-          {deck.groups.map((g) => (
+        {/* Una lista de opciones con su confirmación, no un botón por grupo
+            que mueve al tocarlo. Mover es una acción con destino: elegir el
+            destino y ejecutarla son dos pasos, y sin el segundo un toque mal
+            dado movía la carta sin decir nada. Además así hay Cancelar, que
+            antes no existía -salías por la ✕ o por Esc-. */}
+        <Stack gap={10}>
+          <Text size="sm" c="dimmed">
+            {'Mover '}
+            <Text component="b" c="var(--mantine-color-text)" className="kana" inherit>
+              {moving?.prompt}
+            </Text>
+            {' a:'}
+          </Text>
+          <Radio.Group value={destino === null ? '' : String(destino)} onChange={(v) => setDestino(Number(v))}>
+            <Stack gap={2}>
+              {deck.groups.map((g) => (
+                <Radio
+                  key={g.id}
+                  id={`move-to-${g.id}`}
+                  value={String(g.id)}
+                  disabled={g.id === group.id || moveBusy}
+                  className="knd-move-opt"
+                  /* 16px, el preset más chico: el círculo del diseño mide 14 y
+                     los 20 del default de Mantine, al lado de un nombre de
+                     13px, pesan más que el nombre. */
+                  size="xs"
+                  label={
+                    <Group gap={10} wrap="nowrap" justify="space-between" style={{ flex: 1 }}>
+                      <Text size={rem(13)}>{g.id === group.id ? `${g.name} · acá está` : g.name}</Text>
+                      <Text size={rem(11)} c="dark.3" className="tabular">{g.cardCount}</Text>
+                    </Group>
+                  }
+                />
+              ))}
+            </Stack>
+          </Radio.Group>
+          {moveError && <Text c="var(--knd-shu-txt)" size="sm">{moveError}</Text>}
+          <ModalActions onCancel={() => setMoving(null)} busy={moveBusy}>
             <Button
-              key={g.id}
-              id={`move-to-${g.id}`}
-              variant="subtle"
-              justify="space-between"
-              disabled={g.id === group.id || moveBusy}
-              rightSection={<Text size="xs" c="dark.3" className="tabular">{g.cardCount}</Text>}
-              onClick={() => moveCard(g.id)}
-              fullWidth
+              id="confirm-move-card"
+              onClick={() => destino !== null && moveCard(destino)}
+              disabled={destino === null || moveBusy}
+              loading={moveBusy}
             >
-              {g.id === group.id ? `${g.name} · acá está` : g.name}
+              Mover
             </Button>
-          ))}
-          {moveError && <Text c="shu.6" size="sm">{moveError}</Text>}
+          </ModalActions>
         </Stack>
       </Modal>
 

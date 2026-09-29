@@ -479,7 +479,7 @@ function QuizPlay({
         </Box>
         <Box id={withSuffix('quiz-errors')} className="knd-quiz-metric">
           <Text component="span" className="knd-quiz-metric-label">Errores</Text>
-          <Text component="span" className="knd-quiz-metric-value tabular" c="shu.6">
+          <Text component="span" className="knd-quiz-metric-value tabular" c="var(--knd-shu-txt)">
             {state.incorrect}
           </Text>
         </Box>
@@ -644,14 +644,9 @@ function QuizPlay({
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
           <Box pos="relative" className="knd-quiz-kana-wrap">
-            {/* El bloque que gira al revelar. La perspectiva va en este div y
-                no en el `Box` de afuera por una razón concreta: `perspective`
-                convierte al elemento en bloque contenedor de sus descendientes
-                absolutos, y el layout de emergencia de globals.css -el que con
-                el teclado abierto pone `.knd-quiz-kana-wrap` en `static` para
-                que el aviso de error se ancle al piso del stage- dejaría de
-                funcionar si el Box la tuviera. */}
-            <div className="knd-quiz-persp">
+            {/* El bloque que se cruza al revelar: la hoja se apaga y en su
+                lugar entra la respuesta, las dos en la misma celda. */}
+            <div>
               <div className={`knd-quiz-turn${flipped ? ' is-revealed' : ''}`}>
                 <div className="knd-quiz-face">
                   {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
@@ -709,11 +704,14 @@ function QuizPlay({
                           style={{
                             fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)',
                             lineHeight: 1.25,
-                            // Era `jade.6`, que sobre el papel da 2,41:1 y no
-                            // se lee. El sumi atenuado da 5,3:1 y además deja
-                            // la jerarquía donde va: la lectura primero, el
-                            // significado un escalón atrás.
-                            color: 'var(--knd-sumi-dim)',
+                            // Verde, que es lo que dice que acertaste, pero no
+                            // el jade de la app: ése está calibrado contra
+                            // superficies oscuras y sobre el papel da 2,41:1.
+                            // `--knd-verde-papel` es el mismo verde dos tonos
+                            // más oscuro, 4,99:1 sobre la hoja. El gris sumi
+                            // que había acá antes se leía bien pero no decía
+                            // nada: era la misma tinta que el resto del papel.
+                            color: 'var(--knd-verde-papel)',
                           }}
                         >
                           {card.meaning}
@@ -775,7 +773,7 @@ function QuizPlay({
       </Box>
 
       {sessionError && (
-        <Text id="quiz-session-error" size="xs" c="shu.6" ta="center" py={4}>{sessionError}</Text>
+        <Text id="quiz-session-error" size="xs" c="var(--knd-shu-txt)" ta="center" py={4}>{sessionError}</Text>
       )}
 
       <Progress id="quiz-progress" value={progress} size="xs" radius={0} />

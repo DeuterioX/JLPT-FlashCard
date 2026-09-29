@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
+import { Stack, Group, SegmentedControl, Button, Text, Box, rem } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
@@ -252,14 +252,14 @@ export function PracticeBoard({
               CERO (regla en CLAUDE.md, encontrado primero en el header
               del quiz). */}
           <Group id="selection-count" gap="0.25rem" wrap="wrap">
-            <Text component="span" size="12px" c="var(--mantine-color-text)" fw={600}>{chosen.length}</Text>
-            <Text component="span" size="12px" c="dimmed">grupos</Text>
-            <Text component="span" size="12px" c="dimmed">·</Text>
-            <Text component="span" size="12px" c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
-            <Text component="span" size="12px" c="dimmed">cartas</Text>
+            <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{chosen.length}</Text>
+            <Text component="span" size={rem(13)} c="dimmed">grupos</Text>
+            <Text component="span" size={rem(13)} c="dimmed">·</Text>
+            <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
+            <Text component="span" size={rem(13)} c="dimmed">cartas</Text>
           </Group>
           {error && (
-            <Text size="sm" c="shu.6">
+            <Text size="sm" c="var(--knd-shu-txt)">
               {error}
             </Text>
           )}
@@ -268,7 +268,7 @@ export function PracticeBoard({
               ronda se trata. «Significados» se apaga cuando ninguna de las
               cartas elegidas tiene uno -un mazo de kana entero-, con el
               motivo en el `title`. */}
-          <Box className="knd-verbos" ml="auto">
+          <Box className="knd-verbos">
             <Button
               id="begin-meaning-btn"
               variant="default"

@@ -105,7 +105,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       <Group
         id="meaning-header"
         px="md" py={4} justify="space-between" bg="dark.6"
-        style={{ borderBottom: '1px solid var(--mantine-color-dark-4)', flexShrink: 0 }}
+        style={{ borderBottom: '1px solid var(--mantine-color-dark-5)', flexShrink: 0 }}
       >
         <Brand />
         {/* `Group` con `gap`, no texto suelto con espacios: un espacio pegado
@@ -136,10 +136,10 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
             <Stack className="knd-meaning-slot" gap={2} align="center" justify="center">
               {revelado && (
                 <>
-                  <Text id="meaning-reading" className="romaji" size="sm" c="dimmed">{card.primary}</Text>
-                  <Text id="meaning-answer" style={{ fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)', lineHeight: 1.25 }}>
-                    {card.meaning}
+                  <Text id="meaning-reading" className="romaji knd-meaning-reading" c="dimmed">
+                    {card.primary}
                   </Text>
+                  <Text id="meaning-answer" className="knd-meaning-answer">{card.meaning}</Text>
                 </>
               )}
             </Stack>
@@ -160,14 +160,14 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
 
       <Progress id="meaning-progress" value={progreso} size="xs" radius={0} />
 
-      <Paper withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
+      <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
         <Box className="knd-meaning-footer">
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
             {[['Sabidas', sabidas, false], ['Restantes', restantes, false], ['No sabidas', noSabidas, true]]
               .map(([lab, val, mal]) => (
                 <Box key={lab as string} className="knd-quiz-metric">
                   <Text className="knd-quiz-metric-label">{lab as string}</Text>
-                  <Text className="knd-quiz-metric-value tabular" c={mal && Number(val) > 0 ? 'shu.6' : undefined}>
+                  <Text className="knd-quiz-metric-value tabular" c={mal && Number(val) > 0 ? 'var(--knd-shu-txt)' : undefined}>
                     {val as number}
                   </Text>
                 </Box>

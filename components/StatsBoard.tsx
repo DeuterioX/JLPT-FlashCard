@@ -23,6 +23,20 @@ function tone(acc: number, ambar: string) {
   return 'shu.6';
 }
 
+/**
+ * El mismo semáforo, pero para TEXTO. Son dos escalas y no una porque los
+ * rellenos y las cifras no piden lo mismo: el ámbar del diseño se ve bien como
+ * barra y como texto sobre la página clara da 2,35:1, y el shu lleno da 4,56:1
+ * de relleno pero 3,21:1 de letra. Las dos variantes bajadas viven en el tema
+ * (`--knd-ambar-txt`, `--knd-shu-txt`) y cambian con el esquema; el jade sirve
+ * igual en los dos lados porque su tono ya está calibrado por esquema.
+ */
+function toneTxt(acc: number) {
+  if (acc >= 0.85) return 'var(--mantine-color-jade-6)';
+  if (acc >= 0.6) return 'var(--knd-ambar-txt)';
+  return 'var(--knd-shu-txt)';
+}
+
 /** `2:14` del diseño. */
 function formatDuration(ms: number | null) {
   if (ms === null || ms < 0) return null;
@@ -161,7 +175,11 @@ export function StatsBoard({
         </div>
 
         <SimpleGrid id="stats-tiles" className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing={9}>
+          {/* La cifra de Aciertos va en el semáforo, como en el diseño: es el
+              número que resume la pantalla, así que dice cómo vas con el color
+              antes de que lo leas. */}
           <MetricTile id="stat-accuracy" label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
+            color={toneTxt(o.accuracy)}
             hint={`${o.correct} de ${o.attempts}`} />
           {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
               sí les da, así que quedaban truncadas al lado de las otras dos.
@@ -184,7 +202,7 @@ export function StatsBoard({
           >
             {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
-          {error && <Text size="xs" c="shu.6">{error}</Text>}
+          {error && <Text size="xs" c="var(--knd-shu-txt)">{error}</Text>}
         </Stack>
       </div>
 
@@ -204,14 +222,22 @@ export function StatsBoard({
               // Mismos anchos que la lista equivalente del resumen de ronda
               // (34/46): antes acá eran 44/54 y las dos listas, que son la
               // misma fila del diseño, no coincidían entre sí.
+              // Las cuatro columnas tienen ancho FIJO menos la barra, que se
+              // queda con lo que sobre. El «3/10» de la derecha no lo tenía, y
+              // como cada fila trae un número de distinto largo -«3/10»
+              // contra «12/100»- esa columna medía distinto en cada fila y la
+              // barra, que es la que reparte el sobrante, quedaba más corta o
+              // más larga por fila: se leían como barras de distinto largo
+              // comparando cosas distintas, cuando lo único que tiene que
+              // variar es lo PINTADO de adentro.
               <Group key={w.cardId} id={`worst-row-${w.cardId}`} gap={9} wrap="nowrap">
-                <Text className="kana" w={34}>{w.prompt}</Text>
-                <Text className="romaji" size="0.71875rem" c="dimmed" w={46}>{w.primary}</Text>
+                <Text className="kana knd-worst-kana">{w.prompt}</Text>
+                <Text className="romaji knd-worst-rom" c="dimmed">{w.primary}</Text>
                 <Progress
                   value={w.rate * 100} color="shu.6" size={4} radius={2}
                   style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
-                <Text size="0.71875rem" lh={1.4} c="dark.3" className="tabular">{w.errors}/{w.seen}</Text>
+                <Text className="knd-worst-num tabular" c="dark.3" ta="right">{w.errors}/{w.seen}</Text>
               </Group>
             ))}
           </Stack>
@@ -230,7 +256,7 @@ export function StatsBoard({
             {o.byGroup.length === 0 && <Text size="sm" c="dimmed">Todavía no practicaste nada.</Text>}
             {o.byGroup.slice(0, 10).map((g) => (
               <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
-                <Text className="kana" size="0.6875rem" lh={1.4} w={62} c="dimmed">{g.name}</Text>
+                <Text className="knd-group-name" c="dimmed">{g.name}</Text>
                 <Progress
                   value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
                   style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
@@ -246,7 +272,17 @@ export function StatsBoard({
 
       <Paper id="history-panel" withBorder radius={9} style={panelStyle}>
         <Stack id="history-list" gap={6}>
-          <Text id="history-title" size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
+          {/* Los otros dos paneles tienen su aclaración al ras de la derecha y
+              éste no tenía ninguna: el diseño le pone cuántas rondas está
+              mostrando, que acá es lo que el servicio devuelve. */}
+          <Group gap="sm" wrap="nowrap">
+            <Text id="history-title" size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
+            {o.history.length > 0 && (
+              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">
+                {o.history.length === 1 ? 'última ronda' : `últimas ${o.history.length}`}
+              </Text>
+            )}
+          </Group>
           {o.history.length === 0 && <Text size="sm" c="dimmed">Sin rondas terminadas.</Text>}
           {/* Sin `Divider` entre filas: en el diseño esta lista va sin
               líneas (`border: none`), separada solo por el padding de cada
@@ -260,7 +296,11 @@ export function StatsBoard({
               <Text className="romaji" size="0.71875rem" lh={1.4} c="dimmed">
                 {formatDuration(h.durationMs) ?? ''}
               </Text>
-              <Text size="0.71875rem" lh={1.4} className="tabular" w={44} ta="right">
+              {/* El porcentaje de cada ronda va en el semáforo, como en el
+                  diseño: es lo único de la fila que dice si la ronda salió
+                  bien, y sin color había que leer el número para saberlo. */}
+              <Text size="0.71875rem" lh={1.4} fw={500} className="tabular" w={44} ta="right"
+                c={toneTxt(h.accuracy)}>
                 {Math.round(h.accuracy * 100)}%
               </Text>
             </Group>

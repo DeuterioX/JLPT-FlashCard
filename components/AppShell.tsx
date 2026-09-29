@@ -1,27 +1,24 @@
 'use client';
 
-import { AppShell as MantineShell, Group, Text, Anchor, Box } from '@mantine/core';
+import { AppShell as MantineShell, Group, Text, Anchor, Box, rem } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { BarChartFill, CollectionFill, Translate } from 'react-bootstrap-icons';
 import { Brand } from './Brand';
-import { Icon } from './Icon';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
 // `nav-mobile-stats`, ...), para poder referirse a uno puntual sin depender
 // de su posición ni de su texto visible.
+// El ícono de cada pestaña es un KANJI en mincho, no un pictograma de una
+// librería: 文 «escritura» para Práctica, 冊 «volumen encuadernado» para Mazos
+// y 計 «cuenta, medición» para Estadísticas. Es la decisión del canvas y no un
+// adorno: los tres son la misma familia de trazo que el resto de los rótulos
+// japoneses de la app -los encabezados de sección, los títulos de modal-, así
+// que la barra de abajo deja de ser el único lugar con dibujos de otra
+// procedencia. Los de Bootstrap seguían siendo los de la maqueta vieja.
 const LINKS = [
-  { href: '/', label: 'Práctica', glyph: (
-      /* Bootstrap no es parejo consigo mismo: `Translate` llena las 16
-         unidades enteras del viewBox mientras que `CollectionFill` y
-         `BarChartFill` llenan 14, así que al lado se veía un 14% más grande.
-         El viewBox agrandado y centrado le da el mismo aire que los otros
-         -16 de tinta sobre 18,29 es el mismo 87,5%- sin tocar la caja de
-         21,6px, que es la que mantiene las tres etiquetas a la misma altura. */
-      <Icon glyph={Translate} rem={1.35} viewBox="-1.14 -1.14 18.29 18.29" />
-    ), id: 'practice' },
-  { href: '/decks', label: 'Mazos', glyph: <Icon glyph={CollectionFill} rem={1.35} />, id: 'decks' },
-  { href: '/stats', label: 'Estadísticas', glyph: <Icon glyph={BarChartFill} rem={1.35} />, id: 'stats' },
+  { href: '/', label: 'Práctica', jp: '文', id: 'practice' },
+  { href: '/decks', label: 'Mazos', jp: '冊', id: 'decks' },
+  { href: '/stats', label: 'Estadísticas', jp: '計', id: 'stats' },
 ];
 
 /**
@@ -114,12 +111,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             component={Link}
             href={l.href}
             underline="never"
-            /* Columna centrada y no `text-align: center`: dos de los tres
-               íconos son SVG en bloque -tienen que serlo para que la caja de
-               texto no les sume el descendente de la fuente y desalinee la
-               etiqueta de abajo-, y a un bloque con ancho propio el
-               `text-align` del contenedor no lo centra. Centrar es trabajo de
-               la celda, no del ícono. */
+            /* Columna centrada y no `text-align: center`: centrar es trabajo
+               de la celda, no del glifo. */
             style={{
               flex: 1,
               display: 'flex',
@@ -132,7 +125,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             }}
             c={isActive(path, l.href) ? 'jade.6' : 'dimmed'}
           >
-            <Text className="kana" size="lg" lh={1.2}>{l.glyph}</Text>
+            {/* 18px y `lh: 1.2`, como en el `tabbar()` del canvas. */}
+            <Text className="mincho" size={rem(18)} lh={1.2}>{l.jp}</Text>
             {/* El `lh` explícito no es decorativo: Mantine no resuelve un
                 `size` en string libre contra `theme.lineHeights` y devuelve
                 una caja de línea MENOR que la letra -medido, 11px de caja

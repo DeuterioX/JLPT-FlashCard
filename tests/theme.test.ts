@@ -43,12 +43,16 @@ describe('tema de Mantine', () => {
     // El romaji bajo cada kana, sobre el papel. Es el que menos aire tiene.
     expect(c(theme.other!.sumiDim, theme.other!.papel)).toBeGreaterThan(4.5);
 
-    // Los dos acentos son TEXTO, no sólo relleno: jade en la pestaña activa
-    // y en el significado revelado, shu en cada mensaje de error y en cada
-    // botón de Borrar -31 lugares-. Por esto shu se quedó en #E2604A: el
-    // #C4402E de la propuesta da 3,21:1 acá y no se lee.
+    // Jade es TEXTO además de relleno -la pestaña activa, el significado
+    // revelado-, así que tiene que leerse como tal.
     expect(c(theme.colors!.jade![6], t[6])).toBeGreaterThan(4.5);
-    expect(c(theme.colors!.shu![6], t[6])).toBeGreaterThan(4.5);
+
+    // Shu tiene DOS papeles y por eso dos valores. `shu.6` es el del diseño
+    // y es RELLENO -el botón de borrar, el filete del gesto, la marca del
+    // encabezado, el glifo de los modales-: le alcanza con el 3:1 que pide
+    // una marca. `shuTxt` es el que se lee, y ése sí necesita 4,5.
+    expect(c(theme.colors!.shu![6], t[7])).toBeGreaterThan(3);
+    expect(c(theme.other!.shuTxt, t[6])).toBeGreaterThan(4.5);
   });
 
   it('usa jade como color primario, con el shade correcto en modo oscuro', () => {
@@ -63,7 +67,10 @@ describe('tema de Mantine', () => {
   });
 
   it('define shu para los estados de error', () => {
-    expect(theme.colors?.shu?.[6]).toBe('#E2604A');
+    // El color del diseño. Antes era `#E2604A`, más claro, porque el mismo
+    // token se usaba para rellenar y para escribir; ahora escribir tiene el
+    // suyo y el relleno puede ser el que pide el diseño.
+    expect(theme.colors?.shu?.[6]).toBe('#C4402E');
   });
 
   it('el esquema claro se lee tan bien como el oscuro', () => {
@@ -79,11 +86,36 @@ describe('tema de Mantine', () => {
     // Los acentos son TEXTO también en claro: el jade y el shu de esquema
     // oscuro dan 2,7:1 y 3,2:1 sobre una página clara, por eso acá bajan.
     expect(contraste(l['--mantine-color-jade-6'], sup)).toBeGreaterThan(4.5);
-    expect(contraste(l['--mantine-color-shu-6'], sup)).toBeGreaterThan(4.5);
+    // Sobre papel claro el relleno del diseño ya se lee solo, así que acá
+    // `shu.6` no se redefine; lo que cambia de lado es el shu de texto.
+    expect(contraste(theme.colors!.shu![6], fondo)).toBeGreaterThan(3);
+    expect(contraste(l['--knd-shu-txt'], sup)).toBeGreaterThan(4.5);
     // La letra sobre el botón primario lleno.
     expect(contraste('#FFFFFF', l['--mantine-primary-color-filled'])).toBeGreaterThan(4.5);
     // El papel no cambia de esquema, así que el romaji sigue midiéndose
     // contra el mismo crema.
     expect(contraste(theme.other!.sumiDim, theme.other!.papel)).toBeGreaterThan(4.5);
+  });
+});
+
+describe('los tokens del resolver existen de verdad', () => {
+  it('ninguna variable --knd-* sale vacía', () => {
+    // Esta prueba nace de un bug real: el resolver leía `t.other.scrim` y
+    // `t.other.sombraModal`, y ninguno de los dos estaba en `theme.other`. El
+    // resultado era `--knd-scrim: undefined`, o sea que en esquema OSCURO el
+    // velo del modal quedaba completamente transparente -medido en vivo,
+    // `rgba(0, 0, 0, 0)`- y el diálogo flotaba sobre la pantalla anterior sin
+    // nada que la apartara. En claro no se veía, porque el bloque `light`
+    // define las dos por su cuenta; o sea que el esquema que sí andaba tapaba
+    // al que no. Nada en TypeScript lo agarra: `theme.other` es un objeto
+    // libre y leerle una clave que no existe es válido.
+    const v = cssVariablesResolver(theme as never);
+    for (const bloque of [v.variables, v.light, v.dark]) {
+      for (const [k, valor] of Object.entries(bloque ?? {})) {
+        expect(valor, `${k} no tiene valor`).toBeTypeOf('string');
+        expect(String(valor).trim(), `${k} está vacía`).not.toBe('');
+        expect(String(valor), `${k} quedó en undefined`).not.toContain('undefined');
+      }
+    }
   });
 });

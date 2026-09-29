@@ -122,7 +122,15 @@ body { margin: 0; }
 /* Zen Kaku Gothic New para todo kana: es una tipografía japonesa real,
    así que ぬ y め se distinguen de verdad. */
 .kana { font-family: "Zen Kaku Gothic New", sans-serif; }
-.romaji { font-family: "IBM Plex Mono", ui-monospace, monospace; }
+/* La serif japonesa, para el KANJI DE RÓTULO: el glifo de cada encabezado de
+   sección, el de cada modal, los tres de la barra de pestañas y el carácter
+   dentro del 原稿用紙. En el canvas son dos familias distintas a propósito y
+   no una sola: la gótica (`.kana`) es señalización -se lee de un vistazo en
+   una lista- y la mincho es escritura a mano, que es lo que hay dentro de una
+   hoja de manuscrito. Poner el kana del papel en la gótica lo volvía un
+   cartel. */
+.mincho { font-family: "Zen Old Mincho", Georgia, serif; }
+.romaji { font-family: "M PLUS 1 Code", ui-monospace, monospace; }
 .tabular { font-variant-numeric: tabular-nums; }
 
 /* Navegación responsive sin JavaScript: el breakpoint de diseño es 640px,
@@ -187,12 +195,18 @@ body { margin: 0; }
   border: 1px solid var(--mantine-color-dark-4);
   border-radius: 0.5rem; /* 8px del diseño */
   overflow: hidden;
+  /* El cuadro mide lo que miden sus tres celdas y NADA más. Sin esto, dentro
+     de la grilla del pie es un ítem de una columna `1fr` y se estiraba hasta
+     tocar los botones -se veía en Significados-: tres cifras cortas repartidas
+     en media pantalla, con los separadores lejos de lo que separan. El fondo
+     lo da la barra: el cuadro es un marco, no una superficie. */
+  flex: none;
 }
 .knd-quiz-metric {
   display: flex;
   flex-direction: column;
   gap: 0.0625rem; /* 1px del diseño */
-  padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
+  padding: 0.375rem 0.875rem; /* 6px 14px del diseño */
   border-left: 1px solid var(--mantine-color-dark-4);
 }
 .knd-quiz-metric:first-child {
@@ -215,11 +229,21 @@ body { margin: 0; }
 .knd-quiz-metrics-top-bar {
   display: flex;
   justify-content: center;
-  padding: 0.5rem 1rem;
-  border-bottom: 1px solid var(--mantine-color-dark-4);
+  padding: 0.5rem 1rem 0;
+  /* Esta franja y el pie son UNA barra, la de 118px del diseño: el cuadro de
+     cifras arriba y el input abajo, sobre la misma superficie y con una sola
+     línea que la separa del escenario. Antes esta franja no tenía fondo -se
+     veía el de la página por detrás- y encima traía su propio borde abajo, así
+     que había dos líneas y dos colores donde el diseño tiene uno. El borde de
+     arriba lo pone ésta y el pie se queda sin el suyo (más abajo). */
+  background: var(--mantine-color-dark-6);
+  border-top: 1px solid var(--mantine-color-dark-5);
   /* Ver la nota de `flex-shrink` en `.knd-quiz-footer`, más abajo. */
   flex-shrink: 0;
 }
+/* La línea que separa la barra del escenario es ink5, no el borde `default`
+   (ink4) que trae `withBorder`: es la misma línea que la cabecera. */
+#quiz-footer, #meaning-footer-paper { border-top-color: var(--mantine-color-dark-5); }
 /* La instancia de adentro del pie tiene id propio (`quiz-metrics`, sin
    sufijo, ver QuizRunner.tsx) precisamente para poder apuntarle acá sin
    afectar a la de la barra de arriba, que comparte la misma clase
@@ -228,6 +252,11 @@ body { margin: 0; }
    orden en la hoja. */
 #quiz-metrics {
   display: none;
+}
+/* Mientras la franja de cifras está arriba, el borde de la barra es el de
+   ella: si los dos lo tuvieran quedaría una línea en medio de la barra. */
+@media (max-width: 799px) {
+  #quiz-footer { border-top: 0; }
 }
 @media (min-width: 800px) {
   .knd-quiz-metrics-top-bar { display: none; }
@@ -325,24 +354,37 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     display: grid;
     place-items: center;
   }
-  .knd-swipe-lead { left: 0; background: var(--mantine-color-dark-5); }
-  /* Borrar va sobre el fondo de la app: un escalón más HUNDIDO que la fila,
-     así se diferencia de Mover por profundidad y el rojo queda sólo en la
-     palabra -`.btn.danger` del diseño es texto `shu` sin fondo, y un bloque
-     rojo saturado sería el único lugar de la app donde ese color ocupa una
-     superficie entera-. Y va del lado opuesto al borde con el que compite el
-     gesto "atrás" de Safari. */
-  .knd-swipe-trail { right: 0; background: var(--mantine-color-dark-7); }
+  /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
+     izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
+     pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
+     dos grises de la escala con la palabra coloreada, y eso rompía la promesa
+     del filete: el borde anuncia rojo y lo que aparecía detrás era gris. */
+  .knd-swipe-lead {
+    left: 0;
+    background: var(--mantine-color-jade-6);
+  }
+  /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
+     Safari. */
+  .knd-swipe-trail {
+    right: 0;
+    background: var(--mantine-color-shu-6);
+  }
   .knd-swipe-side button {
     width: 100%;
     height: 100%;
     border: none;
     background: none;
     cursor: pointer;
-    font: 500 0.71875rem var(--mantine-font-family);
-    color: var(--mantine-color-text);
+    font: 600 0.75rem var(--mantine-font-family);
+    color: var(--knd-verde-ink);
   }
-  .knd-swipe-trail button { color: var(--mantine-color-shu-6); }
+  .knd-swipe-trail button { color: #f7f3ea; }
+
+  /* El panel abierto va por encima de la cara: ver `marcarAbierto` en
+     `SwipeRow.tsx`. Sin esto un toque sobre el botón dentro de los 180ms de la
+     animación caía en la cara, que todavía lo tapaba. */
+  .knd-swipe-row[data-open='lead'] .knd-swipe-lead,
+  .knd-swipe-row[data-open='trail'] .knd-swipe-trail { z-index: 2; }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
@@ -417,7 +459,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      el escenario, no sobre el papel, así que sigue siendo un lavado oscuro. */
   background: #392720;
   border: 1px solid var(--mantine-color-shu-6);
-  color: var(--mantine-color-shu-6);
+  color: var(--knd-shu-txt);
   padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
   border-radius: 100px;
   font-size: 0.71875rem; /* 11.5px del diseño */
@@ -760,20 +802,24 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
 }
 
-/* Un botón deshabilitado tiene que seguir pareciendo un botón. Mantine le
-   pone `--mantine-color-disabled`, que en este tema resuelve al MISMO
-   #181C2E de los paneles: «Agregar» desaparecía dentro de la caja y se leía
-   como texto apagado, no como un control todavía no disponible.
+/* Un botón deshabilitado se APAGA, no se repinta: es el `apagado` de
+   `boton()` en el diseño, `opacity: .42` sobre el botón entero -fondo, borde y
+   palabra a la vez-. Así sigue siendo reconocible como el mismo botón, sólo
+   que fuera de alcance, y no hay que inventarle ningún color.
 
-   Lo que le falta es el CONTORNO, no el color: repintarlo con su color de
-   habilitado -que es lo que hacía este bloque antes, siguiendo el
-   `opacity: .4` del diseño- le devuelve la forma pero lo hace parecer
-   disponible, y el «Comenzar» de Práctica, que arranca deshabilitado,
-   pasaba a verse como un botón vivo. El borde lo delimita sin prometer
-   nada. */
+   Los colores de Mantine para esto no sirven en ninguno de los dos esquemas.
+   En oscuro `--mantine-color-disabled` resuelve al mismo tono de los paneles y
+   el botón desaparecía dentro de la caja. En claro es peor y está medido: el
+   fondo salía `rgb(233 236 239)` y la letra `rgb(173 181 189)`, o sea el
+   gris-azulado de la paleta de fábrica de Mantine, los dos únicos colores de
+   toda la pantalla que no pertenecen a esta paleta. Reasertar `--button-bg` y
+   `--button-color` le devuelve los suyos, y la opacidad hace el resto. */
 .mantine-Button-root:disabled:not([data-loading]),
 .mantine-Button-root[data-disabled]:not([data-loading]) {
-  border: 1px solid var(--mantine-color-dark-4);
+  opacity: 0.42;
+  background: var(--button-bg, var(--mantine-color-default));
+  color: var(--button-color, var(--mantine-color-default-color));
+  border: 1px solid var(--button-bd, var(--mantine-color-dark-4));
 }
 
 /* En teléfono los botones suben a 30px de alto, que es el número del diseño
@@ -801,7 +847,13 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
    var(--a-text) }`) porque acá la señal de "estás acá" ya la da la
    píldora, y el color sólo la acompaña. La barra de teléfono sí usa jade
    (`.tabbar span.on`), y es correcto: ahí no hay píldora que lo diga. */
-a.knd-nav-link { color: var(--mantine-color-dark-2); }
+/* La píldora del menú: 6px de radio y 5px de alto de relleno, no los 7 de
+   `radius.sm` ni los 4 que traía. Medido contra el tablero. */
+a.knd-nav-link {
+  color: var(--mantine-color-dark-2);
+  border-radius: 6px;
+  padding-block: 5px;
+}
 a.knd-nav-link-on { color: var(--mantine-color-text); }
 @media (hover: hover) {
   a.knd-nav-link { transition: color 120ms ease; }
@@ -811,54 +863,63 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
 /* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
    Antes la respuesta se agregaba debajo; ahora está en el dorso.
 
-   Cuatro cosas que no son negociables acá:
+   El revelado es un FUNDIDO, no un giro sobre Y. El giro estaba en la maqueta
+   y en la app, y visto sobre las cartas de verdad no funciona: lo que gira es
+   una hoja de 原稿用紙 de una o dos celdas, o sea un cuadrado chico con una
+   cruz de guía adentro, y al pasar por el canto el rotateY lo deja en una
+   línea vertical de dos píxeles con el glifo estirado -la cruz, que es lo que
+   dice que eso es papel de manuscrito, se aplasta contra sí misma-. Una hoja
+   grande puede dar vuelta; un cuadrito de 44px se deforma.
 
-   - La `perspective` va en el PADRE DIRECTO de lo que gira. Un nivel más
-     arriba no llega -alcanza sólo a los hijos inmediatos- y el giro se ve
-     como un aplastado lineal, sin volumen.
+   Así que las dos caras se cruzan: la de adelante se va apagando y achicándose
+   un 4% -como si se alejara- y la de atrás entra desde un 4% más grande. Queda
+   el mismo mensaje -una cara reemplaza a la otra en el mismo lugar- sin
+   deformar nada, y dura menos: 260ms contra 380.
+
+   Tres cosas que no son negociables acá:
+
    - El frente ocupa la celda y el dorso va ENCIMA, en posición absoluta:
      así el alto del bloque lo fija siempre el kana grande del frente, y las
      tres líneas del dorso no empujan lo que cuelga abajo ni crean un piso
      de layout de los que ya nos costaron caro con el teclado abierto.
-   - Nada de `filter` ni de `transform` extra sobre las caras: un `filter`
-     aplana el contexto 3D y un `transform` PISA el `rotateY(180deg)` del
-     dorso, que entonces aparece de golpe a mitad del giro (probado).
-   - 380ms, elegidos comparando 380 / 560 / 820 en la maqueta. Arrancó en
-     560 y bajó acá al probarlo con las cartas de verdad: en una ronda se
-     revela muchas veces, y lo que se agrega se paga en cada una. */
-.knd-quiz-persp { perspective: 1000px; }
-
+   - La regla del frente tiene que excluir al dorso (`:not(.knd-quiz-face-back)`):
+     el dorso lleva las dos clases, y sin la exclusión se apagaría junto con
+     el frente y no se vería nada.
+   - Nada de `filter` sobre las caras: crea un contexto de apilado propio y
+     rompe el cruce. */
 .knd-quiz-turn {
   display: grid;
   position: relative;
-  transform-style: preserve-3d;
-  transition: transform 380ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
-.knd-quiz-turn.is-revealed { transform: rotateY(180deg); }
 
 .knd-quiz-face {
   grid-area: 1 / 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
+  transition: opacity 200ms ease, transform 260ms cubic-bezier(0.2, 0.75, 0.25, 1);
 }
 .knd-quiz-face-back {
   position: absolute;
   inset: 0;
-  transform: rotateY(180deg);
+  opacity: 0;
+  transform: scale(1.04);
+}
+.knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) {
+  opacity: 0;
+  transform: scale(0.96);
+}
+.knd-quiz-turn.is-revealed .knd-quiz-face-back {
+  opacity: 1;
+  transform: none;
 }
 
-/* Con movimiento reducido el giro se cambia por un fundido entre las dos
-   caras: se saca el movimiento, no la función de revelar. */
+/* Con movimiento reducido queda el fundido solo, sin el acercamiento: se saca
+   el movimiento, no la función de revelar. */
 @media (prefers-reduced-motion: reduce) {
-  .knd-quiz-turn { transition: none; }
-  .knd-quiz-turn.is-revealed { transform: none; }
-  .knd-quiz-face-back { transform: none; opacity: 0; transition: opacity 160ms ease; }
   .knd-quiz-face { transition: opacity 160ms ease; }
-  .knd-quiz-turn.is-revealed .knd-quiz-face { opacity: 0; }
-  .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
+  .knd-quiz-face-back { transform: none; }
+  .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) { transform: none; }
 }
 
 /* Las tres columnas de una fila de carta.
@@ -1252,10 +1313,21 @@ input:-webkit-autofill:active {
      entran en una fila y la grilla envuelve, que es lo que hace el papel de
      verdad. El `42cqh` entra a mandar cuando el recurso escaso es el ALTO,
      que es lo que pasa con el teclado abierto. */
+  /* El techo es 11,25rem (180px) y NO los 360 del canvas. Es una salida
+     deliberada de la maqueta: ahí el único tablero con una celda sola es el
+     del quiz con あ, donde 360px se ven bien porque es lo único en la
+     pantalla. En la app una carta de un kana es el caso NORMAL -todo Hiragana
+     y todo Katakana son de un carácter-, y una celda de 360 se come media
+     pantalla y deja a la palabra de seis kana con celdas tres veces más
+     chicas: la misma hoja cambia de escala según la carta que toque. Con este
+     techo あ mide 180 y けんきゅうしゃ 165, o sea que la hoja pesa parecido en
+     todas las cartas, que es lo que hace el papel de verdad -el cuadro del
+     原稿用紙 tiene UN tamaño-. El `42cqh` sigue entrando a mandar cuando el
+     recurso escaso es el alto, que es lo que pasa con el teclado abierto. */
   --knd-genko-lado: clamp(
     2.5rem,
     min(calc(var(--knd-genko-ancho-celdas) / var(--knd-genko-n)), 42cqh),
-    22.5rem
+    11.25rem
   );
   /* Lo que queda para las CELDAS: el ancho útil menos las líneas. Son
      `n - 1` separaciones de un píxel más los dos de relleno del contenedor.
@@ -1425,6 +1497,42 @@ input:-webkit-autofill:active {
   min-height: 4rem;
 }
 
+/* Los tamaños del canvas, explícitos y no por `clamp`: 13/21px en teléfono y
+   15/30px en escritorio. Antes el significado salía de un `clamp` con `cqh`
+   adentro y se quedaba en el piso -17px- en cuanto el contenedor no le daba
+   una altura de la que calcular, así que la respuesta -que es LO QUE hay que
+   leer en esta pantalla- terminaba más chica que el kana de una fila de
+   lista. */
+.knd-meaning-reading { font-size: 0.8125rem; }
+.knd-meaning-answer { font-size: 1.3125rem; line-height: 1.25; }
+@media (min-width: 641px) {
+  .knd-meaning-reading { font-size: 0.9375rem; }
+  .knd-meaning-answer { font-size: 1.875rem; }
+}
+
+/* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
+   primero y el significado un pelo después. Es el mismo gesto que el fundido
+   del quiz -algo entra en el lugar de otra cosa- y acá hace falta más que allá
+   porque no hay nada que se vaya: el hueco está reservado y vacío, así que sin
+   movimiento el texto simplemente está o no está y el ojo no registra el
+   cambio. El escalonado es de 70ms, lo justo para que se lean en orden -cómo
+   se dice, y después qué quiere decir- sin que la segunda línea se haga
+   esperar. */
+@keyframes knd-revelar {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: none; }
+}
+.knd-meaning-reading,
+.knd-meaning-answer {
+  animation: knd-revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+.knd-meaning-answer { animation-delay: 70ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .knd-meaning-reading,
+  .knd-meaning-answer { animation: none; }
+}
+
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
    `Espacio` o un `1` ahí prometen algo que no se puede apretar. */
 @media (max-width: 640px) {
@@ -1441,16 +1549,38 @@ input:-webkit-autofill:active {
   gap: var(--mantine-spacing-sm);
 }
 .knd-meaning-actions { flex: 1; justify-content: center; }
+/* En teléfono los tres botones van en UNA fila, repartidos en partes iguales y
+   a ancho completo, con el cuadro de cifras arriba: es el pie de 118px del
+   diseño. Antes «No la sabía» y «La sabía» iban juntos por un lado y «Revelar»
+   por otro, y los tres quedaban apretados contra su propio contenido.
+
+   `display: contents` en los dos grupos hace que sus botones pasen a ser hijos
+   directos de la grilla, así los tres caen en las tres columnas de 1fr y miden
+   EXACTAMENTE lo mismo. Repartir con `flex: 2` y `flex: 1` no da igual: el
+   grupo de dos tiene un `gap` adentro que se descuenta de sus dos botones y no
+   del tercero. Las teclas que viven en esos grupos no molestan porque en
+   teléfono están en `display: none` -no hay teclado físico que apretar-, así
+   que no ocupan celda. */
 @media (max-width: 640px) {
-  .knd-meaning-footer { justify-content: center; }
+  .knd-meaning-footer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem 0.5rem;
+    align-items: center;
+  }
+  .knd-meaning-footer > .knd-quiz-metrics {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
   .knd-meaning-actions,
-  .knd-meaning-reveal { flex: 1 1 auto; justify-content: center; }
+  .knd-meaning-reveal { display: contents; }
 }
 @media (min-width: 641px) {
   .knd-meaning-footer {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
+  .knd-meaning-footer > .knd-quiz-metrics { justify-self: start; }
   .knd-meaning-actions { justify-self: center; }
   .knd-meaning-reveal { justify-self: end; }
 }
@@ -1480,4 +1610,192 @@ input:-webkit-autofill:active {
 }
 .knd-verbos .mantine-Button-root + .mantine-Button-root {
   border-left: 1px solid var(--mantine-color-dark-4);
+}
+
+/* ------------------------------------------------------------------ campos */
+/* El campo de papel con el rótulo adentro (`campo()` del diseño). Las medidas
+   son las del canvas: 36px de alto -40 el buscador-, 12px de relleno lateral,
+   10px entre el rótulo y el texto, radio de control.
+
+   El borde en `rgb(25 23 19 / 28%)` y no en un gris de la escala: es sumi
+   translúcido, o sea el mismo color del texto rebajado, que es lo que hace el
+   filete de una hoja rayada. Un gris opaco de la rampa oscura sobre crema se
+   ve verdoso. */
+.knd-campo {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  height: var(--knd-campo-alto, 2.25rem);
+  padding: 0 0.75rem;
+  border: 1px solid rgb(25 23 19 / 28%);
+  border-radius: var(--mantine-radius-sm);
+  background: var(--knd-papel);
+  cursor: text;
+}
+.knd-campo[data-ancho='holgado'] {
+  padding: 0 0.875rem;
+  border-radius: 0.5rem;
+}
+
+/* El foco vive en el CONTENEDOR y no en el `<input>`: el borde y el halo son
+   de la hojita, y el input de adentro no tiene ninguno propio. `1.5px` engorda
+   el filete sin mover el texto, porque la caja es `border-box`. */
+.knd-campo:focus-within {
+  border: 1.5px solid var(--knd-sumi);
+  box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
+}
+
+.knd-campo-rotulo {
+  flex: none;
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--knd-sumi-dim);
+  /* El rótulo no se selecciona con el texto: está adentro del campo, así que
+     un doble clic para elegir una palabra lo arrastraría al portapapeles. */
+  user-select: none;
+}
+
+.knd-campo-input {
+  flex: 1;
+  min-width: 0;
+  /* Sin caja propia: la caja es la hojita de afuera. */
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--knd-sumi);
+}
+.knd-campo-input:focus { outline: none; }
+.knd-campo-input::placeholder { color: var(--knd-sumi-dim); }
+
+.knd-campo-der {
+  flex: none;
+  font-family: "M PLUS 1 Code", ui-monospace, monospace;
+  font-size: 0.75rem;
+  color: var(--knd-sumi-dim);
+}
+
+/* La nota debajo de un campo: 12px en el gris apagado de la escala. Es la
+   misma que el diseño pone abajo del Significado en Editar palabra. */
+.knd-campo-nota {
+  font-size: 0.75rem;
+  color: var(--mantine-color-dark-3);
+  line-height: 1.5;
+}
+
+/* La frase de un diálogo de borrar: 14px, gris de lectura y renglón holgado,
+   con en negrita -y en la tinta más fuerte- sólo lo que desaparece. Va como
+   clase y no con `c=`/`fw=` sueltos porque el `<b>` de adentro necesita su
+   propio color, y eso desde props de Mantine no se puede. */
+.knd-borrar-nota {
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--mantine-color-dark-2);
+}
+.knd-borrar-nota b {
+  font-weight: 600;
+  color: var(--mantine-color-dark-0);
+}
+
+/* ------------------------------------------------ opciones de «Mover a…» */
+/* Cada destino es una FILA entera clickeable, no una bolita con un texto al
+   lado: el blanco de un radio de 14px en un teléfono es más chico que la punta
+   de un dedo, y la lista de grupos puede tener cinco o veinte. Las medidas son
+   las de `mod_mover` en el canvas: 8/10px de relleno, radio de control, 2px
+   entre filas y la superficie de control para la elegida. */
+.knd-move-opt {
+  padding: 0.5rem 0.625rem;
+  border-radius: var(--mantine-radius-sm);
+}
+/* El elegido se pinta con la superficie de control, como en el diseño: el
+   círculo solo es un blanco de 14px y en una lista de cinco o veinte no se ve
+   de un vistazo cuál está marcado.
+
+   `[data-checked]` lo pone Mantine en la raíz del `Radio`, medido. Acá había un
+   `data-on` propio calculado en el componente y nunca llegaba al DOM -Mantine
+   no reenvía atributos sueltos a la raíz del Radio-, así que la fila elegida
+   quedaba sin pintar. */
+.knd-move-opt[data-checked] {
+  background: var(--mantine-color-dark-5);
+}
+
+/* El círculo del diseño: un anillo de 1px con un punto adentro, no el disco
+   lleno con un punto NEGRO que trae Mantine -su `--radio-icon-color` es
+   `--mantine-color-black`, el único negro puro que aparecería en la app-. El
+   anillo se enciende en jade al elegirlo y el punto es del mismo jade, así que
+   la marca es de un solo color. */
+.knd-move-opt .mantine-Radio-radio {
+  background-color: transparent;
+  border-color: var(--mantine-color-dark-4);
+}
+.knd-move-opt[data-checked] .mantine-Radio-radio {
+  border-color: var(--mantine-color-jade-6);
+}
+.knd-move-opt {
+  --radio-icon-color: var(--mantine-color-jade-6);
+}
+/* `label` de Mantine trae su propio `padding-left`; acá el espacio entre la
+   bolita y el nombre lo pone el `gap` del cuerpo, que es el del diseño. */
+.knd-move-opt .mantine-Radio-body { gap: 0.625rem; align-items: center; }
+.knd-move-opt .mantine-Radio-labelWrapper { flex: 1; min-width: 0; }
+.knd-move-opt .mantine-Radio-label { padding-left: 0; cursor: pointer; }
+/* El `<label>` tapa toda la fila, así que el clic en cualquier parte -incluido
+   el número de cartas de la derecha- marca ese destino. */
+.knd-move-opt .mantine-Radio-inner { cursor: pointer; }
+
+/* La barra de acción: fila en escritorio, dos renglones en teléfono. Es la
+   forma que tiene en el canvas -61px de alto con todo en línea contra 88px
+   apilado-, y el motivo es de ancho: en 390px el conteo y los dos verbos en
+   una sola fila parten «4 grupos · 20 cartas» en dos renglones. */
+@media (max-width: 640px) {
+  .knd-actionbar-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  /* El control soldado pasa a ocupar el ancho, con las dos mitades repartidas
+     en partes iguales (`ancho_total` de `botones_juntos`). Un control de dos
+     verbos centrado en una pantalla angosta deja dos huecos muertos a los
+     costados y encima hace los blancos más chicos de lo necesario. */
+  /* Grilla de dos pistas iguales y no flex: las dos mitades no tienen el
+     mismo relleno lateral -12px la default y 18 la primaria, que son los del
+     diseño- y con `flex: 1 1 0` quedaban 171,5 contra 184,5 aun con
+     `min-width: 0`, o sea que la costura no caía en el medio. Dos `minmax(0,
+     1fr)` miden lo mismo por definición, sin depender del contenido. */
+  .knd-verbos {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    width: 100%;
+  }
+}
+
+/* ------------------------------------------------------- filas de Estadísticas */
+/* Las columnas de ancho fijo de «Las que más errás» y «Aciertos por grupo». Van
+   en CSS y no en `w={}` porque cambian de ancho entre teléfono y escritorio -en
+   390px un kana de 46px y un romaji de 58 no dejan barra- y Mantine escribe
+   `w=` inline, donde una media query no llega.
+
+   Que sean FIJAS es lo que hace comparables las barras: la barra es el único
+   `flex: 1` de la fila, así que cualquier columna que mida distinto según su
+   contenido le cambia el largo a la barra fila por fila. */
+.knd-worst-kana { width: 1.5rem; flex: none; font-size: 1rem; line-height: 1.2; }
+.knd-worst-rom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+.knd-worst-num { width: 2.375rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+.knd-group-name {
+  width: 3.875rem;
+  flex: none;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (min-width: 601px) {
+  .knd-worst-kana { width: 2.875rem; }
+  .knd-worst-rom { width: 3.625rem; }
+  .knd-worst-num { width: 2.75rem; }
+  .knd-group-name { width: 5.625rem; }
 }

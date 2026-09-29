@@ -51,7 +51,7 @@ export function GenkoSheet({
         <span key={i} className="knd-genko-celda">
           <Cruz />
           {ch !== ' ' && (
-            <span className="knd-genko-glifo kana" style={tone ? { color: tone } : undefined}>
+            <span className="knd-genko-glifo mincho" style={tone ? { color: tone } : undefined}>
               {ch}
             </span>
           )}

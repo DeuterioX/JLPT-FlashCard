@@ -70,6 +70,7 @@ export function SwipeRow({
    */
   trailing?: SwipeAction;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
   const frontRef = useRef<HTMLDivElement>(null);
   const rightRef = useRef<HTMLDivElement>(null);
   const leftRef = useRef<HTMLDivElement>(null);
@@ -89,8 +90,31 @@ export function SwipeRow({
     el.style.transform = `translateX(${px}px)`;
   }
 
+  /**
+   * Qué lado está descubierto, como atributo en el contenedor.
+   *
+   * No es decoración: el panel descubierto se pone POR ENCIMA de la cara que
+   * se desliza mientras está abierto, y eso arregla un toque que se perdía.
+   * La cara tarda 180ms en llegar a su lugar, y el navegador hace la prueba
+   * de impacto contra la posición ANIMADA: un toque sobre el botón apenas
+   * soltabas el dedo caía en la cara, que todavía lo estaba tapando, y no
+   * pasaba nada; esperando un momento sí funcionaba. Con el panel arriba el
+   * botón recibe el toque desde el primer cuadro.
+   *
+   * Sólo mientras está abierto, porque el panel mide 6rem pegadas al borde: si
+   * quedara arriba siempre se comería los toques de esa franja de la fila
+   * cerrada -que es justo donde está el nombre del mazo o del grupo-.
+   */
+  function marcarAbierto(lado: 'lead' | 'trail' | null) {
+    const el = rootRef.current;
+    if (!el) return;
+    if (lado) el.dataset.open = lado;
+    else delete el.dataset.open;
+  }
+
   function close() {
     state.current.base = 0;
+    marcarAbierto(null);
     setX(0, true);
   }
 
@@ -140,6 +164,7 @@ export function SwipeRow({
     const openRight = !!leading && s.dx > max * OPEN_RATIO;
     const openLeft = !!trailing && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
+    marcarAbierto(openRight ? 'lead' : (openLeft ? 'trail' : null));
     setX(s.base, true);
   }
 
@@ -155,7 +180,7 @@ export function SwipeRow({
   }
 
   return (
-    <div className="knd-swipe-row">
+    <div className="knd-swipe-row" ref={rootRef}>
       {leading && (
         <div className="knd-swipe-side knd-swipe-lead" ref={leftRef}>
           <button

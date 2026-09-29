@@ -4,13 +4,15 @@ import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, rem,
+  Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, rem,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { SwipeRow } from './SwipeRow';
+import { ModalActions } from './ModalActions';
+import { CampoPapel } from './CampoPapel';
 import { ModalTitle } from './ModalTitle';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
@@ -236,7 +238,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 {!readOnly && (
                   <Button
                     id={`group-delete-${g.id}`}
-                    variant="subtle" color="shu.6" size="compact-xs"
+                    variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
                     disabled={deck.groups.length === 1}
                     title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
                     onClick={() => { setDelError(null); setConfirm(g); }}
@@ -269,14 +271,16 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             void renameDeck();
           }}
         >
-          <TextInput
+          <CampoPapel
             id="rename-deck-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
-          {renameError && <Text c="shu.6" size="sm">{renameError}</Text>}
-          <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
-            Guardar
-          </Button>
+          {renameError && <Text c="var(--knd-shu-txt)" size="sm">{renameError}</Text>}
+          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameBusy}>
+            <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+              Guardar
+            </Button>
+          </ModalActions>
         </Stack>
       </Modal>
 
@@ -294,14 +298,16 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             void renameGroupName();
           }}
         >
-          <TextInput
+          <CampoPapel
             id="rename-group-row-input" label="Nombre"
             value={gRenameValue} onChange={(e) => setGRenameValue(e.currentTarget.value)}
           />
-          {gRenameError && <Text c="shu.6" size="sm">{gRenameError}</Text>}
-          <Button type="submit" disabled={!gRenameValue.trim() || gRenameBusy} loading={gRenameBusy}>
-            Guardar
-          </Button>
+          {gRenameError && <Text c="var(--knd-shu-txt)" size="sm">{gRenameError}</Text>}
+          <ModalActions onCancel={() => setGRename(null)} busy={gRenameBusy}>
+            <Button type="submit" disabled={!gRenameValue.trim() || gRenameBusy} loading={gRenameBusy}>
+              Guardar
+            </Button>
+          </ModalActions>
         </Stack>
       </Modal>
 
@@ -314,31 +320,36 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             void createGroup();
           }}
         >
-          <TextInput
+          <CampoPapel
             id="new-group-input" label="Nombre" placeholder="Verdura"
             value={newName} onChange={(e) => setNewName(e.currentTarget.value)}
           />
-          {newError && <Text c="shu.6" size="sm">{newError}</Text>}
-          <Button type="submit" disabled={!newName.trim() || newBusy} loading={newBusy}>
-            Crear
-          </Button>
+          {newError && <Text c="var(--knd-shu-txt)" size="sm">{newError}</Text>}
+          <ModalActions onCancel={() => setNewOpen(false)} busy={newBusy}>
+            <Button type="submit" disabled={!newName.trim() || newBusy} loading={newBusy}>
+              Crear
+            </Button>
+          </ModalActions>
         </Stack>
       </Modal>
 
       <Modal id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el grupo?</ModalTitle>}>
-        <Stack>
-          {/* El diálogo nombra lo que se lleva puesto: `deleteGroup` borra en
-              cascada, igual que borrar un mazo. */}
-          <Text size="sm">
-            {confirm && `Se va «${confirm.name}» con ${
-              confirm.cardCount === 1 ? '1 carta' : `${confirm.cardCount} cartas`
-            } y sus intentos registrados. No se puede deshacer.`}
+        <Stack gap={14}>
+          {/* La frase del diseño: el verbo adelante y en negrita sólo lo que
+              desaparece. `deleteGroup` borra en cascada, igual que borrar un
+              mazo, así que el número de cartas es parte de la advertencia y no
+              un dato de color. */}
+          <Text className="knd-borrar-nota">
+            {'Se va a borrar '}
+            <b>{`«${confirm?.name ?? ''}»`}</b>
+            {' y sus '}
+            <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
+            {'. No se puede deshacer.'}
           </Text>
-          {delError && <Text c="shu.6" size="sm">{delError}</Text>}
-          <Group>
-            <Button variant="default" onClick={() => setConfirm(null)} disabled={delBusy}>Cancelar</Button>
-            <Button color="shu.6" onClick={deleteGroup} loading={delBusy}>Borrar grupo</Button>
-          </Group>
+          {delError && <Text c="var(--knd-shu-txt)" size="sm">{delError}</Text>}
+          <ModalActions onCancel={() => setConfirm(null)} busy={delBusy}>
+            <Button color="shu.6" onClick={deleteGroup} loading={delBusy}>Borrar el grupo</Button>
+          </ModalActions>
         </Stack>
       </Modal>
     </Stack>

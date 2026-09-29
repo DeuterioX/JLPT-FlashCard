@@ -37,14 +37,18 @@ const jade: MantineColorsTuple = [
   '#5EAB86', '#4FA37B', '#418565', '#32674E', '#234836',
 ];
 
-// Error. Sigue en #E2604A, y NO pasa al #C4402E de la propuesta a propósito:
-// `shu.6` es TEXTO en 31 lugares -los mensajes de error, los botones de
-// Borrar-, y ahí el shu de la propuesta da 3,21:1 contra una superficie,
-// debajo del mínimo para texto. Éste da 4,69:1. El #C4402E va a servir
-// cuando entre el tema claro -ahí mide 4,56:1-, pero en oscuro no se lee.
+// Error y acento. Anclada en el #C4402E del diseño. La rampa se reconstruyó
+// como la de jade: se midió qué proporción de blanco o de negro tenía cada
+// tono respecto de su propio tono 6 y se reaplicó sobre el ancla nueva.
+//
+// El 6 es el color de RELLENO -el botón de borrar, el filete del gesto, la
+// marca del encabezado, el glifo de los modales-, y ahí 3,61:1 contra la
+// página oscura y 4,56 contra la clara es de sobra: una marca no es texto.
+// Como TEXTO no alcanza (3,21:1), y shu es texto en treinta y un lugares, así
+// que para eso está `shuTxt`.
 const shu: MantineColorsTuple = [
-  '#FDEEEB', '#F9D6CF', '#F2B4A7', '#EC917F', '#E7755F',
-  '#E56B55', '#E2604A', '#C74E3A', '#A43D2C', '#7F2C1F',
+  '#F9EDEB', '#F1D1CC', '#E3A59D', '#D77C70', '#CC5B4B',
+  '#C94F3E', '#C4402E', '#A23526', '#802A1E', '#5E1F16',
 ];
 
 export const theme = createTheme({
@@ -59,9 +63,17 @@ export const theme = createTheme({
   // un grosor de letra distinto al del diseño en toda la app, no en un
   // lugar puntual. El orden de acá es el mismo del `body` del CSS
   // original: IBM Plex Sans primero, Segoe UI como fallback al final.
-  fontFamily: '"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif',
-  fontFamilyMonospace: '"IBM Plex Mono", ui-monospace, monospace',
-  headings: { fontFamily: '"Zen Kaku Gothic New", "IBM Plex Sans", sans-serif' },
+  // Las cuatro familias del canvas, no las de IBM que había antes. Son cuatro
+  // y cada una tiene un trabajo: `M PLUS 2` es la interfaz, `M PLUS 1 Code` es
+  // todo número y romaji, `Zen Kaku Gothic New` es el kana de las listas y
+  // `Zen Old Mincho` -la serif japonesa- es el kanji de rótulo: el glifo de
+  // cada encabezado de sección, el de cada modal, los de la barra de pestañas
+  // y el carácter dentro del 原稿用紙. Las dos japonesas no son
+  // intercambiables: la gótica es señalización y la mincho es escritura, y el
+  // papel de manuscrito es escritura.
+  fontFamily: '"M PLUS 2", system-ui, -apple-system, "Segoe UI", sans-serif',
+  fontFamilyMonospace: '"M PLUS 1 Code", ui-monospace, monospace',
+  headings: { fontFamily: '"M PLUS 2", system-ui, sans-serif' },
   // El jade (#3FBF8F) es un verde claro: texto blanco encima da bajo
   // contraste. autoContrast hace que Mantine elija texto oscuro o claro
   // según la luminosidad del fondo, componente por componente, en vez de
@@ -157,10 +169,42 @@ export const theme = createTheme({
       // Centrado vertical. Mantine los ancla arriba por defecto, y en una
       // pantalla alta el diálogo queda pegado al techo, lejos de donde está
       // mirando quien lo abrió.
-      defaultProps: { centered: true },
+      defaultProps: {
+        centered: true,
+        // `pop`, el default de Mantine, escala el diálogo desde su esquina a
+        // la vez que lo desvanece: se lee como si entrara desde arriba y
+        // desde la izquierda al mismo tiempo, tres movimientos en uno. Un
+        // modal no viene de ningún lado -aparece encima de lo que estabas
+        // mirando-, así que la transición honesta es sólo opacidad. Corta,
+        // porque lo que sigue es escribir o decidir, no mirar la animación.
+        transitionProps: { transition: 'fade', duration: 140, timingFunction: 'ease-out' },
+        // El radio va como PROP y no en `styles`: `styles` lo escribe como
+        // estilo inline y ahí ninguna hoja puede pisarlo, ni con una media
+        // query. El buscador del diccionario necesita pisarlo -en teléfono va a
+        // pantalla completa y una esquina redondeada a pantalla completa deja
+        // ver el fondo por los cuatro vértices-, y con el prop lo puede hacer
+        // porque Mantine lo resuelve contra `--modal-radius` en su propia
+        // hoja. Medido: con el radio en `styles`, `.knd-dict-modal` a 390px
+        // seguía dando `border-radius: 10px`.
+        radius: 10,
+      },
+      // Medido contra el tablero: el modal no tenía NADA de esto. Sin borde,
+      // con el radio de `md` en vez de 10, con la sombra de fábrica de
+      // Mantine, sin la línea que separa la cabecera del cuerpo y con el velo
+      // negro al 60% en vez del de la escala.
       styles: {
-        content: { backgroundColor: 'var(--mantine-color-dark-6)' },
-        header: { backgroundColor: 'var(--mantine-color-dark-6)' },
+        content: {
+          backgroundColor: 'var(--mantine-color-dark-6)',
+          border: '1px solid var(--mantine-color-dark-4)',
+          boxShadow: 'var(--knd-sombra-modal)',
+        },
+        header: {
+          backgroundColor: 'var(--mantine-color-dark-6)',
+          borderBottom: '1px solid var(--knd-border-soft)',
+          padding: `${rem(14)} ${rem(16)}`,
+        },
+        body: { padding: rem(16) },
+        overlay: { backgroundColor: 'var(--knd-scrim)' },
       },
     },
     // Mantine pinta `Kbd` en negrita, con fondo `dark.6` y texto brillante
@@ -243,7 +287,10 @@ export const theme = createTheme({
     // como venía (jade + autoContrast).
     Button: {
       styles: {
-        label: { fontWeight: 500 },
+        // 600 y no 500: los tres tipos de botón del diseño -primario,
+        // peligro y default- llevan el mismo peso, y con 500 el rótulo se
+        // leía más liviano que el resto de la pantalla.
+        label: { fontWeight: 600 },
       },
       vars: (_t: MantineTheme, props: { variant?: string; color?: string; size?: string }) => {
         // Mantine trata el `variant` sin especificar como "filled" -su
@@ -264,12 +311,32 @@ export const theme = createTheme({
         return {
           root: {
             ...(neutral ? { '--button-color': 'var(--mantine-color-text)' } : {}),
+            // Los dos rellenos del diseño traen su propio rótulo y no el que
+            // elige autoContrast. autoContrast acierta el LADO -claro sobre
+            // shu, oscuro sobre jade- pero usa blanco y negro puros, y el
+            // diseño usa dos tintas de la paleta: `#F7F3EA` sobre el rojo y
+            // `verdeInk` sobre el verde. Blanco puro sobre shu vibra, y negro
+            // puro sobre jade es el único negro absoluto de la app.
+            ...(variant === 'filled' && props.color?.startsWith('shu')
+              ? { '--button-color': '#F7F3EA', '--button-padding-x': rem(14) }
+              : {}),
+            ...(variant === 'filled' && !props.color
+              ? { '--button-color': 'var(--knd-verde-ink)' }
+              : {}),
             // `.btn` del diseño: el botón por defecto va sobre
             // `--a-surface-2` (dark.5), no sobre el dark.6 que Mantine usa
             // como `--mantine-color-default`. Es el botón más repetido del
             // mockup (11 usos, en todas las pantallas), así que se corrige
             // acá y no pantalla por pantalla.
-            ...(variant === 'default' ? { '--button-bg': 'var(--mantine-color-dark-5)' } : {}),
+            ...(variant === 'default'
+              ? {
+                '--button-bg': 'var(--mantine-color-dark-5)',
+                // `boton()` default: 12px de relleno lateral contra los 18
+                // del tamaño `sm` de Mantine. Se nota al lado de un primario,
+                // que sí lleva 18: el diseño hace más angosto al secundario.
+                '--button-padding-x': rem(12),
+              }
+              : {}),
             // `.btn.sm` del diseño: 11px y 9px de padding lateral, contra
             // los 12px/7px que trae `compact-xs`.
             ...(props.size === 'compact-xs'
@@ -294,6 +361,14 @@ export const theme = createTheme({
     // las barras -por eso el nombre es el del diseño y no el de un uso-.
     borderSoft: '#272E29',
     switchThumbActiveBg: '#06231A',
+    // El velo del modal y su sombra. Estaban leyéndose del tema pero NO
+    // estaban acá: `t.other.scrim` daba `undefined`, así que `--knd-scrim`
+    // salía vacía y el velo del esquema oscuro era completamente transparente
+    // -medido: `rgba(0, 0, 0, 0)`-. O sea que el modal flotaba sobre la
+    // pantalla anterior sin nada que la apartara, y encima sin sombra. En
+    // claro no se notaba porque el bloque `light` del resolver las define.
+    scrim: 'rgba(8,10,9,.72)',
+    sombraModal: '0 20px 60px rgba(0,0,0,.5)',
 
     // El papel y la tinta que va encima. No son parte de la escala de
     // Mantine a propósito: la escala es el ENTORNO -fondos, bordes, texto de
@@ -318,6 +393,28 @@ export const theme = createTheme({
     // es `#fab005`, un amarillo anaranjado, contra este latón apagado- y
     // codifica un estado real, así que el tono importa.
     ambar: '#C8A23E',
+    // El shu que se LEE. El relleno va en `shu.6`, el del diseño; como texto
+    // ese da 3,21:1 sobre una superficie oscura. Éste es el mismo shu unos
+    // tonos más claro: 5,47:1. En claro hace falta el camino inverso y lo
+    // resuelve el bloque `light` del resolver.
+    shuTxt: '#D77C70',
+    // La tinta que se apoya SOBRE el verde: el rótulo del botón primario y la
+    // bolita del switch encendido. En el diseño es un token propio
+    // (`verdeInk`) justamente porque se da vuelta por tema -tinta casi negra
+    // sobre el verde oscuro, casi blanca sobre el verde claro- y el bloque
+    // `light` del resolver lo cambia. No es blanco y negro puros, que es lo
+    // que elegiría autoContrast solo.
+    verdeInk: '#08170F',
+    // El ámbar que se LEE, igual que `shuTxt` con el shu: el relleno de la
+    // barra del semáforo va en `ambar`, pero como cifra sobre la página ese
+    // da 2,35:1. En oscuro alcanza el mismo; el bloque `light` lo baja.
+    ambarTxt: '#C8A23E',
+    // El verde que se lee SOBRE PAPEL. El significado revelado del quiz sale
+    // en verde -es la recompensa de haber acertado-, pero el jade de la app
+    // está calibrado contra superficies oscuras y sobre la hoja crema da
+    // 2,41:1. Éste es el jade dos tonos más oscuro: 4,99:1 sobre el papel.
+    // No tiene variante por tema porque el papel tampoco: es un material.
+    verdePapel: '#32674E',
   },
 });
 
@@ -362,13 +459,19 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--knd-sumi': t.other.sumi,
     '--knd-sumi-dim': t.other.sumiDim,
     '--knd-pauta': t.other.pauta,
+    '--knd-verde-papel': t.other.verdePapel,
     // Éstos sí cambian; acá van sus valores de esquema oscuro.
     '--knd-papel-off': t.other.papelOff,
     '--knd-papel-ink': t.other.papelInk,
     '--knd-papel-ink-dim': t.other.papelInkDim,
     '--knd-border-soft': t.other.borderSoft,
     '--knd-ambar': t.other.ambar,
+    '--knd-shu-txt': t.other.shuTxt,
+    '--knd-scrim': t.other.scrim,
+    '--knd-sombra-modal': t.other.sombraModal,
     '--knd-switch-thumb': t.other.switchThumbActiveBg,
+    '--knd-verde-ink': t.other.verdeInk,
+    '--knd-ambar-txt': t.other.ambarTxt,
   },
   light: {
     // La escala de tinta, invertida en VALOR y no en nombre: `dark.0` sigue
@@ -395,12 +498,28 @@ export const cssVariablesResolver: CSSVariablesResolver = (t) => ({
     '--mantine-color-placeholder': '#8A928A',
 
     // Los acentos, bajados hasta que se lean como texto sobre papel claro.
-    '--mantine-color-jade-6': '#32674E',
-    '--mantine-color-jade-filled': '#32674E',
+    // El verde del canvas para claro. Da 5,07:1 como texto y 4,68:1 de
+    // relleno contra la página, así que no hacía falta bajarlo más -yo había
+    // puesto uno más oscuro de la propia rampa y se apartaba del diseño-.
+    '--mantine-color-jade-6': '#2C7A54',
+    '--mantine-color-jade-filled': '#2C7A54',
     '--mantine-color-jade-filled-hover': '#234836',
-    '--mantine-primary-color-filled': '#32674E',
+    '--mantine-primary-color-filled': '#2C7A54',
     '--mantine-primary-color-filled-hover': '#234836',
-    '--mantine-color-shu-6': '#A43D2C',
+    // Sobre papel claro el relleno del diseño ya se lee solo (4,56:1), así
+    // que `shu.6` NO se toca acá. Lo que cambia es el texto, que necesita ir
+    // al otro lado: 6,64:1.
+    '--knd-shu-txt': '#A23526',
+    // Sobre el verde claro la letra se da vuelta: la regla del diseño es «lo
+    // que se apoya sobre verde va en verdeInk», y ese token cambia por tema.
+    '--knd-verde-ink': '#F2F7F4',
+    // El ámbar del canvas mide 2,35:1 como texto sobre la página clara -y
+    // 2,16:1 incluso como relleno de barra-, así que la CIFRA usa este, que
+    // es el `ambarTxt` de la paleta clara del diseño: 4,91:1. El relleno de
+    // la barra sigue siendo el ámbar de siempre, que ahí es una marca.
+    '--knd-ambar-txt': '#8A6A12',
+    '--knd-scrim': 'rgba(27,33,29,.34)',
+    '--knd-sombra-modal': '0 18px 48px rgba(25,23,19,.18)',
 
     // El papel apagado se va en TEMPERATURA, no en claridad: en claro no hay
     // lugar para bajar 33 puntos de L* sin quedar más oscuro que la página.

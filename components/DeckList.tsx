@@ -3,14 +3,14 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { CollectionFill } from 'react-bootstrap-icons';
-import { Icon } from './Icon';
 import {
-  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text, TextInput,
+  Anchor, Button, Divider, Group, Modal, Paper, Stack, Text,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
 import { SwipeRow } from './SwipeRow';
+import { ModalActions } from './ModalActions';
+import { CampoPapel } from './CampoPapel';
 import { ModalTitle } from './ModalTitle';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
@@ -48,13 +48,16 @@ function subtitleFor(d: DeckSummary): string {
 /**
  * Los dos mazos incluidos se muestran con SU kana, que es de qué son: あ para
  * Hiragana, ア para Katakana. Ahí el carácter no es un ícono, es el contenido.
- * Cualquier otro mazo lleva el mismo ícono que la pestaña Mazos: es el mismo
- * concepto, así que el mismo dibujo.
+ *
+ * Cualquier otro mazo lleva 冊, el kanji de «volumen encuadernado», que es el
+ * mismo de la pestaña Mazos y del encabezado de esta sección. Antes era el
+ * pictograma de Bootstrap, y en una columna de 34px donde los otros dos son
+ * caracteres japoneses un dibujo de otra procedencia se lee como de otra app.
  */
 function iconFor(d: DeckSummary): React.ReactNode {
   if (d.isBuiltin && d.name === 'Hiragana') return 'あ';
   if (d.isBuiltin && d.name === 'Katakana') return 'ア';
-  return <Icon glyph={CollectionFill} rem={1.35} />;
+  return '冊';
 }
 
 export function DeckList({ decks }: { decks: DeckSummary[] }) {
@@ -204,7 +207,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                   {!d.isBuiltin && (
                     <Button
                       id={`deck-delete-${d.id}`}
-                      variant="subtle" color="shu.6" size="compact-xs" onClick={() => openConfirm(d)}
+                      variant="subtle" c="var(--knd-shu-txt)" size="compact-xs" onClick={() => openConfirm(d)}
                     >
                       Borrar
                     </Button>
@@ -232,44 +235,56 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             void create();
           }}
         >
-          <TextInput
+          <CampoPapel
             id="deck-name" label="Nombre" placeholder="Comidas"
             value={name} onChange={(e) => setName(e.currentTarget.value)}
           />
-          <TextInput
-            id="deck-groups" label="Grupos (opcional, separados por coma)"
+          {/* El rótulo de adentro tiene que ser corto -son versalitas de 9px
+              en la misma línea que el texto-, así que la aclaración larga baja
+              a la nota, que es donde el diseño pone lo que hay que explicar. */}
+          <CampoPapel
+            id="deck-groups" label="Grupos"
             placeholder="Pescado, Verdura, Frutas"
-            description="Si lo dejás vacío se crea un grupo solo, llamado «General»."
             value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
           />
-          {createError && <Text c="shu.6" size="sm">{createError}</Text>}
-          <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createBusy} loading={createBusy}>
-            Crear
-          </Button>
+          <Text className="knd-campo-nota">
+            Separados por coma, y opcional: si lo dejás vacío se crea un grupo
+            solo, llamado «General».
+          </Text>
+          {createError && <Text c="var(--knd-shu-txt)" size="sm">{createError}</Text>}
+          <ModalActions onCancel={() => setCreating(false)} busy={createBusy}>
+            <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createBusy} loading={createBusy}>
+              Crear
+            </Button>
+          </ModalActions>
         </Stack>
       </Modal>
 
       <Modal id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el mazo?</ModalTitle>}>
-        <Stack>
-          {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas. */}
-          <Text size="sm">
-            Se va <b>{confirm?.name}</b>, sus {confirm?.groupCount} grupos,
-            sus {confirm?.cardCount} cartas y todos los intentos registrados.
+        <Stack gap={14}>
+          {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas.
+              La frase es la del diseño -el verbo adelante, en negrita sólo lo
+              que desaparece-, con los dos niveles que se lleva un mazo. */}
+          <Text className="knd-borrar-nota">
+            {'Se va a borrar '}
+            <b>{`«${confirm?.name ?? ''}»`}</b>
+            {', sus '}
+            <b>{confirm?.groupCount === 1 ? '1 grupo' : `${confirm?.groupCount ?? 0} grupos`}</b>
+            {' y sus '}
+            <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
+            {'. No se puede deshacer.'}
           </Text>
-          {deleteError && <Text c="shu.6" size="sm">{deleteError}</Text>}
-          <Group>
-            <Button variant="default" onClick={() => setConfirm(null)} disabled={deleteBusy}>
-              Cancelar
-            </Button>
+          {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
+          <ModalActions onCancel={() => setConfirm(null)} busy={deleteBusy}>
             <Button
-              color="shu"
+              color="shu.6"
               onClick={() => confirm && remove(confirm)}
               loading={deleteBusy}
               disabled={deleteBusy}
             >
-              Borrar
+              Borrar el mazo
             </Button>
-          </Group>
+          </ModalActions>
         </Stack>
       </Modal>
     </Stack>

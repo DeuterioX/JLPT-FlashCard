@@ -76,7 +76,16 @@ export function ActionBar({ children }: { children: React.ReactNode }) {
           zIndex: 100,
         }}
       >
-        <Group gap="md">{children}</Group>
+        {/* En escritorio el conteo va a la izquierda y la acción a la
+            derecha, en una fila. En teléfono la fila no entra -medido: «4
+            grupos · 20 cartas» y los dos verbos en 390px partían el conteo en
+            dos renglones-, así que el diseño apila: el conteo arriba y el
+            control a ancho completo abajo. Lo decide `.knd-actionbar-row` en
+            globals.css, no un `useMediaQuery`, por lo mismo que el resto de la
+            app: el servidor y el cliente tienen que emitir lo mismo. */}
+        <Group gap="md" justify="space-between" wrap="nowrap" className="knd-actionbar-row">
+          {children}
+        </Group>
       </Paper>
     </>
   );
