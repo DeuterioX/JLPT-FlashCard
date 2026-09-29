@@ -4,6 +4,7 @@ import { AppShell as MantineShell, Group, Text, Anchor, Box, rem } from '@mantin
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Brand } from './Brand';
+import { ThemeToggle } from './ThemeToggle';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
 // `nav-mobile-stats`, ...), para poder referirse a uno puntual sin depender
@@ -57,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   return (
     <MantineShell header={{ height: 48 }} padding="md">
       <MantineShell.Header id="app-header">
-        <Group h="100%" px="md" gap="xl">
+        <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
               el activo), como en el diseño -no solo un `gap` entre textos
@@ -84,6 +85,15 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               </Anchor>
             ))}
           </Group>
+          {/* Al ras de la derecha, separado de la navegación: no es un lugar
+              más al que ir, es una preferencia. */}
+          {/* Por ahora sólo en escritorio: en teléfono esta barra se esconde en
+              las pantallas que traen su propia navbar (`#app-header` en
+              globals.css), así que el botón aparecería en unas sí y en otras
+              no. Cuando se decida dónde va en teléfono, se saca esta clase. */}
+          <Box ml="auto" className="knd-solo-escritorio">
+            <ThemeToggle id="theme-toggle" />
+          </Box>
         </Group>
       </MantineShell.Header>
 

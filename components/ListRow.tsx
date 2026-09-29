@@ -32,8 +32,10 @@ export function ListRow({
         onClick();
       })}
     >
-      {icon && <Box w={34} className="kana" style={{ fontSize: rem(17) }}>{icon}</Box>}
-      <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+      {/* `knd-swipe-pin`: lo que identifica a la fila no se va de pantalla
+          cuando el gesto la corre para descubrir Borrar. Ver globals.css. */}
+      {icon && <Box w={34} className="kana knd-swipe-pin" style={{ fontSize: rem(17) }}>{icon}</Box>}
+      <Stack gap={0} className="knd-swipe-pin" style={{ flex: 1, minWidth: 0 }}>
         <Text size={rem(13)} lh={1.45} fw={500} className="kana">{title}</Text>
         {subtitle && <Text size={rem(11)} lh={1.45} c="dark.3">{subtitle}</Text>}
       </Stack>

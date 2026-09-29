@@ -641,13 +641,13 @@ export function GroupCards({
                     mouse solamente.
                     Conserva el id del botón que reemplaza. */}
                 {readOnly ? (
-                  <Text className="kana knd-card-kana">{c.prompt}</Text>
+                  <Text className="kana knd-card-kana knd-swipe-pin">{c.prompt}</Text>
                 ) : (
                   <Text
                     component="button"
                     type="button"
                     id={`card-edit-${c.id}`}
-                    className="kana knd-card-kana knd-card-edit"
+                    className="kana knd-card-kana knd-card-edit knd-swipe-pin"
                     onClick={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
                   >
                     {c.prompt}

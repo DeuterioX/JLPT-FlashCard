@@ -210,7 +210,9 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
               wrap="nowrap"
               style={{ padding: '0.625rem 0.8125rem' }}
             >
-              <Stack gap={0} style={{ flex: 1, minWidth: 0 }}>
+              {/* `knd-swipe-pin`: el nombre no se va de pantalla cuando el gesto
+                  corre la fila para descubrir Borrar. Ver globals.css. */}
+              <Stack gap={0} className="knd-swipe-pin" style={{ flex: 1, minWidth: 0 }}>
                 {/* El nombre ES el enlace. Antes el único elemento enfocable
                     de la fila era el botón «Ver cartas», y al sacarlo -la
                     fila entera ya navega al tocarla- el teclado se quedaba

@@ -430,6 +430,26 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
   .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
 
+  /* Lo que identifica a la fila -el ícono y el nombre, o el kana de una carta-
+     se queda quieto mientras la fila se corre hacia la IZQUIERDA. Sin esto,
+     descubrir Borrar se lleva puesto el nombre: medido, arranca a 13px del
+     borde y el panel mide 96, así que sale entero de cuadro y quedás mirando
+     una caja vacía con un bloque rojo al lado, sin saber qué vas a borrar.
+
+     La cuenta es el desplazamiento al revés, y sólo para ese lado: con la fila
+     en -96 esto vale +96 y el nombre no se movió; con la fila en +96
+     -descubriendo la acción de la izquierda- `max()` lo deja en 0 y el nombre
+     acompaña a la fila, que ahí se ve igual. La fila SE MUEVE -se ve correrse
+     su superficie, su filete y el panel que aparece-, lo único que no se va es
+     el dato.
+
+     `position: sticky` no sirve para esto: no reacciona al `transform` de un
+     padre, sólo al scroll de un contenedor. */
+  .knd-swipe-pin {
+    transform: translateX(max(0px, calc(-1 * var(--knd-swipe-x, 0px))));
+    transition: var(--knd-swipe-anim, none);
+  }
+
   /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
      botones no entran en 390px, y bajarlos a su propia línea deja cada carta
      en ~100px de alto, que es una lista de vocabulario que no se puede

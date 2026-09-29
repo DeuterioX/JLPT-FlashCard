@@ -83,12 +83,23 @@ export function SwipeRow({
     return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
   }
 
-  /** La fila se corre y descubre el panel que tiene detrás, como en iOS. */
+  /**
+   * La fila se corre y descubre el panel que tiene detrás, como en iOS.
+   *
+   * El desplazamiento se publica además como variable en el contenedor, para
+   * que lo que identifica a la fila -el ícono y el nombre- pueda quedarse
+   * quieto mientras el resto se corre. Es la única manera: `position: sticky`
+   * no sirve acá porque no reacciona al `transform` de un padre, sólo al
+   * scroll.
+   */
   function setX(px: number, animate: boolean) {
     const el = frontRef.current;
     if (!el) return;
-    el.style.transition = animate ? 'transform .18s ease' : 'none';
+    const anim = animate ? 'transform .18s ease' : 'none';
+    el.style.transition = anim;
     el.style.transform = `translateX(${px}px)`;
+    rootRef.current?.style.setProperty('--knd-swipe-x', `${px}px`);
+    rootRef.current?.style.setProperty('--knd-swipe-anim', anim);
   }
 
   /**
