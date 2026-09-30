@@ -6,7 +6,7 @@ import { Box, Button, Group, Kbd, Paper, Progress, Stack, Text } from '@mantine/
 import { Brand } from '../Brand';
 import { GenkoSheet } from './GenkoSheet';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { createRoundRecorder } from '@/lib/quiz/recorder';
+import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
 import { USED_ROUND_KEY, type StoredRound } from '@/lib/quiz/stored-round';
 
 /**
@@ -41,6 +41,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   const [noSabidas, setNoSabidas] = useState(0);
   const [inicio] = useState(() => Date.now());
   const [fin, setFin] = useState<number | null>(null);
+  const [sessionError, setSessionError] = useState<string | null>(null);
   const desdeRef = useRef(Date.now());
 
   const recorder = useMemo(() => {
@@ -51,6 +52,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
     return createRoundRecorder({
       fetch: (...a) => fetch(...a),
       ...(usada ? { groupIds: round.groupIds } : { sessionId: round.sessionId }),
+      // Sin esto, una sesión que no se puede abrir falla EN SILENCIO: el
+      // recorder se queda en `failed`, tira el buffer y nadie se entera. O sea
+      // que calificabas la ronda entera y no se guardaba nada. El quiz sí lo
+      // pasaba desde el principio; acá faltaba, y faltaba porque las dos
+      // pantallas comparten esta parte por copia y no por abstracción.
+      onFailure: () => setSessionError(SESSION_ERROR_MSG),
     });
   }, [round.sessionId, round.groupIds]);
 
@@ -192,6 +199,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
           />
         )}
       </Box>
+
+      {sessionError && (
+        <Text id="meaning-session-error" size="xs" c="var(--knd-shu-txt)" ta="center" py={4}>
+          {sessionError}
+        </Text>
+      )}
 
       <Progress id="meaning-progress" value={progreso} size="xs" radius={0} />
 

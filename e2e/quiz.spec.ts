@@ -183,3 +183,48 @@ test('en teléfono el input queda visible con el teclado abierto', async ({ page
   // Verificación pendiente en un dispositivo real (ver reporte).
   await expect(input).toBeInViewport();
 });
+
+/**
+ * Una sesión que no se puede abrir tiene que AVISAR, en las dos pantallas de
+ * ronda. Este test existe porque el repaso de significados no lo hacía: el
+ * recorder tira el buffer y se queda en `failed`, así que se podía calificar
+ * la ronda entera y no guardarse nada, sin una sola señal en pantalla.
+ *
+ * El mazo se crea acá y no en el seed: los mazos de kana no tienen
+ * significados -`card.meaning` es NULL- y sin significados el modo ni siquiera
+ * se puede arrancar.
+ */
+test.describe('una sesión que falla avisa', () => {
+  test('el repaso de significados muestra el aviso', async ({ page, request }) => {
+    const nombre = `Vocab ${Date.now()}`;
+    const mazo = await request.post('/api/decks', {
+      data: { name: nombre, groups: ['Prueba'] },
+    });
+    const { groups } = await mazo.json();
+    await request.post(`/api/groups/${groups[0].id}/cards`, {
+      data: { prompt: 'えび', answers: ['ebi'], meaning: 'camarón' },
+    });
+
+    await page.goto('/');
+    // El selector de mazo es un `SegmentedControl`: cada opción es un
+    // `<input type="radio">` con su `<label>` al lado. Se clickea el label.
+    const opcion = page.locator('#deck-segmented-control label', { hasText: nombre });
+    await expect(opcion).toBeVisible();
+    await opcion.click();
+    await page.getByRole('button', { name: 'Todos' }).click();
+
+    await page.locator('#begin-meaning-btn').click();
+    await page.waitForURL('**/quiz');
+    await expect(page.locator('#meaning-kana')).toBeVisible();
+
+    // El camino que falla es el de RECARGAR: la primera vez el recorder reusa
+    // la sesión que ya abrió `PracticeBoard`, y recién al volver a entrar a una
+    // ronda ya jugada abre una sesión nueva por su cuenta. Ese POST es el que
+    // se corta acá, que es exactamente el caso que se perdía en silencio.
+    await page.route('**/api/sessions', (route) =>
+      (route.request().method() === 'POST' ? route.abort() : route.continue()));
+    await page.reload();
+
+    await expect(page.locator('#meaning-session-error')).toBeVisible();
+  });
+});

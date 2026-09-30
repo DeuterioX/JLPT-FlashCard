@@ -9,7 +9,7 @@ import {
   startRound, submit, reveal, currentCard, isFinished, accuracy,
   type RoundState,
 } from '@/lib/quiz/engine';
-import { createRoundRecorder, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
+import { createRoundRecorder, SESSION_ERROR_MSG, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
 import {
   decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
@@ -20,7 +20,6 @@ import { Brand } from '../Brand';
 export type Round = StoredRound;
 
 const MEANING_MS = 1200;
-const SESSION_ERROR_MSG = 'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
 
 // El alto de la pantalla sale del VIEWPORT VISUAL, no de CSS. Medido en el
 // dispositivo, con el teclado abierto: `innerHeight` 721 pero
@@ -553,7 +552,7 @@ function QuizPlay({
         // `.knd-quiz-footer`, globals.css): con el teclado abierto el alto
         // útil se vuelve escasísimo y el reparto del faltante no puede
         // tocar ni al header ni al pie, solo al stage.
-        style={{ borderBottom: '1px solid var(--mantine-color-dark-4)', flexShrink: 0 }}
+        style={{ borderBottom: '1px solid var(--mantine-color-dark-5)', flexShrink: 0 }}
       >
         <Brand id="quiz-brand" nameId="quiz-app-name" />
         {/* `Group` con `gap`, no texto suelto con espacios/nbsp intercalados

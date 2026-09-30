@@ -12,6 +12,17 @@
  * promesas asientan.
  */
 
+/**
+ * Lo que se le dice al usuario cuando la sesión no se pudo abrir.
+ *
+ * Vive acá y no en cada pantalla porque es el `onFailure` de ESTE archivo el
+ * que lo dispara: las dos pantallas de ronda -el quiz y el repaso de
+ * significados- muestran el mismo aviso, y tenerlo escrito dos veces fue
+ * exactamente cómo una de las dos se quedó sin él.
+ */
+export const SESSION_ERROR_MSG =
+  'No se pudo guardar esta ronda. Tus respuestas no se están registrando.';
+
 export type AttemptBody = {
   cardId: number; typed: string; isCorrect: boolean; revealed: boolean; ms: number;
 };
