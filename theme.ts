@@ -71,9 +71,13 @@ export const theme = createTheme({
   // y el carácter dentro del 原稿用紙. Las dos japonesas no son
   // intercambiables: la gótica es señalización y la mincho es escritura, y el
   // papel de manuscrito es escritura.
-  fontFamily: '"M PLUS 2", system-ui, -apple-system, "Segoe UI", sans-serif',
-  fontFamilyMonospace: '"M PLUS 1 Code", ui-monospace, monospace',
-  headings: { fontFamily: '"M PLUS 2", system-ui, sans-serif' },
+  // Las familias llegan por variable y no por nombre: las declara `next/font`
+  // en `app/layout.tsx`, que las auto-hospeda y ya les mete su propia pila de
+  // respaldo adentro. Nombrarlas a mano acá las haría depender de que el
+  // navegador tenga esa familia instalada o la haya bajado de un tercero.
+  fontFamily: 'var(--knd-f-ui)',
+  fontFamilyMonospace: 'var(--knd-f-mono)',
+  headings: { fontFamily: 'var(--knd-f-ui)' },
   // El jade (#3FBF8F) es un verde claro: texto blanco encima da bajo
   // contraste. autoContrast hace que Mantine elija texto oscuro o claro
   // según la luminosidad del fondo, componente por componente, en vez de

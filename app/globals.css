@@ -121,7 +121,7 @@ body { margin: 0; }
 
 /* Zen Kaku Gothic New para todo kana: es una tipografía japonesa real,
    así que ぬ y め se distinguen de verdad. */
-.kana { font-family: "Zen Kaku Gothic New", sans-serif; }
+.kana { font-family: var(--knd-f-kana); }
 /* La serif japonesa, para el KANJI DE RÓTULO: el glifo de cada encabezado de
    sección, el de cada modal, los tres de la barra de pestañas y el carácter
    dentro del 原稿用紙. En el canvas son dos familias distintas a propósito y
@@ -129,8 +129,8 @@ body { margin: 0; }
    una lista- y la mincho es escritura a mano, que es lo que hay dentro de una
    hoja de manuscrito. Poner el kana del papel en la gótica lo volvía un
    cartel. */
-.mincho { font-family: "Zen Old Mincho", Georgia, serif; }
-.romaji { font-family: "M PLUS 1 Code", ui-monospace, monospace; }
+.mincho { font-family: var(--knd-f-mincho); }
+.romaji { font-family: var(--knd-f-mono); }
 .tabular { font-variant-numeric: tabular-nums; }
 
 /* Navegación responsive sin JavaScript: el breakpoint de diseño es 640px,
@@ -1765,7 +1765,7 @@ input:-webkit-autofill:active {
 
 .knd-campo-der {
   flex: none;
-  font-family: "M PLUS 1 Code", ui-monospace, monospace;
+  font-family: var(--knd-f-mono);
   font-size: 0.75rem;
   color: var(--knd-sumi-dim);
 }
