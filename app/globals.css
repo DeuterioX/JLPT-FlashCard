@@ -133,20 +133,22 @@ body { margin: 0; }
 .romaji { font-family: var(--knd-f-mono); }
 .tabular { font-variant-numeric: tabular-nums; }
 
-/* Navegación responsive sin JavaScript: el breakpoint de diseño es 640px,
-   que no coincide con ningún breakpoint por defecto de Mantine (576/768/...),
-   así que en vez de useMediaQuery (que devuelve un valor distinto en el
-   servidor y en el cliente y puede parpadear o desincronizar la hidratación)
-   se resuelve con dos bloques que se muestran u ocultan por CSS puro. */
-.knd-nav-desktop { display: flex; }
+/* La barra de pestañas. Quién la renderiza lo decide el SERVIDOR por el
+   user-agent (ver `app/layout.tsx`), así que acá no hay nada que esconder: si
+   está en el documento es porque es un teléfono, y tiene que verse.
+
+   Esto importa más de lo que parece: atada a un `@media (max-width: …)`, un
+   teléfono acostado -844px de ancho- quedaba renderizando la barra y
+   escondiéndola al mismo tiempo, o sea sin ninguna navegación. */
 .knd-nav-mobile {
-  display: none;
-  /* 56px de contenido; el padding-bottom con la safe-area se agrega solo
-     cuando la barra está visible (ver el media query de abajo), para no
-     contarla dos veces en el layout de escritorio. */
-  height: 56px;
+  display: flex;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
   padding-top: 6px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* La altura real de la barra, para que el contenido y la barra de acción no
+   queden tapados. Cuelga del mismo atributo que decide si la barra existe. */
+:root[data-phone] { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
 /* El padding inferior del contenido es SIEMPRE el del shell (`md`), más la
    barra de pestañas cuando existe -`--knd-bottom-offset` vale 0 en
    escritorio-. Antes esto era `0` fijo y la regla de teléfono lo reponía:
@@ -161,17 +163,8 @@ body { margin: 0; }
    rendericen lo mismo -el mismo criterio que la navegación de acá abajo-. */
 .knd-sect-suffix { display: inline; }
 
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-sect-suffix { display: none; }
-  .knd-nav-desktop { display: none; }
-  .knd-nav-mobile {
-    display: flex;
-    height: calc(56px + env(safe-area-inset-bottom, 0px));
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-  }
-  /* La altura real de la barra de pestañas: la misma barra fija esta
-     variable a su propia altura, así que nunca se desincronizan. */
-  :root { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* Métricas del quiz (aciertos, restantes, errores): caja con borde propio
@@ -345,7 +338,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 .knd-swipe-side { display: none; }
 .knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
 
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   /* El panel vive detrás de la fila, pegado a su borde, y la fila se corre para
      descubrirlo. */
   .knd-swipe-side {
@@ -589,7 +582,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   flex: 1;
   min-width: 0;
 }
-@media (min-width: 641px) {
+@media (min-width: 768px) {
   .knd-quiz-footer {
     display: grid;
     /* `minmax(0, 1fr)`, no `1fr` a secas: por default un ítem de grid no
@@ -757,7 +750,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   display: none; /* Chrome, Safari */
 }
 
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
 }
 
 /* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único
@@ -773,7 +766,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 }
 .knd-review-btn { width: 100%; }
 
-@media (min-width: 641px) {
+@media (min-width: 768px) {
   .knd-stats-top {
     display: grid;
     grid-template-columns: 1fr auto;
@@ -820,7 +813,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
   gap: 0.375rem;
 }
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
 }
 
@@ -857,7 +850,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
    porque estos conviven con el texto de la fila y la lista tiene que poder
    escanearse; los 44 el diseño los reserva para las acciones por gesto, que
    ya los tienen. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .mantine-Button-root { min-height: 1.875rem; }
 }
 
@@ -999,7 +992,7 @@ a.knd-nav-link-on { color: var(--mantine-color-text); }
 /* En escritorio la fila va en una sola línea, en columnas alineadas. */
 .knd-card-row { flex-wrap: nowrap; }
 
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   /* En teléfono se parte en dos renglones: arriba la palabra y su lectura,
      abajo el significado. Repartir el ancho en tres columnas deja las tres
      angostas -una palabra de ocho kana como ちゅうしゃじょう se partía al medio
@@ -1034,7 +1027,7 @@ a.knd-inline-link {
    categoría y un botón, y cualquier ancho menor deja la glosa cortada. El
    `size` del componente fija `--modal-size`; esto sólo lo corrige para el
    tramo donde no puede sobrar margen. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   /* No se pisa `--modal-size` -Mantine lo escribe inline y el inline gana-
      sino el margen que ese valor usa adentro. */
   .knd-dict-modal { --knd-dict-gutter: 0rem; }
@@ -1094,7 +1087,7 @@ a.knd-inline-link {
    El reparto es por `order` y un `flex-basis: 100%` en la glosa, no por una
    grilla: así el orden del DOM -y con él el del tabulador y el del lector de
    pantalla- sigue siendo el natural de la fila. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-dict-modal .mantine-Modal-inner { padding: 0; }
   .knd-dict-modal .mantine-Modal-content {
     max-width: 100vw;
@@ -1207,7 +1200,7 @@ input:-webkit-autofill:active {
 .knd-crumb-row > a[class*='Button'] {
   flex: none;
 }
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   /* En teléfono los botones van a 30px (ver la regla de `.mantine-Button-root`
      más arriba), así que el piso los acompaña. */
   .knd-crumb-row { min-height: 1.875rem; }
@@ -1218,7 +1211,7 @@ input:-webkit-autofill:active {
    El nombre accesible lo da el `aria-label` del botón, así que el ícono no
    pierde información para un lector de pantalla. */
 .knd-rename-icon { display: none; }
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-rename-label { display: none; }
   /* `inline-flex` y no `inline`: adentro hay un SVG en bloque, y en línea la
      caja de texto del span le sumaría el descendente de la fuente. */
@@ -1227,14 +1220,23 @@ input:-webkit-autofill:active {
 }
 
 /* La barra de pantalla en teléfono (`MobileNavbar`). En escritorio no existe:
-   ahí manda la miga, que vive en el contenido y tiene ancho de sobra. */
+   ahí manda la miga, que vive en el contenido y tiene ancho de sobra.
+
+   Cuál de las dos se ve cuelga de `[data-phone]` -el user-agent, decidido en
+   el servidor- y NO del ancho de la ventana, por la misma razón que la barra
+   de pestañas: las dos son NAVEGACIÓN, y las dos tienen que contestar lo
+   mismo. Mientras ésta miraba el ancho y aquélla el user-agent, una ventana
+   de laptop angosta caía en el hueco entre las dos: esta barra se prendía,
+   apagaba la del AppShell, y la de pestañas no existía porque el user-agent
+   decía escritorio. Resultado medido a 500px: la pantalla sin ninguna
+   navegación.
+
+   Con `display: none` y no con `visibility` ni `opacity`, porque `display:
+   none` sí saca el elemento del árbol de accesibilidad: si no, un lector de
+   pantalla anunciaría la misma navegación dos veces. */
 .knd-mobile-navbar { display: none; }
 
-@media (max-width: 640px) {
-  /* Las dos formas se renderizan siempre y acá se elige cuál se ve. Con
-     `display: none` y no con `visibility` ni `opacity`, porque `display:
-     none` sí saca el elemento del árbol de accesibilidad: si no, un lector
-     de pantalla anunciaría la misma navegación dos veces. */
+:root[data-phone] {
   .knd-crumb-row { display: none; }
 
   .knd-mobile-navbar {
@@ -1260,8 +1262,6 @@ input:-webkit-autofill:active {
   /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.
      Práctica y Estadísticas no tienen `MobileNavbar`, así que conservan la
      marca y el nombre de la app. */
-  body:has(.knd-mobile-navbar) #app-header { display: none; }
-
   .knd-navbar-back {
     display: grid;
     place-items: center;
@@ -1304,7 +1304,7 @@ input:-webkit-autofill:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-dict-label-full { display: none; }
   .knd-dict-label-short { display: inline; }
 }
@@ -1579,7 +1579,7 @@ input:-webkit-autofill:active {
    lista. */
 .knd-meaning-reading { font-size: 0.8125rem; }
 .knd-meaning-answer { font-size: 1.3125rem; line-height: 1.25; }
-@media (min-width: 641px) {
+@media (min-width: 768px) {
   .knd-meaning-reading { font-size: 0.9375rem; }
   .knd-meaning-answer { font-size: 1.875rem; }
 }
@@ -1614,7 +1614,7 @@ input:-webkit-autofill:active {
 
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
    `Espacio` o un `1` ahí prometen algo que no se puede apretar. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-desktop-only { display: none; }
 }
 
@@ -1640,7 +1640,7 @@ input:-webkit-autofill:active {
    del tercero. Las teclas que viven en esos grupos no molestan porque en
    teléfono están en `display: none` -no hay teclado físico que apretar-, así
    que no ocupan celda. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-meaning-footer {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -1654,7 +1654,7 @@ input:-webkit-autofill:active {
   .knd-meaning-actions,
   .knd-meaning-reveal { display: contents; }
 }
-@media (min-width: 641px) {
+@media (min-width: 768px) {
   .knd-meaning-footer {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
@@ -1827,7 +1827,7 @@ input:-webkit-autofill:active {
    forma que tiene en el canvas -61px de alto con todo en línea contra 88px
    apilado-, y el motivo es de ancho: en 390px el conteo y los dos verbos en
    una sola fila parten «4 grupos · 20 cartas» en dos renglones. */
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-actionbar-row {
     flex-direction: column;
     align-items: stretch;
@@ -1870,7 +1870,7 @@ input:-webkit-autofill:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-@media (min-width: 601px) {
+@media (min-width: 768px) {
   .knd-worst-kana { width: 2.875rem; }
   .knd-worst-rom { width: 3.625rem; }
   .knd-worst-num { width: 2.75rem; }
@@ -1897,7 +1897,7 @@ input:-webkit-autofill:active {
 
 /* Lo que sólo existe en teléfono, al revés de `.knd-desktop-only`. */
 .knd-phone-only { display: none; }
-@media (max-width: 640px) {
+@media (max-width: 767.9px) {
   .knd-phone-only { display: block; }
 
   /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
@@ -1932,3 +1932,18 @@ input:-webkit-autofill:active {
     var(--mantine-color-dark-7) 100%
   );
 }
+
+/* La barra de arriba, cuando la ventana se angosta.
+   Quién ve esta barra lo decide el user-agent, no el ancho, así que una
+   laptop con la ventana achicada la conserva -eso es a propósito: achicar una
+   ventana no te convierte en un teléfono-. Pero conservarla no quiere decir
+   dejarla envolver: medido a 500px, la marca partía en dos renglones y
+   «Estadísticas» se caía a una segunda fila. Los links se mantienen en una
+   línea y, si no entran, se corren; la marca no se parte nunca. */
+#app-header .mantine-Group-root { flex-wrap: nowrap; }
+#nav-desktop {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+#nav-desktop::-webkit-scrollbar { display: none; }
+#app-brand, #app-brand * { white-space: nowrap; }

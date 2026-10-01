@@ -4,6 +4,8 @@ import type { Viewport } from 'next';
 import { ColorSchemeScript, mantineHtmlProps } from '@mantine/core';
 import { Providers } from '../components/Providers';
 import { AppShell } from '../components/AppShell';
+import { headers } from 'next/headers';
+import { userAgent } from 'next/server';
 import { M_PLUS_2, M_PLUS_1_Code, Zen_Kaku_Gothic_New, Zen_Old_Mincho } from 'next/font/google';
 import { APP_NAME, APP_DESCRIPTION } from '../lib/app-meta';
 
@@ -82,15 +84,33 @@ export const viewport: Viewport = {
   interactiveWidget: 'resizes-content',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  // Si es un teléfono lo decide el SERVIDOR, por el user-agent, y no el CSS.
+  //
+  // Hasta ahora la app mandaba las DOS navegaciones en cada página -la barra
+  // de arriba y la de pestañas de abajo- y escondía una con una media query.
+  // Funcionaba, pero significa mandar siempre marcado que nadie va a ver, y
+  // duplicar en el DOM algo que no es un detalle sino la navegación entera.
+  //
+  // El precio, dicho sin vueltas: achicar la ventana en una laptop ya no
+  // cambia la navegación, porque el user-agent no cambia. Es una capacidad que
+  // se pierde a cambio de mandar una sola versión. Lo fino -qué entra en una
+  // fila, cuántas columnas tiene una grilla- lo sigue decidiendo el CSS, que
+  // para eso sí reacciona al ancho real.
+  //
+  // El modo dispositivo de las herramientas de desarrollo manda user-agent de
+  // móvil, así que emular un teléfono ahí sigue mostrando el teléfono.
+  const { device } = userAgent({ headers: await headers() });
+  const phone = device.type === 'mobile';
+
   return (
-    <html lang="es" className={FUENTES} {...mantineHtmlProps}>
+    <html lang="es" className={FUENTES} data-phone={phone || undefined} {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
         <Providers>
-          <AppShell>{children}</AppShell>
+          <AppShell phone={phone}>{children}</AppShell>
         </Providers>
       </body>
     </html>

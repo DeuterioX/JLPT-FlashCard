@@ -35,35 +35,42 @@ function isActive(path: string, href: string) {
 }
 
 /**
- * Navegación responsive sin `useMediaQuery`: ese hook devuelve `undefined`/
- * `false` en el render de servidor y el valor real recién después de montar,
- * lo que puede parpadear o desincronizar la hidratación. Además el breakpoint
- * de diseño es 640px, que no coincide con ningún breakpoint por defecto de
- * Mantine (576/768/992/...), así que ni `visibleFrom`/`hiddenFrom` (que usan
- * esos breakpoints del tema) sirven tal cual. En cambio, los dos bloques de
- * navegación se renderizan siempre y `app/globals.css` decide cuál se ve con
- * un `@media (max-width: 640px)` puro: servidor y cliente arrancan iguales.
+ * La navegación: barra de pestañas abajo en teléfono, barra arriba en
+ * escritorio. Se manda UNA de las dos, no las dos.
  *
- * La altura de la barra de pestañas (con su safe-area incluida) también vive
- * en `app/globals.css`, en la variable `--knd-bottom-offset`: `ActionBar` y
- * `.knd-main-pb` la leen para no quedar tapados por esta barra ni duplicar
- * el padding de la zona segura.
+ * Quién decide es el servidor, por el user-agent, en `app/layout.tsx`. Antes
+ * se mandaban siempre las dos y el CSS escondía una; eso evitaba el parpadeo
+ * de `useMediaQuery` -que devuelve un valor en el servidor y otro al montar-
+ * pero significaba duplicar en el DOM la navegación entera de la app en cada
+ * página.
+ *
+ * Lo que NO decide el user-agent es el resto del layout. Cuántas columnas
+ * tiene una grilla o qué entra en una fila lo sigue resolviendo el CSS contra
+ * el ancho real, que para eso sí es la herramienta correcta. El corte de ese
+ * CSS es el `sm` de Mantine (768px), el mismo que usa la grilla de
+ * Estadísticas: una sola escala en toda la app.
+ *
+ * La altura de la barra de pestañas (con su safe-area incluida) vive en
+ * `app/globals.css`, en la variable `--knd-bottom-offset`: `ActionBar` y
+ * `.knd-main-pb` la leen para no quedar tapados por esta barra ni duplicar el
+ * padding de la zona segura.
  */
-export function AppShell({ children }: { children: React.ReactNode }) {
+export function AppShell({ children, phone }: { children: React.ReactNode; phone: boolean }) {
   const path = usePathname();
 
   // El quiz se muestra a pantalla completa: sin navegación que distraiga.
   if (path === '/quiz') return <>{children}</>;
 
   return (
-    <MantineShell header={{ height: 48 }} padding="md">
+    <MantineShell header={phone ? undefined : { height: 48 }} padding="md">
+      {!phone && (
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
               el activo), como en el diseño -no solo un `gap` entre textos
               sueltos, que es lo que los dejaba pegoteados. */}
-          <Group id="nav-desktop" gap={4} className="knd-nav-desktop">
+          <Group id="nav-desktop" gap={4}>
             {LINKS.map((l) => (
               <Anchor
                 key={l.href}
@@ -87,20 +94,21 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Group>
           {/* Al ras de la derecha, separado de la navegación: no es un lugar
               más al que ir, es una preferencia. */}
-          {/* Por ahora sólo en escritorio: en teléfono esta barra se esconde en
-              las pantallas que traen su propia navbar (`#app-header` en
-              globals.css), así que el botón aparecería en unas sí y en otras
-              no. Cuando se decida dónde va en teléfono, se saca esta clase. */}
-          <Box ml="auto" className="knd-desktop-only">
+          {/* Sin clase que lo esconda: esta barra entera sólo existe en
+              escritorio, así que el botón que vive adentro tampoco necesita
+              esconderse por su cuenta. Falta decidir dónde va en teléfono. */}
+          <Box ml="auto">
             <ThemeToggle id="theme-toggle" />
           </Box>
         </Group>
       </MantineShell.Header>
+      )}
 
       <MantineShell.Main id="main" className="knd-main-pb">
         {children}
       </MantineShell.Main>
 
+      {phone && (
       <Box
         pos="fixed"
         bottom={0}
@@ -147,6 +155,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </Anchor>
         ))}
       </Box>
+      )}
     </MantineShell>
   );
 }
