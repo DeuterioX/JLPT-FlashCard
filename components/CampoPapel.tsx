@@ -43,7 +43,16 @@ export function CampoPapel({
       data-ancho={alto === 40 ? 'holgado' : undefined}
     >
       <span className="knd-campo-rotulo">{label}</span>
-      <input id={id} ref={inputRef} className="knd-campo-input" {...props} />
+      {/* `autoComplete="off"` por default y no sólo cuando quien lo usa se
+          acuerda: el tema se lo pone a todo `TextInput` de Mantine, y este
+          campo es un `<input>` crudo que no hereda esos `defaultProps`. Sin
+          esto, un campo llamado «Nombre» se come el autocompletado del
+          navegador con direcciones y nombres propios. Se puede pisar desde
+          afuera porque `props` viene después. */}
+      <input
+        id={id} ref={inputRef} className="knd-campo-input"
+        autoComplete="off" {...props}
+      />
       {right && <span className="knd-campo-der">{right}</span>}
     </label>
   );

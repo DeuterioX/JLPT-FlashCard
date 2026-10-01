@@ -3,7 +3,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, TextInput, Anchor, Box, Radio,
+  Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box, Radio,
   rem,
 } from '@mantine/core';
 import { Navbar } from './Navbar';
@@ -29,10 +29,6 @@ export type EditorCard = {
   answers: string[];
   groupId: number;
 };
-
-const FIELD_STYLES = {
-  section: { justifyContent: 'flex-start', paddingLeft: rem(11) },
-} as const;
 
 /**
  * Edición de una carta existente. El formulario vive acá adentro y no en
@@ -395,9 +391,11 @@ export function GroupCards({
                 <span className="knd-dict-label-short">Diccionario</span>
               </Button>
             </Group>
-            {/* `.field` del diseño: el rótulo va ADENTRO de la caja, con
-                `leftSection`, así el borde y el foco siguen siendo del
-                `TextInput`. El rótulo puede ir en 9px sin riesgo; el que no
+            {/* `.field` del diseño: el rótulo va ADENTRO de la caja. Es el
+                mismo `CampoPapel` que usan los modales; hasta hace poco acá
+                estaba resuelto con `TextInput` + `leftSection`, o sea el mismo
+                campo escrito de dos maneras, con su estilo de rótulo
+                duplicado. El rótulo puede ir en 9px sin riesgo; el que no
                 puede bajar de 16px es el `<input>`, que es lo que dispara el
                 zoom de iOS. */}
             {/* Grilla y no un `Group wrap`: envolver reparte los campos en
@@ -407,11 +405,9 @@ export function GroupCards({
                 en globals.css. Los anchos salen de los `w={}` porque Mantine
                 los escribe inline y un ancho inline le gana a la grilla. */}
             <div className="knd-addform">
-              <TextInput
-                ref={kanaRef}
-                id="nueva-kana" placeholder="えび"
-                leftSection={<span className="knd-field-label">Kana</span>}
-                leftSectionWidth={rem(48)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+              <CampoPapel
+                inputRef={kanaRef}
+                id="nueva-kana" label="Kana" placeholder="えび"
                 value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
               />
               {/* Los botones van debajo del ROMAJI, que es el campo del que
@@ -420,10 +416,8 @@ export function GroupCards({
                   significado- sin un solo `tabIndex`: el orden del documento
                   ya es el correcto. */}
               <div className="knd-addform-romaji">
-                <TextInput
-                  id="nueva-romaji" placeholder="ebi"
-                  leftSection={<span className="knd-field-label">Romaji</span>}
-                  leftSectionWidth={rem(58)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+                <CampoPapel
+                  id="nueva-romaji" label="Romaji" placeholder="ebi"
                   value={romaji}
                   onChange={(e) => onRomaji(e.currentTarget.value)}
                 />
@@ -462,10 +456,8 @@ export function GroupCards({
                   </Button>
                 </div>
               </div>
-              <TextInput
-                id="nueva-meaning" placeholder="camarón"
-                leftSection={<span className="knd-field-label">Significado</span>}
-                leftSectionWidth={rem(84)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
+              <CampoPapel
+                id="nueva-meaning" label="Significado" placeholder="camarón"
                 value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
               />
               {/* `default` y no el primario: en el canvas el alta de palabra
@@ -482,14 +474,15 @@ export function GroupCards({
               <Group id="alt-romaji-list" gap="xs" wrap="wrap">
                 {alts.map((a, i) => (
                   <Group key={i} gap={5} wrap="nowrap">
-                    <TextInput
-                      aria-label={`Romanización alternativa ${i + 1}`}
-                      placeholder="sūpā" w={150}
-                      leftSection={<span className="knd-field-label">Alt</span>}
-                      leftSectionWidth={rem(38)} leftSectionPointerEvents="none" styles={FIELD_STYLES}
-                      value={a}
-                      onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
-                    />
+                    <div style={{ width: 150 }}>
+                      <CampoPapel
+                        label="Alt"
+                        aria-label={`Romanización alternativa ${i + 1}`}
+                        placeholder="sūpā"
+                        value={a}
+                        onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
+                      />
+                    </div>
                     <Button
                       variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
                       aria-label={`Quitar romanización alternativa ${i + 1}`}
