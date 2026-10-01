@@ -1,12 +1,13 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModalTitle } from '../ModalTitle';
 import { useRouter } from 'next/navigation';
 import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
 import type { DictHit } from '@/lib/services/dict';
 import { posEnCastellano } from '@/lib/services/pos';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { useAccion } from '@/lib/client/accion';
 
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 200;
@@ -25,10 +26,12 @@ export function DictSearchPanel({
   const [loading, setLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
+  // Cuál fila está en vuelo, para poner la ruedita en ESA y no en todas. La
+  // guarda, el `busy` y el error los lleva `useAccion`; esto es lo propio de
+  // esta pantalla, que tiene una acción por resultado.
   const [addingId, setAddingId] = useState<number | null>(null);
-  const [addError, setAddError] = useState<string | null>(null);
+  const agregar = useAccion();
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
-  const addRef = useRef(false);
 
   const trimmed = q.trim();
   // Se deriva en el render, no con un `setHits([])` síncrono dentro del
@@ -69,11 +72,8 @@ export function DictSearchPanel({
     };
   }, [trimmed]);
 
-  async function addHit(h: DictHit) {
-    if (addRef.current) return;
-    addRef.current = true;
+  const addHit = (h: DictHit) => agregar.correr(async () => {
     setAddingId(h.id);
-    setAddError(null);
     try {
       const res = await fetch(`/api/groups/${groupId}/cards`, {
         method: 'POST',
@@ -85,19 +85,13 @@ export function DictSearchPanel({
           answers: [h.romaji],
         }),
       });
-      if (!res.ok) {
-        setAddError(await errorFrom(res));
-        return;
-      }
+      if (!res.ok) return errorFrom(res);
       setAddedIds((prev) => new Set(prev).add(h.id));
       router.refresh();
-    } catch {
-      setAddError(NETWORK_ERROR);
     } finally {
-      addRef.current = false;
       setAddingId(null);
     }
-  }
+  });
 
   // Ancho: el mockup lo dibuja ocupando el stage entero, no una caja
   // angosta -las filas tienen kana, kanji, romaji, glosa, categoría y un
@@ -186,7 +180,7 @@ export function DictSearchPanel({
                   size="compact-xs"
                   onClick={() => addHit(h)}
                   loading={addingId === h.id}
-                  disabled={addingId !== null}
+                  disabled={agregar.busy}
                 >
                   Agregar
                 </Button>
@@ -202,7 +196,7 @@ export function DictSearchPanel({
           </Text>
         )}
 
-        {addError && <Text c="var(--knd-shu-txt)" size="sm">{addError}</Text>}
+        {agregar.error && <Text c="var(--knd-shu-txt)" size="sm">{agregar.error}</Text>}
 
       </div>
 

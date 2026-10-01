@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -14,7 +14,8 @@ import { SwipeRow } from './SwipeRow';
 import { ModalActions } from './ModalActions';
 import { CampoPapel } from './CampoPapel';
 import { ModalTitle } from './ModalTitle';
-import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { errorFrom } from '@/lib/client/errors';
+import { useAccion } from '@/lib/client/accion';
 import type { DeckSummary } from '@/lib/services/decks';
 
 /**
@@ -36,131 +37,69 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
 
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState(deck.name);
-  const [renameBusy, setRenameBusy] = useState(false);
-  const [renameError, setRenameError] = useState<string | null>(null);
-  const renameRef = useRef(false);
+  const renombrarMazo = useAccion();
 
   const [newOpen, setNewOpen] = useState(false);
   const [newName, setNewName] = useState('');
-  const [newBusy, setNewBusy] = useState(false);
-  const [newError, setNewError] = useState<string | null>(null);
-  const newRef = useRef(false);
+  const altaGrupo = useAccion();
 
   // Renombrar un GRUPO, que es distinto de renombrar el mazo de arriba. El
   // diseño lo pone en cada fila; antes sólo se podía desde adentro del grupo.
   const [gRename, setGRename] = useState<DeckSummary['groups'][number] | null>(null);
   const [gRenameValue, setGRenameValue] = useState('');
-  const [gRenameBusy, setGRenameBusy] = useState(false);
-  const [gRenameError, setGRenameError] = useState<string | null>(null);
-  const gRenameRef = useRef(false);
+  const renombrarGrupo = useAccion();
 
   const [confirm, setConfirm] = useState<DeckSummary['groups'][number] | null>(null);
-  const [delBusy, setDelBusy] = useState(false);
-  const [delError, setDelError] = useState<string | null>(null);
-  const delRef = useRef(false);
+  const borrarGrupo = useAccion();
 
-  async function renameDeck() {
-    if (renameRef.current) return;
-    renameRef.current = true;
-    setRenameBusy(true);
-    setRenameError(null);
-    try {
-      const res = await fetch(`/api/decks/${deck.id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: renameValue }),
-      });
-      if (!res.ok) {
-        setRenameError(await errorFrom(res));
-        return;
-      }
-      setRenameOpen(false);
-      router.refresh();
-    } catch {
-      setRenameError(NETWORK_ERROR);
-    } finally {
-      renameRef.current = false;
-      setRenameBusy(false);
-    }
-  }
+  const renameDeck = () => renombrarMazo.correr(async () => {
+    const res = await fetch(`/api/decks/${deck.id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: renameValue }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setRenameOpen(false);
+    router.refresh();
+  });
 
-  async function createGroup() {
-    if (newRef.current) return;
-    newRef.current = true;
-    setNewBusy(true);
-    setNewError(null);
-    try {
-      const res = await fetch(`/api/decks/${deck.id}/groups`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: newName }),
-      });
-      if (!res.ok) {
-        setNewError(await errorFrom(res));
-        return;
-      }
-      setNewOpen(false);
-      setNewName('');
-      router.refresh();
-    } catch {
-      setNewError(NETWORK_ERROR);
-    } finally {
-      newRef.current = false;
-      setNewBusy(false);
-    }
-  }
+  const createGroup = () => altaGrupo.correr(async () => {
+    const res = await fetch(`/api/decks/${deck.id}/groups`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: newName }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setNewOpen(false);
+    setNewName('');
+    router.refresh();
+  });
 
   function openGRename(g: DeckSummary['groups'][number]) {
     setGRenameValue(g.name);
-    setGRenameError(null);
+    renombrarGrupo.setError(null);
     setGRename(g);
   }
 
-  async function renameGroupName() {
-    if (gRenameRef.current || !gRename) return;
-    gRenameRef.current = true;
-    setGRenameBusy(true);
-    setGRenameError(null);
-    try {
-      const res = await fetch(`/api/groups/${gRename.id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: gRenameValue }),
-      });
-      if (!res.ok) {
-        setGRenameError(await errorFrom(res));
-        return;
-      }
-      setGRename(null);
-      router.refresh();
-    } catch {
-      setGRenameError(NETWORK_ERROR);
-    } finally {
-      gRenameRef.current = false;
-      setGRenameBusy(false);
-    }
-  }
+  const renameGroupName = () => renombrarGrupo.correr(async () => {
+    if (!gRename) return;
+    const res = await fetch(`/api/groups/${gRename.id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: gRenameValue }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setGRename(null);
+    router.refresh();
+  });
 
-  async function deleteGroup() {
-    if (delRef.current || !confirm) return;
-    delRef.current = true;
-    setDelBusy(true);
-    setDelError(null);
-    try {
-      const res = await fetch(`/api/groups/${confirm.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        setDelError(await errorFrom(res));
-        return;
-      }
-      setConfirm(null);
-      router.refresh();
-    } catch {
-      setDelError(NETWORK_ERROR);
-    } finally {
-      delRef.current = false;
-      setDelBusy(false);
-    }
-  }
+  const deleteGroup = () => borrarGrupo.correr(async () => {
+    if (!confirm) return;
+    const res = await fetch(`/api/groups/${confirm.id}`, { method: 'DELETE' });
+    if (!res.ok) return errorFrom(res);
+    setConfirm(null);
+    router.refresh();
+  });
 
   return (
     <Stack id="deck-groups-screen" gap="md">
@@ -170,7 +109,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         currentId="deck-name"
         currentClassName="kana"
         action={readOnly ? <BuiltinDot /> : (
-          <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); setRenameError(null); setRenameOpen(true); }} />
+          <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); renombrarMazo.setError(null); setRenameOpen(true); }} />
         )}
       />
 
@@ -181,7 +120,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
         {readOnly
           ? <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>sólo lectura</Text>
           : (
-            <Button id="new-group-btn" size="compact-sm" onClick={() => { setNewName(''); setNewError(null); setNewOpen(true); }}>
+            <Button id="new-group-btn" size="compact-sm" onClick={() => { setNewName(''); altaGrupo.setError(null); setNewOpen(true); }}>
               + Nuevo grupo
             </Button>
           )}
@@ -203,7 +142,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 : { etiqueta: 'Renombrar', onAction: () => openGRename(g) }}
               trailing={readOnly || deck.groups.length === 1
                 ? undefined
-                : { etiqueta: 'Borrar', onAction: () => { setDelError(null); setConfirm(g); } }}
+                : { etiqueta: 'Borrar', onAction: () => { borrarGrupo.setError(null); setConfirm(g); } }}
             >
             <Group
               gap={12}
@@ -243,7 +182,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila"
                     disabled={deck.groups.length === 1}
                     title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
-                    onClick={() => { setDelError(null); setConfirm(g); }}
+                    onClick={() => { borrarGrupo.setError(null); setConfirm(g); }}
                   >
                     Borrar
                   </Button>
@@ -269,7 +208,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!renameValue.trim() || renameBusy) return;
+            if (!renameValue.trim() || renombrarMazo.busy) return;
             void renameDeck();
           }}
         >
@@ -277,9 +216,9 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             id="rename-deck-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
-          {renameError && <Text c="var(--knd-shu-txt)" size="sm">{renameError}</Text>}
-          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameBusy}>
-            <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+          {renombrarMazo.error && <Text c="var(--knd-shu-txt)" size="sm">{renombrarMazo.error}</Text>}
+          <ModalActions onCancel={() => setRenameOpen(false)} busy={renombrarMazo.busy}>
+            <Button type="submit" disabled={!renameValue.trim() || renombrarMazo.busy} loading={renombrarMazo.busy}>
               Guardar
             </Button>
           </ModalActions>
@@ -296,7 +235,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!gRenameValue.trim() || gRenameBusy) return;
+            if (!gRenameValue.trim() || renombrarGrupo.busy) return;
             void renameGroupName();
           }}
         >
@@ -304,9 +243,9 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             id="rename-group-row-input" label="Nombre"
             value={gRenameValue} onChange={(e) => setGRenameValue(e.currentTarget.value)}
           />
-          {gRenameError && <Text c="var(--knd-shu-txt)" size="sm">{gRenameError}</Text>}
-          <ModalActions onCancel={() => setGRename(null)} busy={gRenameBusy}>
-            <Button type="submit" disabled={!gRenameValue.trim() || gRenameBusy} loading={gRenameBusy}>
+          {renombrarGrupo.error && <Text c="var(--knd-shu-txt)" size="sm">{renombrarGrupo.error}</Text>}
+          <ModalActions onCancel={() => setGRename(null)} busy={renombrarGrupo.busy}>
+            <Button type="submit" disabled={!gRenameValue.trim() || renombrarGrupo.busy} loading={renombrarGrupo.busy}>
               Guardar
             </Button>
           </ModalActions>
@@ -318,7 +257,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!newName.trim() || newBusy) return;
+            if (!newName.trim() || altaGrupo.busy) return;
             void createGroup();
           }}
         >
@@ -326,9 +265,9 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             id="new-group-input" label="Nombre" placeholder="Verdura"
             value={newName} onChange={(e) => setNewName(e.currentTarget.value)}
           />
-          {newError && <Text c="var(--knd-shu-txt)" size="sm">{newError}</Text>}
-          <ModalActions onCancel={() => setNewOpen(false)} busy={newBusy}>
-            <Button type="submit" disabled={!newName.trim() || newBusy} loading={newBusy}>
+          {altaGrupo.error && <Text c="var(--knd-shu-txt)" size="sm">{altaGrupo.error}</Text>}
+          <ModalActions onCancel={() => setNewOpen(false)} busy={altaGrupo.busy}>
+            <Button type="submit" disabled={!newName.trim() || altaGrupo.busy} loading={altaGrupo.busy}>
               Crear
             </Button>
           </ModalActions>
@@ -348,9 +287,9 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
             {'. No se puede deshacer.'}
           </Text>
-          {delError && <Text c="var(--knd-shu-txt)" size="sm">{delError}</Text>}
-          <ModalActions onCancel={() => setConfirm(null)} busy={delBusy}>
-            <Button color="shu.6" onClick={deleteGroup} loading={delBusy}>Borrar el grupo</Button>
+          {borrarGrupo.error && <Text c="var(--knd-shu-txt)" size="sm">{borrarGrupo.error}</Text>}
+          <ModalActions onCancel={() => setConfirm(null)} busy={borrarGrupo.busy}>
+            <Button color="shu.6" onClick={deleteGroup} loading={borrarGrupo.busy}>Borrar el grupo</Button>
           </ModalActions>
         </Stack>
       </Modal>

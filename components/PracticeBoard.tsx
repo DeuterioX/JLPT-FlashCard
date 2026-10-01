@@ -6,7 +6,8 @@ import { Stack, Group, SegmentedControl, Button, Text, Box, rem } from '@mantine
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
-import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { errorFrom } from '@/lib/client/errors';
+import { useAccion } from '@/lib/client/accion';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { DeckSummary } from '@/lib/services/decks';
 
@@ -19,16 +20,15 @@ export function PracticeBoard({
   const [pending, start] = useTransition();
   const [deckId, setDeckId] = useState(String(decks[0]?.id ?? ''));
   const [selected, setSelected] = useState(new Set(initialSelection));
-  // `busy` cubre el tramo del fetch en sí: `pending` (de useTransition) solo
-  // se prende durante el router.push posterior, así que sin `busy` el botón
-  // quedaba clickeable mientras la request estaba en vuelo y un doble tap
-  // abría dos sesiones.
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // Guarda contra reentrada con una ref, no con `busy`: el estado recién se
-  // ve en el render siguiente, así que dos taps en el mismo tick pasaban los
-  // dos. Mismo patrón que StatsBoard.
-  const busyRef = useRef(false);
+  // El `busy` de `useAccion` cubre el tramo del fetch en sí: `pending` (de
+  // useTransition) sólo se prende durante el `router.push` posterior, así que
+  // sin él el botón quedaba clickeable mientras la request estaba en vuelo y
+  // un doble tap abría dos sesiones.
+  //
+  // `retenerAlLograr`: en el camino feliz la guarda queda tomada a propósito,
+  // porque el componente sigue montado mientras navega y un segundo tap
+  // abriría otra sesión. Se desmonta al llegar a /quiz.
+  const ronda = useAccion({ retenerAlLograr: true });
 
   // `position: fixed`, no `sticky`: un sticky puesto en su posición final
   // desde el principio necesita márgenes negativos para "adelantarse" al
@@ -75,7 +75,7 @@ export function PracticeBoard({
 
   function persist(next: Set<number>) {
     setSelected(next);
-    setError(null);
+    ronda.setError(null);
     // Un año. La lee el servidor en el próximo render: sin parpadeo.
     document.cookie =
       `${SELECTION_COOKIE}=${serializeSelection([...next])}; path=/; max-age=31536000; samesite=lax`;
@@ -106,42 +106,23 @@ export function PracticeBoard({
   // preguntar qué quiere decir あ no significa nada.
   const meaningCount = chosen.reduce((n, g) => n + g.meaningCount, 0);
 
-  async function begin(mode: 'normal' | 'meaning' = 'normal') {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/sessions', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ groupIds: chosen.map((g) => g.id), mode }),
-      });
-      if (!res.ok) {
-        setError(await errorFrom(res, START_ROUND_ERROR));
-        busyRef.current = false;
-        setBusy(false);
-        return;
-      }
-      const round = await res.json();
-      // `deckName` viaja aparte del `round` que devuelve el server: la API
-      // de sesiones no conoce el mazo, solo los `groupIds` -acá sí se sabe,
-      // es el mazo que se estaba mirando al arrancar-. Lo usa la barra
-      // superior del quiz ("Hiragana · 6 grupos").
-      sessionStorage.setItem(ROUND_KEY, JSON.stringify({ ...round, deckName: deck.name }));
-      // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
-      sessionStorage.removeItem(USED_ROUND_KEY);
-      start(() => router.push('/quiz'));
-      // En el camino feliz la guarda queda tomada a propósito: el componente
-      // sigue montado mientras navega y un segundo tap abriría otra sesión.
-      // Se desmonta al llegar a /quiz.
-    } catch {
-      // fetch tiró (sin red, DNS, CORS, etc.): no hubo respuesta que leer.
-      setError(NETWORK_ERROR);
-      busyRef.current = false;
-      setBusy(false);
-    }
-  }
+  const begin = (mode: 'normal' | 'meaning' = 'normal') => ronda.correr(async () => {
+    const res = await fetch('/api/sessions', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ groupIds: chosen.map((g) => g.id), mode }),
+    });
+    if (!res.ok) return errorFrom(res, START_ROUND_ERROR);
+    const round = await res.json();
+    // `deckName` viaja aparte del `round` que devuelve el server: la API de
+    // sesiones no conoce el mazo, solo los `groupIds` -acá sí se sabe, es el
+    // mazo que se estaba mirando al arrancar-. Lo usa la barra superior del
+    // quiz ("Hiragana · 6 grupos").
+    sessionStorage.setItem(ROUND_KEY, JSON.stringify({ ...round, deckName: deck.name }));
+    // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
+    sessionStorage.removeItem(USED_ROUND_KEY);
+    start(() => router.push('/quiz'));
+  });
 
   if (!deck) {
     return (
@@ -258,9 +239,9 @@ export function PracticeBoard({
             <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
             <Text component="span" size={rem(13)} c="dimmed">cartas</Text>
           </Group>
-          {error && (
+          {ronda.error && (
             <Text size="sm" c="var(--knd-shu-txt)">
-              {error}
+              {ronda.error}
             </Text>
           )}
           {/* Los dos verbos con los que arranca una ronda. El modo no es un
@@ -273,8 +254,8 @@ export function PracticeBoard({
               id="begin-meaning-btn"
               variant="default"
               onClick={() => begin('meaning')}
-              loading={busy || pending}
-              disabled={chosen.length === 0 || meaningCount === 0 || busy || pending}
+              loading={ronda.busy || pending}
+              disabled={chosen.length === 0 || meaningCount === 0 || ronda.busy || pending}
               title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
             >
               Significados ➜
@@ -282,8 +263,8 @@ export function PracticeBoard({
             <Button
               id="begin-round-btn"
               onClick={() => begin('normal')}
-              loading={busy || pending}
-              disabled={chosen.length === 0 || busy || pending}
+              loading={ronda.busy || pending}
+              disabled={chosen.length === 0 || ronda.busy || pending}
             >
               Escribir ➜
             </Button>

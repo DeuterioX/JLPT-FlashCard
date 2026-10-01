@@ -19,7 +19,8 @@ import { ModalActions } from './ModalActions';
 import { CampoPapel } from './CampoPapel';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
-import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { errorFrom } from '@/lib/client/errors';
+import { useAccion } from '@/lib/client/accion';
 import type { DeckSummary, GroupSummary } from '@/lib/services/decks';
 
 export type EditorCard = {
@@ -203,9 +204,7 @@ export function GroupCards({
 
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState(group.name);
-  const [renameBusy, setRenameBusy] = useState(false);
-  const [renameError, setRenameError] = useState<string | null>(null);
-  const renameRef = useRef(false);
+  const renombrar = useAccion();
 
   const [prompt, setPrompt] = useState('');
   const [romaji, setRomaji] = useState('');
@@ -213,17 +212,13 @@ export function GroupCards({
   const [alts, setAlts] = useState<string[]>([]);
   const [romajiTouched, setRomajiTouched] = useState(false);
   const kanaRef = useRef<HTMLInputElement>(null);
-  const [addBusy, setAddBusy] = useState(false);
-  const [addError, setAddError] = useState<string | null>(null);
-  const addRef = useRef(false);
+  const alta = useAccion();
 
   // La carta que se está por borrar, no la que se está borrando: borrar es
   // irreversible y hasta ahora era el ÚNICO borrado de la app que no pedía
   // confirmación -el de mazo y el de grupo sí la piden-.
   const [deleting, setDeleting] = useState<EditorCard | null>(null);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const deleteRef = useRef(false);
+  const borrado = useAccion();
 
   // La carta que se edita y si el modal está abierto van SEPARADOS. Antes el
   // modal se montaba recién al abrirlo, con `opened` fijo en true: Mantine
@@ -233,17 +228,13 @@ export function GroupCards({
   // contenido no desaparezca a mitad de la animación de salida.
   const [editCard, setEditCard] = useState<EditorCard | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const [editBusy, setEditBusy] = useState(false);
-  const [editError, setEditError] = useState<string | null>(null);
-  const editRef = useRef(false);
+  const edicion = useAccion();
 
   const [moving, setMoving] = useState<EditorCard | null>(null);
-  const [moveBusy, setMoveBusy] = useState(false);
-  const [moveError, setMoveError] = useState<string | null>(null);
+  const mover = useAccion();
   // El grupo elegido en el modal de mover. `null` hasta que se elige uno, que
   // es lo que mantiene apagado el botón que ejecuta.
   const [destino, setDestino] = useState<number | null>(null);
-  const moveRef = useRef(false);
 
   function onPrompt(v: string) {
     setPrompt(v);
@@ -265,94 +256,50 @@ export function GroupCards({
     setRomajiTouched(v.trim() !== '');
   }
 
-  async function renameGroup() {
-    if (renameRef.current) return;
-    renameRef.current = true;
-    setRenameBusy(true);
-    setRenameError(null);
-    try {
-      const res = await fetch(`/api/groups/${group.id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ name: renameValue }),
-      });
-      if (!res.ok) {
-        setRenameError(await errorFrom(res));
-        return;
-      }
-      setRenameOpen(false);
-      router.refresh();
-    } catch {
-      setRenameError(NETWORK_ERROR);
-    } finally {
-      renameRef.current = false;
-      setRenameBusy(false);
-    }
-  }
+  const renameGroup = () => renombrar.correr(async () => {
+    const res = await fetch(`/api/groups/${group.id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ name: renameValue }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setRenameOpen(false);
+    router.refresh();
+  });
 
-  async function add() {
-    if (addRef.current) return;
-    addRef.current = true;
-    setAddBusy(true);
-    setAddError(null);
-    try {
-      const res = await fetch(`/api/groups/${group.id}/cards`, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          prompt,
-          meaning: meaning || null,
-          answers: [romaji, ...alts].map((a) => a.trim()).filter(Boolean),
-        }),
-      });
-      if (!res.ok) {
-        setAddError(await errorFrom(res));
-        return;
-      }
-      setPrompt('');
-      setRomaji('');
-      setMeaning('');
-      setAlts([]);
-      setRomajiTouched(false);
-      // El foco vuelve al principio del formulario: agregar una palabra casi
-      // siempre viene seguido de agregar la siguiente.
-      kanaRef.current?.focus();
-      router.refresh();
-    } catch {
-      setAddError(NETWORK_ERROR);
-    } finally {
-      addRef.current = false;
-      setAddBusy(false);
-    }
-  }
+  const add = () => alta.correr(async () => {
+    const res = await fetch(`/api/groups/${group.id}/cards`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        prompt,
+        meaning: meaning || null,
+        answers: [romaji, ...alts].map((a) => a.trim()).filter(Boolean),
+      }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setPrompt('');
+    setRomaji('');
+    setMeaning('');
+    setAlts([]);
+    setRomajiTouched(false);
+    // El foco vuelve al principio del formulario: agregar una palabra casi
+    // siempre viene seguido de agregar la siguiente.
+    kanaRef.current?.focus();
+    router.refresh();
+  });
 
-  async function removeCard() {
-    if (deleteRef.current || !deleting) return;
-    deleteRef.current = true;
-    setDeletingId(deleting.id);
-    setDeleteError(null);
-    try {
-      const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
-      if (!res.ok) {
-        setDeleteError(await errorFrom(res));
-        return;
-      }
-      setDeleting(null);
-      router.refresh();
-    } catch {
-      setDeleteError(NETWORK_ERROR);
-    } finally {
-      deleteRef.current = false;
-      setDeletingId(null);
-    }
-  }
+  const removeCard = () => borrado.correr(async () => {
+    if (!deleting) return;
+    const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
+    if (!res.ok) return errorFrom(res);
+    setDeleting(null);
+    router.refresh();
+  });
 
-  async function saveCard(next: { prompt: string; romaji: string; meaning: string; alts: string[] }) {
-    if (editRef.current || !editCard) return;
-    editRef.current = true;
-    setEditBusy(true);
-    setEditError(null);
-    try {
+  const saveCard = (next: { prompt: string; romaji: string; meaning: string; alts: string[] }) =>
+    edicion.correr(async () => {
+      if (!editCard) return;
       const res = await fetch(`/api/cards/${editCard.id}`, {
         method: 'PATCH',
         headers: { 'content-type': 'application/json' },
@@ -362,45 +309,23 @@ export function GroupCards({
           answers: [next.romaji, ...next.alts].map((a) => a.trim()).filter(Boolean),
         }),
       });
-      if (!res.ok) {
-        setEditError(await errorFrom(res));
-        return;
-      }
+      if (!res.ok) return errorFrom(res);
       setEditOpen(false);
       router.refresh();
-    } catch {
-      setEditError(NETWORK_ERROR);
-    } finally {
-      editRef.current = false;
-      setEditBusy(false);
-    }
-  }
+    });
 
-  async function moveCard(targetGroupId: number) {
-    if (moveRef.current || !moving) return;
-    moveRef.current = true;
-    setMoveBusy(true);
-    setMoveError(null);
-    try {
-      // `updateCard` ya acepta `groupId`: mover es el mismo viaje que editar.
-      const res = await fetch(`/api/cards/${moving.id}`, {
-        method: 'PATCH',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ groupId: targetGroupId }),
-      });
-      if (!res.ok) {
-        setMoveError(await errorFrom(res));
-        return;
-      }
-      setMoving(null);
-      router.refresh();
-    } catch {
-      setMoveError(NETWORK_ERROR);
-    } finally {
-      moveRef.current = false;
-      setMoveBusy(false);
-    }
-  }
+  const moveCard = (targetGroupId: number) => mover.correr(async () => {
+    if (!moving) return;
+    // `updateCard` ya acepta `groupId`: mover es el mismo viaje que editar.
+    const res = await fetch(`/api/cards/${moving.id}`, {
+      method: 'PATCH',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ groupId: targetGroupId }),
+    });
+    if (!res.ok) return errorFrom(res);
+    setMoving(null);
+    router.refresh();
+  });
 
   return (
     <Stack id="group-cards-screen" gap="md">
@@ -414,7 +339,7 @@ export function GroupCards({
         currentId="group-name"
         currentClassName="kana"
         action={readOnly ? <BuiltinDot /> : (
-          <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); setRenameError(null); setRenameOpen(true); }} />
+          <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); renombrar.setError(null); setRenameOpen(true); }} />
         )}
       />
 
@@ -431,7 +356,7 @@ export function GroupCards({
             component="form"
             onSubmit={(e: FormEvent) => {
               e.preventDefault();
-              if (!prompt.trim() || !romaji.trim() || addBusy) return;
+              if (!prompt.trim() || !romaji.trim() || alta.busy) return;
               void add();
             }}
           >
@@ -549,7 +474,7 @@ export function GroupCards({
                   que ahí sí es `primario`. Tiene sentido: éste es el paso
                   final de un formulario que ya estás completando, no la acción
                   que te invita a empezar algo. */}
-              <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || addBusy} loading={addBusy}>
+              <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || alta.busy} loading={alta.busy}>
                 Agregar
               </Button>
             </div>
@@ -576,7 +501,7 @@ export function GroupCards({
                 ))}
               </Group>
             )}
-            {addError && <Text c="var(--knd-shu-txt)" size="sm">{addError}</Text>}
+            {alta.error && <Text c="var(--knd-shu-txt)" size="sm">{alta.error}</Text>}
             {/* Sin el `·` que separaba la frase del link: con el formulario
                 en una columna la ayuda ocupa dos líneas, y el punto quedaba
                 abriendo la segunda como si fuera una viñeta. El link se
@@ -607,7 +532,7 @@ export function GroupCards({
         )}
       </Group>
 
-      {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
+      {borrado.error && <Text c="var(--knd-shu-txt)" size="sm">{borrado.error}</Text>}
 
       <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
@@ -616,12 +541,12 @@ export function GroupCards({
             <SwipeRow
               label={c.prompt}
               tappable={!readOnly}
-              onTap={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
+              onTap={() => { edicion.setError(null); setEditCard(c); setEditOpen(true); }}
               leading={!readOnly && manyGroups
-                ? { etiqueta: 'Mover', onAction: () => { setMoveError(null); setDestino(null); setMoving(c); } }
+                ? { etiqueta: 'Mover', onAction: () => { mover.setError(null); setDestino(null); setMoving(c); } }
                 : undefined}
               trailing={!readOnly
-                ? { etiqueta: 'Borrar', onAction: () => { setDeleteError(null); setDeleting(c); } }
+                ? { etiqueta: 'Borrar', onAction: () => { borrado.setError(null); setDeleting(c); } }
                 : undefined}
             >
               {/* Los anchos viven en globals.css y no acá porque tienen que
@@ -648,7 +573,7 @@ export function GroupCards({
                     type="button"
                     id={`card-edit-${c.id}`}
                     className="kana knd-card-kana knd-card-edit knd-swipe-pin"
-                    onClick={() => { setEditError(null); setEditCard(c); setEditOpen(true); }}
+                    onClick={() => { edicion.setError(null); setEditCard(c); setEditOpen(true); }}
                   >
                     {c.prompt}
                   </Text>
@@ -663,9 +588,13 @@ export function GroupCards({
                     <Button
                       id={`card-delete-${c.id}`}
                       variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila"
-                      onClick={() => { setDeleteError(null); setDeleting(c); }}
-                      loading={deletingId === c.id}
-                      disabled={deletingId !== null}
+                      onClick={() => { borrado.setError(null); setDeleting(c); }}
+                      // Sin ruedita: este botón sólo ABRE el modal, el borrado
+                      // lo ejecuta el de adentro y la ruedita va ahí. Antes
+                      // giraba esta fila porque el estado guardaba qué carta
+                      // se estaba borrando; con la acción compartida eso sería
+                      // hacer girar todas las filas a la vez.
+                      disabled={borrado.busy}
                     >
                       Borrar
                     </Button>
@@ -673,7 +602,7 @@ export function GroupCards({
                       <Button
                         id={`card-move-${c.id}`}
                         variant="default" bg="transparent" size="compact-xs"
-                        onClick={() => { setMoveError(null); setDestino(null); setMoving(c); }}
+                        onClick={() => { mover.setError(null); setDestino(null); setMoving(c); }}
                       >
                         Mover
                       </Button>
@@ -692,7 +621,7 @@ export function GroupCards({
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!renameValue.trim() || renameBusy) return;
+            if (!renameValue.trim() || renombrar.busy) return;
             void renameGroup();
           }}
         >
@@ -700,9 +629,9 @@ export function GroupCards({
             id="rename-group-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
-          {renameError && <Text c="var(--knd-shu-txt)" size="sm">{renameError}</Text>}
-          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameBusy}>
-            <Button type="submit" disabled={!renameValue.trim() || renameBusy} loading={renameBusy}>
+          {renombrar.error && <Text c="var(--knd-shu-txt)" size="sm">{renombrar.error}</Text>}
+          <ModalActions onCancel={() => setRenameOpen(false)} busy={renombrar.busy}>
+            <Button type="submit" disabled={!renameValue.trim() || renombrar.busy} loading={renombrar.busy}>
               Guardar
             </Button>
           </ModalActions>
@@ -731,9 +660,9 @@ export function GroupCards({
             <b>intentos registrados</b>
             {'. No se puede deshacer.'}
           </Text>
-          {deleteError && <Text c="var(--knd-shu-txt)" size="sm">{deleteError}</Text>}
-          <ModalActions onCancel={() => setDeleting(null)} busy={deletingId !== null}>
-            <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={deletingId !== null}>
+          {borrado.error && <Text c="var(--knd-shu-txt)" size="sm">{borrado.error}</Text>}
+          <ModalActions onCancel={() => setDeleting(null)} busy={borrado.busy}>
+            <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={borrado.busy}>
               Borrar la palabra
             </Button>
           </ModalActions>
@@ -771,7 +700,7 @@ export function GroupCards({
                   key={g.id}
                   id={`move-to-${g.id}`}
                   value={String(g.id)}
-                  disabled={moveBusy}
+                  disabled={mover.busy}
                   className="knd-move-opt"
                   /* 16px, el preset más chico: el círculo del diseño mide 14 y
                      los 20 del default de Mantine, al lado de un nombre de
@@ -795,13 +724,13 @@ export function GroupCards({
               ))}
             </Stack>
           </Radio.Group>
-          {moveError && <Text c="var(--knd-shu-txt)" size="sm">{moveError}</Text>}
-          <ModalActions onCancel={() => setMoving(null)} busy={moveBusy}>
+          {mover.error && <Text c="var(--knd-shu-txt)" size="sm">{mover.error}</Text>}
+          <ModalActions onCancel={() => setMoving(null)} busy={mover.busy}>
             <Button
               id="confirm-move-card"
               onClick={() => destino !== null && moveCard(destino)}
-              disabled={destino === null || moveBusy}
-              loading={moveBusy}
+              disabled={destino === null || mover.busy}
+              loading={mover.busy}
             >
               Mover
             </Button>
@@ -816,8 +745,8 @@ export function GroupCards({
       <EditCardModal
         card={editCard}
         opened={editOpen}
-        busy={editBusy}
-        error={editError}
+        busy={edicion.busy}
+        error={edicion.error}
         onClose={() => setEditOpen(false)}
         onSave={saveCard}
       />

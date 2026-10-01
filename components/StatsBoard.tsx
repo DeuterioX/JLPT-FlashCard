@@ -1,12 +1,13 @@
 'use client';
 
-import { useRef, useState, useSyncExternalStore } from 'react';
+import { useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress,
 } from '@mantine/core';
 import { MetricTile } from './MetricTile';
-import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { errorFrom } from '@/lib/client/errors';
+import { useAccion } from '@/lib/client/accion';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
 
@@ -96,51 +97,27 @@ export function StatsBoard({
   overview: o, worst, range,
 }: { overview: Overview; worst: WorstCard[]; range: StatsRange }) {
   const router = useRouter();
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  // Guarda contra doble click con una ref, no con estado: ver PracticeBoard.
-  const busyRef = useRef(false);
+  // `retenerAlLograr`: en el camino feliz la guarda NO se libera. `router.push`
+  // deja el componente montado mientras navega, y un segundo click en esa
+  // ventana abriría una segunda sesión de repaso que nunca se cierra. El
+  // componente se desmonta al llegar a /quiz, así que no hace falta resetearla.
+  const repaso = useAccion({ retenerAlLograr: true });
 
-  async function review() {
-    if (busyRef.current) return;
-    busyRef.current = true;
-    setBusy(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/sessions/review', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        // Se manda el `range` que está mirando la pantalla: si el botón
-        // prometió "N peores" calculadas sobre "Siempre", la ronda tiene
-        // que armarse sobre ese mismo rango y no sobre los 30 días por
-        // defecto del service.
-        body: JSON.stringify({ limit: REVIEW_LIMIT, range }),
-      });
-      if (!res.ok) {
-        // Falló: se libera la guarda acá (y en el catch de abajo) para que
-        // un reintento sea posible. En el camino feliz la guarda NO se
-        // libera -se queda tomada a propósito, ver el comentario después
-        // del `router.push`-.
-        setError(await errorFrom(res));
-        busyRef.current = false;
-        setBusy(false);
-        return;
-      }
-      sessionStorage.setItem(ROUND_KEY, JSON.stringify(await res.json()));
-      // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
-      sessionStorage.removeItem(USED_ROUND_KEY);
-      router.push('/quiz');
-      // No se libera la guarda ni se apaga `busy` acá: `router.push` deja el
-      // componente montado mientras navega, y un segundo click en esa
-      // ventana abriría una segunda sesión de repaso que nunca se cierra
-      // (la clase de bug de las Tasks 11 y 13). El componente se desmonta
-      // al llegar a /quiz, así que no hace falta un reset explícito.
-    } catch {
-      setError(NETWORK_ERROR);
-      busyRef.current = false;
-      setBusy(false);
-    }
-  }
+  const review = () => repaso.correr(async () => {
+    const res = await fetch('/api/sessions/review', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      // Se manda el `range` que está mirando la pantalla: si el botón prometió
+      // "N peores" calculadas sobre "Siempre", la ronda tiene que armarse
+      // sobre ese mismo rango y no sobre los 30 días por defecto del service.
+      body: JSON.stringify({ limit: REVIEW_LIMIT, range }),
+    });
+    if (!res.ok) return errorFrom(res);
+    sessionStorage.setItem(ROUND_KEY, JSON.stringify(await res.json()));
+    // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
+    sessionStorage.removeItem(USED_ROUND_KEY);
+    router.push('/quiz');
+  });
 
   const reviewCount = Math.min(REVIEW_LIMIT, worst.length);
   const panelStyle = { padding: '0.8125rem', borderColor: 'var(--knd-border-soft)' };
@@ -197,12 +174,12 @@ export function StatsBoard({
             id="review-btn"
             className="knd-review-btn"
             onClick={review}
-            loading={busy}
-            disabled={busy || worst.length === 0}
+            loading={repaso.busy}
+            disabled={repaso.busy || worst.length === 0}
           >
             {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
-          {error && <Text size="xs" c="var(--knd-shu-txt)">{error}</Text>}
+          {repaso.error && <Text size="xs" c="var(--knd-shu-txt)">{repaso.error}</Text>}
         </Stack>
       </div>
 
