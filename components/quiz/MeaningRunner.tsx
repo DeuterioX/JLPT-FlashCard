@@ -3,11 +3,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Box, Button, Group, Kbd, Paper, Progress, Stack, Text } from '@mantine/core';
-import { Brand } from '../Brand';
 import { GenkoSheet } from './GenkoSheet';
 import { RoundSummary, type MissEntry } from './RoundSummary';
+import { RoundHeader, contextoDeRonda } from './RoundHeader';
 import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
-import { USED_ROUND_KEY, type StoredRound } from '@/lib/quiz/stored-round';
+import {
+  decideRoundStart, markRoundUsed, readUsedRound, type StoredRound,
+} from '@/lib/quiz/stored-round';
 
 /**
  * Repaso de significados: la misma hoja del quiz, sin escribir.
@@ -45,13 +47,18 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   const desdeRef = useRef(Date.now());
 
   const recorder = useMemo(() => {
-    // La marca de «ronda ya usada» es la misma del quiz: un Back o una
-    // recarga no pueden volver a escribir sobre una sesión ya cerrada.
-    const usada = sessionStorage.getItem(USED_ROUND_KEY) === String(round.sessionId);
-    sessionStorage.setItem(USED_ROUND_KEY, String(round.sessionId));
+    // La decisión de reusar la sesión o abrir una nueva sale de
+    // `decideRoundStart`, el mismo que usa el quiz. Antes estaba reescrita
+    // acá a mano, y la copia había perdido dos cosas: el `try/catch` sobre
+    // `sessionStorage` -que en una ventana privada tira y se llevaba puesta
+    // la pantalla entera- y el aviso de sesión caída.
+    const inicio = decideRoundStart(round, readUsedRound());
+    markRoundUsed(round.sessionId);
     return createRoundRecorder({
       fetch: (...a) => fetch(...a),
-      ...(usada ? { groupIds: round.groupIds } : { sessionId: round.sessionId }),
+      ...(inicio.kind === 'reuse'
+        ? { sessionId: inicio.sessionId }
+        : { groupIds: round.groupIds }),
       // Sin esto, una sesión que no se puede abrir falla EN SILENCIO: el
       // recorder se queda en `failed`, tira el buffer y nadie se entera. O sea
       // que calificabas la ronda entera y no se guardaba nada. El quiz sí lo
@@ -59,7 +66,10 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       // pantallas comparten esta parte por copia y no por abstracción.
       onFailure: () => setSessionError(SESSION_ERROR_MSG),
     });
-  }, [round.sessionId, round.groupIds]);
+    // `round` entera y no dos campos sueltos: `decideRoundStart` también mira
+    // el modo. Es un objeto estable -viene de `sessionStorage`, parseado una
+    // vez por `app/quiz/page.tsx`- así que no recrea el recorder por render.
+  }, [round]);
 
   const card = cards[i];
   const terminada = i >= cards.length;
@@ -105,36 +115,20 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  const contexto = [round.deckName, `${round.groupIds.length} ${round.groupIds.length === 1 ? 'grupo' : 'grupos'}`]
-    .filter(Boolean).join(' · ');
+  const contexto = contextoDeRonda(round.deckName, round.groupIds.length);
   const progreso = cards.length === 0 ? 0 : (i / cards.length) * 100;
 
   return (
     <Box style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      <Group
-        id="meaning-header"
-        px="md" py={4} justify="space-between" bg="dark.6"
-        style={{ borderBottom: '1px solid var(--mantine-color-dark-5)', flexShrink: 0 }}
-      >
-        <Brand />
-        {/* `Group` con `gap`, no texto suelto con espacios: un espacio pegado
-            al cierre de un tag puede colapsar a ancho CERO (ver CLAUDE.md). */}
-        <Group gap="0.5rem" wrap="nowrap">
-          {contexto && <Text size="xs" c="dimmed">{`${contexto} ·`}</Text>}
-          {/* En teléfono no hay teclado físico, así que la tecla no se
-              anuncia: sería prometer algo que no se puede apretar. */}
-          <Kbd className="knd-solo-escritorio">Esc</Kbd>
-          <Text size="xs" c="dimmed">salir</Text>
-        </Group>
-      </Group>
+      <RoundHeader id="meaning-header" contexto={contexto} teclaSoloEscritorio />
 
       <Box
         id="meaning-stage"
+        className="knd-round-stage"
         style={{
           flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
           display: 'flex', flexDirection: 'column', alignItems: 'center',
           justifyContent: 'center', gap: '1rem', position: 'relative',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--mantine-color-dark-6), var(--mantine-color-dark-7) 100%)',
         }}
         /* En teléfono el escenario ES el interruptor de revelar: el botón se
            esconde y el toque sobre la carta muestra y tapa el significado.

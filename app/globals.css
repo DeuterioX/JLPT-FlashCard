@@ -1933,3 +1933,15 @@ input:-webkit-autofill:active {
   /* Sigue ocupando su lugar: ver el comentario en MeaningRunner.tsx. */
   .knd-tocar[data-oculto] { visibility: hidden; }
 }
+
+/* El escenario de una ronda: el degradé radial del diseño, que separa la hoja
+   del fondo plano sin dibujar una caja. Estaba escrito a mano, idéntico, en el
+   quiz y en el repaso de significados -con quince líneas de explicación de por
+   qué esos valores exactos en uno solo de los dos-. */
+.knd-round-stage {
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 50%,
+    var(--mantine-color-dark-6),
+    var(--mantine-color-dark-7) 100%
+  );
+}

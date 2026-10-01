@@ -78,3 +78,29 @@ export function decideRoundStart(
   if (round.mode === 'review') return { kind: 'redirect', to: '/stats' };
   return { kind: 'fresh', groupIds: round.groupIds };
 }
+
+/**
+ * La marca de «esta ronda ya se jugó», leída y escrita en un solo lugar.
+ *
+ * Las dos pantallas de ronda la usan, y hasta ahora cada una se la arreglaba
+ * por su cuenta: el quiz envolvía los accesos en `try/catch` -en una ventana
+ * privada `sessionStorage` tira- y el repaso de significados no, así que ahí
+ * la pantalla entera se caía. Esa es la clase de diferencia que aparece sola
+ * cuando dos pantallas resuelven lo mismo por copia.
+ */
+export function readUsedRound(): string | null {
+  try {
+    return sessionStorage.getItem(USED_ROUND_KEY);
+  } catch {
+    return null;
+  }
+}
+
+/** Idempotente: el doble efecto de StrictMode escribe el mismo valor. */
+export function markRoundUsed(sessionId: number) {
+  try {
+    sessionStorage.setItem(USED_ROUND_KEY, String(sessionId));
+  } catch {
+    // sin sessionStorage no hay replay posible que evitar
+  }
+}

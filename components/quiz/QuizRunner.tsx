@@ -11,11 +11,11 @@ import {
 } from '@/lib/quiz/engine';
 import { createRoundRecorder, SESSION_ERROR_MSG, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
 import {
-  decideRoundStart, USED_ROUND_KEY, type RoundStart, type StoredRound,
+  decideRoundStart, markRoundUsed, readUsedRound, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
-import { Brand } from '../Brand';
+import { RoundHeader, contextoDeRonda } from './RoundHeader';
 
 export type Round = StoredRound;
 
@@ -47,14 +47,6 @@ function applyVisualViewportInset(el: HTMLElement) {
   // generaba el temblor, porque corregía en cada frame contra el gesto que
   // el usuario estaba haciendo.
   if (window.scrollY !== 0) window.scrollTo(0, 0);
-}
-
-function readUsedRound(): string | null {
-  try {
-    return sessionStorage.getItem(USED_ROUND_KEY);
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -236,11 +228,7 @@ function QuizPlay({
   // el mismo valor). La sesión abierta ya se pide acá si hacía falta una
   // nueva, en vez de esperar al primer intento.
   useEffect(() => {
-    try {
-      sessionStorage.setItem(USED_ROUND_KEY, String(round.sessionId));
-    } catch {
-      // sin sessionStorage no hay replay posible que evitar
-    }
+    markRoundUsed(round.sessionId);
     recorder();
     // eslint-disable-next-line react-hooks/exhaustive-deps -- solo al montar
   }, []);
@@ -489,10 +477,7 @@ function QuizPlay({
   // "Hiragana · 6 grupos" del mockup. `deckName` falta en un repaso (sus
   // grupos pueden venir de mazos distintos, ver stored-round.ts) -ahí se
   // muestra sin el nombre del mazo en vez de "undefined · 6 grupos".
-  const groupCount = round.groupIds.length;
-  const contextLabel = [round.deckName, `${groupCount} ${groupCount === 1 ? 'grupo' : 'grupos'}`]
-    .filter(Boolean)
-    .join(' · ');
+  const contextLabel = contextoDeRonda(round.deckName, round.groupIds.length);
 
   // El mouse nunca es obligatorio en el quiz (comentario de arriba de
   // todo el archivo), pero clickear cualquier cosa que no sea un control
@@ -532,42 +517,10 @@ function QuizPlay({
       style={{ height: '100dvh', touchAction: 'none' }}
       onMouseDown={keepInputFocused}
     >
-      {/* Mismo fondo/borde que la barra superior del resto de la app
-          (AppShellHeader en theme.ts) y la MISMA marca, que ahora sale del
-          componente compartido: el mockup (`.topbar`) trae los tres y acá
-          faltaban. Estaba copiada, y al cambiar el logo esta copia se quedó
-          con la あ mientras el resto de la app ya mostraba el zorro. */}
-      <Group
-        id="quiz-header"
-        px="md"
-        // `py` más chico que en el resto de la app a propósito: con el
-        // zorro de 34px, el padding de `xs` dejaría esta barra 12px más alta
-        // que antes, y esos 12px salen del stage -que es lo único que cede
-        // alto cuando se abre el teclado-. Así mide lo mismo que medía con
-        // el cuadrado de la あ.
-        py={4}
-        justify="space-between"
-        bg="dark.6"
-        // `flexShrink: 0` por lo mismo que el pie (ver la nota larga en
-        // `.knd-quiz-footer`, globals.css): con el teclado abierto el alto
-        // útil se vuelve escasísimo y el reparto del faltante no puede
-        // tocar ni al header ni al pie, solo al stage.
-        style={{ borderBottom: '1px solid var(--mantine-color-dark-5)', flexShrink: 0 }}
-      >
-        <Brand id="quiz-brand" nameId="quiz-app-name" />
-        {/* `Group` con `gap`, no texto suelto con espacios/nbsp intercalados
-            a mano: un espacio de texto JSX pegado al cierre de un tag puede
-            colapsar a ancho CERO -pasó de verdad, confirmado midiendo en
-            vivo-, y ajustar "cuánto" espacio con más espacios o nbsp no es
-            un valor real, es adivinar. Con `gap` el espaciado es explícito,
-            en rem -no un número pelado, que Mantine interpreta en px y no
-            escala en 2K/4K con el resto de la app-. */}
-        <Group id="quiz-context" gap="0.5rem" wrap="nowrap">
-          {contextLabel && <Text size="xs" c="dimmed">{`${contextLabel} ·`}</Text>}
-          <Kbd>Esc</Kbd>
-          <Text size="xs" c="dimmed">salir</Text>
-        </Group>
-      </Group>
+      <RoundHeader
+        id="quiz-header" brandId="quiz-brand" nameId="quiz-app-name"
+        contexto={contextLabel}
+      />
 
       {/* Degradé radial sutil del mockup (`.quiz-stage`): hoy era un fondo
           plano, faltaba por completo. El centro era `rgb(22,27,48)`, un
@@ -594,6 +547,7 @@ function QuizPlay({
           color, sin costura. */}
       <Box
         id="quiz-stage"
+        className="knd-round-stage"
         pos="relative"
         // El stage es el ÚNICO que absorbe el faltante de alto (header y pie
         // son `flex-shrink: 0`), y para poder hacerlo tiene que poder
@@ -629,7 +583,6 @@ function QuizPlay({
           flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
           display: 'grid', placeItems: 'center',
           paddingBlock: '0.5rem',
-          background: 'radial-gradient(ellipse 70% 55% at 50% 50%, var(--mantine-color-dark-6), var(--mantine-color-dark-7) 100%)',
         }}
         /* En teléfono el escenario ES el botón de revelar: el botón se
            esconde y el toque sobre la carta la da vuelta. Es el gesto que
