@@ -75,6 +75,12 @@ export const attempt = sqliteTable('attempt', {
 }, (t) => [
   index('ix_attempt_card').on(t.cardId, t.createdAt),
   index('ix_attempt_session').on(t.sessionId),
+  // Estadísticas filtra por FECHA sola -«últimos 7 días», «últimos 30»- y
+  // ninguno de los dos índices de arriba sirve para eso: en un índice
+  // compuesto, filtrar por la segunda columna sin la primera obliga a leer la
+  // tabla entera. `attempt` crece una fila por cada Enter del quiz, así que es
+  // la que peor escala de todas.
+  index('ix_attempt_created').on(t.createdAt),
 ]);
 
 export const dictEntry = sqliteTable('dict_entry', {

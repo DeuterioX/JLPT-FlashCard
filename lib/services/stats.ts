@@ -28,13 +28,15 @@ function attemptsIn(db: Db, range: StatsRange) {
   return from ? q.where(gte(attempt.createdAt, from)).all() : q.all();
 }
 
+type Intentos = ReturnType<typeof attemptsIn>;
+
 export type WorstCard = {
   cardId: number; prompt: string; primary: string;
   seen: number; errors: number; rate: number;
 };
 
-export function worstCards(db: Db, range: StatsRange, limit = 20): WorstCard[] {
-  const rows = attemptsIn(db, range);
+export function worstCards(db: Db, range: StatsRange, limit = 20, intentos?: Intentos): WorstCard[] {
+  const rows = intentos ?? attemptsIn(db, range);
   if (rows.length === 0) return [];
 
   const agg = new Map<number, { seen: number; errors: number }>();
@@ -85,8 +87,8 @@ export type Overview = {
              durationMs: number | null }[];
 };
 
-export function overview(db: Db, range: StatsRange): Overview {
-  const rows = attemptsIn(db, range);
+export function overview(db: Db, range: StatsRange, intentos?: Intentos): Overview {
+  const rows = intentos ?? attemptsIn(db, range);
   const correct = rows.filter((r) => r.isCorrect).length;
 
   // Una sola consulta a `card`, reusada para el total y para el mapa
@@ -220,4 +222,20 @@ export function openReviewRound(db: Db, limit: number, range: StatsRange = '30d'
   });
 
   return { sessionId, groupIds, cards: shuffle(pool), mode: 'review' };
+}
+
+/**
+ * Las dos mitades de la pantalla de Estadísticas, leyendo `attempt` UNA vez.
+ *
+ * `overview` y `worstCards` recorren la misma tabla y se llaman siempre
+ * juntas desde la pantalla, así que cada carga la leía dos veces enteras. Las
+ * dos siguen sirviendo sueltas -las usan sus rutas de API por separado-, pero
+ * cuando se piden juntas se les pasa la lectura ya hecha.
+ */
+export function statsFor(db: Db, range: StatsRange, limit = 20) {
+  const intentos = attemptsIn(db, range);
+  return {
+    overview: overview(db, range, intentos),
+    worst: worstCards(db, range, limit, intentos),
+  };
 }
