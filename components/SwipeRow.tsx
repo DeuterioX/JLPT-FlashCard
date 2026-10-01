@@ -6,6 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
+import { esTelefono } from '@/lib/client/pantalla';
 
 /**
  * Fila con acciones por gesto, sólo en teléfono. La usan las tres listas:
@@ -129,7 +130,7 @@ export function SwipeRow({
   }
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    if (!window.matchMedia('(max-width: 640px)').matches) return;
+    if (!esTelefono()) return;
     const el = frontRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();

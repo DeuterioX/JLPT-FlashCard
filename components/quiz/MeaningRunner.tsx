@@ -10,6 +10,7 @@ import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
 import {
   decideRoundStart, markRoundUsed, readUsedRound, type StoredRound,
 } from '@/lib/quiz/stored-round';
+import { esTelefono } from '@/lib/client/pantalla';
 
 /**
  * Repaso de significados: la misma hoja del quiz, sin escribir.
@@ -135,7 +136,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
            Sigue siendo un interruptor, como el botón que reemplaza. */
         onClick={() => {
           if (terminada) return;
-          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          if (!esTelefono()) return;
           setRevelado((v) => !v);
         }}
       >

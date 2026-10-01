@@ -16,6 +16,7 @@ import {
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
 import { RoundHeader, contextoDeRonda } from './RoundHeader';
+import { esTelefono } from '@/lib/client/pantalla';
 
 export type Round = StoredRound;
 
@@ -598,11 +599,11 @@ function QuizPlay({
            En escritorio no hace nada: ahí está el botón, y está la barra
            espaciadora. */
         onPointerDown={(e) => {
-          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          if (!esTelefono()) return;
           e.preventDefault();
         }}
         onClick={() => {
-          if (!window.matchMedia('(max-width: 640px)').matches) return;
+          if (!esTelefono()) return;
           onReveal();
         }}
       >
