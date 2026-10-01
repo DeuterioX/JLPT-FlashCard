@@ -23,8 +23,8 @@ import type { InputHTMLAttributes, ReactNode, Ref } from 'react';
  * etiqueta: es el `<input>` lo que buscan las pruebas y lo que tiene que
  * recibir el foco.
  */
-export function CampoPapel({
-  id, label, right, inputRef, alto = 36, ...props
+export function PaperField({
+  id, label, right, inputRef, height = 36, ...props
 }: {
   /** Va en el `<input>`. */
   id?: string;
@@ -34,15 +34,15 @@ export function CampoPapel({
   right?: ReactNode;
   inputRef?: Ref<HTMLInputElement>;
   /** 36px es el campo de un formulario; 40 el buscador del diccionario. */
-  alto?: 36 | 40;
+  height?: 36 | 40;
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'id' | 'className'>) {
   return (
     <label
-      className="knd-campo"
-      style={{ '--knd-campo-alto': rem(alto) } as React.CSSProperties}
-      data-ancho={alto === 40 ? 'holgado' : undefined}
+      className="knd-field"
+      style={{ '--knd-field-height': rem(height) } as React.CSSProperties}
+      data-ancho={height === 40 ? 'holgado' : undefined}
     >
-      <span className="knd-campo-rotulo">{label}</span>
+      <span className="knd-field-label">{label}</span>
       {/* `autoComplete="off"` por default y no sólo cuando quien lo usa se
           acuerda: el tema se lo pone a todo `TextInput` de Mantine, y este
           campo es un `<input>` crudo que no hereda esos `defaultProps`. Sin
@@ -50,10 +50,10 @@ export function CampoPapel({
           navegador con direcciones y nombres propios. Se puede pisar desde
           afuera porque `props` viene después. */}
       <input
-        id={id} ref={inputRef} className="knd-campo-input"
+        id={id} ref={inputRef} className="knd-field-input"
         autoComplete="off" {...props}
       />
-      {right && <span className="knd-campo-der">{right}</span>}
+      {right && <span className="knd-field-end">{right}</span>}
     </label>
   );
 }

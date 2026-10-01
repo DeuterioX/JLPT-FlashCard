@@ -1615,7 +1615,7 @@ input:-webkit-autofill:active {
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
    `Espacio` o un `1` ahí prometen algo que no se puede apretar. */
 @media (max-width: 640px) {
-  .knd-solo-escritorio { display: none; }
+  .knd-desktop-only { display: none; }
 }
 
 /* El pie: las métricas a la izquierda, la calificación en el centro y el
@@ -1671,7 +1671,7 @@ input:-webkit-autofill:active {
    juntos dicen que son la misma decisión con dos salidas. El radio vive en el
    contenedor -con `overflow: hidden` las esquinas de adentro salen rectas
    solas- y la costura es un borde izquierdo en la segunda mitad. */
-.knd-verbos {
+.knd-verbs {
   display: inline-flex;
   border: 1px solid var(--mantine-color-dark-4);
   border-radius: var(--mantine-radius-sm);
@@ -1681,13 +1681,13 @@ input:-webkit-autofill:active {
 /* Cada mitad pierde su propio marco: el del grupo es el único. La regla de
    `:disabled` de más arriba le devuelve un borde a los botones apagados, y
    adentro del grupo eso dibujaría una línea de más. */
-.knd-verbos .mantine-Button-root,
-.knd-verbos .mantine-Button-root:disabled:not([data-loading]),
-.knd-verbos .mantine-Button-root[data-disabled]:not([data-loading]) {
+.knd-verbs .mantine-Button-root,
+.knd-verbs .mantine-Button-root:disabled:not([data-loading]),
+.knd-verbs .mantine-Button-root[data-disabled]:not([data-loading]) {
   border: 0;
   border-radius: 0;
 }
-.knd-verbos .mantine-Button-root + .mantine-Button-root {
+.knd-verbs .mantine-Button-root + .mantine-Button-root {
   border-left: 1px solid var(--mantine-color-dark-4);
 }
 
@@ -1700,18 +1700,18 @@ input:-webkit-autofill:active {
    translúcido, o sea el mismo color del texto rebajado, que es lo que hace el
    filete de una hoja rayada. Un gris opaco de la rampa oscura sobre crema se
    ve verdoso. */
-.knd-campo {
+.knd-field {
   display: flex;
   align-items: center;
   gap: 0.625rem;
-  height: var(--knd-campo-alto, 2.25rem);
+  height: var(--knd-field-height, 2.25rem);
   padding: 0 0.75rem;
   border: 1px solid rgb(25 23 19 / 28%);
   border-radius: var(--mantine-radius-sm);
   background: var(--knd-papel);
   cursor: text;
 }
-.knd-campo[data-ancho='holgado'] {
+.knd-field[data-ancho='holgado'] {
   padding: 0 0.875rem;
   border-radius: 0.5rem;
 }
@@ -1719,12 +1719,12 @@ input:-webkit-autofill:active {
 /* El foco vive en el CONTENEDOR y no en el `<input>`: el borde y el halo son
    de la hojita, y el input de adentro no tiene ninguno propio. `1.5px` engorda
    el filete sin mover el texto, porque la caja es `border-box`. */
-.knd-campo:focus-within {
+.knd-field:focus-within {
   border: 1.5px solid var(--knd-sumi);
   box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
 }
 
-.knd-campo-rotulo {
+.knd-field-label {
   flex: none;
   font-size: 0.5625rem;
   letter-spacing: 0.06em;
@@ -1735,7 +1735,7 @@ input:-webkit-autofill:active {
   user-select: none;
 }
 
-.knd-campo-input {
+.knd-field-input {
   flex: 1;
   min-width: 0;
   /* Sin caja propia: la caja es la hojita de afuera. */
@@ -1747,10 +1747,10 @@ input:-webkit-autofill:active {
   font-size: 1rem;
   color: var(--knd-sumi);
 }
-.knd-campo-input:focus { outline: none; }
-.knd-campo-input::placeholder { color: var(--knd-sumi-dim); }
+.knd-field-input:focus { outline: none; }
+.knd-field-input::placeholder { color: var(--knd-sumi-dim); }
 
-.knd-campo-der {
+.knd-field-end {
   flex: none;
   font-family: var(--knd-f-mono);
   font-size: 0.75rem;
@@ -1759,7 +1759,7 @@ input:-webkit-autofill:active {
 
 /* La nota debajo de un campo: 12px en el gris apagado de la escala. Es la
    misma que el diseño pone abajo del Significado en Editar palabra. */
-.knd-campo-nota {
+.knd-field-note {
   font-size: 0.75rem;
   color: var(--mantine-color-dark-3);
   line-height: 1.5;
@@ -1769,12 +1769,12 @@ input:-webkit-autofill:active {
    con en negrita -y en la tinta más fuerte- sólo lo que desaparece. Va como
    clase y no con `c=`/`fw=` sueltos porque el `<b>` de adentro necesita su
    propio color, y eso desde props de Mantine no se puede. */
-.knd-borrar-nota {
+.knd-delete-note {
   font-size: 0.875rem;
   line-height: 1.55;
   color: var(--mantine-color-dark-2);
 }
-.knd-borrar-nota b {
+.knd-delete-note b {
   font-weight: 600;
   color: var(--mantine-color-dark-0);
 }
@@ -1842,7 +1842,7 @@ input:-webkit-autofill:active {
      diseño- y con `flex: 1 1 0` quedaban 171,5 contra 184,5 aun con
      `min-width: 0`, o sea que la costura no caía en el medio. Dos `minmax(0,
      1fr)` miden lo mismo por definición, sin depender del contenido. */
-  .knd-verbos {
+  .knd-verbs {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     width: 100%;
@@ -1886,7 +1886,7 @@ input:-webkit-autofill:active {
    diseño, el mismo rojo del filete del encabezado de sección y del glifo de
    los modales. Estaba en `--knd-shu-txt`, la variante aclarada para texto
    corrido, y al lado de cualquier otro shu de la pantalla se leía salmón. */
-.knd-borrar-fila {
+.knd-row-delete {
   /* `!important` porque el tamaño `compact-xs` llega como estilo INLINE -lo
      escribe el `vars` del tema-, y contra un inline no gana ninguna clase por
      especificidad. Es el único lugar donde hace falta y está acotado a estos
@@ -1895,10 +1895,10 @@ input:-webkit-autofill:active {
   --button-padding-x: 0.5rem !important;
 }
 
-/* Lo que sólo existe en teléfono, al revés de `.knd-solo-escritorio`. */
-.knd-solo-telefono { display: none; }
+/* Lo que sólo existe en teléfono, al revés de `.knd-desktop-only`. */
+.knd-phone-only { display: none; }
 @media (max-width: 640px) {
-  .knd-solo-telefono { display: block; }
+  .knd-phone-only { display: block; }
 
   /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
      `onClick` del escenario en QuizRunner.tsx y MeaningRunner.tsx. En el quiz
@@ -1911,14 +1911,14 @@ input:-webkit-autofill:active {
   /* La única pista de que la carta se toca. Va bajo el «carta N de M», en el
      mismo gris apagado y un escalón más chica: es una instrucción que se lee
      una vez y después estorba. */
-  .knd-tocar {
+  .knd-tap-hint {
     font-size: 0.6875rem;
     line-height: 1.4;
     color: var(--mantine-color-dark-3);
     text-align: center;
   }
   /* Sigue ocupando su lugar: ver el comentario en MeaningRunner.tsx. */
-  .knd-tocar[data-oculto] { visibility: hidden; }
+  .knd-tap-hint[data-oculto] { visibility: hidden; }
 }
 
 /* El escenario de una ronda: el degradé radial del diseño, que separa la hoja

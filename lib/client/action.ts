@@ -24,7 +24,7 @@ import { NETWORK_ERROR } from './errors';
  * `errorFrom`- queda donde se conoce la respuesta, y el de red -que no tiene
  * respuesta que leer- lo cubre el `catch` de acá.
  */
-export function useAccion(opts: {
+export function useAction(opts: {
   /**
    * No soltar la guarda ni apagar `busy` cuando la acción sale bien.
    *
@@ -33,32 +33,32 @@ export function useAccion(opts: {
    * segunda sesión que nunca se cierra. El componente se desmonta al llegar,
    * así que no hace falta soltarla después.
    */
-  retenerAlLograr?: boolean;
+  keepLockedOnSuccess?: boolean;
 } = {}) {
-  const corriendo = useRef(false);
+  const running = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const correr = useCallback(async (cuerpo: () => Promise<string | void>) => {
-    if (corriendo.current) return;
-    corriendo.current = true;
+  const run = useCallback(async (body: () => Promise<string | void>) => {
+    if (running.current) return;
+    running.current = true;
     setBusy(true);
     setError(null);
-    let logrado = false;
+    let succeeded = false;
     try {
-      const falla = await cuerpo();
-      if (falla) setError(falla);
-      else logrado = true;
+      const failure = await body();
+      if (failure) setError(failure);
+      else succeeded = true;
     } catch {
       // `fetch` tiró (sin red, DNS, CORS): no hubo respuesta que leer.
       setError(NETWORK_ERROR);
     } finally {
-      if (!(logrado && opts.retenerAlLograr)) {
-        corriendo.current = false;
+      if (!(succeeded && opts.keepLockedOnSuccess)) {
+        running.current = false;
         setBusy(false);
       }
     }
-  }, [opts.retenerAlLograr]);
+  }, [opts.keepLockedOnSuccess]);
 
-  return { busy, error, setError, correr };
+  return { busy, error, setError, run };
 }

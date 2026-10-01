@@ -7,7 +7,7 @@ import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/
 import type { DictHit } from '@/lib/services/dict';
 import { posEnCastellano } from '@/lib/services/pos';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
-import { useAccion } from '@/lib/client/accion';
+import { useAction } from '@/lib/client/action';
 
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 200;
@@ -27,10 +27,10 @@ export function DictSearchPanel({
   const [searchError, setSearchError] = useState<string | null>(null);
 
   // Cuál fila está en vuelo, para poner la ruedita en ESA y no en todas. La
-  // guarda, el `busy` y el error los lleva `useAccion`; esto es lo propio de
+  // guarda, el `busy` y el error los lleva `useAction`; esto es lo propio de
   // esta pantalla, que tiene una acción por resultado.
   const [addingId, setAddingId] = useState<number | null>(null);
-  const agregar = useAccion();
+  const addAction = useAction();
   const [addedIds, setAddedIds] = useState<Set<number>>(new Set());
 
   const trimmed = q.trim();
@@ -72,7 +72,7 @@ export function DictSearchPanel({
     };
   }, [trimmed]);
 
-  const addHit = (h: DictHit) => agregar.correr(async () => {
+  const addHit = (h: DictHit) => addAction.run(async () => {
     setAddingId(h.id);
     try {
       const res = await fetch(`/api/groups/${groupId}/cards`, {
@@ -180,7 +180,7 @@ export function DictSearchPanel({
                   size="compact-xs"
                   onClick={() => addHit(h)}
                   loading={addingId === h.id}
-                  disabled={agregar.busy}
+                  disabled={addAction.busy}
                 >
                   Agregar
                 </Button>
@@ -196,7 +196,7 @@ export function DictSearchPanel({
           </Text>
         )}
 
-        {agregar.error && <Text c="var(--knd-shu-txt)" size="sm">{agregar.error}</Text>}
+        {addAction.error && <Text c="var(--knd-shu-txt)" size="sm">{addAction.error}</Text>}
 
       </div>
 

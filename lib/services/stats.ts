@@ -28,15 +28,15 @@ function attemptsIn(db: Db, range: StatsRange) {
   return from ? q.where(gte(attempt.createdAt, from)).all() : q.all();
 }
 
-type Intentos = ReturnType<typeof attemptsIn>;
+type Attempts = ReturnType<typeof attemptsIn>;
 
 export type WorstCard = {
   cardId: number; prompt: string; primary: string;
   seen: number; errors: number; rate: number;
 };
 
-export function worstCards(db: Db, range: StatsRange, limit = 20, intentos?: Intentos): WorstCard[] {
-  const rows = intentos ?? attemptsIn(db, range);
+export function worstCards(db: Db, range: StatsRange, limit = 20, attempts?: Attempts): WorstCard[] {
+  const rows = attempts ?? attemptsIn(db, range);
   if (rows.length === 0) return [];
 
   const agg = new Map<number, { seen: number; errors: number }>();
@@ -87,8 +87,8 @@ export type Overview = {
              durationMs: number | null }[];
 };
 
-export function overview(db: Db, range: StatsRange, intentos?: Intentos): Overview {
-  const rows = intentos ?? attemptsIn(db, range);
+export function overview(db: Db, range: StatsRange, attempts?: Attempts): Overview {
+  const rows = attempts ?? attemptsIn(db, range);
   const correct = rows.filter((r) => r.isCorrect).length;
 
   // Una sola consulta a `card`, reusada para el total y para el mapa
@@ -233,9 +233,9 @@ export function openReviewRound(db: Db, limit: number, range: StatsRange = '30d'
  * cuando se piden juntas se les pasa la lectura ya hecha.
  */
 export function statsFor(db: Db, range: StatsRange, limit = 20) {
-  const intentos = attemptsIn(db, range);
+  const attempts = attemptsIn(db, range);
   return {
-    overview: overview(db, range, intentos),
-    worst: worstCards(db, range, limit, intentos),
+    overview: overview(db, range, attempts),
+    worst: worstCards(db, range, limit, attempts),
   };
 }

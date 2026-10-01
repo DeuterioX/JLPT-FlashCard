@@ -10,12 +10,12 @@ import { Navbar } from './Navbar';
 import { ListRow } from './ListRow';
 import { SwipeRow } from './SwipeRow';
 import { ModalActions } from './ModalActions';
-import { CampoPapel } from './CampoPapel';
+import { PaperField } from './PaperField';
 import { ModalTitle } from './ModalTitle';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
 import { errorFrom } from '@/lib/client/errors';
-import { useAccion } from '@/lib/client/accion';
+import { useAction } from '@/lib/client/action';
 import type { DeckSummary } from '@/lib/services/decks';
 
 // Comparar contra el nombre solo alcanza si además es un mazo incluido: si
@@ -67,25 +67,25 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
   const [creating, setCreating] = useState(false);
   const [name, setName] = useState('');
   const [groups, setGroups] = useState('');
-  // La guarda contra doble click, el `busy` y el error viven en `useAccion`:
+  // La guarda contra doble click, el `busy` y el error viven en `useAction`:
   // es la misma forma que repetían todos los botones de la app.
-  const alta = useAccion();
+  const createAction = useAction();
   const [confirm, setConfirm] = useState<DeckSummary | null>(null);
-  const borrado = useAccion();
+  const removeAction = useAction();
 
   function openCreate() {
     setName('');
     setGroups('');
-    alta.setError(null);
+    createAction.setError(null);
     setCreating(true);
   }
 
   function openConfirm(d: DeckSummary) {
-    borrado.setError(null);
+    removeAction.setError(null);
     setConfirm(d);
   }
 
-  const create = () => alta.correr(async () => {
+  const create = () => createAction.run(async () => {
     const res = await fetch('/api/decks', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -101,7 +101,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
     router.refresh();
   });
 
-  const remove = (d: DeckSummary) => borrado.correr(async () => {
+  const remove = (d: DeckSummary) => removeAction.run(async () => {
     const res = await fetch(`/api/decks/${d.id}`, { method: 'DELETE' });
     if (!res.ok) return errorFrom(res);
     setConfirm(null);
@@ -173,7 +173,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                   {!d.isBuiltin && (
                     <Button
                       id={`deck-delete-${d.id}`}
-                      variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila" onClick={() => openConfirm(d)}
+                      variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete" onClick={() => openConfirm(d)}
                     >
                       Borrar
                     </Button>
@@ -197,29 +197,29 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!name.trim() || alta.busy) return;
+            if (!name.trim() || createAction.busy) return;
             void create();
           }}
         >
-          <CampoPapel
+          <PaperField
             id="deck-name" label="Nombre" placeholder="Comidas"
             value={name} onChange={(e) => setName(e.currentTarget.value)}
           />
           {/* El rótulo de adentro tiene que ser corto -son versalitas de 9px
               en la misma línea que el texto-, así que la aclaración larga baja
               a la nota, que es donde el diseño pone lo que hay que explicar. */}
-          <CampoPapel
+          <PaperField
             id="deck-groups" label="Grupos"
             placeholder="Pescado, Verdura, Frutas"
             value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
           />
-          <Text className="knd-campo-nota">
+          <Text className="knd-field-note">
             Separados por coma, y opcional: si lo dejás vacío se crea un grupo
             solo, llamado «General».
           </Text>
-          {alta.error && <Text c="var(--knd-shu-txt)" size="sm">{alta.error}</Text>}
-          <ModalActions onCancel={() => setCreating(false)} busy={alta.busy}>
-            <Button id="create-deck-btn" type="submit" disabled={!name.trim() || alta.busy} loading={alta.busy}>
+          {createAction.error && <Text c="var(--knd-shu-txt)" size="sm">{createAction.error}</Text>}
+          <ModalActions onCancel={() => setCreating(false)} busy={createAction.busy}>
+            <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createAction.busy} loading={createAction.busy}>
               Crear
             </Button>
           </ModalActions>
@@ -231,7 +231,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas.
               La frase es la del diseño -el verbo adelante, en negrita sólo lo
               que desaparece-, con los dos niveles que se lleva un mazo. */}
-          <Text className="knd-borrar-nota">
+          <Text className="knd-delete-note">
             {'Se va a borrar '}
             <b>{`«${confirm?.name ?? ''}»`}</b>
             {', sus '}
@@ -240,13 +240,13 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
             {'. No se puede deshacer.'}
           </Text>
-          {borrado.error && <Text c="var(--knd-shu-txt)" size="sm">{borrado.error}</Text>}
-          <ModalActions onCancel={() => setConfirm(null)} busy={borrado.busy}>
+          {removeAction.error && <Text c="var(--knd-shu-txt)" size="sm">{removeAction.error}</Text>}
+          <ModalActions onCancel={() => setConfirm(null)} busy={removeAction.busy}>
             <Button
               color="shu.6"
               onClick={() => confirm && remove(confirm)}
-              loading={borrado.busy}
-              disabled={borrado.busy}
+              loading={removeAction.busy}
+              disabled={removeAction.busy}
             >
               Borrar el mazo
             </Button>

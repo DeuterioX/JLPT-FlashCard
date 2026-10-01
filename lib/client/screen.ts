@@ -11,7 +11,7 @@
  * Esto cubre la mitad de JavaScript. La del CSS sigue escrita en cada bloque,
  * porque una media query no puede leer una constante de TypeScript.
  */
-export const TELEFONO = '(max-width: 640px)';
+export const PHONE_QUERY = '(max-width: 640px)';
 
 /**
  * Si la pantalla es de teléfono, preguntado AHORA.
@@ -22,6 +22,6 @@ export const TELEFONO = '(max-width: 640px)';
  * el manejador no hay nada que sincronizar, y rotar el teléfono tampoco deja
  * un valor viejo dando vueltas.
  */
-export function esTelefono() {
-  return window.matchMedia(TELEFONO).matches;
+export function isPhone() {
+  return window.matchMedia(PHONE_QUERY).matches;
 }

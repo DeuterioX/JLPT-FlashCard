@@ -91,7 +91,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               las pantallas que traen su propia navbar (`#app-header` en
               globals.css), así que el botón aparecería en unas sí y en otras
               no. Cuando se decida dónde va en teléfono, se saca esta clase. */}
-          <Box ml="auto" className="knd-solo-escritorio">
+          <Box ml="auto" className="knd-desktop-only">
             <ThemeToggle id="theme-toggle" />
           </Box>
         </Group>

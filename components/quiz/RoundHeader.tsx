@@ -18,19 +18,19 @@ import { Brand } from '../Brand';
  * pie, sólo al escenario.
  */
 export function RoundHeader({
-  id, brandId, nameId, contexto, teclaSoloEscritorio = false,
+  id, brandId, nameId, context, keyDesktopOnly = false,
 }: {
   id: string;
   brandId?: string;
   nameId?: string;
   /** «Hiragana · 1 grupo». Vacío si no hay nada que decir. */
-  contexto?: string;
+  context?: string;
   /**
    * Esconde la tecla `Esc` en teléfono, donde no hay teclado físico que
    * apretar. El repaso de significados lo hace -ahí no hay ningún campo que
    * abra el teclado- y el quiz no, porque ahí el teclado está abierto igual.
    */
-  teclaSoloEscritorio?: boolean;
+  keyDesktopOnly?: boolean;
 }) {
   return (
     <Group
@@ -49,8 +49,8 @@ export function RoundHeader({
           adivinar. El `gap` va en rem y no en un número pelado, que Mantine
           interpreta en px y no escala en 2K/4K con el resto de la app. */}
       <Group gap="0.5rem" wrap="nowrap">
-        {contexto && <Text size="xs" c="dimmed">{`${contexto} ·`}</Text>}
-        <Kbd className={teclaSoloEscritorio ? 'knd-solo-escritorio' : undefined}>Esc</Kbd>
+        {context && <Text size="xs" c="dimmed">{`${context} ·`}</Text>}
+        <Kbd className={keyDesktopOnly ? 'knd-desktop-only' : undefined}>Esc</Kbd>
         <Text size="xs" c="dimmed">salir</Text>
       </Group>
     </Group>
@@ -62,6 +62,6 @@ export function RoundHeader({
  *
  * Lo arman las dos pantallas y lo armaban igual, cada una por su cuenta.
  */
-export function contextoDeRonda(deckName: string | undefined, grupos: number) {
-  return [deckName, `${grupos} ${grupos === 1 ? 'grupo' : 'grupos'}`].filter(Boolean).join(' · ');
+export function roundContext(deckName: string | undefined, groups: number) {
+  return [deckName, `${groups} ${groups === 1 ? 'grupo' : 'grupos'}`].filter(Boolean).join(' · ');
 }

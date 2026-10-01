@@ -26,19 +26,19 @@ export function ThemeToggle({ id }: { id?: string }) {
   // `getInitialValueInEffect: false` para que el primer render del cliente
   // coincida con el del servidor y no parpadee: `ColorSchemeScript` ya dejó el
   // atributo puesto en el `<html>` antes de que pinte nada.
-  const actual = useComputedColorScheme('dark', { getInitialValueInEffect: false });
-  const destino = actual === 'dark' ? 'light' : 'dark';
+  const current = useComputedColorScheme('dark', { getInitialValueInEffect: false });
+  const target = current === 'dark' ? 'light' : 'dark';
 
   return (
     <Button
       id={id}
       variant="default"
       size="compact-xs"
-      onClick={() => setColorScheme(destino)}
-      aria-label={destino === 'dark' ? 'Cambiar a tinta oscura' : 'Cambiar a tinta clara'}
-      title={destino === 'dark' ? 'Tinta oscura' : 'Tinta clara'}
+      onClick={() => setColorScheme(target)}
+      aria-label={target === 'dark' ? 'Cambiar a tinta oscura' : 'Cambiar a tinta clara'}
+      title={target === 'dark' ? 'Tinta oscura' : 'Tinta clara'}
     >
-      <Icon glyph={destino === 'dark' ? MoonStarsFill : SunFill} rem={0.875} />
+      <Icon glyph={target === 'dark' ? MoonStarsFill : SunFill} rem={0.875} />
     </Button>
   );
 }

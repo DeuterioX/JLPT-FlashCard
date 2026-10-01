@@ -40,7 +40,7 @@ export function GenkoSheet({
   // hay kana fuera del plano básico, y partir por code unit los rompería.
   const chars = [...text];
   const hoja = useRef<HTMLDivElement>(null);
-  const relleno = useRellenoDeFila(hoja, chars.length);
+  const padding = useRowPadding(hoja, chars.length);
   return (
     <div
       ref={hoja}
@@ -54,7 +54,7 @@ export function GenkoSheet({
         // filtra, es el texto partido en orden, y dos celdas con el mismo
         // carácter -las dos い de いいえ- no son intercambiables.
         <span key={i} className="knd-genko-celda">
-          <Cruz />
+          <Guides />
           {ch !== ' ' && (
             <span className="knd-genko-glifo mincho" style={tone ? { color: tone } : undefined}>
               {ch}
@@ -66,9 +66,9 @@ export function GenkoSheet({
           TODAS dibujadas, se llenen o no, y sin esto el tramo sobrante de la
           última fila se veía como un bloque gris: el fondo del contenedor, que
           es el color de la línea, asomando donde no hay celdas. */}
-      {Array.from({ length: relleno }, (_, i) => (
+      {Array.from({ length: padding }, (_, i) => (
         <span key={`hueco-${i}`} className="knd-genko-celda" aria-hidden>
-          <Cruz />
+          <Guides />
         </span>
       ))}
     </div>
@@ -90,23 +90,23 @@ export function GenkoSheet({
  * que calcula el cliente y rompería la hidratación. Las celdas de relleno no
  * llevan contenido, así que aparecer un cuadro después no mueve nada.
  */
-function useRellenoDeFila(ref: React.RefObject<HTMLDivElement | null>, n: number) {
+function useRowPadding(ref: React.RefObject<HTMLDivElement | null>, n: number) {
   const [cols, setCols] = useState(0);
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    const medir = () => {
-      const pistas = getComputedStyle(el).gridTemplateColumns;
-      setCols(pistas === 'none' ? 0 : pistas.split(' ').filter(Boolean).length);
+    const measure = () => {
+      const tracks = getComputedStyle(el).gridTemplateColumns;
+      setCols(tracks === 'none' ? 0 : tracks.split(' ').filter(Boolean).length);
     };
-    medir();
-    const obs = new ResizeObserver(medir);
-    obs.observe(el);
-    return () => obs.disconnect();
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => observer.disconnect();
   }, [ref, n]);
   if (cols <= 0 || n <= cols) return 0;
-  const sobran = n % cols;
-  return sobran === 0 ? 0 : cols - sobran;
+  const leftover = n % cols;
+  return leftover === 0 ? 0 : cols - leftover;
 }
 
 /**
@@ -121,7 +121,7 @@ function useRellenoDeFila(ref: React.RefObject<HTMLDivElement | null>, n: number
  * `preserveAspectRatio="none"` es seguro porque la celda es cuadrada: los dos
  * trazos escalan por el mismo factor.
  */
-function Cruz(): ReactNode {
+function Guides(): ReactNode {
   return (
     <svg
       className="knd-genko-cruz"

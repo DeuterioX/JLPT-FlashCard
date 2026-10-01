@@ -7,7 +7,7 @@ import {
 } from '@mantine/core';
 import { MetricTile } from './MetricTile';
 import { errorFrom } from '@/lib/client/errors';
-import { useAccion } from '@/lib/client/accion';
+import { useAction } from '@/lib/client/action';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
 
@@ -97,13 +97,13 @@ export function StatsBoard({
   overview: o, worst, range,
 }: { overview: Overview; worst: WorstCard[]; range: StatsRange }) {
   const router = useRouter();
-  // `retenerAlLograr`: en el camino feliz la guarda NO se libera. `router.push`
+  // `keepLockedOnSuccess`: en el camino feliz la guarda NO se libera. `router.push`
   // deja el componente montado mientras navega, y un segundo click en esa
   // ventana abriría una segunda sesión de repaso que nunca se cierra. El
   // componente se desmonta al llegar a /quiz, así que no hace falta resetearla.
-  const repaso = useAccion({ retenerAlLograr: true });
+  const reviewAction = useAction({ keepLockedOnSuccess: true });
 
-  const review = () => repaso.correr(async () => {
+  const review = () => reviewAction.run(async () => {
     const res = await fetch('/api/sessions/review', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -174,12 +174,12 @@ export function StatsBoard({
             id="review-btn"
             className="knd-review-btn"
             onClick={review}
-            loading={repaso.busy}
-            disabled={repaso.busy || worst.length === 0}
+            loading={reviewAction.busy}
+            disabled={reviewAction.busy || worst.length === 0}
           >
             {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
-          {repaso.error && <Text size="xs" c="var(--knd-shu-txt)">{repaso.error}</Text>}
+          {reviewAction.error && <Text size="xs" c="var(--knd-shu-txt)">{reviewAction.error}</Text>}
         </Stack>
       </div>
 

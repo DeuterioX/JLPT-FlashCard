@@ -16,11 +16,11 @@ import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeRow } from './SwipeRow';
 import { ModalTitle } from './ModalTitle';
 import { ModalActions } from './ModalActions';
-import { CampoPapel } from './CampoPapel';
+import { PaperField } from './PaperField';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom } from '@/lib/client/errors';
-import { useAccion } from '@/lib/client/accion';
+import { useAction } from '@/lib/client/action';
 import type { DeckSummary, GroupSummary } from '@/lib/services/decks';
 
 export type EditorCard = {
@@ -96,8 +96,8 @@ function EditCardModal({
           onSave({ prompt, romaji, meaning, alts });
         }}
       >
-        <CampoPapel id="edit-kana" label="Kana" value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)} />
-        <CampoPapel id="edit-romaji" label="Romaji" value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)} />
+        <PaperField id="edit-kana" label="Kana" value={prompt} onChange={(e) => setPrompt(e.currentTarget.value)} />
+        <PaperField id="edit-romaji" label="Romaji" value={romaji} onChange={(e) => setRomaji(e.currentTarget.value)} />
         {/* Los mismos dos botones del alta, y por lo mismo: acá también se
             puede querer escribir el kana sin teclado japonés. Debajo del
             romaji y después de él en el DOM, así el tabulador va romaji →
@@ -125,7 +125,7 @@ function EditCardModal({
         {alts.map((a, i) => (
           <Group key={i} gap="xs" wrap="nowrap">
             <div style={{ flex: 1 }}>
-              <CampoPapel
+              <PaperField
                 label="Alt"
                 aria-label={`Romanización alternativa ${i + 1}`}
                 value={a}
@@ -141,11 +141,11 @@ function EditCardModal({
             </Button>
           </Group>
         ))}
-        <CampoPapel id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
+        <PaperField id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
         {/* La nota del diseño, debajo del último campo: dice qué hace el
             formulario solo, así los dos botones de arriba no necesitan
             explicarse. */}
-        <Text className="knd-campo-nota">
+        <Text className="knd-field-note">
           El romaji se completa solo desde el kana. Editalo si hace falta.
         </Text>
         {/* Al final, después de los campos, como en el formulario de alta:
@@ -200,7 +200,7 @@ export function GroupCards({
 
   const [renameOpen, setRenameOpen] = useState(false);
   const [renameValue, setRenameValue] = useState(group.name);
-  const renombrar = useAccion();
+  const renameAction = useAction();
 
   const [prompt, setPrompt] = useState('');
   const [romaji, setRomaji] = useState('');
@@ -208,13 +208,13 @@ export function GroupCards({
   const [alts, setAlts] = useState<string[]>([]);
   const [romajiTouched, setRomajiTouched] = useState(false);
   const kanaRef = useRef<HTMLInputElement>(null);
-  const alta = useAccion();
+  const addAction = useAction();
 
   // La carta que se está por borrar, no la que se está borrando: borrar es
   // irreversible y hasta ahora era el ÚNICO borrado de la app que no pedía
   // confirmación -el de mazo y el de grupo sí la piden-.
   const [deleting, setDeleting] = useState<EditorCard | null>(null);
-  const borrado = useAccion();
+  const deleteAction = useAction();
 
   // La carta que se edita y si el modal está abierto van SEPARADOS. Antes el
   // modal se montaba recién al abrirlo, con `opened` fijo en true: Mantine
@@ -224,13 +224,13 @@ export function GroupCards({
   // contenido no desaparezca a mitad de la animación de salida.
   const [editCard, setEditCard] = useState<EditorCard | null>(null);
   const [editOpen, setEditOpen] = useState(false);
-  const edicion = useAccion();
+  const editAction = useAction();
 
   const [moving, setMoving] = useState<EditorCard | null>(null);
-  const mover = useAccion();
+  const moveAction = useAction();
   // El grupo elegido en el modal de mover. `null` hasta que se elige uno, que
   // es lo que mantiene apagado el botón que ejecuta.
-  const [destino, setDestino] = useState<number | null>(null);
+  const [target, setDestino] = useState<number | null>(null);
 
   function onPrompt(v: string) {
     setPrompt(v);
@@ -252,7 +252,7 @@ export function GroupCards({
     setRomajiTouched(v.trim() !== '');
   }
 
-  const renameGroup = () => renombrar.correr(async () => {
+  const renameGroup = () => renameAction.run(async () => {
     const res = await fetch(`/api/groups/${group.id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
@@ -263,7 +263,7 @@ export function GroupCards({
     router.refresh();
   });
 
-  const add = () => alta.correr(async () => {
+  const add = () => addAction.run(async () => {
     const res = await fetch(`/api/groups/${group.id}/cards`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -285,7 +285,7 @@ export function GroupCards({
     router.refresh();
   });
 
-  const removeCard = () => borrado.correr(async () => {
+  const removeCard = () => deleteAction.run(async () => {
     if (!deleting) return;
     const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
     if (!res.ok) return errorFrom(res);
@@ -294,7 +294,7 @@ export function GroupCards({
   });
 
   const saveCard = (next: { prompt: string; romaji: string; meaning: string; alts: string[] }) =>
-    edicion.correr(async () => {
+    editAction.run(async () => {
       if (!editCard) return;
       const res = await fetch(`/api/cards/${editCard.id}`, {
         method: 'PATCH',
@@ -310,7 +310,7 @@ export function GroupCards({
       router.refresh();
     });
 
-  const moveCard = (targetGroupId: number) => mover.correr(async () => {
+  const moveCard = (targetGroupId: number) => moveAction.run(async () => {
     if (!moving) return;
     // `updateCard` ya acepta `groupId`: mover es el mismo viaje que editar.
     const res = await fetch(`/api/cards/${moving.id}`, {
@@ -335,7 +335,7 @@ export function GroupCards({
         currentId="group-name"
         currentClassName="kana"
         action={readOnly ? <BuiltinDot /> : (
-          <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); renombrar.setError(null); setRenameOpen(true); }} />
+          <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); renameAction.setError(null); setRenameOpen(true); }} />
         )}
       />
 
@@ -352,7 +352,7 @@ export function GroupCards({
             component="form"
             onSubmit={(e: FormEvent) => {
               e.preventDefault();
-              if (!prompt.trim() || !romaji.trim() || alta.busy) return;
+              if (!prompt.trim() || !romaji.trim() || addAction.busy) return;
               void add();
             }}
           >
@@ -392,7 +392,7 @@ export function GroupCards({
               </Button>
             </Group>
             {/* `.field` del diseño: el rótulo va ADENTRO de la caja. Es el
-                mismo `CampoPapel` que usan los modales; hasta hace poco acá
+                mismo `PaperField` que usan los modales; hasta hace poco acá
                 estaba resuelto con `TextInput` + `leftSection`, o sea el mismo
                 campo escrito de dos maneras, con su estilo de rótulo
                 duplicado. El rótulo puede ir en 9px sin riesgo; el que no
@@ -405,7 +405,7 @@ export function GroupCards({
                 en globals.css. Los anchos salen de los `w={}` porque Mantine
                 los escribe inline y un ancho inline le gana a la grilla. */}
             <div className="knd-addform">
-              <CampoPapel
+              <PaperField
                 inputRef={kanaRef}
                 id="nueva-kana" label="Kana" placeholder="えび"
                 value={prompt} onChange={(e) => onPrompt(e.currentTarget.value)}
@@ -416,7 +416,7 @@ export function GroupCards({
                   significado- sin un solo `tabIndex`: el orden del documento
                   ya es el correcto. */}
               <div className="knd-addform-romaji">
-                <CampoPapel
+                <PaperField
                   id="nueva-romaji" label="Romaji" placeholder="ebi"
                   value={romaji}
                   onChange={(e) => onRomaji(e.currentTarget.value)}
@@ -456,7 +456,7 @@ export function GroupCards({
                   </Button>
                 </div>
               </div>
-              <CampoPapel
+              <PaperField
                 id="nueva-meaning" label="Significado" placeholder="camarón"
                 value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
               />
@@ -466,7 +466,7 @@ export function GroupCards({
                   que ahí sí es `primario`. Tiene sentido: éste es el paso
                   final de un formulario que ya estás completando, no la acción
                   que te invita a empezar algo. */}
-              <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || alta.busy} loading={alta.busy}>
+              <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || addAction.busy} loading={addAction.busy}>
                 Agregar
               </Button>
             </div>
@@ -475,7 +475,7 @@ export function GroupCards({
                 {alts.map((a, i) => (
                   <Group key={i} gap={5} wrap="nowrap">
                     <div style={{ width: 150 }}>
-                      <CampoPapel
+                      <PaperField
                         label="Alt"
                         aria-label={`Romanización alternativa ${i + 1}`}
                         placeholder="sūpā"
@@ -494,7 +494,7 @@ export function GroupCards({
                 ))}
               </Group>
             )}
-            {alta.error && <Text c="var(--knd-shu-txt)" size="sm">{alta.error}</Text>}
+            {addAction.error && <Text c="var(--knd-shu-txt)" size="sm">{addAction.error}</Text>}
             {/* Sin el `·` que separaba la frase del link: con el formulario
                 en una columna la ayuda ocupa dos líneas, y el punto quedaba
                 abriendo la segunda como si fuera una viñeta. El link se
@@ -525,7 +525,7 @@ export function GroupCards({
         )}
       </Group>
 
-      {borrado.error && <Text c="var(--knd-shu-txt)" size="sm">{borrado.error}</Text>}
+      {deleteAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteAction.error}</Text>}
 
       <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
         {cards.map((c, i) => (
@@ -534,12 +534,12 @@ export function GroupCards({
             <SwipeRow
               label={c.prompt}
               tappable={!readOnly}
-              onTap={() => { edicion.setError(null); setEditCard(c); setEditOpen(true); }}
+              onTap={() => { editAction.setError(null); setEditCard(c); setEditOpen(true); }}
               leading={!readOnly && manyGroups
-                ? { etiqueta: 'Mover', onAction: () => { mover.setError(null); setDestino(null); setMoving(c); } }
+                ? { etiqueta: 'Mover', onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
                 : undefined}
               trailing={!readOnly
-                ? { etiqueta: 'Borrar', onAction: () => { borrado.setError(null); setDeleting(c); } }
+                ? { etiqueta: 'Borrar', onAction: () => { deleteAction.setError(null); setDeleting(c); } }
                 : undefined}
             >
               {/* Los anchos viven en globals.css y no acá porque tienen que
@@ -566,7 +566,7 @@ export function GroupCards({
                     type="button"
                     id={`card-edit-${c.id}`}
                     className="kana knd-card-kana knd-card-edit knd-swipe-pin"
-                    onClick={() => { edicion.setError(null); setEditCard(c); setEditOpen(true); }}
+                    onClick={() => { editAction.setError(null); setEditCard(c); setEditOpen(true); }}
                   >
                     {c.prompt}
                   </Text>
@@ -580,14 +580,14 @@ export function GroupCards({
                   <Group className="knd-card-actions" gap={5} wrap="nowrap">
                     <Button
                       id={`card-delete-${c.id}`}
-                      variant="subtle" color="shu.6" size="compact-xs" className="knd-borrar-fila"
-                      onClick={() => { borrado.setError(null); setDeleting(c); }}
+                      variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
+                      onClick={() => { deleteAction.setError(null); setDeleting(c); }}
                       // Sin ruedita: este botón sólo ABRE el modal, el borrado
                       // lo ejecuta el de adentro y la ruedita va ahí. Antes
                       // giraba esta fila porque el estado guardaba qué carta
                       // se estaba borrando; con la acción compartida eso sería
                       // hacer girar todas las filas a la vez.
-                      disabled={borrado.busy}
+                      disabled={deleteAction.busy}
                     >
                       Borrar
                     </Button>
@@ -595,7 +595,7 @@ export function GroupCards({
                       <Button
                         id={`card-move-${c.id}`}
                         variant="default" bg="transparent" size="compact-xs"
-                        onClick={() => { mover.setError(null); setDestino(null); setMoving(c); }}
+                        onClick={() => { moveAction.setError(null); setDestino(null); setMoving(c); }}
                       >
                         Mover
                       </Button>
@@ -614,17 +614,17 @@ export function GroupCards({
           component="form"
           onSubmit={(e: FormEvent) => {
             e.preventDefault();
-            if (!renameValue.trim() || renombrar.busy) return;
+            if (!renameValue.trim() || renameAction.busy) return;
             void renameGroup();
           }}
         >
-          <CampoPapel
+          <PaperField
             id="rename-group-input" label="Nombre"
             value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
           />
-          {renombrar.error && <Text c="var(--knd-shu-txt)" size="sm">{renombrar.error}</Text>}
-          <ModalActions onCancel={() => setRenameOpen(false)} busy={renombrar.busy}>
-            <Button type="submit" disabled={!renameValue.trim() || renombrar.busy} loading={renombrar.busy}>
+          {renameAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameAction.error}</Text>}
+          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameAction.busy}>
+            <Button type="submit" disabled={!renameValue.trim() || renameAction.busy} loading={renameAction.busy}>
               Guardar
             </Button>
           </ModalActions>
@@ -645,7 +645,7 @@ export function GroupCards({
               desaparece, que es lo que hay que leer antes de decidir. Los
               intentos de esa carta se borran con ella, así que la estadística
               cambia y el diálogo lo dice. */}
-          <Text className="knd-borrar-nota">
+          <Text className="knd-delete-note">
             {'Se va a borrar '}
             <b>{`«${deleting?.prompt ?? ''}»`}</b>
             {deleting?.meaning ? ` (${deleting.meaning})` : ''}
@@ -653,9 +653,9 @@ export function GroupCards({
             <b>intentos registrados</b>
             {'. No se puede deshacer.'}
           </Text>
-          {borrado.error && <Text c="var(--knd-shu-txt)" size="sm">{borrado.error}</Text>}
-          <ModalActions onCancel={() => setDeleting(null)} busy={borrado.busy}>
-            <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={borrado.busy}>
+          {deleteAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteAction.error}</Text>}
+          <ModalActions onCancel={() => setDeleting(null)} busy={deleteAction.busy}>
+            <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={deleteAction.busy}>
               Borrar la palabra
             </Button>
           </ModalActions>
@@ -669,8 +669,8 @@ export function GroupCards({
         title={<ModalTitle jp="移">Mover palabra</ModalTitle>}
       >
         {/* Una lista de opciones con su confirmación, no un botón por grupo
-            que mueve al tocarlo. Mover es una acción con destino: elegir el
-            destino y ejecutarla son dos pasos, y sin el segundo un toque mal
+            que mueve al tocarlo. Mover es una acción con target: elegir el
+            target y ejecutarla son dos pasos, y sin el segundo un toque mal
             dado movía la carta sin decir nada. Además así hay Cancelar, que
             antes no existía -salías por la ✕ o por Esc-. */}
         <Stack gap={10}>
@@ -683,17 +683,17 @@ export function GroupCards({
           </Text>
           {/* El grupo actual NO aparece. Estaba listado y deshabilitado, con un
               «· acá está» al lado, para decir dónde estabas parado; pero una
-              lista de destinos posibles no es el lugar para eso -el destino
-              que no se puede elegir no es un destino-, y el nombre del grupo
+              lista de destinos posibles no es el lugar para eso -el target
+              que no se puede elegir no es un target-, y el nombre del grupo
               ya está en la miga de arriba de la pantalla. */}
-          <Radio.Group value={destino === null ? '' : String(destino)} onChange={(v) => setDestino(Number(v))}>
+          <Radio.Group value={target === null ? '' : String(target)} onChange={(v) => setDestino(Number(v))}>
             <Stack gap={2}>
               {deck.groups.filter((g) => g.id !== group.id).map((g) => (
                 <Radio
                   key={g.id}
                   id={`move-to-${g.id}`}
                   value={String(g.id)}
-                  disabled={mover.busy}
+                  disabled={moveAction.busy}
                   className="knd-move-opt"
                   /* 16px, el preset más chico: el círculo del diseño mide 14 y
                      los 20 del default de Mantine, al lado de un nombre de
@@ -717,13 +717,13 @@ export function GroupCards({
               ))}
             </Stack>
           </Radio.Group>
-          {mover.error && <Text c="var(--knd-shu-txt)" size="sm">{mover.error}</Text>}
-          <ModalActions onCancel={() => setMoving(null)} busy={mover.busy}>
+          {moveAction.error && <Text c="var(--knd-shu-txt)" size="sm">{moveAction.error}</Text>}
+          <ModalActions onCancel={() => setMoving(null)} busy={moveAction.busy}>
             <Button
               id="confirm-move-card"
-              onClick={() => destino !== null && moveCard(destino)}
-              disabled={destino === null || mover.busy}
-              loading={mover.busy}
+              onClick={() => target !== null && moveCard(target)}
+              disabled={target === null || moveAction.busy}
+              loading={moveAction.busy}
             >
               Mover
             </Button>
@@ -738,8 +738,8 @@ export function GroupCards({
       <EditCardModal
         card={editCard}
         opened={editOpen}
-        busy={edicion.busy}
-        error={edicion.error}
+        busy={editAction.busy}
+        error={editAction.error}
         onClose={() => setEditOpen(false)}
         onSave={saveCard}
       />

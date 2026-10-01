@@ -15,8 +15,8 @@ import {
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
-import { RoundHeader, contextoDeRonda } from './RoundHeader';
-import { esTelefono } from '@/lib/client/pantalla';
+import { RoundHeader, roundContext } from './RoundHeader';
+import { isPhone } from '@/lib/client/screen';
 
 export type Round = StoredRound;
 
@@ -478,7 +478,7 @@ function QuizPlay({
   // "Hiragana · 6 grupos" del mockup. `deckName` falta en un repaso (sus
   // grupos pueden venir de mazos distintos, ver stored-round.ts) -ahí se
   // muestra sin el nombre del mazo en vez de "undefined · 6 grupos".
-  const contextLabel = contextoDeRonda(round.deckName, round.groupIds.length);
+  const contextLabel = roundContext(round.deckName, round.groupIds.length);
 
   // El mouse nunca es obligatorio en el quiz (comentario de arriba de
   // todo el archivo), pero clickear cualquier cosa que no sea un control
@@ -520,7 +520,7 @@ function QuizPlay({
     >
       <RoundHeader
         id="quiz-header" brandId="quiz-brand" nameId="quiz-app-name"
-        contexto={contextLabel}
+        context={contextLabel}
       />
 
       {/* Degradé radial sutil del mockup (`.quiz-stage`): hoy era un fondo
@@ -599,11 +599,11 @@ function QuizPlay({
            En escritorio no hace nada: ahí está el botón, y está la barra
            espaciadora. */
         onPointerDown={(e) => {
-          if (!esTelefono()) return;
+          if (!isPhone()) return;
           e.preventDefault();
         }}
         onClick={() => {
-          if (!esTelefono()) return;
+          if (!isPhone()) return;
           onReveal();
         }}
       >
@@ -725,7 +725,7 @@ function QuizPlay({
                   demás de este bloque, y sólo mientras está tapada: que se
                   vuelva a tocar para ocultar ya se deduce. */}
               {!flipped && (
-                <Text className="knd-tocar knd-solo-telefono">tocá la carta para revelar</Text>
+                <Text className="knd-tap-hint knd-phone-only">tocá la carta para revelar</Text>
               )}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
               {flash === 'wrong' && (

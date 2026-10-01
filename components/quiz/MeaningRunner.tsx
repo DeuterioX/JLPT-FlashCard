@@ -5,12 +5,12 @@ import { useRouter } from 'next/navigation';
 import { Box, Button, Group, Kbd, Paper, Progress, Stack, Text } from '@mantine/core';
 import { GenkoSheet } from './GenkoSheet';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { RoundHeader, contextoDeRonda } from './RoundHeader';
+import { RoundHeader, roundContext } from './RoundHeader';
 import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
 import {
   decideRoundStart, markRoundUsed, readUsedRound, type StoredRound,
 } from '@/lib/quiz/stored-round';
-import { esTelefono } from '@/lib/client/pantalla';
+import { isPhone } from '@/lib/client/screen';
 
 /**
  * Repaso de significados: la misma hoja del quiz, sin escribir.
@@ -39,13 +39,13 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   // la lista una vez y listo.
   const cards = round.cards;
   const [i, setI] = useState(0);
-  const [revelado, setRevelado] = useState(false);
-  const [sabidas, setSabidas] = useState(0);
-  const [noSabidas, setNoSabidas] = useState(0);
-  const [inicio] = useState(() => Date.now());
-  const [fin, setFin] = useState<number | null>(null);
+  const [revealed, setRevelado] = useState(false);
+  const [known, setSabidas] = useState(0);
+  const [unknown, setNoSabidas] = useState(0);
+  const [startedAt] = useState(() => Date.now());
+  const [endedAt, setFin] = useState<number | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
-  const desdeRef = useRef(Date.now());
+  const sinceRef = useRef(Date.now());
 
   const recorder = useMemo(() => {
     // La decisión de reusar la sesión o abrir una nueva sale de
@@ -53,12 +53,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
     // acá a mano, y la copia había perdido dos cosas: el `try/catch` sobre
     // `sessionStorage` -que en una ventana privada tira y se llevaba puesta
     // la pantalla entera- y el aviso de sesión caída.
-    const inicio = decideRoundStart(round, readUsedRound());
+    const startedAt = decideRoundStart(round, readUsedRound());
     markRoundUsed(round.sessionId);
     return createRoundRecorder({
       fetch: (...a) => fetch(...a),
-      ...(inicio.kind === 'reuse'
-        ? { sessionId: inicio.sessionId }
+      ...(startedAt.kind === 'reuse'
+        ? { sessionId: startedAt.sessionId }
         : { groupIds: round.groupIds }),
       // Sin esto, una sesión que no se puede abrir falla EN SILENCIO: el
       // recorder se queda en `failed`, tira el buffer y nadie se entera. O sea
@@ -73,25 +73,25 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   }, [round]);
 
   const card = cards[i];
-  const terminada = i >= cards.length;
-  const restantes = cards.length - i;
+  const finished = i >= cards.length;
+  const remaining = cards.length - i;
 
-  function calificar(supo: boolean) {
+  function grade(knewIt: boolean) {
     if (!card) return;
     recorder.record({
       cardId: card.id,
       // Sin nada tecleado y con la respuesta a la vista: `revealed` es lo que
       // separa «lo supe» de «lo adiviné escribiendo» al mirar las métricas.
       typed: '',
-      isCorrect: supo,
+      isCorrect: knewIt,
       revealed: true,
-      ms: Date.now() - desdeRef.current,
+      ms: Date.now() - sinceRef.current,
     });
-    if (supo) setSabidas((n) => n + 1); else setNoSabidas((n) => n + 1);
-    desdeRef.current = Date.now();
+    if (knewIt) setSabidas((n) => n + 1); else setNoSabidas((n) => n + 1);
+    sinceRef.current = Date.now();
     setRevelado(false);
     setI((n) => n + 1);
-    // La ronda se cierra ACÁ y no en un efecto que mire `terminada`: es un
+    // La ronda se cierra ACÁ y no en un efecto que mire `finished`: es un
     // manejador, no una sincronización con un sistema externo, y desde un
     // efecto React marca el `setState` como render en cascada. Además el
     // instante que interesa es el de la última calificación, no el del
@@ -105,23 +105,23 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') { router.replace('/'); return; }
-      if (terminada) return;
+      if (finished) return;
       if (e.key === ' ') { e.preventDefault(); setRevelado((v) => !v); return; }
       // 1 y 2 son la POSICIÓN de cada botón, no su respuesta: el 1 es el de
       // la izquierda, que es «La sabía».
-      if (e.key === '1') { e.preventDefault(); calificar(true); return; }
-      if (e.key === '2') { e.preventDefault(); calificar(false); }
+      if (e.key === '1') { e.preventDefault(); grade(true); return; }
+      if (e.key === '2') { e.preventDefault(); grade(false); }
     }
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  const contexto = contextoDeRonda(round.deckName, round.groupIds.length);
-  const progreso = cards.length === 0 ? 0 : (i / cards.length) * 100;
+  const context = roundContext(round.deckName, round.groupIds.length);
+  const progress = cards.length === 0 ? 0 : (i / cards.length) * 100;
 
   return (
     <Box style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
-      <RoundHeader id="meaning-header" contexto={contexto} teclaSoloEscritorio />
+      <RoundHeader id="meaning-header" context={context} keyDesktopOnly />
 
       <Box
         id="meaning-stage"
@@ -135,8 +135,8 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
            esconde y el toque sobre la carta muestra y tapa el significado.
            Sigue siendo un interruptor, como el botón que reemplaza. */
         onClick={() => {
-          if (terminada) return;
-          if (!esTelefono()) return;
+          if (finished) return;
+          if (!isPhone()) return;
           setRevelado((v) => !v);
         }}
       >
@@ -158,7 +158,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
                 antes de que la pidas. */}
             <Stack
               className="knd-meaning-slot" gap={2} align="center" justify="center"
-              data-oculto={!revelado || undefined}
+              data-oculto={!revealed || undefined}
             >
               <Text id="meaning-reading" className="romaji knd-meaning-reading" c="dimmed">
                 {card.primary}
@@ -180,15 +180,15 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
                 nada, y `visibility` igual la saca del árbol de accesibilidad,
                 que es lo que importa para que no se lea una instrucción que ya
                 no aplica. */}
-            <Text className="knd-tocar knd-solo-telefono" data-oculto={revelado || undefined}>
+            <Text className="knd-tap-hint knd-phone-only" data-oculto={revealed || undefined}>
               tocá la carta para revelar
             </Text>
           </>
         )}
-        {terminada && (
+        {finished && (
           <RoundSummary
-            state={{ queue: [], correct: sabidas, incorrect: noSabidas, revealedCurrent: false }}
-            elapsedMs={(fin ?? Date.now()) - inicio}
+            state={{ queue: [], correct: known, incorrect: unknown, revealedCurrent: false }}
+            elapsedMs={(endedAt ?? Date.now()) - startedAt}
             mode="meaning"
             misses={[] as MissEntry[]}
           />
@@ -201,12 +201,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
         </Text>
       )}
 
-      <Progress id="meaning-progress" value={progreso} size="xs" radius={0} />
+      <Progress id="meaning-progress" value={progress} size="xs" radius={0} />
 
       <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
         <Box className="knd-meaning-footer">
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
-            {[['Sabidas', sabidas, false], ['Restantes', restantes, false], ['No sabidas', noSabidas, true]]
+            {[['Sabidas', known, false], ['Restantes', remaining, false], ['No known', unknown, true]]
               .map(([lab, val, mal]) => (
                 <Box key={lab as string} className="knd-quiz-metric">
                   <Text className="knd-quiz-metric-label">{lab as string}</Text>
@@ -228,27 +228,27 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
               tiene que ser ése. El destructivo-ish queda segundo, igual que
               Cancelar antes de la acción en los modales. */}
           <Group className="knd-meaning-actions" gap="xs" wrap="nowrap">
-            <Kbd className="knd-solo-escritorio">1</Kbd>
-            <Button id="meaning-si" onClick={() => calificar(true)} disabled={terminada}>
+            <Kbd className="knd-desktop-only">1</Kbd>
+            <Button id="meaning-si" onClick={() => grade(true)} disabled={finished}>
               La sabía
             </Button>
-            <Kbd className="knd-solo-escritorio">2</Kbd>
+            <Kbd className="knd-desktop-only">2</Kbd>
             <Button
-              id="meaning-no" color="shu" onClick={() => calificar(false)}
-              disabled={terminada}
+              id="meaning-no" color="shu" onClick={() => grade(false)}
+              disabled={finished}
             >
               No la sabía
             </Button>
           </Group>
 
           <Group className="knd-meaning-reveal" gap="xs" wrap="nowrap">
-            <Kbd className="knd-solo-escritorio">Espacio</Kbd>
+            <Kbd className="knd-desktop-only">Espacio</Kbd>
             <Button
               id="meaning-reveal" variant="default"
               onClick={() => setRevelado((v) => !v)}
-              disabled={terminada}
+              disabled={finished}
             >
-              {revelado ? 'Ocultar' : 'Revelar'}
+              {revealed ? 'Ocultar' : 'Revelar'}
             </Button>
           </Group>
         </Box>

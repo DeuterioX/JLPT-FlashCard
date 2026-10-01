@@ -6,7 +6,7 @@ import {
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
-import { esTelefono } from '@/lib/client/pantalla';
+import { isPhone } from '@/lib/client/screen';
 
 /**
  * Fila con acciones por gesto, sólo en teléfono. La usan las tres listas:
@@ -116,21 +116,21 @@ export function SwipeRow({
    * quedara arriba siempre se comería los toques de esa franja de la fila
    * cerrada, que es justo donde está el nombre.
    */
-  function marcarAbierto(lado: 'lead' | 'trail' | null) {
+  function markOpen(side: 'lead' | 'trail' | null) {
     const el = rootRef.current;
     if (!el) return;
-    if (lado) el.dataset.open = lado;
+    if (side) el.dataset.open = side;
     else delete el.dataset.open;
   }
 
   function close() {
     state.current.base = 0;
-    marcarAbierto(null);
+    markOpen(null);
     setX(0, true);
   }
 
   function onPointerDown(e: ReactPointerEvent<HTMLDivElement>) {
-    if (!esTelefono()) return;
+    if (!isPhone()) return;
     const el = frontRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
@@ -145,7 +145,7 @@ export function SwipeRow({
     // panel que quedó abierto de un lado se queda por encima de la cara
     // mientras arrastrás para el OTRO lado, y entonces se ven los dos a la vez
     // -Renombrar de un lado y Borrar del otro-. Pasó de verdad.
-    marcarAbierto(null);
+    markOpen(null);
     el.setPointerCapture(e.pointerId);
   }
 
@@ -180,7 +180,7 @@ export function SwipeRow({
     const openRight = !!leading && s.dx > max * OPEN_RATIO;
     const openLeft = !!trailing && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
-    marcarAbierto(openRight ? 'lead' : (openLeft ? 'trail' : null));
+    markOpen(openRight ? 'lead' : (openLeft ? 'trail' : null));
     setX(s.base, true);
   }
 

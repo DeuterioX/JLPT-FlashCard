@@ -7,7 +7,7 @@ import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { SELECTION_COOKIE, serializeSelection } from '@/lib/selection-cookie';
 import { errorFrom } from '@/lib/client/errors';
-import { useAccion } from '@/lib/client/accion';
+import { useAction } from '@/lib/client/action';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { DeckSummary } from '@/lib/services/decks';
 
@@ -20,15 +20,15 @@ export function PracticeBoard({
   const [pending, start] = useTransition();
   const [deckId, setDeckId] = useState(String(decks[0]?.id ?? ''));
   const [selected, setSelected] = useState(new Set(initialSelection));
-  // El `busy` de `useAccion` cubre el tramo del fetch en sí: `pending` (de
+  // El `busy` de `useAction` cubre el tramo del fetch en sí: `pending` (de
   // useTransition) sólo se prende durante el `router.push` posterior, así que
   // sin él el botón quedaba clickeable mientras la request estaba en vuelo y
   // un doble tap abría dos sesiones.
   //
-  // `retenerAlLograr`: en el camino feliz la guarda queda tomada a propósito,
+  // `keepLockedOnSuccess`: en el camino feliz la guarda queda tomada a propósito,
   // porque el componente sigue montado mientras navega y un segundo tap
   // abriría otra sesión. Se desmonta al llegar a /quiz.
-  const ronda = useAccion({ retenerAlLograr: true });
+  const roundAction = useAction({ keepLockedOnSuccess: true });
 
   // `position: fixed`, no `sticky`: un sticky puesto en su posición final
   // desde el principio necesita márgenes negativos para "adelantarse" al
@@ -75,7 +75,7 @@ export function PracticeBoard({
 
   function persist(next: Set<number>) {
     setSelected(next);
-    ronda.setError(null);
+    roundAction.setError(null);
     // Un año. La lee el servidor en el próximo render: sin parpadeo.
     document.cookie =
       `${SELECTION_COOKIE}=${serializeSelection([...next])}; path=/; max-age=31536000; samesite=lax`;
@@ -106,7 +106,7 @@ export function PracticeBoard({
   // preguntar qué quiere decir あ no significa nada.
   const meaningCount = chosen.reduce((n, g) => n + g.meaningCount, 0);
 
-  const begin = (mode: 'normal' | 'meaning' = 'normal') => ronda.correr(async () => {
+  const begin = (mode: 'normal' | 'meaning' = 'normal') => roundAction.run(async () => {
     const res = await fetch('/api/sessions', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
@@ -239,9 +239,9 @@ export function PracticeBoard({
             <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
             <Text component="span" size={rem(13)} c="dimmed">cartas</Text>
           </Group>
-          {ronda.error && (
+          {roundAction.error && (
             <Text size="sm" c="var(--knd-shu-txt)">
-              {ronda.error}
+              {roundAction.error}
             </Text>
           )}
           {/* Los dos verbos con los que arranca una ronda. El modo no es un
@@ -249,13 +249,13 @@ export function PracticeBoard({
               ronda se trata. «Significados» se apaga cuando ninguna de las
               cartas elegidas tiene uno -un mazo de kana entero-, con el
               motivo en el `title`. */}
-          <Box className="knd-verbos">
+          <Box className="knd-verbs">
             <Button
               id="begin-meaning-btn"
               variant="default"
               onClick={() => begin('meaning')}
-              loading={ronda.busy || pending}
-              disabled={chosen.length === 0 || meaningCount === 0 || ronda.busy || pending}
+              loading={roundAction.busy || pending}
+              disabled={chosen.length === 0 || meaningCount === 0 || roundAction.busy || pending}
               title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
             >
               Significados ➜
@@ -263,8 +263,8 @@ export function PracticeBoard({
             <Button
               id="begin-round-btn"
               onClick={() => begin('normal')}
-              loading={ronda.busy || pending}
-              disabled={chosen.length === 0 || ronda.busy || pending}
+              loading={roundAction.busy || pending}
+              disabled={chosen.length === 0 || roundAction.busy || pending}
             >
               Escribir ➜
             </Button>
