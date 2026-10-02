@@ -434,6 +434,15 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   }
   .knd-swipe-trail button { color: #f7f3ea; }
 
+  /* La cara termina donde empieza el filete, no pasa por debajo de él. Si
+     pasara, su borde quedaría 3px adentro del panel, y con zoom ese borde cae
+     en una fracción de pixel y se cuela a través del panel aunque sea opaco y
+     esté encima: una raya oscura dentro del rojo. Confirmado escondiendo la
+     cara: sin ella el panel es liso. Así su borde coincide con el del panel,
+     que es un cambio de color que tiene que estar ahí igual. Sólo del lado
+     que tiene panel; el panel va antes que la cara en el DOM. */
+  .knd-swipe-lead ~ .knd-swipe-front { margin-left: 3px; }
+  .knd-swipe-trail ~ .knd-swipe-front { margin-right: 3px; }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */
