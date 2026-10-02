@@ -10,18 +10,15 @@ import { Paper, Stack, Text } from '@mantine/core';
  * propia letra.
  */
 export function MetricTile({
-  id, label, value, hint, tone = 'normal', color,
+  id, label, value, hint, color,
 }: {
   id?: string;
   label: string;
   value: string | number;
   hint?: string;
-  tone?: 'normal' | 'bad';
   /**
-   * El color de la cifra, cuando lo decide el dato y no la tile. Lo usa
-   * Aciertos, que en el diseño va en el semáforo -verde, ámbar o rojo según el
-   * porcentaje- igual que las barras de los paneles de abajo: la tile más
-   * importante de la pantalla era la única sin decir nada con su color.
+   * El color de la cifra, cuando la cifra dice algo con él: Aciertos va en el
+   * semáforo según el porcentaje, y Errores siempre en rojo.
    */
   color?: string;
 }) {
@@ -38,7 +35,7 @@ export function MetricTile({
         <Text size="0.5625rem" lh={1.4} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.06em' }}>
           {label}
         </Text>
-        <Text size="1.3125rem" lh={1.25} fw={600} className="tabular" c={color ?? (tone === 'bad' ? 'var(--knd-shu-txt)' : undefined)}>
+        <Text size="1.3125rem" lh={1.25} fw={600} className="tabular" c={color}>
           {value}
         </Text>
         {hint && <Text size="0.65625rem" lh={1.4} c="dark.3">{hint}</Text>}

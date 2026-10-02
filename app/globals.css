@@ -520,8 +520,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      fila del mazo propio -el único con algo que borrar- le dejaba al nombre y
      al subtítulo 150 de 390px, partía el subtítulo en cuatro líneas con
      «Borrar» flotando en el medio y crecía de 71 a 88px de alto. */
-  .knd-deck-actions,
-  .knd-group-actions { display: none; }
+  .knd-row-actions { display: none; }
 }
 
 /* Aviso de error del quiz (`.toast` del mockup): posición absoluta,

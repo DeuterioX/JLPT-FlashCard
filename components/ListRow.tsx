@@ -1,16 +1,10 @@
 import { Group, Stack, Text, Box, rem } from '@mantine/core';
 
 export function ListRow({
-  icon, title, subtitle, actions, actionsClassName, onClick,
+  icon, title, subtitle, actions, onClick,
 }: {
   icon?: React.ReactNode; title: React.ReactNode;
   subtitle?: string; actions?: React.ReactNode;
-  /**
-   * Para esconder las acciones en teléfono cuando esa lista las ofrece por
-   * gesto. El nombre de la clase lo pone quien usa la fila, no ésta: cada
-   * lista tiene la suya y las reglas viven juntas en globals.css.
-   */
-  actionsClassName?: string;
   /** Acción principal de la fila: se dispara al tocarla en cualquier parte. */
   onClick?: () => void;
 }) {
@@ -40,7 +34,7 @@ export function ListRow({
         {subtitle && <Text size={rem(11)} lh={1.45} c="dark.3">{subtitle}</Text>}
       </Stack>
       {/* 5px entre acciones (`.acts`), no el `xs` de 10. */}
-      {actions && <Group className={actionsClassName} gap={5} wrap="nowrap">{actions}</Group>}
+      {actions && <Group className="knd-row-actions" gap={5} wrap="nowrap">{actions}</Group>}
     </Group>
   );
 }

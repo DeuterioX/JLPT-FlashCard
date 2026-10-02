@@ -161,7 +161,7 @@ export function StatsBoard({
           {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
               sí les da, así que quedaban truncadas al lado de las otras dos.
               Las dos dependen del rango elegido, no de un "30 días" fijo. */}
-          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} tone="bad"
+          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} color="var(--knd-shu-txt)"
             hint={rangeDays === null ? 'en total' : `en ${rangeLabel}`} />
           <MetricTile id="stat-rounds" label="Rondas" value={o.rounds}
             hint={roundsPerDay ?? undefined} />

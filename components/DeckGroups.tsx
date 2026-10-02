@@ -171,7 +171,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
                   </Text>
                 </Stack>
-                <Group className="knd-group-actions" gap={5} wrap="nowrap">
+                <Group className="knd-row-actions" gap={5} wrap="nowrap">
                   {/* El último grupo no se borra: una carta siempre pertenece a
                       uno, así que el mazo necesita al menos uno. */}
                   {!readOnly && (

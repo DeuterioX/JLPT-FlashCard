@@ -165,7 +165,6 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                   </>
                 }
                 subtitle={subtitleFor(d)}
-                actionsClassName="knd-deck-actions"
                 actions={
                   <>
                     {/* Los incluidos no muestran Borrar: eso ya dice que no se pueden borrar. */}
