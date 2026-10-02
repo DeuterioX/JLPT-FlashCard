@@ -1,0 +1,111 @@
+@media (hover: hover) {
+  /* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
+       contenedor, así que el hover va ahí. */
+    .swipeFront.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+}
+
+/* Fila con acciones por gesto (ver SwipeRow.tsx). Los paneles
+   y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
+   como el resto de las listas de la app, así que acá no hay nada que
+   descubrir. Mismo patrón de dos variantes en el DOM que ya usan
+   `.knd-nav-desktop`/`.knd-nav-mobile`, sin `useMediaQuery`. */
+.swipeRow { position: relative; overflow: hidden; }
+
+.swipeSide { display: none; }
+
+.swipeFront { position: relative; background: var(--mantine-color-dark-6); }
+
+@media (max-width: 767.9px) {
+  /* El panel vive AFUERA de la fila, pegado a su borde del lado de afuera, y
+       entra junto con ella cuando se corre: la fila es más ancha que la
+       pantalla y el `overflow: hidden` recorta lo que sobra.
+  
+       Antes vivía DEBAJO y la fila sólo lo tapaba. Con zoom el borde de la fila
+       cae en una fracción de pixel y el panel asomaba por la costura, como una
+       raya verde y una roja; y al arrastrar, el nombre -que se queda quieto- se
+       pintaba encima del panel. Afuera no hay nada que asome, y al estar por
+       encima el panel tapa el nombre al entrar. El recorte también corta los
+       toques: cerrado, un panel no se come ninguno. */
+    .swipeSide {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      /* El botón (6rem) más el filete (3px): un solo contenedor con un solo
+         fondo, ver el filete más abajo. */
+      width: calc(6rem + 3px);
+      display: grid;
+      place-items: center;
+      /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
+         queda quieto (`.knd-swipe-pin`), en vez de quedar tapado por él. */
+      z-index: 2;
+      /* Se mueve con la fila: mismo desplazamiento y misma animación, que
+         `SwipeRow` publica en estas dos variables. */
+      transform: translateX(var(--knd-swipe-x, 0px));
+      transition: var(--knd-swipe-anim, none);
+    }
+}
+
+@media (max-width: 767.9px) {
+  /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
+       izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
+       pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
+       dos grises de la escala con la palabra coloreada, y eso rompía la promesa
+       del filete: el borde anuncia rojo y lo que aparecía detrás era gris. */
+    .swipeLead {
+      right: calc(100% - 3px);
+      padding-right: 3px;
+      background: var(--mantine-color-jade-6);
+    }
+}
+
+@media (max-width: 767.9px) {
+  /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
+       Safari. */
+    .swipeTrail {
+      left: calc(100% - 3px);
+      padding-left: 3px;
+      background: var(--mantine-color-shu-6);
+    }
+}
+
+@media (max-width: 767.9px) {
+  .swipeSide button {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font: 600 0.75rem var(--mantine-font-family);
+      color: var(--knd-verde-ink);
+    }
+}
+
+@media (max-width: 767.9px) {
+  .swipeTrail button { color: #f7f3ea; }
+}
+
+@media (max-width: 767.9px) {
+  /* La cara termina donde empieza el filete, no pasa por debajo de él. Si
+       pasara, su borde quedaría 3px adentro del panel, y con zoom ese borde cae
+       en una fracción de pixel y se cuela a través del panel aunque sea opaco y
+       esté encima: una raya oscura dentro del rojo. Confirmado escondiendo la
+       cara: sin ella el panel es liso. Así su borde coincide con el del panel,
+       que es un cambio de color que tiene que estar ahí igual. Sólo del lado
+       que tiene panel; el panel va antes que la cara en el DOM. */
+    .swipeLead ~ .swipeFront { margin-left: 3px; }
+}
+
+@media (max-width: 767.9px) {
+  .swipeTrail ~ .swipeFront { margin-right: 3px; }
+}
+
+@media (max-width: 767.9px) {
+  .swipeFront {
+      /* `pan-y` le deja el scroll vertical al navegador y nos deja el
+         horizontal; sin esto el swipe pelea con el scroll de la lista. */
+      touch-action: pan-y;
+      /* Sin esto el arrastre selecciona el texto de la fila. */
+      user-select: none;
+      -webkit-user-select: none;
+    }
+}

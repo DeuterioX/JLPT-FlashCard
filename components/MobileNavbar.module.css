@@ -1,0 +1,65 @@
+/* La barra de pantalla en teléfono (`MobileNavbar`). En escritorio no existe:
+   ahí manda la miga, que vive en el contenido y tiene ancho de sobra.
+
+   Cuál de las dos se ve cuelga de `[data-phone]` -el user-agent, decidido en
+   el servidor- y NO del ancho de la ventana, por la misma razón que la barra
+   de pestañas: las dos son NAVEGACIÓN, y las dos tienen que contestar lo
+   mismo. Mientras ésta miraba el ancho y aquélla el user-agent, una ventana
+   de laptop angosta caía en el hueco entre las dos: esta barra se prendía,
+   apagaba la del AppShell, y la de pestañas no existía porque el user-agent
+   decía escritorio. Resultado medido a 500px: la pantalla sin ninguna
+   navegación.
+
+   Con `display: none` y no con `visibility` ni `opacity`, porque `display:
+   none` sí saca el elemento del árbol de accesibilidad: si no, un lector de
+   pantalla anunciaría la misma navegación dos veces. */
+.mobileNavbar { display: none; }
+
+:root[data-phone] {
+  .mobileNavbar {
+      display: flex;
+      align-items: center;
+      /* OCUPA el lugar de la barra de la app, no se suma a ella: misma
+         altura y mismo fondo, y la de la app se apaga. Así los 46px que gastaba
+         la miga vuelven al contenido en vez de sumar una segunda barra. Es la
+         franja de arriba de `Screen`, fuera de lo que scrollea. */
+      height: 3rem;
+      padding-inline: var(--mantine-spacing-md);
+      background: var(--mantine-color-dark-6);
+      border-bottom: 1px solid var(--mantine-color-dark-4);
+    }
+}
+
+:root[data-phone] {
+  /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.
+       Práctica y Estadísticas no tienen `MobileNavbar`, así que conservan la
+       marca y el nombre de la app. */
+    body:has(.mobileNavbar) :global(#app-header) { display: none; }
+}
+
+:root[data-phone] {
+  .navbarBack {
+      display: grid;
+      place-items: center;
+      width: 1.875rem;
+      height: 1.875rem;
+      flex: none;
+      border: 1px solid var(--mantine-color-dark-4);
+      border-radius: 7px;
+      background: var(--mantine-color-dark-5);
+      color: var(--mantine-color-text);
+    }
+}
+
+:root[data-phone] {
+  .navbarTitle {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+}
+
+:root[data-phone] {
+  .navbarAction { margin-left: auto; flex: none; }
+}

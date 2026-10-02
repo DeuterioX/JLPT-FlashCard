@@ -273,9 +273,6 @@ body { margin: 0; }
    feedback del toque ya lo da la navegación misma. */
 @media (hover: hover) {
   .knd-row-tap:hover { background: var(--mantine-color-dark-5); }
-  /* En la fila con gestos el fondo lo pinta la cara que se desliza, no el
-     contenedor, así que el hover va ahí. */
-  .knd-swipe-front.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
 }
 
 /* Fila del encabezado de sección: el label más lo que lo acompañe. El alto
@@ -289,88 +286,7 @@ body { margin: 0; }
   min-height: 1.625rem;
 }
 
-/* Fila con acciones por gesto (ver SwipeRow.tsx). Los paneles
-   y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
-   como el resto de las listas de la app, así que acá no hay nada que
-   descubrir. Mismo patrón de dos variantes en el DOM que ya usan
-   `.knd-nav-desktop`/`.knd-nav-mobile`, sin `useMediaQuery`. */
-.knd-swipe-row { position: relative; overflow: hidden; }
-.knd-swipe-side { display: none; }
-.knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
-
 @media (max-width: 767.9px) {
-  /* El panel vive AFUERA de la fila, pegado a su borde del lado de afuera, y
-     entra junto con ella cuando se corre: la fila es más ancha que la
-     pantalla y el `overflow: hidden` recorta lo que sobra.
-
-     Antes vivía DEBAJO y la fila sólo lo tapaba. Con zoom el borde de la fila
-     cae en una fracción de pixel y el panel asomaba por la costura, como una
-     raya verde y una roja; y al arrastrar, el nombre -que se queda quieto- se
-     pintaba encima del panel. Afuera no hay nada que asome, y al estar por
-     encima el panel tapa el nombre al entrar. El recorte también corta los
-     toques: cerrado, un panel no se come ninguno. */
-  .knd-swipe-side {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    /* El botón (6rem) más el filete (3px): un solo contenedor con un solo
-       fondo, ver el filete más abajo. */
-    width: calc(6rem + 3px);
-    display: grid;
-    place-items: center;
-    /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
-       queda quieto (`.knd-swipe-pin`), en vez de quedar tapado por él. */
-    z-index: 2;
-    /* Se mueve con la fila: mismo desplazamiento y misma animación, que
-       `SwipeRow` publica en estas dos variables. */
-    transform: translateX(var(--knd-swipe-x, 0px));
-    transition: var(--knd-swipe-anim, none);
-  }
-  /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
-     izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
-     pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
-     dos grises de la escala con la palabra coloreada, y eso rompía la promesa
-     del filete: el borde anuncia rojo y lo que aparecía detrás era gris. */
-  .knd-swipe-lead {
-    right: calc(100% - 3px);
-    padding-right: 3px;
-    background: var(--mantine-color-jade-6);
-  }
-  /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
-     Safari. */
-  .knd-swipe-trail {
-    left: calc(100% - 3px);
-    padding-left: 3px;
-    background: var(--mantine-color-shu-6);
-  }
-  .knd-swipe-side button {
-    width: 100%;
-    height: 100%;
-    border: none;
-    background: none;
-    cursor: pointer;
-    font: 600 0.75rem var(--mantine-font-family);
-    color: var(--knd-verde-ink);
-  }
-  .knd-swipe-trail button { color: #f7f3ea; }
-
-  /* La cara termina donde empieza el filete, no pasa por debajo de él. Si
-     pasara, su borde quedaría 3px adentro del panel, y con zoom ese borde cae
-     en una fracción de pixel y se cuela a través del panel aunque sea opaco y
-     esté encima: una raya oscura dentro del rojo. Confirmado escondiendo la
-     cara: sin ella el panel es liso. Así su borde coincide con el del panel,
-     que es un cambio de color que tiene que estar ahí igual. Sólo del lado
-     que tiene panel; el panel va antes que la cara en el DOM. */
-  .knd-swipe-lead ~ .knd-swipe-front { margin-left: 3px; }
-  .knd-swipe-trail ~ .knd-swipe-front { margin-right: 3px; }
-  .knd-swipe-front {
-    /* `pan-y` le deja el scroll vertical al navegador y nos deja el
-       horizontal; sin esto el swipe pelea con el scroll de la lista. */
-    touch-action: pan-y;
-    /* Sin esto el arrastre selecciona el texto de la fila. */
-    user-select: none;
-    -webkit-user-select: none;
-  }
   /* El filete que anuncia el gesto: 3px pegados al borde de la fila, de punta
      a punta, sin retiro y sin radio.
 
@@ -657,53 +573,10 @@ body { margin: 0; }
 @media (min-width: 3200px) {
 }
 
-/* Editor de mazo: columna de grupos en escritorio, tira horizontal en
-   teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
-   bloques se renderizan siempre y CSS puro decide cuál se ve, para no
-   depender de `useMediaQuery` y su desincronización servidor/cliente. */
-
-/* Scroll horizontal sin la barra nativa a la vista -se puede seguir
-   scrolleando con el dedo o la rueda, solo se esconde el widget-. La
-   comparten esta tira, el selector de mazos de Práctica y las métricas
-   del quiz cuando no entran completas (ver el grid de `.knd-quiz-footer`). */
-.knd-deck-switcher,
-.knd-quiz-metrics {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Edge legado */
-}
-.knd-deck-switcher::-webkit-scrollbar,
-.knd-quiz-metrics::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
-}
-
 @media (max-width: 767.9px) {
 }
 
-/* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único
-   contenedor. En el documento fluyen en orden -rango, tiles, botón-, que en
-   una pantalla angosta es exactamente lo que hace falta (botón debajo de
-   las tiles, a lo ancho completo). En escritorio, CSS Grid los reacomoda a
-   como está en el diseño (rango y botón en la misma fila, tiles debajo),
-   sin duplicar ni esconder nada. */
-.knd-stats-top {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-md);
-}
-.knd-review-btn { width: 100%; }
-
 @media (min-width: 768px) {
-  .knd-stats-top {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    grid-template-areas: "range review" "tiles tiles";
-    align-items: start;
-    column-gap: var(--mantine-spacing-md);
-  }
-  .knd-stats-range { grid-area: range; }
-  .knd-stats-tiles { grid-area: tiles; }
-  .knd-stats-review { grid-area: review; }
-  .knd-review-btn { width: auto; }
 }
 
 /* `.formgrid` del diseño: Kana, Romaji, Significado y el botón en cuatro
@@ -1063,61 +936,7 @@ input:-webkit-autofill:active {
 @media (max-width: 767.9px) {
 }
 
-/* La barra de pantalla en teléfono (`MobileNavbar`). En escritorio no existe:
-   ahí manda la miga, que vive en el contenido y tiene ancho de sobra.
-
-   Cuál de las dos se ve cuelga de `[data-phone]` -el user-agent, decidido en
-   el servidor- y NO del ancho de la ventana, por la misma razón que la barra
-   de pestañas: las dos son NAVEGACIÓN, y las dos tienen que contestar lo
-   mismo. Mientras ésta miraba el ancho y aquélla el user-agent, una ventana
-   de laptop angosta caía en el hueco entre las dos: esta barra se prendía,
-   apagaba la del AppShell, y la de pestañas no existía porque el user-agent
-   decía escritorio. Resultado medido a 500px: la pantalla sin ninguna
-   navegación.
-
-   Con `display: none` y no con `visibility` ni `opacity`, porque `display:
-   none` sí saca el elemento del árbol de accesibilidad: si no, un lector de
-   pantalla anunciaría la misma navegación dos veces. */
-.knd-mobile-navbar { display: none; }
-
 :root[data-phone] {
-
-  .knd-mobile-navbar {
-    display: flex;
-    align-items: center;
-    /* OCUPA el lugar de la barra de la app, no se suma a ella: misma
-       altura y mismo fondo, y la de la app se apaga. Así los 46px que gastaba
-       la miga vuelven al contenido en vez de sumar una segunda barra. Es la
-       franja de arriba de `Screen`, fuera de lo que scrollea. */
-    height: 3rem;
-    padding-inline: var(--mantine-spacing-md);
-    background: var(--mantine-color-dark-6);
-    border-bottom: 1px solid var(--mantine-color-dark-4);
-  }
-
-  /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.
-     Práctica y Estadísticas no tienen `MobileNavbar`, así que conservan la
-     marca y el nombre de la app. */
-  body:has(.knd-mobile-navbar) #app-header { display: none; }
-
-  .knd-navbar-back {
-    display: grid;
-    place-items: center;
-    width: 1.875rem;
-    height: 1.875rem;
-    flex: none;
-    border: 1px solid var(--mantine-color-dark-4);
-    border-radius: 7px;
-    background: var(--mantine-color-dark-5);
-    color: var(--mantine-color-text);
-  }
-  .knd-navbar-title {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .knd-navbar-action { margin-left: auto; flex: none; }
 }
 
 /* El buscador del diccionario, en el encabezado del panel de «nueva
@@ -1256,26 +1075,7 @@ input:-webkit-autofill:active {
    arriba; de 800px para arriba, los de escritorio del diseño. */
 @media (min-width: 800px) {
 }
-
-/* La pantalla de Significados (ver MeaningRunner.tsx). */
-
-/* El hueco del significado, reservado también sin revelar: si apareciera de
-   la nada, la hoja saltaría hacia arriba al revelar. */
-.knd-meaning-slot {
-  min-height: 4rem;
-}
-
-/* Los tamaños del canvas, explícitos y no por `clamp`: 13/21px en teléfono y
-   15/30px en escritorio. Antes el significado salía de un `clamp` con `cqh`
-   adentro y se quedaba en el piso -17px- en cuanto el contenedor no le daba
-   una altura de la que calcular, así que la respuesta -que es LO QUE hay que
-   leer en esta pantalla- terminaba más chica que el kana de una fila de
-   lista. */
-.knd-meaning-reading { font-size: 0.8125rem; }
-.knd-meaning-answer { font-size: 1.3125rem; line-height: 1.25; }
 @media (min-width: 768px) {
-  .knd-meaning-reading { font-size: 0.9375rem; }
-  .knd-meaning-answer { font-size: 1.875rem; }
 }
 
 /* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
@@ -1290,20 +1090,8 @@ input:-webkit-autofill:active {
   from { opacity: 0; transform: translateY(0.5rem); }
   to { opacity: 1; transform: none; }
 }
-/* La animación corre cuando el hueco pasa a estar VISIBLE, no al montarse: la
-   respuesta está montada todo el tiempo -ver el comentario en
-   MeaningRunner.tsx- así que atarla al montaje la dispararía una sola vez, al
-   entrar a la carta. Colgada del estado del hueco, arranca en cada revelado. */
-.knd-meaning-slot[data-oculto] { visibility: hidden; }
-.knd-meaning-slot:not([data-oculto]) .knd-meaning-reading,
-.knd-meaning-slot:not([data-oculto]) .knd-meaning-answer {
-  animation: knd-revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
-}
-.knd-meaning-slot:not([data-oculto]) .knd-meaning-answer { animation-delay: 70ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .knd-meaning-slot .knd-meaning-reading,
-  .knd-meaning-slot .knd-meaning-answer { animation: none; }
 }
 
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
@@ -1311,17 +1099,6 @@ input:-webkit-autofill:active {
 @media (max-width: 767.9px) {
   .knd-desktop-only { display: none; }
 }
-
-/* El pie: las métricas a la izquierda, la calificación en el centro y el
-   interruptor de revelar a la derecha, que es la misma ranura donde el quiz
-   pone su Revelar. En teléfono los tres bloques se apilan en dos filas. */
-.knd-meaning-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--mantine-spacing-sm);
-}
-.knd-meaning-actions { flex: 1; justify-content: center; }
 /* En teléfono los tres botones van en UNA fila, repartidos en partes iguales y
    a ancho completo, con el cuadro de cifras arriba: es el pie de 118px del
    diseño. Antes «No la sabía» y «La sabía» iban juntos por un lado y «Revelar»
@@ -1335,54 +1112,8 @@ input:-webkit-autofill:active {
    teléfono están en `display: none` -no hay teclado físico que apretar-, así
    que no ocupan celda. */
 @media (max-width: 767.9px) {
-  .knd-meaning-footer {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 0.75rem 0.5rem;
-    align-items: center;
-  }
-  .knd-meaning-footer > .knd-quiz-metrics {
-    grid-column: 1 / -1;
-    justify-self: center;
-  }
-  .knd-meaning-actions,
-  .knd-meaning-reveal { display: contents; }
 }
 @media (min-width: 768px) {
-  .knd-meaning-footer {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
-  .knd-meaning-footer > .knd-quiz-metrics { justify-self: start; }
-  .knd-meaning-actions { justify-self: center; }
-  .knd-meaning-reveal { justify-self: end; }
-}
-
-/* Los dos verbos con los que arranca una ronda, soldados en un solo control
-   (ver PracticeBoard).
-
-   Sueltos con un hueco se leen como dos acciones que no tienen nada que ver;
-   juntos dicen que son la misma decisión con dos salidas. El radio vive en el
-   contenedor -con `overflow: hidden` las esquinas de adentro salen rectas
-   solas- y la costura es un borde izquierdo en la segunda mitad. */
-.knd-verbs {
-  display: inline-flex;
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--mantine-radius-sm);
-  overflow: hidden;
-  flex: none;
-}
-/* Cada mitad pierde su propio marco: el del grupo es el único. La regla de
-   `:disabled` de más arriba le devuelve un borde a los botones apagados, y
-   adentro del grupo eso dibujaría una línea de más. */
-.knd-verbs .mantine-Button-root,
-.knd-verbs .mantine-Button-root:disabled:not([data-loading]),
-.knd-verbs .mantine-Button-root[data-disabled]:not([data-loading]) {
-  border: 0;
-  border-radius: 0;
-}
-.knd-verbs .mantine-Button-root + .mantine-Button-root {
-  border-left: 1px solid var(--mantine-color-dark-4);
 }
 
 /* ------------------------------------------------------------------ campos */
@@ -1489,48 +1220,8 @@ input:-webkit-autofill:active {
    apilado-, y el motivo es de ancho: en 390px el conteo y los dos verbos en
    una sola fila parten «4 grupos · 20 cartas» en dos renglones. */
 @media (max-width: 767.9px) {
-  /* El control soldado pasa a ocupar el ancho, con las dos mitades repartidas
-     en partes iguales (`ancho_total` de `botones_juntos`). Un control de dos
-     verbos centrado en una pantalla angosta deja dos huecos muertos a los
-     costados y encima hace los blancos más chicos de lo necesario. */
-  /* Grilla de dos pistas iguales y no flex: las dos mitades no tienen el
-     mismo relleno lateral -12px la default y 18 la primaria, que son los del
-     diseño- y con `flex: 1 1 0` quedaban 171,5 contra 184,5 aun con
-     `min-width: 0`, o sea que la costura no caía en el medio. Dos `minmax(0,
-     1fr)` miden lo mismo por definición, sin depender del contenido. */
-  .knd-verbs {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-    width: 100%;
-  }
-}
-
-/* ------------------------------------------------------- filas de Estadísticas */
-/* Las columnas de ancho fijo de «Las que más errás» y «Aciertos por grupo». Van
-   en CSS y no en `w={}` porque cambian de ancho entre teléfono y escritorio -en
-   390px un kana de 46px y un romaji de 58 no dejan barra- y Mantine escribe
-   `w=` inline, donde una media query no llega.
-
-   Que sean FIJAS es lo que hace comparables las barras: la barra es el único
-   `flex: 1` de la fila, así que cualquier columna que mida distinto según su
-   contenido le cambia el largo a la barra fila por fila. */
-.knd-worst-kana { width: 1.5rem; flex: none; font-size: 1rem; line-height: 1.2; }
-.knd-worst-rom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
-.knd-worst-num { width: 2.375rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
-.knd-group-name {
-  width: 3.875rem;
-  flex: none;
-  font-size: 0.6875rem;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 @media (min-width: 768px) {
-  .knd-worst-kana { width: 2.875rem; }
-  .knd-worst-rom { width: 3.625rem; }
-  .knd-worst-num { width: 2.75rem; }
-  .knd-group-name { width: 5.625rem; }
 }
 
 /* El «Borrar» de una fila de lista: 12px, peso 600 y 8px de relleno lateral,
@@ -1555,14 +1246,6 @@ input:-webkit-autofill:active {
 .knd-phone-only { display: none; }
 @media (max-width: 767.9px) {
   .knd-phone-only { display: block; }
-
-  /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
-     `onClick` del escenario en QuizRunner.tsx y MeaningRunner.tsx. En el quiz
-     eso le devuelve el ancho del pie al input, que es lo único que ahí hace
-     falta; en Significados deja los dos de calificarse repartiéndose la fila. */
-  .knd-quiz-reveal,
-  .knd-meaning-reveal { display: none; }
-  .knd-meaning-footer { grid-template-columns: repeat(2, 1fr); }
 
   /* La única pista de que la carta se toca. Va bajo el «carta N de M», en el
      mismo gris apagado y un escalón más chica: es una instrucción que se lee

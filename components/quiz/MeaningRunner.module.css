@@ -1,0 +1,108 @@
+/* La pantalla de Significados (ver MeaningRunner.tsx). */
+
+/* El hueco del significado, reservado también sin revelar: si apareciera de
+   la nada, la hoja saltaría hacia arriba al revelar. */
+.meaningSlot {
+  min-height: 4rem;
+}
+
+/* Los tamaños del canvas, explícitos y no por `clamp`: 13/21px en teléfono y
+   15/30px en escritorio. Antes el significado salía de un `clamp` con `cqh`
+   adentro y se quedaba en el piso -17px- en cuanto el contenedor no le daba
+   una altura de la que calcular, así que la respuesta -que es LO QUE hay que
+   leer en esta pantalla- terminaba más chica que el kana de una fila de
+   lista. */
+.meaningReading { font-size: 0.8125rem; }
+
+.meaningAnswer { font-size: 1.3125rem; line-height: 1.25; }
+
+@media (min-width: 768px) {
+  .meaningReading { font-size: 0.9375rem; }
+}
+
+@media (min-width: 768px) {
+  .meaningAnswer { font-size: 1.875rem; }
+}
+
+/* La animación corre cuando el hueco pasa a estar VISIBLE, no al montarse: la
+   respuesta está montada todo el tiempo -ver el comentario en
+   MeaningRunner.tsx- así que atarla al montaje la dispararía una sola vez, al
+   entrar a la carta. Colgada del estado del hueco, arranca en cada revelado. */
+.meaningSlot[data-oculto] { visibility: hidden; }
+
+.meaningSlot:not([data-oculto]) .meaningReading,
+.meaningSlot:not([data-oculto]) .meaningAnswer {
+  animation: knd-revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+}
+
+.meaningSlot:not([data-oculto]) .meaningAnswer { animation-delay: 70ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .meaningSlot .meaningReading,
+    .meaningSlot .meaningAnswer { animation: none; }
+}
+
+/* El pie: las métricas a la izquierda, la calificación en el centro y el
+   interruptor de revelar a la derecha, que es la misma ranura donde el quiz
+   pone su Revelar. En teléfono los tres bloques se apilan en dos filas. */
+.meaningFooter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mantine-spacing-sm);
+}
+
+.meaningActions { flex: 1; justify-content: center; }
+
+@media (max-width: 767.9px) {
+  .meaningFooter {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem 0.5rem;
+      align-items: center;
+    }
+}
+
+@media (max-width: 767.9px) {
+  .meaningFooter > .knd-quiz-metrics {
+      grid-column: 1 / -1;
+      justify-self: center;
+    }
+}
+
+@media (max-width: 767.9px) {
+  .meaningActions,
+    .meaningReveal { display: contents; }
+}
+
+@media (min-width: 768px) {
+  .meaningFooter {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+  .meaningFooter > .knd-quiz-metrics { justify-self: start; }
+}
+
+@media (min-width: 768px) {
+  .meaningActions { justify-self: center; }
+}
+
+@media (min-width: 768px) {
+  .meaningReveal { justify-self: end; }
+}
+
+@media (max-width: 767.9px) {
+  /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
+       `onClick` del escenario en QuizRunner.tsx y MeaningRunner.tsx. En el quiz
+       eso le devuelve el ancho del pie al input, que es lo único que ahí hace
+       falta; en Significados deja los dos de calificarse repartiéndose la fila. */
+    .knd-quiz-reveal,
+    .meaningReveal { display: none; }
+}
+
+@media (max-width: 767.9px) {
+  .meaningFooter { grid-template-columns: repeat(2, 1fr); }
+}

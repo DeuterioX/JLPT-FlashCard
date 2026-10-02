@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { ChevronLeft } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { Brand } from './Brand';
+import styles from './MobileNavbar.module.css';
 
 /**
  * La barra de arriba en teléfono: volver, la marca, dónde estás y la acción
@@ -28,10 +29,10 @@ export function MobileNavbar({
   action?: React.ReactNode;
 }) {
   return (
-    <Group className="knd-mobile-navbar" gap="0.5rem" wrap="nowrap">
+    <Group className={styles.mobileNavbar} gap="0.5rem" wrap="nowrap">
       {up && (
         <Anchor
-          className="knd-navbar-back"
+          className={styles.navbarBack}
           component={Link}
           href={up.href}
           aria-label={`Volver a ${up.label}`}
@@ -45,8 +46,8 @@ export function MobileNavbar({
           que dice dónde estás. El nombre de la app queda a un toque, en la
           raíz. */}
       <Brand withName={false} />
-      <Text className="knd-navbar-title" fw={700} size="sm" lh={1.4}>{title}</Text>
-      {action && <Group className="knd-navbar-action" gap={6} wrap="nowrap">{action}</Group>}
+      <Text className={styles.navbarTitle} fw={700} size="sm" lh={1.4}>{title}</Text>
+      {action && <Group className={styles.navbarAction} gap={6} wrap="nowrap">{action}</Group>}
     </Group>
   );
 }

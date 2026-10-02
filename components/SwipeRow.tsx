@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from 'react';
 import { isPhone } from '@/lib/client/screen';
+import styles from './SwipeRow.module.css';
 
 /**
  * Fila con acciones por gesto, sólo en teléfono. La usan las tres listas:
@@ -178,9 +179,9 @@ export function SwipeRow({
   }
 
   return (
-    <div className="knd-swipe-row" ref={rootRef}>
+    <div className={styles.swipeRow} ref={rootRef}>
       {leading && (
-        <div className="knd-swipe-side knd-swipe-lead" ref={leftRef}>
+        <div className={`${styles.swipeSide} ${styles.swipeLead}`} ref={leftRef}>
           <button
             type="button"
             aria-label={`${leading.etiqueta} ${label}`}
@@ -191,7 +192,7 @@ export function SwipeRow({
         </div>
       )}
       {trailing && (
-        <div className="knd-swipe-side knd-swipe-trail" ref={rightRef}>
+        <div className={`${styles.swipeSide} ${styles.swipeTrail}`} ref={rightRef}>
           <button
             type="button"
             aria-label={`${trailing.etiqueta} ${label}`}
@@ -204,7 +205,7 @@ export function SwipeRow({
       <div
         ref={frontRef}
         className={[
-          'knd-swipe-front',
+          styles.swipeFront,
           tappable ? 'knd-row-tap' : '',
         ].filter(Boolean).join(' ')}
         onClick={onClick}

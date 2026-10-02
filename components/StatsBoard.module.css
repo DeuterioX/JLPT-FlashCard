@@ -1,0 +1,80 @@
+/* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único
+   contenedor. En el documento fluyen en orden -rango, tiles, botón-, que en
+   una pantalla angosta es exactamente lo que hace falta (botón debajo de
+   las tiles, a lo ancho completo). En escritorio, CSS Grid los reacomoda a
+   como está en el diseño (rango y botón en la misma fila, tiles debajo),
+   sin duplicar ni esconder nada. */
+.statsTop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mantine-spacing-md);
+}
+
+.reviewBtn { width: 100%; }
+
+@media (min-width: 768px) {
+  .statsTop {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      grid-template-areas: "range review" "tiles tiles";
+      align-items: start;
+      column-gap: var(--mantine-spacing-md);
+    }
+}
+
+@media (min-width: 768px) {
+  .statsRange { grid-area: range; }
+}
+
+@media (min-width: 768px) {
+  .statsTiles { grid-area: tiles; }
+}
+
+@media (min-width: 768px) {
+  .statsReview { grid-area: review; }
+}
+
+@media (min-width: 768px) {
+  .reviewBtn { width: auto; }
+}
+
+/* ------------------------------------------------------- filas de Estadísticas */
+/* Las columnas de ancho fijo de «Las que más errás» y «Aciertos por grupo». Van
+   en CSS y no en `w={}` porque cambian de ancho entre teléfono y escritorio -en
+   390px un kana de 46px y un romaji de 58 no dejan barra- y Mantine escribe
+   `w=` inline, donde una media query no llega.
+
+   Que sean FIJAS es lo que hace comparables las barras: la barra es el único
+   `flex: 1` de la fila, así que cualquier columna que mida distinto según su
+   contenido le cambia el largo a la barra fila por fila. */
+.worstKana { width: 1.5rem; flex: none; font-size: 1rem; line-height: 1.2; }
+
+.worstRom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+
+.worstNum { width: 2.375rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+
+.groupName {
+  width: 3.875rem;
+  flex: none;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .worstKana { width: 2.875rem; }
+}
+
+@media (min-width: 768px) {
+  .worstRom { width: 3.625rem; }
+}
+
+@media (min-width: 768px) {
+  .worstNum { width: 2.75rem; }
+}
+
+@media (min-width: 768px) {
+  .groupName { width: 5.625rem; }
+}

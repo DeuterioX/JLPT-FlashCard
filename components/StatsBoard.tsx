@@ -10,6 +10,7 @@ import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { Overview, WorstCard, StatsRange } from '@/lib/services/stats';
+import styles from './StatsBoard.module.css';
 
 /** Semáforo del spec: jade ≥85%, ámbar 60–85%, shu <60%. Único lugar de la
  * app donde aparece un tercer color además de jade/shu. */
@@ -133,12 +134,12 @@ export function StatsBoard({
     <Stack id="stats-screen" gap="md">
       {/* En teléfono el orden real del documento es rango → tiles → botón
           (así el botón queda debajo de las tiles y a lo ancho completo);
-          en escritorio `.knd-stats-top` los reacomoda con CSS Grid para que
+          en escritorio `.${styles.statsTop}` los reacomoda con CSS Grid para que
           el botón vuelva a estar al lado del selector de rango, como en el
           diseño. Nada se duplica ni se oculta: es el mismo único botón en
           los dos casos. */}
-      <div id="stats-top" className="knd-stats-top">
-        <div id="stats-range" className="knd-stats-range">
+      <div id="stats-top" className={styles.statsTop}>
+        <div id="stats-range" className={styles.statsRange}>
           <SegmentedControl
             id="stats-range-control"
             value={range}
@@ -151,7 +152,7 @@ export function StatsBoard({
           />
         </div>
 
-        <SimpleGrid id="stats-tiles" className="knd-stats-tiles" cols={{ base: 2, sm: 4 }} spacing={9}>
+        <SimpleGrid id="stats-tiles" className={styles.statsTiles} cols={{ base: 2, sm: 4 }} spacing={9}>
           {/* La cifra de Aciertos va en el semáforo, como en el diseño: es el
               número que resume la pantalla, así que dice cómo vas con el color
               antes de que lo leas. */}
@@ -169,10 +170,10 @@ export function StatsBoard({
             hint={`de ${o.totalCards} cartas`} />
         </SimpleGrid>
 
-        <Stack id="stats-review" gap={4} align="flex-end" className="knd-stats-review">
+        <Stack id="stats-review" gap={4} align="flex-end" className={styles.statsReview}>
           <Button
             id="review-btn"
-            className="knd-review-btn"
+            className={styles.reviewBtn}
             onClick={review}
             loading={reviewAction.busy}
             disabled={reviewAction.busy || worst.length === 0}
@@ -208,13 +209,13 @@ export function StatsBoard({
               // comparando cosas distintas, cuando lo único que tiene que
               // variar es lo PINTADO de adentro.
               <Group key={w.cardId} id={`worst-row-${w.cardId}`} gap={9} wrap="nowrap">
-                <Text className="kana knd-worst-kana">{w.prompt}</Text>
-                <Text className="romaji knd-worst-rom" c="dimmed">{w.primary}</Text>
+                <Text className={`kana ${styles.worstKana}`}>{w.prompt}</Text>
+                <Text className={`romaji ${styles.worstRom}`} c="dimmed">{w.primary}</Text>
                 <Progress
                   value={w.rate * 100} color="shu.6" size={4} radius={2}
                   style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
-                <Text className="knd-worst-num tabular" c="dark.3" ta="right">{w.errors}/{w.seen}</Text>
+                <Text className={`${styles.worstNum} tabular`} c="dark.3" ta="right">{w.errors}/{w.seen}</Text>
               </Group>
             ))}
           </Stack>
@@ -233,7 +234,7 @@ export function StatsBoard({
             {o.byGroup.length === 0 && <Text size="sm" c="dimmed">Todavía no practicaste nada.</Text>}
             {o.byGroup.slice(0, 10).map((g) => (
               <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
-                <Text className="knd-group-name" c="dimmed">{g.name}</Text>
+                <Text className={styles.groupName} c="dimmed">{g.name}</Text>
                 <Progress
                   value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
                   style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}

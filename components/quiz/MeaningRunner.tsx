@@ -11,6 +11,7 @@ import {
   decideRoundStart, markRoundUsed, readUsedRound, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { isPhone } from '@/lib/client/screen';
+import styles from './MeaningRunner.module.css';
 
 /**
  * Repaso de significados: la misma hoja del quiz, sin escribir.
@@ -157,13 +158,13 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
                 accesibilidad, así un lector de pantalla no canta la respuesta
                 antes de que la pidas. */}
             <Stack
-              className="knd-meaning-slot" gap={2} align="center" justify="center"
+              className={styles.meaningSlot} gap={2} align="center" justify="center"
               data-oculto={!revealed || undefined}
             >
-              <Text id="meaning-reading" className="romaji knd-meaning-reading" c="dimmed">
+              <Text id="meaning-reading" className={`romaji ${styles.meaningReading}`} c="dimmed">
                 {card.primary}
               </Text>
-              <Text id="meaning-answer" className="knd-meaning-answer">{card.meaning}</Text>
+              <Text id="meaning-answer" className={styles.meaningAnswer}>{card.meaning}</Text>
             </Stack>
             <Text id="meaning-caption" className="knd-quiz-caption tabular">
               {`carta ${i + 1} de ${cards.length}`}
@@ -204,7 +205,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       <Progress id="meaning-progress" value={progress} size="xs" radius={0} />
 
       <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
-        <Box className="knd-meaning-footer">
+        <Box className={styles.meaningFooter}>
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
             {[['Sabidas', known, false], ['Restantes', remaining, false], ['No known', unknown, true]]
               .map(([lab, val, mal]) => (
@@ -227,7 +228,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
               repaso la mayoría de las cartas se saben, así que el camino corto
               tiene que ser ése. El destructivo-ish queda segundo, igual que
               Cancelar antes de la acción en los modales. */}
-          <Group className="knd-meaning-actions" gap="xs" wrap="nowrap">
+          <Group className={styles.meaningActions} gap="xs" wrap="nowrap">
             <Kbd className="knd-desktop-only">1</Kbd>
             <Button id="meaning-si" onClick={() => grade(true)} disabled={finished}>
               La sabía
@@ -241,7 +242,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
             </Button>
           </Group>
 
-          <Group className="knd-meaning-reveal" gap="xs" wrap="nowrap">
+          <Group className={styles.meaningReveal} gap="xs" wrap="nowrap">
             <Kbd className="knd-desktop-only">Espacio</Kbd>
             <Button
               id="meaning-reveal" variant="default"

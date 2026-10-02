@@ -11,6 +11,7 @@ import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { DeckSummary } from '@/lib/services/decks';
+import styles from './PracticeBoard.module.css';
 
 const START_ROUND_ERROR = 'No se pudo empezar la ronda. Probá de nuevo.';
 
@@ -122,7 +123,7 @@ export function PracticeBoard({
           para que el `overflow-x` realmente pueda achicar la caja en
           vez de empujar a los hermanos fuera de pantalla; mismo patrón
           que ya usan las listas horizontales de la app. */}
-      <Box id="deck-picker" className="knd-deck-switcher" style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
+      <Box id="deck-picker" className={styles.deckSwitcher} style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
         <SegmentedControl
           id="deck-segmented-control"
           value={deckId}
@@ -175,7 +176,7 @@ export function PracticeBoard({
             ronda se trata. «Significados» se apaga cuando ninguna de las
             cartas elegidas tiene uno -un mazo de kana entero-, con el
             motivo en el `title`. */}
-        <Box className="knd-verbs">
+        <Box className={styles.verbs}>
           <Button
             id="begin-meaning-btn"
             variant="default"
