@@ -379,8 +379,16 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 .knd-swipe-front { position: relative; background: var(--mantine-color-dark-6); }
 
 @media (max-width: 767.9px) {
-  /* El panel vive detrás de la fila, pegado a su borde, y la fila se corre para
-     descubrirlo. */
+  /* El panel vive AFUERA de la fila, pegado a su borde del lado de afuera, y
+     entra junto con ella cuando se corre: la fila es más ancha que la
+     pantalla y el `overflow: hidden` recorta lo que sobra.
+
+     Antes vivía DEBAJO y la fila sólo lo tapaba. Con zoom el borde de la fila
+     cae en una fracción de pixel y el panel asomaba por la costura, como una
+     raya verde y una roja; y al arrastrar, el nombre -que se queda quieto- se
+     pintaba encima del panel. Afuera no hay nada que asome, y al estar por
+     encima el panel tapa el nombre al entrar. El recorte también corta los
+     toques: cerrado, un panel no se come ninguno. */
   .knd-swipe-side {
     position: absolute;
     top: 0;
@@ -388,26 +396,27 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     width: 6rem;
     display: grid;
     place-items: center;
-    /* Sólo se pinta el panel del lado hacia el que la fila está corrida (ver
-       `reveal` en SwipeRow.tsx): con zoom, uno pintado debajo de la fila
-       cerrada asomaba por la costura de su borde. */
-    visibility: hidden;
+    /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
+       queda quieto (`.knd-swipe-pin`), en vez de quedar tapado por él. */
+    z-index: 2;
+    /* Se mueve con la fila: mismo desplazamiento y misma animación, que
+       `SwipeRow` publica en estas dos variables. */
+    transform: translateX(var(--knd-swipe-x, 0px));
+    transition: var(--knd-swipe-anim, none);
   }
-  .knd-swipe-row[data-reveal='lead'] .knd-swipe-lead,
-  .knd-swipe-row[data-reveal='trail'] .knd-swipe-trail { visibility: visible; }
   /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
      izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
      pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
      dos grises de la escala con la palabra coloreada, y eso rompía la promesa
      del filete: el borde anuncia rojo y lo que aparecía detrás era gris. */
   .knd-swipe-lead {
-    left: 0;
+    right: 100%;
     background: var(--mantine-color-jade-6);
   }
   /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
      Safari. */
   .knd-swipe-trail {
-    right: 0;
+    left: 100%;
     background: var(--mantine-color-shu-6);
   }
   .knd-swipe-side button {
@@ -421,11 +430,6 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   }
   .knd-swipe-trail button { color: #f7f3ea; }
 
-  /* El panel abierto va por encima de la cara: ver `marcarAbierto` en
-     `SwipeRow.tsx`. Sin esto un toque sobre el botón dentro de los 180ms de la
-     animación caía en la cara, que todavía lo tapaba. */
-  .knd-swipe-row[data-open='lead'] .knd-swipe-lead,
-  .knd-swipe-row[data-open='trail'] .knd-swipe-trail { z-index: 2; }
   .knd-swipe-front {
     /* `pan-y` le deja el scroll vertical al navegador y nos deja el
        horizontal; sin esto el swipe pelea con el scroll de la lista. */

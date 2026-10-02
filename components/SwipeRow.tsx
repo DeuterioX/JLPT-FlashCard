@@ -97,62 +97,14 @@ export function SwipeRow({
     const el = frontRef.current;
     if (!el) return;
     const anim = animate ? 'transform .18s ease' : 'none';
-    const moved = el.style.transform !== `translateX(${px}px)`;
     el.style.transition = anim;
     el.style.transform = `translateX(${px}px)`;
-    reveal(px, animate && moved);
     rootRef.current?.style.setProperty('--knd-swipe-x', `${px}px`);
     rootRef.current?.style.setProperty('--knd-swipe-anim', anim);
   }
 
-  /**
-   * Qué panel se pinta: sólo el del lado hacia el que la fila está corrida.
-   *
-   * Con la fila cerrada no se pinta ninguno. Antes estaban siempre debajo y la
-   * fila sólo los tapaba, y con zoom el borde de la fila cae en una fracción de
-   * pixel: por la costura asomaba una raya verde y una roja del ancho de cada
-   * panel. Si no hay nada debajo, no hay nada que asome.
-   *
-   * Al volver a 0 con animación el panel se apaga cuando la fila TERMINA de
-   * volver, no al empezar: si no, se vería el hueco vacío detrás de la fila
-   * mientras se cierra. Si la fila ya estaba en 0 no hay transición que
-   * esperar -`transitionend` no llegaría nunca- y se apaga en el momento.
-   */
-  function reveal(px: number, waitForTransition: boolean) {
-    const root = rootRef.current;
-    const front = frontRef.current;
-    if (!root || !front) return;
-    if (px !== 0) { root.dataset.reveal = px > 0 ? 'lead' : 'trail'; return; }
-    if (!waitForTransition) { delete root.dataset.reveal; return; }
-    front.addEventListener('transitionend', () => {
-      // Otro gesto pudo haber arrancado mientras volvía.
-      if (front.style.transform === 'translateX(0px)') delete root.dataset.reveal;
-    }, { once: true });
-  }
-
-  /**
-   * Qué lado está descubierto, como atributo en el contenedor.
-   *
-   * El panel descubierto se pone POR ENCIMA de la cara mientras está abierto,
-   * y eso arregla un toque que se perdía: la cara tarda 180ms en llegar a su
-   * lugar y el navegador prueba el impacto contra la posición ANIMADA, así que
-   * un toque sobre el botón apenas soltabas el dedo caía en la cara, que
-   * todavía lo estaba tapando.
-   *
-   * Sólo mientras está abierto, porque el panel mide 6rem pegadas al borde: si
-   * quedara arriba siempre se comería los toques de esa franja de la fila
-   * cerrada, que es justo donde está el nombre.
-   */
-  function markOpen(side: 'lead' | 'trail' | null) {
-    const el = rootRef.current;
-    if (!el) return;
-    if (side) el.dataset.open = side;
-    else delete el.dataset.open;
-  }
-
   function close() {
     state.current.base = 0;
-    markOpen(null);
     setX(0, true);
   }
 
@@ -172,7 +124,6 @@ export function SwipeRow({
     // panel que quedó abierto de un lado se queda por encima de la cara
     // mientras arrastrás para el OTRO lado, y entonces se ven los dos a la vez
     // -Renombrar de un lado y Borrar del otro-. Pasó de verdad.
-    markOpen(null);
     el.setPointerCapture(e.pointerId);
   }
 
@@ -207,7 +158,6 @@ export function SwipeRow({
     const openRight = !!leading && s.dx > max * OPEN_RATIO;
     const openLeft = !!trailing && s.dx < -max * OPEN_RATIO;
     s.base = openRight ? max : (openLeft ? -max : 0);
-    markOpen(openRight ? 'lead' : (openLeft ? 'trail' : null));
     setX(s.base, true);
   }
 
