@@ -78,10 +78,15 @@ export function SwipeRow({
   const state = useRef({ x0: 0, y0: 0, dx: 0, dragging: false, decided: false, base: 0, fromEdge: false });
 
   function width() {
-    // El panel que haya: sin panel derecho el ancho lo da el izquierdo. El 96
-    // de reserva es el `6rem` del CSS a tamaño de raíz normal, y sólo se usa
-    // si no hay ninguno de los dos, que es cuando tampoco hay gesto.
-    return rightRef.current?.offsetWidth ?? leftRef.current?.offsetWidth ?? 96;
+    // El BOTÓN del panel que haya, no el panel: el panel incluye además los
+    // 3px del filete, que ya están adentro de la fila, y abrir de más dejaría
+    // un hueco. Sin panel derecho el ancho lo da el izquierdo. El 96 de reserva
+    // es el `6rem` del CSS a tamaño de raíz normal, y sólo se usa si no hay
+    // ninguno de los dos, que es cuando tampoco hay gesto.
+    // `getBoundingClientRect` y no `offsetWidth`, que redondea a entero: en
+    // las pantallas grandes la raíz escala y `6rem` deja de ser entero.
+    const button = (rightRef.current ?? leftRef.current)?.querySelector('button');
+    return button?.getBoundingClientRect().width ?? 96;
   }
 
   /**
@@ -201,14 +206,6 @@ export function SwipeRow({
         className={[
           'knd-swipe-front',
           tappable ? 'knd-row-tap' : '',
-          // Un filete por borde, del color de lo que ese gesto descubre, y
-          // sólo si la acción existe. Sin esto las acciones son invisibles
-          // hasta hacer el gesto: nada dice que están ahí ni para qué lado va
-          // cada una. Van en la cara que se desliza, no en el contenedor, así
-          // se corren con la fila en vez de quedar flotando encima del panel
-          // que se acaba de descubrir.
-          leading ? 'knd-swipe-edge-lead' : '',
-          trailing ? 'knd-swipe-edge-trail' : '',
         ].filter(Boolean).join(' ')}
         onClick={onClick}
         // El arrastre NATIVO del navegador le gana al gesto. Con un enlace

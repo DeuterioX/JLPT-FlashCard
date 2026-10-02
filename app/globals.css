@@ -393,7 +393,9 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     position: absolute;
     top: 0;
     bottom: 0;
-    width: 6rem;
+    /* El botón (6rem) más el filete (3px): un solo contenedor con un solo
+       fondo, ver el filete más abajo. */
+    width: calc(6rem + 3px);
     display: grid;
     place-items: center;
     /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
@@ -410,13 +412,15 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      dos grises de la escala con la palabra coloreada, y eso rompía la promesa
      del filete: el borde anuncia rojo y lo que aparecía detrás era gris. */
   .knd-swipe-lead {
-    right: 100%;
+    right: calc(100% - 3px);
+    padding-right: 3px;
     background: var(--mantine-color-jade-6);
   }
   /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
      Safari. */
   .knd-swipe-trail {
-    left: 100%;
+    left: calc(100% - 3px);
+    padding-left: 3px;
     background: var(--mantine-color-shu-6);
   }
   .knd-swipe-side button {
@@ -438,21 +442,18 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     user-select: none;
     -webkit-user-select: none;
   }
-  /* El filete que anuncia el gesto (ver SwipeCardRow). 3px pegados al borde
-     de la cara que se desliza: jade a la izquierda para la acción no
-     destructiva de esa lista -Mover una carta, Practicar un mazo- y shu
-     a la derecha para Borrar, y sólo el de la acción que esa fila tenga
-     disponible -un filete que no está es una acción que no está-.
-
-     De borde a borde de la fila, sin retiro: el `Divider` que separa una
-     fila de la siguiente ya corta entre un filete y el otro, así que se
-     leen como un tilde por fila sin necesidad de dejarles aire, que
-     probado en la maqueta los dejaba como pastillas apoyadas sobre el
-     borde de la caja. */
   /* El filete que anuncia el gesto: 3px pegados al borde de la fila, de punta
-     a punta, sin retiro y sin radio. Jade a la izquierda para la acción no
-     destructiva de esa lista -Mover una carta, Renombrar un grupo, Practicar
-     un mazo- y shu a la derecha para Borrar, y sólo el de la acción que esa
+     a punta, sin retiro y sin radio.
+
+     Es el PROPIO PANEL asomando: el panel se mete 3px adentro de la fila y el
+     botón ocupa el resto. Antes era una raya pintada en la fila y el panel un
+     elemento aparte pegado a ella; del mismo color, pero con dos fondos, y con
+     zoom la unión entre los dos se notaba. Con un solo fondo no hay unión. Y
+     lo que anuncia la acción pasa a ser literalmente la acción: arrastrar
+     termina de descubrir eso mismo.
+
+     Jade a la izquierda para la acción no destructiva de esa lista -Mover una
+     carta, Renombrar un grupo, Practicar un mazo- y shu a la derecha para Borrar, y sólo el de la acción que esa
      fila tenga disponible: un filete que no está es una acción que no está.
 
      Es tal cual `filos_swipe` en el canvas, y ahí está probado y descartado
@@ -462,16 +463,6 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
      Que en una lista donde todas las filas tienen la misma acción quede una
      línea corrida no es un problema: es verdad. Lo que tiene que distinguirse
      es la fila que NO la tiene. */
-  .knd-swipe-edge-lead::before,
-  .knd-swipe-edge-trail::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-  }
-  .knd-swipe-edge-lead::before { left: 0; background: var(--mantine-color-jade-6); }
-  .knd-swipe-edge-trail::after { right: 0; background: var(--mantine-color-shu-6); }
 
   /* Lo que identifica a la fila -el ícono y el nombre, o el kana de una carta-
      se queda quieto mientras la fila se corre hacia la IZQUIERDA. Sin esto,
