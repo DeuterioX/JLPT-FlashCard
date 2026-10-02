@@ -26,14 +26,13 @@ export function DesktopNav() {
               component={Link}
               href={l.href}
               size="sm"
-              px="sm"
-              py={4}
-              /* Color por clase y no por `c=`: Mantine lo escribe inline y le
-                 ganaría a la regla del hover. */
+              /* La píldora entera -color, fondo, radio y relleno- vive en
+                 `.knd-nav-link`, no en props: Mantine escribe `bg`, `px` y
+                 `py` inline, y un estilo inline le gana tanto a la regla del
+                 hover como a la clase. De hecho le ganaba: el radio y el
+                 relleno de la clase no llegaban a verse nunca. */
               className={`knd-nav-link${active ? ' knd-nav-link-on' : ''}`}
-              bg={active ? 'dark.5' : undefined}
               underline="never"
-              style={{ borderRadius: 'var(--mantine-radius-sm)' }}
             >
               {l.label}
             </Anchor>

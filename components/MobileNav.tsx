@@ -15,15 +15,7 @@ export function MobileNav() {
   const path = usePathname();
 
   return (
-    <Box
-      component="nav"
-      id="nav-mobile"
-      className="knd-nav-mobile"
-      style={{
-        background: 'var(--mantine-color-dark-6)',
-        borderTop: '1px solid var(--mantine-color-default-border)',
-      }}
-    >
+    <Box component="nav" id="nav-mobile" className="knd-nav-mobile">
       {LINKS.map((l) => (
         <Anchor
           key={l.href}
@@ -31,15 +23,10 @@ export function MobileNav() {
           component={Link}
           href={l.href}
           underline="never"
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '0.0625rem',
-          }}
-          c={isActive(path, l.href) ? 'jade.6' : 'dimmed'}
+          /* La pestaña entera -la columna centrada y su color- vive en
+             `.knd-tab`: `c=` lo escribe Mantine inline, como el `bg` de
+             `DesktopNav`. */
+          className={`knd-tab${isActive(path, l.href) ? ' knd-tab-on' : ''}`}
         >
           <Text className="mincho" size={rem(18)} lh={1.2}>{l.jp}</Text>
           {/* `lh` explícito: con un `size` libre Mantine deja interlineado 1

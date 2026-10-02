@@ -139,7 +139,22 @@ body { margin: 0; }
   height: calc(56px + env(safe-area-inset-bottom, 0px));
   padding-top: 6px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: var(--mantine-color-dark-6);
+  border-top: 1px solid var(--mantine-color-default-border);
 }
+/* Cada pestaña: columna centrada -centrar es trabajo de la celda, no del
+   glifo- con el `gap: 1px` del mockup entre el kanji y la etiqueta. */
+a.knd-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.0625rem;
+  color: var(--mantine-color-dimmed);
+}
+/* Jade, y no la píldora de escritorio: acá no hay píldora que diga cuál es. */
+a.knd-tab-on { color: var(--mantine-color-jade-6); }
 /* La página es una columna del alto de la pantalla: header, contenido y
    barra de pestañas. Sólo el contenido scrollea, así que nada flota encima
    de nada y nadie tiene que reservarle lugar a una barra.
@@ -925,8 +940,12 @@ a.knd-nav-link {
   color: var(--mantine-color-dark-2);
   border-radius: 6px;
   padding-block: 5px;
+  padding-inline: var(--mantine-spacing-sm);
 }
-a.knd-nav-link-on { color: var(--mantine-color-text); }
+a.knd-nav-link-on {
+  color: var(--mantine-color-text);
+  background: var(--mantine-color-dark-5);
+}
 @media (hover: hover) {
   a.knd-nav-link { transition: color 120ms ease; }
   a.knd-nav-link:not(.knd-nav-link-on):hover { color: var(--mantine-color-text); }
