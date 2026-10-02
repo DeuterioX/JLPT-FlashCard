@@ -3,6 +3,7 @@
 import { Stack } from '@mantine/core';
 import { Breadcrumb, type Crumb } from './Breadcrumb';
 import { MobileNavbar } from './MobileNavbar';
+import styles from './Screen.module.css';
 
 /**
  * Una pantalla en tres franjas: lo de arriba, lo que scrollea y lo de abajo.
@@ -44,11 +45,11 @@ export function Screen({
   const up = trail.length > 0 ? trail[trail.length - 1] : undefined;
 
   return (
-    <div className="knd-screen">
+    <div className={styles.screen}>
       {nav && current && <MobileNavbar up={up} title={current.label} action={nav.action} />}
       {top}
       <Stack
-        className="knd-screen-scroll"
+        className={styles.screenScroll}
         gap="md"
         /* Marca si hay contenido scrolleado debajo de lo de arriba, para que
            una barra pueda mostrar su borde inferior sólo entonces. Se escribe

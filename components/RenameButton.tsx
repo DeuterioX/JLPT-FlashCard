@@ -1,6 +1,7 @@
 import { Button } from '@mantine/core';
 import { PencilFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
+import styles from './RenameButton.module.css';
 
 /**
  * «Renombrar», con etiqueta en escritorio e ícono en teléfono.
@@ -22,19 +23,19 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
   return (
     <Button
       id={id}
-      className="knd-rename-btn"
+      className={styles.renameBtn}
       variant="default"
       bg="transparent"
       size="compact-xs"
       aria-label="Renombrar"
       onClick={onClick}
     >
-      <span className="knd-rename-label">Renombrar</span>
+      <span className={styles.renameLabel}>Renombrar</span>
       {/* El ícono va envuelto en un span y la clase que lo prende y apaga va
           en el SPAN, no en el SVG: `Icon` escribe su `display` como estilo
           inline, y un estilo inline le gana a la hoja de estilos. Con la
           clase en el SVG, en escritorio se veían la etiqueta Y el ícono. */}
-      <span className="knd-rename-icon">
+      <span className={styles.renameIcon}>
         <Icon glyph={PencilFill} rem={0.875} />
       </span>
     </Button>

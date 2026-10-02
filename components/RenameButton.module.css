@@ -1,0 +1,19 @@
+/* «Renombrar» pasa a ícono en teléfono: en 390px, con tres niveles de miga,
+   la etiqueta se come el ancho que necesita el nombre del nivel actual.
+   El nombre accesible lo da el `aria-label` del botón, así que el ícono no
+   pierde información para un lector de pantalla. */
+.renameIcon { display: none; }
+
+@media (max-width: 767.9px) {
+  .renameLabel { display: none; }
+}
+
+@media (max-width: 767.9px) {
+  /* `inline-flex` y no `inline`: adentro hay un SVG en bloque, y en línea la
+       caja de texto del span le sumaría el descendente de la fuente. */
+    .renameIcon { display: inline-flex; }
+}
+
+@media (max-width: 767.9px) {
+  .renameBtn { padding-inline: 0.5rem; }
+}

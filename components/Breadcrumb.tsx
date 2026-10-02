@@ -1,5 +1,6 @@
 import { Group, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
+import styles from './Breadcrumb.module.css';
 
 export type Crumb = { label: string; href: string };
 
@@ -34,19 +35,19 @@ export function Breadcrumb({
   if (trail.length === 0 && !children) return null;
 
   return (
-    <Group id={id} className="knd-crumb-row">
+    <Group id={id} className={styles.crumbRow}>
       {trail.map((c) => (
         // La barra va como elemento APARTE y no dentro del texto del enlace:
         // adentro queda con un espacio de texto de un lado y el `gap` del otro,
         // y deja de medir lo mismo en todas las pantallas.
-        <Group key={c.href} className="knd-crumb-step">
-          <Anchor className="knd-crumb" component={Link} href={c.href} size="sm" underline="hover">
+        <Group key={c.href} className={styles.crumbStep}>
+          <Anchor className={styles.crumb} component={Link} href={c.href} size="sm" underline="hover">
             {c.label}
           </Anchor>
-          <Text className="knd-crumb-sep" size="sm">/</Text>
+          <Text className={styles.crumbSep} size="sm">/</Text>
         </Group>
       ))}
-      <Text id={currentId} className="knd-crumb-current" size="sm">{current}</Text>
+      <Text id={currentId} className={styles.crumbCurrent} size="sm">{current}</Text>
       {children}
     </Group>
   );

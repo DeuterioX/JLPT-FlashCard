@@ -1,0 +1,34 @@
+.fieldLabel {
+  flex: none;
+  font-size: 0.5625rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--knd-sumi-dim);
+  /* El rótulo no se selecciona con el texto: está adentro del campo, así que
+     un doble clic para elegir una palabra lo arrastraría al portapapeles. */
+  user-select: none;
+}
+
+.fieldInput {
+  flex: 1;
+  min-width: 0;
+  /* Sin caja propia: la caja es la hojita de afuera. */
+  appearance: none;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 1rem;
+  color: var(--knd-sumi);
+}
+
+.fieldInput:focus { outline: none; }
+
+.fieldInput::placeholder { color: var(--knd-sumi-dim); }
+
+.fieldEnd {
+  flex: none;
+  font-family: var(--knd-f-mono);
+  font-size: 0.75rem;
+  color: var(--knd-sumi-dim);
+}

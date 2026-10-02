@@ -142,61 +142,8 @@ body { margin: 0; }
   background: var(--mantine-color-dark-6);
   border-top: 1px solid var(--mantine-color-default-border);
 }
-/* La página es una columna del alto de la pantalla: header, contenido y
-   barra de pestañas. Sólo el contenido scrollea, así que nada flota encima
-   de nada y nadie tiene que reservarle lugar a una barra.
-
-   `100dvh` y no `100vh`: en el teléfono la barra del navegador aparece y
-   desaparece, y con `vh` la barra de pestañas quedaba debajo de ella. */
-.knd-shell {
-  display: flex;
-  flex-direction: column;
-  height: 100dvh;
-  overflow: hidden;
-}
-.knd-app-header {
-  flex: none;
-  height: 3rem;
-  /* El borde que ponía el `AppShell` de Mantine, con sus mismos colores. */
-  border-bottom: 1px solid var(--mantine-color-dark-4);
-}
-:root[data-mantine-color-scheme='light'] .knd-app-header { border-bottom-color: var(--mantine-color-gray-3); }
 .knd-nav-mobile { flex: none; }
-/* `display: flex` para que una pantalla con barras propias (`.knd-screen`)
-   pueda llenar el alto que queda. `min-height: 0` porque un hijo flex no se
-   achica por debajo de su contenido, y sin achicarse no hay scroll. */
-.knd-main {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  padding: var(--mantine-spacing-md);
-}
-
-/* Una pantalla en tres franjas (`Screen`): arriba, lo que scrollea y abajo.
-   Llena el `main` y le anula el padding con margen negativo, para que sus
-   barras vayan de borde a borde; el padding pasa a la franja que scrollea. */
-.knd-screen {
-  flex: 1;
-  min-height: 0;
-  margin: calc(-1 * var(--mantine-spacing-md));
-  display: flex;
-  flex-direction: column;
-}
-.knd-screen > * { flex: none; }
-.knd-screen > .knd-screen-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: var(--mantine-spacing-md);
-}
-/* La barra de mazos de Práctica ya trae su aire hacia la grilla en su
-   `padding-bottom` -es donde aparece su borde al scrollear-: sumarle el
-   padding de arriba de la franja lo duplicaría. */
-#deck-switcher-bar + .knd-screen-scroll { padding-top: 0; }
 #deck-switcher-bar { border-bottom: 1px solid transparent; }
-.knd-screen[data-scrolled] > #deck-switcher-bar { border-bottom-color: var(--mantine-color-default-border); }
 
 @media (max-width: 767.9px) {
 }
@@ -289,27 +236,6 @@ body { margin: 0; }
   .knd-quiz-metrics-top-bar { display: none; }
   #quiz-metrics { display: flex; }
 }
-
-/* Migas de navegación: sin esto son `Anchor` sin ningún estado -ni color ni
-   subrayado- y se leen como texto en vez de como links. El color sube un
-   escalón, de `--a-dimmer` a `--a-dim`, que es el mismo par que la app usa
-   en todas partes para "apagado" y "apagado pero presente"; el subrayado lo
-   pone Mantine con `underline="hover"`. El mockup no define un hover acá
-   -sus migas son `span`, no links-, así que el valor es una decisión de acá.
-
-   El color de reposo va acá y no en un prop `c=`: Mantine lo escribe INLINE
-   en el elemento, y un estilo inline le gana a cualquier regla de clase, así
-   que con `c="dark.3"` puesto el hover nunca llegaba a aplicarse. El selector
-   lleva el `a` para ganarle a `.mantine-Anchor-root` sin depender del orden
-   en que se carguen las hojas. */
-/* `dark.2` y no `dark.3`: el 3 es el escalón de PLACEHOLDER, y un nivel de
-   la miga es un enlace. Medido en vivo, en el 3 daba 2,87:1 en oscuro y
-   3,11:1 en claro, debajo del mínimo para texto; en el 2 da 7,25:1 y 5,39:1 y
-   sigue estando un escalón por debajo del nivel actual, que es lo que lo
-   distingue. Venía de antes de la escala de tinta -con el índigo daba
-   3,16:1-, así que no lo trajo el cambio de paleta. */
-a.knd-crumb { color: var(--mantine-color-dark-2); transition: color 120ms ease; }
-a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 
 /* El botón por defecto no tenía NINGÚN hover: al fijarle el fondo a
    `--a-surface-2` en theme.ts, el reposo quedó igual que el `--button-hover`
@@ -731,13 +657,6 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 @media (min-width: 3200px) {
 }
 
-/* Foco visible por teclado en la tarjeta de grupo, que ahora es el control
-   interactivo completo (rol switch) en vez del Switch interno. */
-.knd-group-card:focus-visible {
-  outline: 2px solid var(--mantine-color-jade-6);
-  outline-offset: 2px;
-}
-
 /* Editor de mazo: columna de grupos en escritorio, tira horizontal en
    teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
    bloques se renderizan siempre y CSS puro decide cuál se ve, para no
@@ -1139,76 +1058,9 @@ input:-webkit-autofill:active {
   -webkit-text-fill-color: var(--mantine-color-text);
   caret-color: var(--mantine-color-text);
 }
-
-/* La cabecera de las tres pantallas de la sección Mazos. Sin un piso común
-   mide lo que mide su contenido, y ese contenido cambia de pantalla en
-   pantalla -mazos no lleva botones, grupos lleva «Renombrar» de 22px y
-   palabras suma «Buscar en el diccionario» de 26px-, así que la línea se
-   movía 5px al navegar entre ellas. El piso es el alto del botón más alto,
-   el mismo número que ya usa `.knd-sect-row`. */
-.knd-crumb-row {
-  min-height: 1.625rem;
-  align-items: center;
-  gap: 0.5rem;
-  /* Una sola línea, siempre. Envolviendo, un nombre largo manda el nivel
-     actual al renglón de abajo y la fila casi duplica su alto, así que el
-     texto queda a distinta altura según en qué pantalla estés. */
-  flex-wrap: nowrap;
-  min-width: 0;
-}
-
-/* Lo que no entra se corta. Se reparten el faltante los DOS -los niveles de
-   arriba y el actual-, en vez de que el actual se lleve todo el recorte: con
-   tres niveles en un teléfono, recortar sólo el último lo dejaría en dos
-   letras. */
-.knd-crumb-step {
-  min-width: 0;
-  gap: 0.5rem;
-  flex-wrap: nowrap;
-}
-/* El primer nivel no se encoge NUNCA. Es el ancla de orientación -y mide
-   cuatro letras-, así que recortarlo a «M…» no gana espacio y sí pierde la
-   única referencia fija de la miga. El faltante lo absorben los niveles de
-   abajo, que son los largos. */
-.knd-crumb-step:first-of-type { flex: none; }
-.knd-crumb,
-.knd-crumb-current {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-/* El último nivel es SIEMPRE un nombre que puso el usuario -un mazo, un
-   grupo-, así que puede estar en japonés y va en la gótica de kana. Es una
-   regla de la miga y no una decisión de cada pantalla: antes viajaba como un
-   `currentClassName` que las dos pantallas que lo pasaban llenaban con
-   'kana'. */
-.knd-crumb-current { font-family: var(--knd-f-kana); }
-.knd-crumb-sep { color: var(--mantine-color-dark-3); }
-/* La barra y los controles nunca se encogen: son del ancho de un carácter o
-   de un botón, y recortarlos no gana nada. */
-.knd-crumb-sep,
-.knd-crumb-row > button,
-.knd-crumb-row > a[class*='Button'] {
-  flex: none;
+@media (max-width: 767.9px) {
 }
 @media (max-width: 767.9px) {
-  /* En teléfono los botones van a 30px (ver la regla de `.mantine-Button-root`
-     más arriba), así que el piso los acompaña. */
-  .knd-crumb-row { min-height: 1.875rem; }
-}
-
-/* «Renombrar» pasa a ícono en teléfono: en 390px, con tres niveles de miga,
-   la etiqueta se come el ancho que necesita el nombre del nivel actual.
-   El nombre accesible lo da el `aria-label` del botón, así que el ícono no
-   pierde información para un lector de pantalla. */
-.knd-rename-icon { display: none; }
-@media (max-width: 767.9px) {
-  .knd-rename-label { display: none; }
-  /* `inline-flex` y no `inline`: adentro hay un SVG en bloque, y en línea la
-     caja de texto del span le sumaría el descendente de la fuente. */
-  .knd-rename-icon { display: inline-flex; }
-  .knd-rename-btn { padding-inline: 0.5rem; }
 }
 
 /* La barra de pantalla en teléfono (`MobileNavbar`). En escritorio no existe:
@@ -1229,7 +1081,6 @@ input:-webkit-autofill:active {
 .knd-mobile-navbar { display: none; }
 
 :root[data-phone] {
-  .knd-crumb-row { display: none; }
 
   .knd-mobile-navbar {
     display: flex;
@@ -1294,22 +1145,6 @@ input:-webkit-autofill:active {
 @media (max-width: 767.9px) {
   .knd-dict-label-full { display: none; }
   .knd-dict-label-short { display: inline; }
-}
-
-/* Las cartas previsualizadas en la tarjeta de grupo: una línea cada una,
-   recortada con puntos suspensivos.
-
-   El `min-width: 0` no es decorativo: dentro de una columna flex un elemento
-   se niega a achicarse por debajo de su contenido, así que sin eso el
-   `text-overflow` no aparece nunca y la palabra desborda o se parte igual. */
-.knd-gc-words { max-width: 100%; width: 100%; }
-.knd-gc-cut {
-  min-width: 0;
-  width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
 }
 
 /* El kana de la fila de carta cuando es el botón de editar (ver GroupCards).
@@ -1392,35 +1227,6 @@ input:-webkit-autofill:active {
   box-shadow: var(--knd-sombra-hoja);
 }
 
-.knd-genko-celda {
-  position: relative;
-  aspect-ratio: 1;
-  display: grid;
-  place-items: center;
-  background: var(--knd-papel);
-}
-
-.knd-genko-cruz {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-/* `non-scaling-stroke` mantiene el trazo en un píxel de CSS sin importar
-   cuánto escale el viewBox, y sin tener que calcular el grosor en unidades
-   del viewBox desde el lado de la celda. */
-.knd-genko-cruz line {
-  stroke: rgb(160 66 50 / 20%);
-  stroke-width: 1;
-  vector-effect: non-scaling-stroke;
-}
-
-.knd-genko-glifo {
-  font-size: calc(var(--knd-genko-lado) * 0.62);
-  line-height: 1;
-  color: var(--knd-sumi);
-}
-
 /* El dorso del giro es la MISMA hoja dada vuelta, no texto flotando sobre el
    fondo de la app. Como es `inset: 0` dentro de la celda que dimensiona el
    frente, hereda su tamaño exacto sin tener que calcularlo. */
@@ -1446,90 +1252,10 @@ input:-webkit-autofill:active {
   text-align: center;
 }
 
-/* La columna de papel de la tarjeta de grupo (ver GroupCard.tsx).
-
-   La tarjeta pasa a ser dos cosas: una franja de tinta arriba -interruptor y
-   nombre- y una hoja abajo con las cartas. El estado lo dice el PAPEL, que es
-   lo que se ve de lejos en una grilla de doce tarjetas: crema cuando el grupo
-   entra en la ronda, gris cuando no.
-
-   El paso de la pauta y el alto del renglón son la MISMA variable: si se
-   separan, los renglones dejan de caer sobre las líneas -que es todo el punto
-   del papel de manuscrito-. */
-.knd-gc-papel {
-  /* El paso del renglón, que es también el alto de cada fila. El diseño usa
-     38,4px en escritorio y 27 en teléfono: una tarjeta de escritorio es casi
-     el doble de alta, así que con un solo paso o queda apretada arriba o
-     sobra papel abajo. */
-  --knd-gc-paso: 1.6875rem;
-  --knd-gc-kana: 0.875rem;
-  --knd-gc-romaji: 0.5625rem;
-  /* El aire entre el primer y el último renglón y el borde de la hoja. En el
-     diseño sale solo: la tarjeta tiene alto FIJO y sobra papel, así que los
-     renglones quedan centrados con holgura. Acá la tarjeta la estira la
-     grilla al alto de la más alta de su fila, y con cinco renglones la hoja
-     medía exactamente lo que sumaban: el primero y el último quedaban
-     pegados al borde. */
-  --knd-gc-aire: 0.3125rem;
-  flex: 1;
-  width: 100%;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  /* Los renglones arrancan ARRIBA, no centrados en la hoja. Centrados, un
-     grupo de tres kana quedaba flotando en el medio del papel con aire arriba
-     y abajo, y al lado de otro de cinco las dos hojas no compartían ningún
-     renglón: la pauta dejaba de leerse como pauta. Desde arriba, el primer
-     renglón de todas las tarjetas cae a la misma altura, que es lo que hace
-     una hoja rayada de verdad. Horizontalmente cada renglón sigue centrado. */
-  justify-content: flex-start;
-  overflow: hidden;
-  padding-block: var(--knd-gc-aire);
-  border-radius: 3px;
-  background-color: var(--knd-papel);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    var(--knd-pauta) 0 1px,
-    transparent 1px var(--knd-gc-paso)
-  );
-  /* La pauta arranca donde arranca el CONTENIDO, no en el borde: con el
-     origen por defecto -la caja de relleno- las líneas se corrían el alto del
-     aire y dejaban de caer sobre los renglones, que es todo el punto. */
-  background-origin: content-box;
-}
-.knd-gc-papel[data-off] {
-  background-color: var(--knd-papel-off);
-}
-
-.knd-gc-fila {
-  height: var(--knd-gc-paso);
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
 /* Los tamaños de la hoja de la tarjeta, por anchura. En teléfono son los de
    arriba; de 800px para arriba, los de escritorio del diseño. */
 @media (min-width: 800px) {
-  .knd-gc-papel {
-    --knd-gc-paso: 2.4rem;
-    --knd-gc-kana: 1.1875rem;
-    --knd-gc-romaji: 0.59375rem;
-    --knd-gc-aire: 0.4375rem;
-  }
 }
-
-/* Un grupo de PALABRAS -no de kana sueltos- baja el cuerpo: «けんきゅうしゃ»
-   no entra al tamaño de un kana solo. El recorte con puntos suspensivos se
-   encarga de lo que igual no entre. */
-.knd-gc-papel[data-palabras] {
-  --knd-gc-kana: 0.8125rem;
-}
-
-.knd-gc-kana { font-size: var(--knd-gc-kana); }
-.knd-gc-romaji { font-size: var(--knd-gc-romaji); }
 
 /* La pantalla de Significados (ver MeaningRunner.tsx). */
 
@@ -1690,39 +1416,6 @@ input:-webkit-autofill:active {
 .knd-field:focus-within {
   border: 1.5px solid var(--knd-sumi);
   box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
-}
-
-.knd-field-label {
-  flex: none;
-  font-size: 0.5625rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--knd-sumi-dim);
-  /* El rótulo no se selecciona con el texto: está adentro del campo, así que
-     un doble clic para elegir una palabra lo arrastraría al portapapeles. */
-  user-select: none;
-}
-
-.knd-field-input {
-  flex: 1;
-  min-width: 0;
-  /* Sin caja propia: la caja es la hojita de afuera. */
-  appearance: none;
-  border: 0;
-  padding: 0;
-  background: transparent;
-  font: inherit;
-  font-size: 1rem;
-  color: var(--knd-sumi);
-}
-.knd-field-input:focus { outline: none; }
-.knd-field-input::placeholder { color: var(--knd-sumi-dim); }
-
-.knd-field-end {
-  flex: none;
-  font-family: var(--knd-f-mono);
-  font-size: 0.75rem;
-  color: var(--knd-sumi-dim);
 }
 
 /* La nota debajo de un campo: 12px en el gris apagado de la escala. Es la

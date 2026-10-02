@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
+import styles from './GenkoSheet.module.css';
 
 /**
  * La hoja de 原稿用紙: una celda por carácter, con la cruz de guía adentro.
@@ -53,10 +54,10 @@ export function GenkoSheet({
         // El índice como clave es correcto acá: la lista no se reordena ni se
         // filtra, es el texto partido en orden, y dos celdas con el mismo
         // carácter -las dos い de いいえ- no son intercambiables.
-        <span key={i} className="knd-genko-celda">
+        <span key={i} className={styles.genkoCelda}>
           <Guides />
           {ch !== ' ' && (
-            <span className="knd-genko-glifo mincho" style={tone ? { color: tone } : undefined}>
+            <span className={`${styles.genkoGlifo} mincho`} style={tone ? { color: tone } : undefined}>
               {ch}
             </span>
           )}
@@ -67,7 +68,7 @@ export function GenkoSheet({
           última fila se veía como un bloque gris: el fondo del contenedor, que
           es el color de la línea, asomando donde no hay celdas. */}
       {Array.from({ length: padding }, (_, i) => (
-        <span key={`hueco-${i}`} className="knd-genko-celda" aria-hidden>
+        <span key={`hueco-${i}`} className={styles.genkoCelda} aria-hidden>
           <Guides />
         </span>
       ))}
@@ -124,7 +125,7 @@ function useRowPadding(ref: React.RefObject<HTMLDivElement | null>, n: number) {
 function Guides(): ReactNode {
   return (
     <svg
-      className="knd-genko-cruz"
+      className={styles.genkoCruz}
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
       shapeRendering="geometricPrecision"

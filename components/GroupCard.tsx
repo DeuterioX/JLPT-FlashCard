@@ -2,6 +2,7 @@
 
 import { Card, Switch, Stack, Group, Text } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
+import styles from './GroupCard.module.css';
 
 /**
  * La regla de las seis cartas: si el grupo trae preview, se muestran las cartas
@@ -69,7 +70,7 @@ export function GroupCard({
           toggle();
         }
       }}
-      className="knd-group-card"
+      className={styles.groupCard}
       // Colores del diseño para el estado prendido: no son un tinte
       // genérico de la escala jade, son los valores puntuales que fija
       // el sistema visual ("esta tarjeta está activa"), nombrados en
@@ -157,16 +158,16 @@ export function GroupCard({
             variable de CSS: separados, los renglones dejan de caer sobre las
             líneas, que es todo el punto del papel de manuscrito. */}
         <div
-          className="knd-gc-papel knd-gc-words"
+          className={`${styles.gcPapel} ${styles.gcWords}`}
           data-off={checked ? undefined : ''}
           data-palabras={palabras ? '' : undefined}
         >
           {group.preview.map((p) => (
-            <div key={p.prompt} className="knd-gc-fila">
-              <Text className="kana knd-gc-cut knd-gc-kana" lh={1.2} c={kanaColor}>
+            <div key={p.prompt} className={styles.gcFila}>
+              <Text className={`kana ${styles.gcCut} ${styles.gcKana}`} lh={1.2} c={kanaColor}>
                 {p.prompt}
               </Text>
-              <Text className="romaji knd-gc-cut knd-gc-romaji" c={romajiColor} lh={1.2}>
+              <Text className={`romaji ${styles.gcCut} ${styles.gcRomaji}`} c={romajiColor} lh={1.2}>
                 {p.romaji}
               </Text>
             </div>

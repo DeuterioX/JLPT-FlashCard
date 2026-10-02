@@ -1,5 +1,6 @@
 import { rem } from '@mantine/core';
 import type { InputHTMLAttributes, ReactNode, Ref } from 'react';
+import styles from './PaperField.module.css';
 
 /**
  * Un campo de texto con el rótulo ADENTRO, sobre papel.
@@ -42,7 +43,7 @@ export function PaperField({
       style={{ '--knd-field-height': rem(height) } as React.CSSProperties}
       data-ancho={height === 40 ? 'holgado' : undefined}
     >
-      <span className="knd-field-label">{label}</span>
+      <span className={styles.fieldLabel}>{label}</span>
       {/* `autoComplete="off"` por default y no sólo cuando quien lo usa se
           acuerda: el tema se lo pone a todo `TextInput` de Mantine, y este
           campo es un `<input>` crudo que no hereda esos `defaultProps`. Sin
@@ -50,10 +51,10 @@ export function PaperField({
           navegador con direcciones y nombres propios. Se puede pisar desde
           afuera porque `props` viene después. */}
       <input
-        id={id} ref={inputRef} className="knd-field-input"
+        id={id} ref={inputRef} className={styles.fieldInput}
         autoComplete="off" {...props}
       />
-      {right && <span className="knd-field-end">{right}</span>}
+      {right && <span className={styles.fieldEnd}>{right}</span>}
     </label>
   );
 }

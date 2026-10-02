@@ -1,0 +1,29 @@
+.genkoCelda {
+  position: relative;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  background: var(--knd-papel);
+}
+
+.genkoCruz {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* `non-scaling-stroke` mantiene el trazo en un píxel de CSS sin importar
+   cuánto escale el viewBox, y sin tener que calcular el grosor en unidades
+   del viewBox desde el lado de la celda. */
+.genkoCruz line {
+  stroke: rgb(160 66 50 / 20%);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+
+.genkoGlifo {
+  font-size: calc(var(--knd-genko-lado) * 0.62);
+  line-height: 1;
+  color: var(--knd-sumi);
+}

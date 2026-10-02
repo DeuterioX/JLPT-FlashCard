@@ -7,10 +7,11 @@ import { Brand } from './Brand';
 import { DesktopNav } from './DesktopNav';
 import { MobileNav } from './MobileNav';
 import { usePhone } from '@/lib/client/screen';
+import styles from './AppShell.module.css';
 
 /**
  * Header, contenido y barra de pestañas, en una columna donde sólo el
- * contenido scrollea (ver `.knd-shell` en globals.css).
+ * contenido scrollea (ver `.${styles.shell}` en globals.css).
  *
  * Viaja UNA navegación, la que decidió el user-agent en `app/layout.tsx`, y no
  * las dos con el CSS escondiendo una. El resto del layout -columnas, qué entra
@@ -30,17 +31,17 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
   if (path === '/quiz') return <>{children}</>;
 
   return (
-    <div className="knd-shell">
+    <div className={styles.shell}>
       {/* También en teléfono, por la marca: Práctica y Estadísticas no traen
           otra barra. Donde la pantalla trae la suya, el CSS la apaga. */}
-      <Box component="header" id="app-header" className="knd-app-header" bg="dark.6">
+      <Box component="header" id="app-header" className={styles.appHeader} bg="dark.6">
         <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
           {!phone && <DesktopNav />}
         </Group>
       </Box>
 
-      <Box component="main" id="main" ref={main} className="knd-main">
+      <Box component="main" id="main" ref={main} className={styles.main}>
         {children}
       </Box>
 
