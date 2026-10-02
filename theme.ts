@@ -82,6 +82,14 @@ export const theme = createTheme({
   // contraste. autoContrast hace que Mantine elija texto oscuro o claro
   // según la luminosidad del fondo, componente por componente, en vez de
   // asumir blanco siempre.
+  // Mantine hunde CADA botón un píxel al apretarlo: su tema trae
+  // `activeClassName: 'mantine-active'`, que aplica `translateY(1px)` en
+  // `:active` (verificado en `styles.css:602`). No está en el diseño -el
+  // canvas no define ningún estado apretado- y en un botón chico de ícono,
+  // como el del tema, el salto se nota más que el propio botón. El rebote
+  // visual al apretar lo da el fondo del hover y el foco, que sí están.
+  activeClassName: '',
+
   autoContrast: true,
   // El umbral por defecto de Mantine es 0.3, y el jade nuevo (#4FA37B) mide
   // 0.2944 de luminancia: cae del lado equivocado por seis milésimas y

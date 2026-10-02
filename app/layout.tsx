@@ -67,7 +67,7 @@ const fMincho = Zen_Old_Mincho({
   fallback: ['Georgia', 'serif'],
 });
 
-const FUENTES = [fUi, fMono, fKana, fMincho].map((f) => f.variable).join(' ');
+const FONTS = [fUi, fMono, fKana, fMincho].map((f) => f.variable).join(' ');
 
 export const metadata = { title: APP_NAME, description: APP_DESCRIPTION };
 // `interactiveWidget: 'resizes-content'` le pide al navegador que, cuando
@@ -104,7 +104,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const phone = device.type === 'mobile';
 
   return (
-    <html lang="es" className={FUENTES} data-phone={phone || undefined} {...mantineHtmlProps}>
+    <html lang="es" className={FONTS} data-phone={phone || undefined} {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>

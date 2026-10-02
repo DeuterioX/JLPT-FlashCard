@@ -40,9 +40,10 @@ export function Brand({
         width={34}
         height={34}
         priority
-        style={{ height: '2.125rem', width: 'auto', flexShrink: 0 }}
+        style={{ height: '2.125rem', width: 'auto', flexShrink: 0 }} // TODO: sacarlo a un estilo CSS
       />
-      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>}
+      {/* TODO: agregar como subtitulo la frase キツネ・カード */}
+      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>} 
     </Group>
   );
 }

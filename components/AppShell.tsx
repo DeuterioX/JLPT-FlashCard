@@ -1,9 +1,11 @@
 'use client';
 
 import { AppShell as MantineShell, Group, Text, Anchor, Box, rem } from '@mantine/core';
+import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Brand } from './Brand';
+import { PHONE_QUERY } from '@/lib/client/screen';
 import { ThemeToggle } from './ThemeToggle';
 
 // `id` es el sufijo del `id=""` de cada link (`nav-desktop-practice`,
@@ -35,6 +37,40 @@ function isActive(path: string, href: string) {
 }
 
 /**
+ * Teléfono o escritorio: el servidor adivina, la pantalla manda.
+ *
+ * El user-agent decide qué navegación VIAJA en el HTML, así que se manda una
+ * sola y no las dos -que era el punto de sacarlo del CSS-. Pero esa decisión
+ * se toma una vez, al pedir el documento, y hay dos casos donde queda vieja:
+ * achicar la ventana de una laptop, y cambiar el modo dispositivo de las
+ * herramientas de desarrollo sin recargar. En los dos el user-agent no cambia
+ * y el ancho sí.
+ *
+ * Así que después de montar manda el ancho. El `useEffect` corre DESPUÉS de la
+ * hidratación, así que el servidor y el primer render del cliente coinciden
+ * siempre -que era el motivo por el que esto no se hacía con `useMediaQuery` a
+ * secas-, y recién ahí se corrige si hace falta. En un teléfono de verdad el
+ * servidor ya acertó y no se corrige nada.
+ *
+ * El atributo `data-phone` del `<html>` se mueve junto, porque el CSS lo usa
+ * para elegir entre la barra de pantalla y la miga.
+ */
+function usePhone(fromUA: boolean) {
+  const [phone, setPhone] = useState(fromUA);
+  useEffect(() => {
+    const mq = window.matchMedia(PHONE_QUERY);
+    const apply = () => {
+      setPhone(mq.matches);
+      document.documentElement.toggleAttribute('data-phone', mq.matches);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+  return phone;
+}
+
+/**
  * La navegación: barra de pestañas abajo en teléfono, barra arriba en
  * escritorio. Se manda UNA de las dos, no las dos.
  *
@@ -55,8 +91,9 @@ function isActive(path: string, href: string) {
  * `.knd-main-pb` la leen para no quedar tapados por esta barra ni duplicar el
  * padding de la zona segura.
  */
-export function AppShell({ children, phone }: { children: React.ReactNode; phone: boolean }) {
+export function AppShell({ children, phone: phoneUA }: { children: React.ReactNode; phone: boolean }) {
   const path = usePathname();
+  const phone = usePhone(phoneUA);
 
   // El quiz se muestra a pantalla completa: sin navegación que distraiga.
   if (path === '/quiz') return <>{children}</>;
