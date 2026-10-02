@@ -97,10 +97,37 @@ export function SwipeRow({
     const el = frontRef.current;
     if (!el) return;
     const anim = animate ? 'transform .18s ease' : 'none';
+    const moved = el.style.transform !== `translateX(${px}px)`;
     el.style.transition = anim;
     el.style.transform = `translateX(${px}px)`;
+    reveal(px, animate && moved);
     rootRef.current?.style.setProperty('--knd-swipe-x', `${px}px`);
     rootRef.current?.style.setProperty('--knd-swipe-anim', anim);
+  }
+
+  /**
+   * Qué panel se pinta: sólo el del lado hacia el que la fila está corrida.
+   *
+   * Con la fila cerrada no se pinta ninguno. Antes estaban siempre debajo y la
+   * fila sólo los tapaba, y con zoom el borde de la fila cae en una fracción de
+   * pixel: por la costura asomaba una raya verde y una roja del ancho de cada
+   * panel. Si no hay nada debajo, no hay nada que asome.
+   *
+   * Al volver a 0 con animación el panel se apaga cuando la fila TERMINA de
+   * volver, no al empezar: si no, se vería el hueco vacío detrás de la fila
+   * mientras se cierra. Si la fila ya estaba en 0 no hay transición que
+   * esperar -`transitionend` no llegaría nunca- y se apaga en el momento.
+   */
+  function reveal(px: number, waitForTransition: boolean) {
+    const root = rootRef.current;
+    const front = frontRef.current;
+    if (!root || !front) return;
+    if (px !== 0) { root.dataset.reveal = px > 0 ? 'lead' : 'trail'; return; }
+    if (!waitForTransition) { delete root.dataset.reveal; return; }
+    front.addEventListener('transitionend', () => {
+      // Otro gesto pudo haber arrancado mientras volvía.
+      if (front.style.transform === 'translateX(0px)') delete root.dataset.reveal;
+    }, { once: true });
   }
 
   /**

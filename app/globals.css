@@ -388,7 +388,13 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
     width: 6rem;
     display: grid;
     place-items: center;
+    /* Sólo se pinta el panel del lado hacia el que la fila está corrida (ver
+       `reveal` en SwipeRow.tsx): con zoom, uno pintado debajo de la fila
+       cerrada asomaba por la costura de su borde. */
+    visibility: hidden;
   }
+  .knd-swipe-row[data-reveal='lead'] .knd-swipe-lead,
+  .knd-swipe-row[data-reveal='trail'] .knd-swipe-trail { visibility: visible; }
   /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
      izquierda y shu a la derecha, con la tinta que va sobre cada uno -la misma
      pareja de los dos botones del diseño, `primario` y `peligro`-. Antes eran
