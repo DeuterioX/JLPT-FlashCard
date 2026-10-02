@@ -18,14 +18,10 @@ export function Brand({
 }: {
   id?: string;
   nameId?: string;
-  /** Sin nombre donde el ancho está peleado y el zorro alcanza: la barra de
-      teléfono, que además lleva título propio. */
   withName?: boolean;
 }) {
   return (
     <Group id={id} gap={7} wrap="nowrap">
-      {/* El tamaño lo pone `.knd-brand-logo`; `width`/`height` son los que Next
-          pide para reservar el lugar mientras carga. */}
       <Image src={logo} alt="" width={34} height={34} priority className="knd-brand-logo" />
       {withName && (
         <Box>
