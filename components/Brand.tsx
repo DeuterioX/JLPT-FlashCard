@@ -1,7 +1,7 @@
-import { Group, Text } from '@mantine/core';
+import { Box, Group, Text } from '@mantine/core';
 import Image from 'next/image';
 import logo from '../public/logo.png';
-import { APP_NAME } from '../lib/app-meta';
+import { APP_NAME, APP_NAME_JP } from '../lib/app-meta';
 
 /**
  * La marca de la app: el zorro y el nombre.
@@ -33,7 +33,15 @@ export function Brand({
           -ver la clase-. `width`/`height` siguen acá porque Next los pide para
           reservar el lugar y no es lo mismo que el tamaño con el que se pinta. */}
       <Image src={logo} alt="" width={34} height={34} priority className="knd-brand-logo" />
-      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>}
+      {withName && (
+        <Box>
+          <Text id={nameId} fw={700} size="sm" lh={1.25}>{APP_NAME}</Text>
+          {/* El nombre en katakana, más chico y más fino: acompaña al nombre,
+              no compite con él. Los dos juntos siguen midiendo menos que el
+              zorro, así que la barra no crece. */}
+          <Text className="kana knd-brand-sub" aria-hidden>{APP_NAME_JP}</Text>
+        </Box>
+      )}
     </Group>
   );
 }

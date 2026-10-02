@@ -2024,3 +2024,15 @@ input:-webkit-autofill:active {
   width: auto;
   flex-shrink: 0;
 }
+
+/* El nombre en katakana debajo del nombre. Tamaño y `lh` explícitos en la
+   clase y no en props: un `size` en string libre no lo resuelve Mantine contra
+   `theme.lineHeights` y devuelve una caja de línea más chica que la letra.
+   400 es el peso más fino que está cargado de la gótica (ver layout.tsx). */
+.knd-brand-sub {
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--mantine-color-dimmed);
+}
