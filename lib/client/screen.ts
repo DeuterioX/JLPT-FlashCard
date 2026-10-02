@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+
 /**
  * El corte entre teléfono y escritorio, en un solo lugar.
  *
@@ -32,4 +34,33 @@ export const PHONE_QUERY = '(max-width: 767.9px)';
  */
 export function isPhone() {
   return window.matchMedia(PHONE_QUERY).matches;
+}
+
+/**
+ * Teléfono o escritorio: el servidor adivina por el user-agent, la pantalla
+ * manda.
+ *
+ * El primer render tiene que ser el del servidor, o la hidratación no
+ * coincide: por eso arranca con lo que dijo el user-agent y no con un
+ * `useMediaQuery`. El ancho se mira recién en el `useEffect`, que corre
+ * después de hidratar, y corrige los casos donde el user-agent queda viejo:
+ * una laptop con la ventana angosta, o el modo dispositivo de DevTools sin
+ * recargar. En un teléfono de verdad no corrige nada.
+ *
+ * `data-phone` en el `<html>` se mueve junto: el CSS lo usa para elegir entre
+ * la barra de pantalla y la miga.
+ */
+export function usePhone(fromUA: boolean) {
+  const [phone, setPhone] = useState(fromUA);
+  useEffect(() => {
+    const mq = window.matchMedia(PHONE_QUERY);
+    const apply = () => {
+      setPhone(mq.matches);
+      document.documentElement.toggleAttribute('data-phone', mq.matches);
+    };
+    apply();
+    mq.addEventListener('change', apply);
+    return () => mq.removeEventListener('change', apply);
+  }, []);
+  return phone;
 }
