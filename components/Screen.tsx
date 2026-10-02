@@ -32,7 +32,6 @@ export function Screen({
   nav?: {
     id?: string;
     levels: (Crumb | { label: string; href?: string })[];
-    currentClassName?: string;
     currentId?: string;
     action?: React.ReactNode;
   };
@@ -65,7 +64,6 @@ export function Screen({
             id={nav.id}
             trail={trail}
             current={current.label}
-            currentClassName={nav.currentClassName}
             currentId={nav.currentId}
           >
             {nav.action}

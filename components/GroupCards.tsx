@@ -332,7 +332,6 @@ export function GroupCards({
         { label: group.name },
       ],
       currentId: 'group-name',
-      currentClassName: 'kana',
       action: readOnly ? <BuiltinDot /> : (
         <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); renameAction.setError(null); setRenameOpen(true); }} />
       ),

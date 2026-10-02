@@ -1267,6 +1267,12 @@ input:-webkit-autofill:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* El último nivel es SIEMPRE un nombre que puso el usuario -un mazo, un
+   grupo-, así que puede estar en japonés y va en la gótica de kana. Es una
+   regla de la miga y no una decisión de cada pantalla: antes viajaba como un
+   `currentClassName` que las dos pantallas que lo pasaban llenaban con
+   'kana'. */
+.knd-crumb-current { font-family: var(--knd-f-kana); }
 .knd-crumb-sep { color: var(--mantine-color-dark-3); }
 /* La barra y los controles nunca se encogen: son del ancho de un carácter o
    de un botón, y recortarlos no gana nada. */

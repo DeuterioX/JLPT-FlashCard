@@ -19,13 +19,11 @@ export type Crumb = { label: string; href: string };
  * cada pantalla cuelga de su cabecera (Renombrar, el punto de "incluido").
  */
 export function Breadcrumb({
-  id, trail = [], current, currentClassName, currentId, children,
+  id, trail = [], current, currentId, children,
 }: {
   id?: string;
   trail?: Crumb[];
   current: string;
-  /** `kana` donde el nivel actual es una palabra japonesa. */
-  currentClassName?: string;
   currentId?: string;
   children?: React.ReactNode;
 }) {
@@ -48,13 +46,7 @@ export function Breadcrumb({
           <Text className="knd-crumb-sep" size="sm">/</Text>
         </Group>
       ))}
-      <Text
-        id={currentId}
-        className={`knd-crumb-current${currentClassName ? ` ${currentClassName}` : ''}`}
-        size="sm"
-      >
-        {current}
-      </Text>
+      <Text id={currentId} className="knd-crumb-current" size="sm">{current}</Text>
       {children}
     </Group>
   );

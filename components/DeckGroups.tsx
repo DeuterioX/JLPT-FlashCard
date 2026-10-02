@@ -106,7 +106,6 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       id: 'deck-header',
       levels: [{ label: 'Mazos', href: '/decks' }, { label: deck.name }],
       currentId: 'deck-name',
-      currentClassName: 'kana',
       action: readOnly ? <BuiltinDot /> : (
         <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); renameDeckAction.setError(null); setRenameOpen(true); }} />
       ),
