@@ -248,11 +248,6 @@ export const theme = createTheme({
     // en vivo: cero reglas con el color en toda la hoja de estilos). El fix
     // real está en `app/globals.css`, contra la clase pública y estable
     // `.mantine-TextInput-input` que Mantine expone justo para esto.
-    // El header y el pie de la app (AppShell.Header/Main) no son Paper,
-    // así que el fix de arriba no los alcanza: se repite acá.
-    AppShellHeader: {
-      defaultProps: { bg: 'dark.6' },
-    },
     // El deck switcher y el selector de rango de estadísticas comparten
     // este componente. Valores tomados del diseño (sección "El sistema
     // compartido"): riel en la superficie -1 (dark.5), y la opción activa

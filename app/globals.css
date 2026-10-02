@@ -33,12 +33,6 @@ html { font-size: 100%; }
 }
 
 :root {
-  /* Cuánto espacio hay que reservar sobre el borde inferior real de la
-     ventana. En escritorio es 0 (no hay barra de pestañas); en teléfono pasa
-     a ser la altura completa de la barra de pestañas, safe-area incluida.
-     ActionBar y .knd-main-pb leen esta misma variable, así que nunca pueden
-     desincronizarse entre sí. */
-  --knd-bottom-offset: 0px;
 
 }
 
@@ -146,29 +140,61 @@ body { margin: 0; }
   padding-top: 6px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
-/* El fondo de la barra sigue por debajo del borde de la pantalla, donde no se
-   ve. Con zoom el scroll queda en fracciones de pixel (medido: `scrollY`
-   156.8 con `dpr` 3.0000001) y el navegador redondea distinto la capa fija y
-   la que scrollea: aunque la barra termina justo en el borde -medido, 956 de
-   956-, entre las dos queda una costura de menos de un pixel por donde se
-   asoma el contenido. Prolongar el fondo la tapa sin mover la barra. */
-.knd-nav-mobile::after {
-  content: '';
-  position: absolute;
-  inset-inline: 0;
-  top: 100%;
-  height: 100%;
-  background: inherit;
+/* La página es una columna del alto de la pantalla: header, contenido y
+   barra de pestañas. Sólo el contenido scrollea, así que nada flota encima
+   de nada y nadie tiene que reservarle lugar a una barra.
+
+   `100dvh` y no `100vh`: en el teléfono la barra del navegador aparece y
+   desaparece, y con `vh` la barra de pestañas quedaba debajo de ella. */
+.knd-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
 }
-/* La altura real de la barra, para que el contenido y la barra de acción no
-   queden tapados. Cuelga del mismo atributo que decide si la barra existe. */
-:root[data-phone] { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
-/* El padding inferior del contenido es SIEMPRE el del shell (`md`), más la
-   barra de pestañas cuando existe -`--knd-bottom-offset` vale 0 en
-   escritorio-. Antes esto era `0` fijo y la regla de teléfono lo reponía:
-   en escritorio el último panel quedaba pegado al borde de la ventana al
-   scrollear hasta el fondo, sin aire. */
-.knd-main-pb { padding-bottom: calc(var(--knd-bottom-offset) + var(--mantine-spacing-md)); }
+.knd-app-header {
+  flex: none;
+  height: 3rem;
+  /* El borde que ponía el `AppShell` de Mantine, con sus mismos colores. */
+  border-bottom: 1px solid var(--mantine-color-dark-4);
+}
+:root[data-mantine-color-scheme='light'] .knd-app-header { border-bottom-color: var(--mantine-color-gray-3); }
+.knd-nav-mobile { flex: none; }
+/* `display: flex` para que una pantalla con barras propias (`.knd-screen`)
+   pueda llenar el alto que queda. `min-height: 0` porque un hijo flex no se
+   achica por debajo de su contenido, y sin achicarse no hay scroll. */
+.knd-main {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--mantine-spacing-md);
+}
+
+/* Una pantalla en tres franjas (`Screen`): arriba, lo que scrollea y abajo.
+   Llena el `main` y le anula el padding con margen negativo, para que sus
+   barras vayan de borde a borde; el padding pasa a la franja que scrollea. */
+.knd-screen {
+  flex: 1;
+  min-height: 0;
+  margin: calc(-1 * var(--mantine-spacing-md));
+  display: flex;
+  flex-direction: column;
+}
+.knd-screen > * { flex: none; }
+.knd-screen > .knd-screen-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--mantine-spacing-md);
+}
+/* La barra de mazos de Práctica ya trae su aire hacia la grilla en su
+   `padding-bottom` -es donde aparece su borde al scrollear-: sumarle el
+   padding de arriba de la franja lo duplicaría. */
+#deck-switcher-bar + .knd-screen-scroll { padding-top: 0; }
+#deck-switcher-bar { border-bottom: 1px solid transparent; }
+.knd-screen[data-scrolled] > #deck-switcher-bar { border-bottom-color: var(--mantine-color-default-border); }
 
 /* El término japonés del encabezado de sección ("Básicos · gojūon") es de
    escritorio: el mockup del teléfono rotula las mismas secciones con la
@@ -1256,21 +1282,14 @@ input:-webkit-autofill:active {
   .knd-mobile-navbar {
     display: flex;
     align-items: center;
-    /* OCUPA el lugar de la barra del AppShell, no se suma a ella: misma
-       altura y mismo fondo, y la de abajo se apaga. Así los 46px que gastaba
-       la miga vuelven al contenido en vez de sumar una segunda barra. */
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    /* Los mismos 48px que declara el `AppShell`; el `padding-top` que ése
-       reserva en el main sigue en pie aunque su barra esté apagada, así que
-       esta barra cae justo en ese hueco. */
+    /* OCUPA el lugar de la barra de la app, no se suma a ella: misma
+       altura y mismo fondo, y la de la app se apaga. Así los 46px que gastaba
+       la miga vuelven al contenido en vez de sumar una segunda barra. Es la
+       franja de arriba de `Screen`, fuera de lo que scrollea. */
     height: 3rem;
     padding-inline: var(--mantine-spacing-md);
     background: var(--mantine-color-dark-6);
     border-bottom: 1px solid var(--mantine-color-dark-4);
-    z-index: 201;
   }
 
   /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.

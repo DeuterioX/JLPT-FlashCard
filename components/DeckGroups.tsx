@@ -6,7 +6,7 @@ import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, rem,
 } from '@mantine/core';
-import { Navbar } from './Navbar';
+import { Screen } from './Screen';
 import { RenameButton } from './RenameButton';
 import { SectionLabel } from './SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
@@ -102,197 +102,197 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
   });
 
   return (
-    <Stack id="deck-groups-screen" gap="md">
-      <Navbar
-        id="deck-header"
-        levels={[{ label: 'Mazos', href: '/decks' }, { label: deck.name }]}
-        currentId="deck-name"
-        currentClassName="kana"
-        action={readOnly ? <BuiltinDot /> : (
-          <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); renameDeckAction.setError(null); setRenameOpen(true); }} />
-        )}
-      />
+    <Screen nav={{
+      id: 'deck-header',
+      levels: [{ label: 'Mazos', href: '/decks' }, { label: deck.name }],
+      currentId: 'deck-name',
+      currentClassName: 'kana',
+      action: readOnly ? <BuiltinDot /> : (
+        <RenameButton id="rename-deck-btn" onClick={() => { setRenameValue(deck.name); renameDeckAction.setError(null); setRenameOpen(true); }} />
+      ),
+    }}>
+      <Stack id="deck-groups-screen" gap="md">
+        <Group className="knd-sect-row" gap={10} wrap="nowrap">
+          <SectionLabel id="groups-count" jp="組">
+            {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
+          </SectionLabel>
+          {readOnly
+            ? <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>sólo lectura</Text>
+            : (
+              <Button id="new-group-btn" size="compact-sm" onClick={() => { setNewName(''); createGroupAction.setError(null); setNewOpen(true); }}>
+                + Nuevo grupo
+              </Button>
+            )}
+        </Group>
 
-      <Group className="knd-sect-row" gap={10} wrap="nowrap">
-        <SectionLabel id="groups-count" jp="組">
-          {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
-        </SectionLabel>
-        {readOnly
-          ? <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>sólo lectura</Text>
-          : (
-            <Button id="new-group-btn" size="compact-sm" onClick={() => { setNewName(''); createGroupAction.setError(null); setNewOpen(true); }}>
-              + Nuevo grupo
-            </Button>
-          )}
-      </Group>
-
-      <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
-        {deck.groups.map((g, i) => (
-          <div key={g.id} id={`group-row-${g.id}`}>
-            {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
-            {/* Renombrar a la izquierda, Borrar a la derecha, y Borrar no
-                aparece cuando es el último grupo -un mazo necesita al menos
-                uno-, que en escritorio es el botón apagado de más abajo. */}
-            <SwipeRow
-              label={g.name}
-              tappable
-              onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
-              leading={readOnly
-                ? undefined
-                : { etiqueta: 'Renombrar', onAction: () => openGRename(g) }}
-              trailing={readOnly || deck.groups.length === 1
-                ? undefined
-                : { etiqueta: 'Borrar', onAction: () => { deleteGroupAction.setError(null); setConfirm(g); } }}
-            >
-            <Group
-              gap={12}
-              wrap="nowrap"
-              style={{ padding: '0.625rem 0.8125rem' }}
-            >
-              {/* `knd-swipe-pin`: el nombre no se va de pantalla cuando el gesto
-                  corre la fila para descubrir Borrar. Ver globals.css. */}
-              <Stack gap={0} className="knd-swipe-pin" style={{ flex: 1, minWidth: 0 }}>
-                {/* El nombre ES el enlace. Antes el único elemento enfocable
-                    de la fila era el botón «Ver cartas», y al sacarlo -la
-                    fila entera ya navega al tocarla- el teclado se quedaba
-                    sin camino. Además esto devuelve el clic derecho y el
-                    abrir en otra pestaña, que un `onClick` no da. */}
-                <Anchor
-                  component={Link}
-                  href={`/decks/${deck.id}/groups/${g.id}`}
-                  underline="never"
-                  c="var(--mantine-color-text)"
-                  size={rem(13)}
-                  lh={1.45}
-                  fw={500}
-                  className="kana"
-                >
-                  {g.name}
-                </Anchor>
-                <Text size={rem(11)} lh={1.45} c="dark.3">
-                  {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
-                </Text>
-              </Stack>
-              <Group className="knd-group-actions" gap={5} wrap="nowrap">
-                {/* El último grupo no se borra: una carta siempre pertenece a
-                    uno, así que el mazo necesita al menos uno. */}
-                {!readOnly && (
-                  <Button
-                    id={`group-delete-${g.id}`}
-                    variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
-                    disabled={deck.groups.length === 1}
-                    title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
-                    onClick={() => { deleteGroupAction.setError(null); setConfirm(g); }}
+        <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
+          {deck.groups.map((g, i) => (
+            <div key={g.id} id={`group-row-${g.id}`}>
+              {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
+              {/* Renombrar a la izquierda, Borrar a la derecha, y Borrar no
+                  aparece cuando es el último grupo -un mazo necesita al menos
+                  uno-, que en escritorio es el botón apagado de más abajo. */}
+              <SwipeRow
+                label={g.name}
+                tappable
+                onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
+                leading={readOnly
+                  ? undefined
+                  : { etiqueta: 'Renombrar', onAction: () => openGRename(g) }}
+                trailing={readOnly || deck.groups.length === 1
+                  ? undefined
+                  : { etiqueta: 'Borrar', onAction: () => { deleteGroupAction.setError(null); setConfirm(g); } }}
+              >
+              <Group
+                gap={12}
+                wrap="nowrap"
+                style={{ padding: '0.625rem 0.8125rem' }}
+              >
+                {/* `knd-swipe-pin`: el nombre no se va de pantalla cuando el gesto
+                    corre la fila para descubrir Borrar. Ver globals.css. */}
+                <Stack gap={0} className="knd-swipe-pin" style={{ flex: 1, minWidth: 0 }}>
+                  {/* El nombre ES el enlace. Antes el único elemento enfocable
+                      de la fila era el botón «Ver cartas», y al sacarlo -la
+                      fila entera ya navega al tocarla- el teclado se quedaba
+                      sin camino. Además esto devuelve el clic derecho y el
+                      abrir en otra pestaña, que un `onClick` no da. */}
+                  <Anchor
+                    component={Link}
+                    href={`/decks/${deck.id}/groups/${g.id}`}
+                    underline="never"
+                    c="var(--mantine-color-text)"
+                    size={rem(13)}
+                    lh={1.45}
+                    fw={500}
+                    className="kana"
                   >
-                    Borrar
-                  </Button>
-                )}
-                {!readOnly && (
-                  <Button
-                    id={`group-rename-${g.id}`}
-                    variant="default" size="compact-xs"
-                    onClick={() => openGRename(g)}
-                  >
-                    Renombrar
-                  </Button>
-                )}
+                    {g.name}
+                  </Anchor>
+                  <Text size={rem(11)} lh={1.45} c="dark.3">
+                    {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
+                  </Text>
+                </Stack>
+                <Group className="knd-group-actions" gap={5} wrap="nowrap">
+                  {/* El último grupo no se borra: una carta siempre pertenece a
+                      uno, así que el mazo necesita al menos uno. */}
+                  {!readOnly && (
+                    <Button
+                      id={`group-delete-${g.id}`}
+                      variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
+                      disabled={deck.groups.length === 1}
+                      title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
+                      onClick={() => { deleteGroupAction.setError(null); setConfirm(g); }}
+                    >
+                      Borrar
+                    </Button>
+                  )}
+                  {!readOnly && (
+                    <Button
+                      id={`group-rename-${g.id}`}
+                      variant="default" size="compact-xs"
+                      onClick={() => openGRename(g)}
+                    >
+                      Renombrar
+                    </Button>
+                  )}
+                </Group>
               </Group>
-            </Group>
-            </SwipeRow>
-          </div>
-        ))}
-      </Paper>
+              </SwipeRow>
+            </div>
+          ))}
+        </Paper>
 
-      <Modal id="rename-deck-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title={<ModalTitle jp="改">Renombrar mazo</ModalTitle>}>
-        <Stack
-          component="form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            if (!renameValue.trim() || renameDeckAction.busy) return;
-            void renameDeck();
-          }}
+        <Modal id="rename-deck-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title={<ModalTitle jp="改">Renombrar mazo</ModalTitle>}>
+          <Stack
+            component="form"
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (!renameValue.trim() || renameDeckAction.busy) return;
+              void renameDeck();
+            }}
+          >
+            <PaperField
+              id="rename-deck-input" label="Nombre"
+              value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
+            />
+            {renameDeckAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameDeckAction.error}</Text>}
+            <ModalActions onCancel={() => setRenameOpen(false)} busy={renameDeckAction.busy}>
+              <Button type="submit" disabled={!renameValue.trim() || renameDeckAction.busy} loading={renameDeckAction.busy}>
+                Guardar
+              </Button>
+            </ModalActions>
+          </Stack>
+        </Modal>
+
+        <Modal
+          id="rename-group-row-modal"
+          opened={!!gRename}
+          onClose={() => setGRename(null)}
+          title={<ModalTitle jp="改">Renombrar grupo</ModalTitle>}
         >
-          <PaperField
-            id="rename-deck-input" label="Nombre"
-            value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
-          />
-          {renameDeckAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameDeckAction.error}</Text>}
-          <ModalActions onCancel={() => setRenameOpen(false)} busy={renameDeckAction.busy}>
-            <Button type="submit" disabled={!renameValue.trim() || renameDeckAction.busy} loading={renameDeckAction.busy}>
-              Guardar
-            </Button>
-          </ModalActions>
-        </Stack>
-      </Modal>
+          <Stack
+            component="form"
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (!gRenameValue.trim() || renameGroupAction.busy) return;
+              void renameGroupName();
+            }}
+          >
+            <PaperField
+              id="rename-group-row-input" label="Nombre"
+              value={gRenameValue} onChange={(e) => setGRenameValue(e.currentTarget.value)}
+            />
+            {renameGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameGroupAction.error}</Text>}
+            <ModalActions onCancel={() => setGRename(null)} busy={renameGroupAction.busy}>
+              <Button type="submit" disabled={!gRenameValue.trim() || renameGroupAction.busy} loading={renameGroupAction.busy}>
+                Guardar
+              </Button>
+            </ModalActions>
+          </Stack>
+        </Modal>
 
-      <Modal
-        id="rename-group-row-modal"
-        opened={!!gRename}
-        onClose={() => setGRename(null)}
-        title={<ModalTitle jp="改">Renombrar grupo</ModalTitle>}
-      >
-        <Stack
-          component="form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            if (!gRenameValue.trim() || renameGroupAction.busy) return;
-            void renameGroupName();
-          }}
-        >
-          <PaperField
-            id="rename-group-row-input" label="Nombre"
-            value={gRenameValue} onChange={(e) => setGRenameValue(e.currentTarget.value)}
-          />
-          {renameGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameGroupAction.error}</Text>}
-          <ModalActions onCancel={() => setGRename(null)} busy={renameGroupAction.busy}>
-            <Button type="submit" disabled={!gRenameValue.trim() || renameGroupAction.busy} loading={renameGroupAction.busy}>
-              Guardar
-            </Button>
-          </ModalActions>
-        </Stack>
-      </Modal>
+        <Modal id="new-group-modal" opened={newOpen} onClose={() => setNewOpen(false)} title={<ModalTitle jp="新">Nuevo grupo</ModalTitle>}>
+          <Stack
+            component="form"
+            onSubmit={(e: FormEvent) => {
+              e.preventDefault();
+              if (!newName.trim() || createGroupAction.busy) return;
+              void createGroup();
+            }}
+          >
+            <PaperField
+              id="new-group-input" label="Nombre" placeholder="Verdura"
+              value={newName} onChange={(e) => setNewName(e.currentTarget.value)}
+            />
+            {createGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{createGroupAction.error}</Text>}
+            <ModalActions onCancel={() => setNewOpen(false)} busy={createGroupAction.busy}>
+              <Button type="submit" disabled={!newName.trim() || createGroupAction.busy} loading={createGroupAction.busy}>
+                Crear
+              </Button>
+            </ModalActions>
+          </Stack>
+        </Modal>
 
-      <Modal id="new-group-modal" opened={newOpen} onClose={() => setNewOpen(false)} title={<ModalTitle jp="新">Nuevo grupo</ModalTitle>}>
-        <Stack
-          component="form"
-          onSubmit={(e: FormEvent) => {
-            e.preventDefault();
-            if (!newName.trim() || createGroupAction.busy) return;
-            void createGroup();
-          }}
-        >
-          <PaperField
-            id="new-group-input" label="Nombre" placeholder="Verdura"
-            value={newName} onChange={(e) => setNewName(e.currentTarget.value)}
-          />
-          {createGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{createGroupAction.error}</Text>}
-          <ModalActions onCancel={() => setNewOpen(false)} busy={createGroupAction.busy}>
-            <Button type="submit" disabled={!newName.trim() || createGroupAction.busy} loading={createGroupAction.busy}>
-              Crear
-            </Button>
-          </ModalActions>
-        </Stack>
-      </Modal>
-
-      <Modal id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el grupo?</ModalTitle>}>
-        <Stack gap={14}>
-          {/* La frase del diseño: el verbo adelante y en negrita sólo lo que
-              desaparece. `deleteGroup` borra en cascada, igual que borrar un
-              mazo, así que el número de cartas es parte de la advertencia y no
-              un dato de color. */}
-          <Text className="knd-delete-note">
-            {'Se va a borrar '}
-            <b>{`«${confirm?.name ?? ''}»`}</b>
-            {' y sus '}
-            <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
-            {'. No se puede deshacer.'}
-          </Text>
-          {deleteGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteGroupAction.error}</Text>}
-          <ModalActions onCancel={() => setConfirm(null)} busy={deleteGroupAction.busy}>
-            <Button color="shu.6" onClick={deleteGroup} loading={deleteGroupAction.busy}>Borrar el grupo</Button>
-          </ModalActions>
-        </Stack>
-      </Modal>
-    </Stack>
+        <Modal id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el grupo?</ModalTitle>}>
+          <Stack gap={14}>
+            {/* La frase del diseño: el verbo adelante y en negrita sólo lo que
+                desaparece. `deleteGroup` borra en cascada, igual que borrar un
+                mazo, así que el número de cartas es parte de la advertencia y no
+                un dato de color. */}
+            <Text className="knd-delete-note">
+              {'Se va a borrar '}
+              <b>{`«${confirm?.name ?? ''}»`}</b>
+              {' y sus '}
+              <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
+              {'. No se puede deshacer.'}
+            </Text>
+            {deleteGroupAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteGroupAction.error}</Text>}
+            <ModalActions onCancel={() => setConfirm(null)} busy={deleteGroupAction.busy}>
+              <Button color="shu.6" onClick={deleteGroup} loading={deleteGroupAction.busy}>Borrar el grupo</Button>
+            </ModalActions>
+          </Stack>
+        </Modal>
+      </Stack>
+    </Screen>
   );
 }

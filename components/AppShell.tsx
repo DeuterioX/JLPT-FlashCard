@@ -1,7 +1,7 @@
 'use client';
 
-import { AppShell as MantineShell, Group, Text, Anchor, Box, rem } from '@mantine/core';
-import { useEffect, useState } from 'react';
+import { Group, Text, Anchor, Box, rem } from '@mantine/core';
+import { useEffect, useRef, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { Brand } from './Brand';
@@ -86,26 +86,34 @@ function usePhone(fromUA: boolean) {
  * CSS es el `sm` de Mantine (768px), el mismo que usa la grilla de
  * Estadísticas: una sola escala en toda la app.
  *
- * La altura de la barra de pestañas (con su safe-area incluida) vive en
- * `app/globals.css`, en la variable `--knd-bottom-offset`: `ActionBar` y
- * `.knd-main-pb` la leen para no quedar tapados por esta barra ni duplicar el
- * padding de la zona segura.
+ * La página es una columna del alto de la pantalla: header, contenido y
+ * barra de pestañas, y sólo el contenido scrollea. Nada flota encima de nada,
+ * así que nadie tiene que reservarle lugar a una barra: antes header y
+ * pestañas eran `fixed` sobre una página que scrolleaba entera, y con zoom
+ * por la costura entre las dos capas se asomaba el contenido.
  */
 export function AppShell({ children, phone: phoneUA }: { children: React.ReactNode; phone: boolean }) {
   const path = usePathname();
   const phone = usePhone(phoneUA);
+  const main = useRef<HTMLElement>(null);
+
+  // El `main` persiste entre navegaciones -vive en el layout-, así que su
+  // scroll también: sin esto, pasar de una pantalla scrolleada a otra la
+  // abriría a mitad de camino. Antes lo hacía Next solo, porque scrolleaba
+  // la ventana.
+  useEffect(() => { main.current?.scrollTo(0, 0); }, [path]);
 
   // El quiz se muestra a pantalla completa: sin navegación que distraiga.
   if (path === '/quiz') return <>{children}</>;
 
   return (
-    <MantineShell header={{ height: 48 }} padding="md">
-      {/* El header está SIEMPRE, también en teléfono: no es sólo navegación,
-          lleva la marca, y Práctica y Estadísticas no traen otra barra arriba.
-          Además reserva los 48px del `padding-top` del main, que la barra de
-          pantalla de Mazos (`fixed`) ocupa al taparlo. Lo que viaja sólo en
-          escritorio son los links y el botón de tema. */}
-      <MantineShell.Header id="app-header">
+    <div className="knd-shell">
+      {/* Arriba del todo, fuera de lo que scrollea: no flota encima de nada.
+          Está también en teléfono, porque lleva la marca y Práctica y
+          Estadísticas no traen otra barra; donde la pantalla trae la suya
+          (`Screen` con `nav`), el CSS la apaga. Los links y el botón de tema
+          viajan sólo en escritorio. */}
+      <Box component="header" id="app-header" className="knd-app-header" bg="dark.6">
         <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
           {!phone && (<>
@@ -142,24 +150,22 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
           </Box>
           </>)}
         </Group>
-      </MantineShell.Header>
+      </Box>
 
-      <MantineShell.Main id="main" className="knd-main-pb">
+      {/* Lo único que scrollea. Una pantalla con barras propias (`Screen`) lo
+          llena y scrollea adentro suyo; las demás scrollean acá. */}
+      <Box component="main" id="main" ref={main} className="knd-main">
         {children}
-      </MantineShell.Main>
+      </Box>
 
       {phone && (
       <Box
-        pos="fixed"
-        bottom={0}
-        left={0}
-        right={0}
+        component="nav"
         id="nav-mobile"
         className="knd-nav-mobile"
         style={{
           background: 'var(--mantine-color-dark-6)',
           borderTop: '1px solid var(--mantine-color-default-border)',
-          zIndex: 100,
         }}
       >
         {LINKS.map((l) => (
@@ -196,6 +202,6 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
         ))}
       </Box>
       )}
-    </MantineShell>
+    </div>
   );
 }
