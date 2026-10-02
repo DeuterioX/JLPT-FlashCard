@@ -1,0 +1,36 @@
+/* La navegación de escritorio no tenía hover: el inactivo se quedaba igual
+   al pasarle el mouse por encima. El resalte levanta el TEXTO y no pinta un
+   fondo, porque el fondo ya está tomado: la píldora del activo usa `dark.5`,
+   que en esta paleta es el color de hover de la app. Un hover relleno haría
+   que "podés ir acá" y "estás acá" se vean del mismo color, y la píldora
+   dejaría de significar una sola cosa.
+
+   Va detrás de `hover: hover` por lo mismo que las filas: en un laptop
+   táctil el estado se quedaría pegado después del toque.
+
+   El activo va en `--a-text` y no en el jade que traía por defecto el
+   `Anchor` de Mantine: el diseño lo pide así (`.nav a.on { color:
+   var(--a-text) }`) porque acá la señal de "estás acá" ya la da la
+   píldora, y el color sólo la acompaña. La barra de teléfono sí usa jade
+   (`.tabbar span.on`), y es correcto: ahí no hay píldora que lo diga. */
+/* La píldora del menú: 6px de radio y 5px de alto de relleno, no los 7 de
+   `radius.sm` ni los 4 que traía. Medido contra el tablero. */
+a.navLink {
+  color: var(--mantine-color-dark-2);
+  border-radius: 6px;
+  padding-block: 5px;
+  padding-inline: var(--mantine-spacing-sm);
+}
+
+a.navLinkOn {
+  color: var(--mantine-color-text);
+  background: var(--mantine-color-dark-5);
+}
+
+@media (hover: hover) {
+  a.navLink { transition: color 120ms ease; }
+}
+
+@media (hover: hover) {
+  a.navLink:not(.navLinkOn):hover { color: var(--mantine-color-text); }
+}

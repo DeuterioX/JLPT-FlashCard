@@ -1,4 +1,5 @@
 import { Group, Text, rem } from '@mantine/core';
+import styles from './SectionLabel.module.css';
 
 /**
  * `.sect-label` del diseño: el encabezado de sección que se repite en toda
@@ -22,7 +23,7 @@ export function SectionLabel({
   /**
    * Término japonés que el diseño agrega en escritorio ("Básicos · gojūon")
    * y omite en teléfono, donde no entra. Esa diferencia la resuelve
-   * `.knd-sect-suffix` en globals.css, no un `useMediaQuery`: así el
+   * `.${styles.sectSuffix}` en globals.css, no un `useMediaQuery`: así el
    * servidor y el cliente renderizan lo mismo.
    */
   suffix?: string;
@@ -45,12 +46,12 @@ export function SectionLabel({
         {/* Template literal y no texto suelto con un espacio al lado del
             tag: un espacio pegado al cierre de un tag puede colapsar a
             ancho cero (ver la regla en CLAUDE.md). */}
-        {suffix && <span className="knd-sect-suffix">{` · ${suffix}`}</span>}
+        {suffix && <span className={styles.sectSuffix}>{` · ${suffix}`}</span>}
       </Text>
       {/* La línea lleva una marca de 18px en shu en su arranque: es el único
           lugar donde el acento aparece sin codificar un estado, y es lo que
           ata el encabezado al resto de la identidad. */}
-      <span className="knd-sect-rule" />
+      <span className={styles.sectRule} />
     </Group>
   );
 }

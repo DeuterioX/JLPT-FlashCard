@@ -1,6 +1,7 @@
 'use client';
 
 import { Group, Paper } from '@mantine/core';
+import styles from './ActionBar.module.css';
 
 /**
  * La barra de acción de abajo de una pantalla: el conteo a la izquierda y la
@@ -32,10 +33,10 @@ export function ActionBar({ children }: { children: React.ReactNode }) {
           derecha, en una fila. En teléfono la fila no entra -medido: «4
           grupos · 20 cartas» y los dos verbos en 390px partían el conteo en
           dos renglones-, así que el diseño apila: el conteo arriba y el
-          control a ancho completo abajo. Lo decide `.knd-actionbar-row` en
+          control a ancho completo abajo. Lo decide `.${styles.actionbarRow}` en
           globals.css, no un `useMediaQuery`, por lo mismo que el resto de la
           app: el servidor y el cliente tienen que emitir lo mismo. */}
-      <Group gap="md" justify="space-between" wrap="nowrap" className="knd-actionbar-row">
+      <Group gap="md" justify="space-between" wrap="nowrap" className={styles.actionbarRow}>
         {children}
       </Group>
     </Paper>

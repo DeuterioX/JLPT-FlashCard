@@ -1,0 +1,24 @@
+/* El zorro de la marca. Se mide por ALTO y no por ancho: el dibujo es más alto
+   que ancho, y atarlo al ancho deja que su proporción decida cuánto crece la
+   barra -que en el quiz es alto que se le saca al escenario-. Con el alto fijo,
+   cambiar el dibujo no mueve ninguna cabecera.
+
+   34px: comprobado renderizando a tamaño real y ampliando sin interpolar; a 24
+   y 26 la cara se empasta y abajo de 30 se pierden los anteojos. */
+.brandLogo {
+  height: 2.125rem;
+  width: auto;
+  flex-shrink: 0;
+}
+
+/* El nombre en katakana debajo del nombre. Tamaño y `lh` explícitos en la
+   clase y no en props: un `size` en string libre no lo resuelve Mantine contra
+   `theme.lineHeights` y devuelve una caja de línea más chica que la letra.
+   400 es el peso más fino que está cargado de la gótica (ver layout.tsx). */
+.brandSub {
+  font-size: 0.625rem;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  color: var(--mantine-color-dimmed);
+}

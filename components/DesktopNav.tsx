@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LINKS, isActive } from '@/lib/nav';
 import { ThemeToggle } from './ThemeToggle';
+import styles from './DesktopNav.module.css';
 
 /**
  * La navegación de escritorio: los links y el botón de tema, dentro del header
@@ -27,11 +28,11 @@ export function DesktopNav() {
               href={l.href}
               size="sm"
               /* La píldora entera -color, fondo, radio y relleno- vive en
-                 `.knd-nav-link`, no en props: Mantine escribe `bg`, `px` y
+                 `.${styles.navLink}`, no en props: Mantine escribe `bg`, `px` y
                  `py` inline, y un estilo inline le gana tanto a la regla del
                  hover como a la clase. De hecho le ganaba: el radio y el
                  relleno de la clase no llegaban a verse nunca. */
-              className={`knd-nav-link${active ? ' knd-nav-link-on' : ''}`}
+              className={active ? `${styles.navLink} ${styles.navLinkOn}` : styles.navLink}
               underline="never"
             >
               {l.label}

@@ -1,0 +1,9 @@
+/* El punto de «incluido en la app». */
+.builtinDot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 7px;
+  border-radius: 50%;
+  background: var(--mantine-color-jade-6);
+}

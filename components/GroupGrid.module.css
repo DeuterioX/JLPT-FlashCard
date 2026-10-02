@@ -1,0 +1,61 @@
+/* Grilla de grupos: cortes a mano contra el ancho CSS real (no la
+   resolución nominal del monitor, que el escalado de Windows desvincula
+   del `window.innerWidth` que ve el navegador -medido en vivo con el
+   panel responsive de Chrome-. Escalera pareja: arranca en 3 columnas
+   hasta 800px, después suma 1 columna cada 300px hasta tocar 12 a los
+   3200px y se queda ahí:
+     <800      → 3    (incluye el teléfono, el mismo corte de siempre)
+     800–1099  → 4
+     1100–1399 → 5
+     1400–1699 → 6
+     1700–1999 → 7
+     2000–2299 → 8
+     2300–2599 → 9
+     2600–2899 → 10
+     2900–3199 → 11
+     ≥3200     → 12
+   Se define como una cascada de `min-width` ascendente -no `max-width`
+   por tramo- para que cada regla solo tenga que pisar a la anterior, sin
+   listar el rango completo de cada una. No se usa SimpleGrid porque sus
+   breakpoints (`sm`/`md` del tema) no coinciden con ninguno de estos. */
+.groupGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--mantine-spacing-xs);
+}
+
+@media (min-width: 800px) {
+  .groupGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1100px) {
+  .groupGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1400px) {
+  .groupGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+}
+
+@media (min-width: 1700px) {
+  .groupGrid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2000px) {
+  .groupGrid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2300px) {
+  .groupGrid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2600px) {
+  .groupGrid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+}
+
+@media (min-width: 2900px) {
+  .groupGrid { grid-template-columns: repeat(11, minmax(0, 1fr)); }
+}
+
+@media (min-width: 3200px) {
+  .groupGrid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}

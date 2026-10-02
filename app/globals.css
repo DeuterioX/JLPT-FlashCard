@@ -142,19 +142,6 @@ body { margin: 0; }
   background: var(--mantine-color-dark-6);
   border-top: 1px solid var(--mantine-color-default-border);
 }
-/* Cada pestaña: columna centrada -centrar es trabajo de la celda, no del
-   glifo- con el `gap: 1px` del mockup entre el kanji y la etiqueta. */
-a.knd-tab {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.0625rem;
-  color: var(--mantine-color-dimmed);
-}
-/* Jade, y no la píldora de escritorio: acá no hay píldora que diga cuál es. */
-a.knd-tab-on { color: var(--mantine-color-jade-6); }
 /* La página es una columna del alto de la pantalla: header, contenido y
    barra de pestañas. Sólo el contenido scrollea, así que nada flota encima
    de nada y nadie tiene que reservarle lugar a una barra.
@@ -211,15 +198,7 @@ a.knd-tab-on { color: var(--mantine-color-jade-6); }
 #deck-switcher-bar { border-bottom: 1px solid transparent; }
 .knd-screen[data-scrolled] > #deck-switcher-bar { border-bottom-color: var(--mantine-color-default-border); }
 
-/* El término japonés del encabezado de sección ("Básicos · gojūon") es de
-   escritorio: el mockup del teléfono rotula las mismas secciones con la
-   categoría sola, porque al lado de una grilla de 3 columnas no entra. Se
-   resuelve por CSS y no con `useMediaQuery` para que servidor y cliente
-   rendericen lo mismo -el mismo criterio que la navegación de acá abajo-. */
-.knd-sect-suffix { display: inline; }
-
 @media (max-width: 767.9px) {
-  .knd-sect-suffix { display: none; }
 }
 
 /* Métricas del quiz (aciertos, restantes, errores): caja con borde propio
@@ -725,66 +704,31 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
   background-color: color-mix(in srgb, var(--mantine-color-shu-6) 14%, var(--knd-papel));
 }
 
-/* Grilla de grupos: cortes a mano contra el ancho CSS real (no la
-   resolución nominal del monitor, que el escalado de Windows desvincula
-   del `window.innerWidth` que ve el navegador -medido en vivo con el
-   panel responsive de Chrome-. Escalera pareja: arranca en 3 columnas
-   hasta 800px, después suma 1 columna cada 300px hasta tocar 12 a los
-   3200px y se queda ahí:
-     <800      → 3    (incluye el teléfono, el mismo corte de siempre)
-     800–1099  → 4
-     1100–1399 → 5
-     1400–1699 → 6
-     1700–1999 → 7
-     2000–2299 → 8
-     2300–2599 → 9
-     2600–2899 → 10
-     2900–3199 → 11
-     ≥3200     → 12
-   Se define como una cascada de `min-width` ascendente -no `max-width`
-   por tramo- para que cada regla solo tenga que pisar a la anterior, sin
-   listar el rango completo de cada una. No se usa SimpleGrid porque sus
-   breakpoints (`sm`/`md` del tema) no coinciden con ninguno de estos. */
-.knd-group-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--mantine-spacing-xs);
-}
-
 @media (min-width: 800px) {
-  .knd-group-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1100px) {
-  .knd-group-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1400px) {
-  .knd-group-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
 }
 
 @media (min-width: 1700px) {
-  .knd-group-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
 }
 
 @media (min-width: 2000px) {
-  .knd-group-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 
 @media (min-width: 2300px) {
-  .knd-group-grid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
 }
 
 @media (min-width: 2600px) {
-  .knd-group-grid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
 }
 
 @media (min-width: 2900px) {
-  .knd-group-grid { grid-template-columns: repeat(11, minmax(0, 1fr)); }
 }
 
 @media (min-width: 3200px) {
-  .knd-group-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
 }
 
 /* Foco visible por teclado en la tarjeta de grupo, que ahora es el control
@@ -798,7 +742,6 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
    teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
    bloques se renderizan siempre y CSS puro decide cuál se ve, para no
    depender de `useMediaQuery` y su desincronización servidor/cliente. */
-
 
 /* Scroll horizontal sin la barra nativa a la vista -se puede seguir
    scrolleando con el dedo o la rueda, solo se esconde el widget-. La
@@ -917,37 +860,7 @@ a.knd-crumb:hover { color: var(--mantine-color-dark-1); }
 @media (max-width: 767.9px) {
   .mantine-Button-root { min-height: 1.875rem; }
 }
-
-/* La navegación de escritorio no tenía hover: el inactivo se quedaba igual
-   al pasarle el mouse por encima. El resalte levanta el TEXTO y no pinta un
-   fondo, porque el fondo ya está tomado: la píldora del activo usa `dark.5`,
-   que en esta paleta es el color de hover de la app. Un hover relleno haría
-   que "podés ir acá" y "estás acá" se vean del mismo color, y la píldora
-   dejaría de significar una sola cosa.
-
-   Va detrás de `hover: hover` por lo mismo que las filas: en un laptop
-   táctil el estado se quedaría pegado después del toque.
-
-   El activo va en `--a-text` y no en el jade que traía por defecto el
-   `Anchor` de Mantine: el diseño lo pide así (`.nav a.on { color:
-   var(--a-text) }`) porque acá la señal de "estás acá" ya la da la
-   píldora, y el color sólo la acompaña. La barra de teléfono sí usa jade
-   (`.tabbar span.on`), y es correcto: ahí no hay píldora que lo diga. */
-/* La píldora del menú: 6px de radio y 5px de alto de relleno, no los 7 de
-   `radius.sm` ni los 4 que traía. Medido contra el tablero. */
-a.knd-nav-link {
-  color: var(--mantine-color-dark-2);
-  border-radius: 6px;
-  padding-block: 5px;
-  padding-inline: var(--mantine-spacing-sm);
-}
-a.knd-nav-link-on {
-  color: var(--mantine-color-text);
-  background: var(--mantine-color-dark-5);
-}
 @media (hover: hover) {
-  a.knd-nav-link { transition: color 120ms ease; }
-  a.knd-nav-link:not(.knd-nav-link-on):hover { color: var(--mantine-color-text); }
 }
 
 /* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
@@ -1033,7 +946,6 @@ a.knd-nav-link-on {
   .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) { opacity: 0; }
   .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
 }
-
 
 /* Las tres columnas de una fila de carta.
 
@@ -1598,25 +1510,6 @@ input:-webkit-autofill:active {
   justify-content: center;
 }
 
-/* La línea del encabezado de sección, con su marca de 18px en shu al
-   arranque (ver SectionLabel.tsx). Era un `Divider` pelado. */
-.knd-sect-rule {
-  position: relative;
-  flex: 1;
-  min-width: 1.25rem;
-  height: 1px;
-  background: var(--knd-border-soft);
-}
-.knd-sect-rule::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 1.125rem;
-  height: 1px;
-  background: var(--mantine-color-shu-6);
-}
-
 /* Los tamaños de la hoja de la tarjeta, por anchura. En teléfono son los de
    arriba; de 800px para arriba, los de escritorio del diseño. */
 @media (min-width: 800px) {
@@ -1903,11 +1796,6 @@ input:-webkit-autofill:active {
    apilado-, y el motivo es de ancho: en 390px el conteo y los dos verbos en
    una sola fila parten «4 grupos · 20 cartas» en dos renglones. */
 @media (max-width: 767.9px) {
-  .knd-actionbar-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
-  }
   /* El control soldado pasa a ocupar el ancho, con las dos mitades repartidas
      en partes iguales (`ancho_total` de `botones_juntos`). Un control de dos
      verbos centrado en una pantalla angosta deja dos huecos muertos a los
@@ -2022,38 +1910,3 @@ input:-webkit-autofill:active {
 }
 #nav-desktop::-webkit-scrollbar { display: none; }
 #app-brand, #app-brand * { white-space: nowrap; }
-
-/* El punto de «incluido en la app». */
-.knd-builtin-dot {
-  display: inline-block;
-  width: 6px;
-  height: 6px;
-  margin-left: 7px;
-  border-radius: 50%;
-  background: var(--mantine-color-jade-6);
-}
-
-/* El zorro de la marca. Se mide por ALTO y no por ancho: el dibujo es más alto
-   que ancho, y atarlo al ancho deja que su proporción decida cuánto crece la
-   barra -que en el quiz es alto que se le saca al escenario-. Con el alto fijo,
-   cambiar el dibujo no mueve ninguna cabecera.
-
-   34px: comprobado renderizando a tamaño real y ampliando sin interpolar; a 24
-   y 26 la cara se empasta y abajo de 30 se pierden los anteojos. */
-.knd-brand-logo {
-  height: 2.125rem;
-  width: auto;
-  flex-shrink: 0;
-}
-
-/* El nombre en katakana debajo del nombre. Tamaño y `lh` explícitos en la
-   clase y no en props: un `size` en string libre no lo resuelve Mantine contra
-   `theme.lineHeights` y devuelve una caja de línea más chica que la letra.
-   400 es el peso más fino que está cargado de la gótica (ver layout.tsx). */
-.knd-brand-sub {
-  font-size: 0.625rem;
-  font-weight: 400;
-  line-height: 1.2;
-  letter-spacing: 0.02em;
-  color: var(--mantine-color-dimmed);
-}

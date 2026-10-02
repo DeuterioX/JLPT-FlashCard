@@ -1,0 +1,14 @@
+/* Cada pestaña: columna centrada -centrar es trabajo de la celda, no del
+   glifo- con el `gap: 1px` del mockup entre el kanji y la etiqueta. */
+a.tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.0625rem;
+  color: var(--mantine-color-dimmed);
+}
+
+/* Jade, y no la píldora de escritorio: acá no hay píldora que diga cuál es. */
+a.tabOn { color: var(--mantine-color-jade-6); }

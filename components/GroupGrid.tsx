@@ -4,6 +4,7 @@ import { Stack, Box } from '@mantine/core';
 import { SectionLabel } from './SectionLabel';
 import type { GroupSummary } from '@/lib/services/decks';
 import { GroupCard } from './GroupCard';
+import styles from './GroupGrid.module.css';
 
 /** Agrupa por `section` conservando el orden de aparición. NULL = un solo bloque sin título. */
 function bySection(groups: GroupSummary[]): { label: string | null; items: GroupSummary[] }[] {
@@ -64,10 +65,10 @@ export function GroupGrid({
             </SectionLabel>
           )}
           {/* 8 columnas en escritorio, 5 en tablet, 3 en teléfono (ver
-              `.knd-group-grid` en app/globals.css). No se usa `SimpleGrid`
+              `.${styles.groupGrid}` en app/globals.css). No se usa `SimpleGrid`
               porque sus breakpoints de tema (`sm`/`md`) no coinciden con el
               breakpoint fijo de 640px del resto de la navegación. */}
-          <Box className="knd-group-grid">
+          <Box className={styles.groupGrid}>
             {section.items.map((g) => (
               <GroupCard
                 key={g.id}

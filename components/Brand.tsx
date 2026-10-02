@@ -2,6 +2,7 @@ import { Box, Group, Text } from '@mantine/core';
 import Image from 'next/image';
 import logo from '../public/logo.png';
 import { APP_NAME, APP_NAME_JP } from '../lib/app-meta';
+import styles from './Brand.module.css';
 
 /**
  * La marca de la app: el zorro, el nombre y el nombre en katakana.
@@ -22,11 +23,11 @@ export function Brand({
 }) {
   return (
     <Group id={id} gap={7} wrap="nowrap">
-      <Image src={logo} alt="" width={34} height={34} priority className="knd-brand-logo" />
+      <Image src={logo} alt="" width={34} height={34} priority className={styles.brandLogo} />
       {withName && (
         <Box>
           <Text id={nameId} fw={700} size="sm" lh={1.25}>{APP_NAME}</Text>
-          <Text className="kana knd-brand-sub" aria-hidden>{APP_NAME_JP}</Text>
+          <Text className={`kana ${styles.brandSub}`} aria-hidden>{APP_NAME_JP}</Text>
         </Box>
       )}
     </Group>

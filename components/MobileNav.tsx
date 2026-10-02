@@ -4,6 +4,7 @@ import { Anchor, Box, Text, rem } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LINKS, isActive } from '@/lib/nav';
+import styles from './MobileNav.module.css';
 
 /**
  * La navegación de teléfono: la barra de pestañas de abajo.
@@ -24,9 +25,9 @@ export function MobileNav() {
           href={l.href}
           underline="never"
           /* La pestaña entera -la columna centrada y su color- vive en
-             `.knd-tab`: `c=` lo escribe Mantine inline, como el `bg` de
+             `.${styles.tab}`: `c=` lo escribe Mantine inline, como el `bg` de
              `DesktopNav`. */
-          className={`knd-tab${isActive(path, l.href) ? ' knd-tab-on' : ''}`}
+          className={isActive(path, l.href) ? `${styles.tab} ${styles.tabOn}` : styles.tab}
         >
           <Text className="mincho" size={rem(18)} lh={1.2}>{l.jp}</Text>
           {/* `lh` explícito: con un `size` libre Mantine deja interlineado 1
