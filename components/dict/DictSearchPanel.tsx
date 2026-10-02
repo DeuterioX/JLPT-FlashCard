@@ -8,6 +8,7 @@ import type { DictHit } from '@/lib/services/dict';
 import { posEnCastellano } from '@/lib/services/pos';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
+import styles from './DictSearchPanel.module.css';
 
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 200;
@@ -96,7 +97,7 @@ export function DictSearchPanel({
   // Ancho: el mockup lo dibuja ocupando el stage entero, no una caja
   // angosta -las filas tienen kana, kanji, romaji, glosa, categoría y un
   // botón, y con `size="lg"` la glosa se truncaba a la mitad-. El valor
-  // para teléfono lo baja `.knd-dict-modal` en globals.css, que es donde
+  // para teléfono lo baja `.${styles.dictModal}` en globals.css, que es donde
   // puede haber una media query.
   return (
     <Modal
@@ -106,10 +107,10 @@ export function DictSearchPanel({
       // pasa `size` a un `--modal-size` INLINE en el root, y un estilo inline
       // le gana a cualquier regla de hoja -así que una media query no puede
       // tocarlo-. Lo que sí puede tocar es la variable que ese valor usa
-      // adentro, y eso es lo que hace `.knd-dict-modal` en globals.css para
+      // adentro, y eso es lo que hace `.${styles.dictModal}` en globals.css para
       // dejarlo a pantalla completa en teléfono.
       size="calc(100vw - var(--knd-dict-gutter, 6rem))"
-      className="knd-dict-modal"
+      className={styles.dictModal}
       // Anclado arriba, contra el `centered: true` que el tema pone para
       // todos los demás. Este no es un diálogo de tamaño fijo: arranca con
       // el campo vacío y crece hacia abajo a medida que llegan resultados.
@@ -123,7 +124,7 @@ export function DictSearchPanel({
           entero, así que al bajar por los resultados se iban de pantalla
           tanto el campo de búsqueda -que es donde se corrige la consulta-
           como la línea que dice a qué grupo se está agregando. */}
-      <div className="knd-dict-head">
+      <div className={styles.dictHead}>
         <TextInput
           id="dict-q"
           placeholder="pescado"
@@ -139,7 +140,7 @@ export function DictSearchPanel({
         {searchError && <Text c="var(--knd-shu-txt)" size="sm">{searchError}</Text>}
       </div>
 
-      <div className="knd-dict-results">
+      <div className={styles.dictResults}>
 
         {!dictionaryLoaded && (
           <Text size="sm" c="dimmed">
@@ -155,11 +156,11 @@ export function DictSearchPanel({
             {/* Mismas columnas que la tabla de palabras y por la misma razón:
                 con ancho fijo, una lectura de once kana o su romaji se partían
                 en dos renglones. Las clases están en globals.css. */}
-            <Group className="knd-dict-row" gap="sm" align="flex-start">
-              <Text className="kana knd-dict-kana">{h.kana}</Text>
-              <Text className="kana knd-dict-kanji" c="dimmed">{h.kanji ?? ''}</Text>
-              <Text className="romaji knd-dict-romaji" size="sm" c="dimmed">{h.romaji}</Text>
-              <Group className="knd-dict-gloss" gap={6}>
+            <Group className={styles.dictRow} gap="sm" align="flex-start">
+              <Text className={`kana ${styles.dictKana}`}>{h.kana}</Text>
+              <Text className={`kana ${styles.dictKanji}`} c="dimmed">{h.kanji ?? ''}</Text>
+              <Text className={`romaji ${styles.dictRomaji}`} size="sm" c="dimmed">{h.romaji}</Text>
+              <Group className={styles.dictGloss} gap={6}>
                 <Text size="sm" c="dimmed" truncate>{h.gloss}</Text>
                 {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">en inglés</Badge>}
               </Group>
@@ -168,15 +169,15 @@ export function DictSearchPanel({
                   `adj-na`- y así salía a la pantalla, donde no le dice nada
                   a nadie que no conozca el formato. */}
               {posEnCastellano(h.pos) && (
-                <Text className="knd-dict-pos" size="xs" c="dark.3" fs="italic">
+                <Text className={styles.dictPos} size="xs" c="dark.3" fs="italic">
                   {posEnCastellano(h.pos)}
                 </Text>
               )}
               {addedIds.has(h.id) ? (
-                <Text className="knd-dict-add" size="xs" c="jade.6">Agregada</Text>
+                <Text className={styles.dictAdd} size="xs" c="jade.6">Agregada</Text>
               ) : (
                 <Button
-                  className="knd-dict-add"
+                  className={styles.dictAdd}
                   size="compact-xs"
                   onClick={() => addHit(h)}
                   loading={addingId === h.id}
@@ -200,7 +201,7 @@ export function DictSearchPanel({
 
       </div>
 
-      <Text className="knd-dict-foot" size="xs" c="dimmed">
+      <Text className={styles.dictFoot} size="xs" c="dimmed">
         Se agrega al grupo <b>{groupName}</b>. Podés editar kana, romaji y significado después.
       </Text>
     </Modal>

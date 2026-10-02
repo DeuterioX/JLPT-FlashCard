@@ -196,25 +196,6 @@ body { margin: 0; }
   font-size: 0.875rem; /* 14px del diseño */
   font-weight: 600;
 }
-
-/* Barra propia pegada arriba del pie del quiz: visible por debajo de
-   800px. Centrada -se probaron alineada a la izquierda y estirada a todo
-   el ancho, ninguna de las dos convenció-. */
-.knd-quiz-metrics-top-bar {
-  display: flex;
-  justify-content: center;
-  padding: 0.5rem 1rem 0;
-  /* Esta franja y el pie son UNA barra, la de 118px del diseño: el cuadro de
-     cifras arriba y el input abajo, sobre la misma superficie y con una sola
-     línea que la separa del escenario. Antes esta franja no tenía fondo -se
-     veía el de la página por detrás- y encima traía su propio borde abajo, así
-     que había dos líneas y dos colores donde el diseño tiene uno. El borde de
-     arriba lo pone ésta y el pie se queda sin el suyo (más abajo). */
-  background: var(--mantine-color-dark-6);
-  border-top: 1px solid var(--mantine-color-dark-5);
-  /* Ver la nota de `flex-shrink` en `.knd-quiz-footer`, más abajo. */
-  flex-shrink: 0;
-}
 /* La línea que separa la barra del escenario es ink5, no el borde `default`
    (ink4) que trae `withBorder`: es la misma línea que la cabecera. */
 #quiz-footer, #meaning-footer-paper { border-top-color: var(--mantine-color-dark-5); }
@@ -233,7 +214,6 @@ body { margin: 0; }
   #quiz-footer { border-top: 0; }
 }
 @media (min-width: 800px) {
-  .knd-quiz-metrics-top-bar { display: none; }
   #quiz-metrics { display: flex; }
 }
 
@@ -329,54 +309,12 @@ body { margin: 0; }
     transition: var(--knd-swipe-anim, none);
   }
 
-  /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
-     botones no entran en 390px, y bajarlos a su propia línea deja cada carta
-     en ~100px de alto, que es una lista de vocabulario que no se puede
-     escanear. Las acciones llegan por gesto, y por el modal que abre el
-     toque para quien no lo use. */
-  .knd-card-actions { display: none; }
-
   /* Lo mismo en mazos y grupos, por el mismo motivo: las acciones llegan por
      gesto y el ancho vuelve al nombre. Medido en 390px antes del cambio, la
      fila del mazo propio -el único con algo que borrar- le dejaba al nombre y
      al subtítulo 150 de 390px, partía el subtítulo en cuatro líneas con
      «Borrar» flotando en el medio y crecía de 71 a 88px de alto. */
   .knd-row-actions { display: none; }
-}
-
-/* Aviso de error del quiz (`.toast` del mockup): posición absoluta,
-   anclada al wrapper que envuelve SOLO al kana (`pos="relative"` puesto
-   ahí en QuizRunner, no en `quiz-stage`) -ese wrapper mide justo lo que
-   ocupa el kana, así que `top: 100%` cae pegado a su borde inferior sea
-   cual sea el alto real de la pantalla-. Anclado contra `quiz-stage` (que
-   es `flex: 1`, todo el alto disponible) quedaba lejísimos del kana en
-   cualquier ventana real -pasó de verdad, medido-: el mockup lo calculó
-   contra los 300px fijos de su propio stage estático, no contra una
-   pantalla completa. */
-.knd-quiz-under {
-  position: absolute;
-  left: 50%;
-  top: 100%;
-  /* 14px del diseño mientras haya alto de sobra, pero proporcional al
-     stage cuando escasea -con el teclado abierto el stage queda en ~125px y
-     esos 14px fijos eran parte de lo que empujaba al toast afuera, encima de
-     las métricas-. `cqh` acá sí es válido: el bloque es DESCENDIENTE del
-     container (`#quiz-stage`), no el container mismo. */
-  margin-top: min(0.875rem, 7cqh);
-  transform: translateX(-50%);
-  white-space: nowrap;
-}
-
-.knd-quiz-toast {
-  /* Shu al 18% sobre la superficie de tinta (`dark.6`). El aviso flota sobre
-     el escenario, no sobre el papel, así que sigue siendo un lavado oscuro. */
-  background: #392720;
-  border: 1px solid var(--mantine-color-shu-6);
-  color: var(--knd-shu-txt);
-  padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
-  border-radius: 100px;
-  font-size: 0.71875rem; /* 11.5px del diseño */
-  white-space: nowrap;
 }
 
 /* "carta N de M" (`.under-glyph` del mockup): a diferencia del toast de
@@ -426,60 +364,8 @@ body { margin: 0; }
    la alternativa es que el `overflow: hidden` del stage lo recorte: que el
    mensaje de error quede invisible es lo único que no se puede negociar. */
 @container (max-height: 100px) {
-  .knd-quiz-kana-wrap {
-    position: static;
-  }
-  .knd-quiz-under {
-    top: auto;
-    bottom: 0.25rem;
-    margin-top: 0;
-  }
-}
-
-/* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
-   columnas -métricas ancladas a la izquierda, input de ancho FIJO
-   centrado, "Revelar" anclado a la derecha-, no un flex donde el input se
-   estira a lo que sobre (eso hacía que en pantallas anchas el input
-   ocupara casi todo el ancho, medido en vivo: 1084px en un laptop de
-   1440px). En teléfono, sin métricas (arriba), se queda como un flex
-   simple donde el input sí llena el espacio libre -ahí no hay "sobra" que
-   evitar y el mockup no muestra una variante angosta con ancho fijo-. */
-.knd-quiz-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--mantine-spacing-md);
-  /* El pie NUNCA se encoge: todo lo que falte de alto lo absorbe el stage
-     (ver `minHeight: 0` + `containerType` en QuizRunner.tsx). Por default un
-     ítem de flex tiene `flex-shrink: 1`, así que cuando el contenedor del
-     quiz se achica -y con el teclado abierto se achica muchísimo: el alto
-     útil en un iPhone queda en ~300px- el reparto del faltante le tocaba
-     también al pie. Peor: entre el `min-height: auto` del stage y el alto
-     propio del header/métricas, el layout tenía un piso de ~294px, y por
-     debajo de eso el pie entero (con el input adentro) terminaba
-     posicionado FUERA del contenedor -medido: a 240px de alto, el input
-     quedaba 54px por debajo del borde inferior, o sea invisible-. Como el
-     alto útil real del dispositivo (~302px) estaba a 8px de ese piso,
-     cualquier fluctuación momentánea del visual viewport durante un gesto
-     lo cruzaba y el input desaparecía y volvía: eso era el parpadeo. */
-  flex-shrink: 0;
-}
-.knd-quiz-answer-form {
-  flex: 1;
-  min-width: 0;
 }
 @media (min-width: 768px) {
-  .knd-quiz-footer {
-    display: grid;
-    /* `minmax(0, 1fr)`, no `1fr` a secas: por default un ítem de grid no
-       encoge más allá del tamaño natural de su contenido. Con las
-       métricas ausentes acá abajo de 800px (ver arriba) esta columna
-       queda vacía, pero se deja igual de encogible para cuando sí entran
-       ≥800px -de otro modo la caja de métricas (necesita ~225px) no
-       entraba en el tercio que le tocaba y se superponía con el input de
-       300px fijo, pasó de verdad, medido: "Errores" quedaba tapado a
-       700px con el corte viejo de 641px-. */
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-  }
   /* Posiciones de columna EXPLÍCITAS, no el orden de aparición en el DOM:
      por debajo de 800px `#quiz-metrics` es `display: none` (arriba de
      stage), y un ítem `display: none` queda afuera del auto-placement del
@@ -491,15 +377,6 @@ body { margin: 0; }
      fija cada uno cae siempre donde tiene que cair, esté o no la caja de
      métricas presente. */
   #quiz-metrics { grid-column: 1; }
-  .knd-quiz-answer-form {
-    grid-column: 2;
-    flex: none;
-    /* 300px del diseño (`.answer { width: 300px }`), en rem para que
-       escale con el resto de la app en 2K/4K. */
-    width: 18.75rem;
-    justify-self: center;
-  }
-  .knd-quiz-reveal { grid-column: 3; justify-self: end; }
 }
 @media (min-width: 800px) {
   #quiz-metrics {
@@ -517,33 +394,6 @@ body { margin: 0; }
     max-width: 100%;
     overflow-x: auto;
   }
-}
-
-/* El texto del input de respuesta va centrado (`.answer { text-align:
-   center }` del diseño). El prop `ta="center"` de Mantine NO alcanza:
-   centra el `<div>` contenedor (`mantine-TextInput-root`), pero el
-   `<input>` real trae su propio `text-align: var(--input-text-align,
-   start)` declarado directo en el CSS base de Mantine -gana por estar
-   puesto sobre el propio elemento, no por herencia, así que lo que se
-   herede del contenedor no lo pisa-. Hay que setear esa variable puntual,
-   no `text-align` a mano. */
-.knd-quiz-answer {
-  --input-text-align: center;
-}
-
-/* Fondo con tinte rojo en el input de respuesta al errar (`--a-shu-bg` del
-   diseño): es un estado de juego -"la marcaste mal"-, no una validación de
-   formulario común, así que se reserva a este input puntual y no al
-   `TextInput` en general (el editor de mazo, el buscador, no necesitan ese
-   peso visual por un campo vacío). `className` en un TextInput de Mantine
-   cae en el wrapper más externo (`.mantine-TextInput-root`), tres niveles
-   arriba del `<input>` real -que es el que de verdad pinta el fondo
-   visible-, así que hace falta el selector descendiente. */
-.knd-quiz-answer[data-error] input {
-  /* El input SÍ es papel, así que su error es un lavado de shu sobre el
-     crema y no sobre la tinta: el mismo `#392720` de antes lo habría
-     ensuciado hasta volverlo marrón. */
-  background-color: color-mix(in srgb, var(--mantine-color-shu-6) 14%, var(--knd-papel));
 }
 
 @media (min-width: 800px) {
@@ -578,42 +428,7 @@ body { margin: 0; }
 
 @media (min-width: 768px) {
 }
-
-/* `.formgrid` del diseño: Kana, Romaji, Significado y el botón en cuatro
-   columnas, y UNA sola columna en teléfono. Un `flex-wrap` acá no sirve:
-   reparte los campos en pares según lo que vaya entrando -Kana+Romaji arriba,
-   Significado+Agregar abajo- en vez de apilarlos, que es lo que el diseño
-   pide cuando no hay ancho. */
-.knd-addform {
-  display: grid;
-  grid-template-columns: 1.1fr 1fr 1.2fr auto;
-  gap: 0.5rem;
-  /* `start` y no `center`: la celda del kana es más alta que las otras -lleva
-     los botones debajo- y centrando, los demás campos flotarían contra ella
-     en vez de alinearse por arriba. */
-  align-items: start;
-}
-
-/* La celda del romaji: el campo y, debajo, los dos botones que leen de él
-   para escribir el kana. La columna flex hace que la botonera mida
-   exactamente lo mismo que el input de arriba. */
-.knd-addform-romaji {
-  display: flex;
-  flex-direction: column;
-  gap: 0.375rem;
-  min-width: 0;
-}
-
-/* Los dos botones se reparten ese ancho, y `auto-fit` los apila solos cuando
-   no entran de a dos. No hace falta un breakpoint: decide el ancho
-   disponible. */
-.knd-kana-conv {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
-  gap: 0.375rem;
-}
 @media (max-width: 767.9px) {
-  .knd-addform { grid-template-columns: 1fr; gap: 0.4375rem; }
 }
 
 /* Un botón deshabilitado: superficie de control apagada y palabra atenuada,
@@ -655,143 +470,14 @@ body { margin: 0; }
 @media (hover: hover) {
 }
 
-/* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
-   Antes la respuesta se agregaba debajo; ahora está en el dorso.
-
-   El revelado es un GIRO SOBRE EL EJE X: la hoja cae hacia adelante, pasa de
-   canto y sube por atrás con la lectura. Elegido contra dos alternativas que
-   se maquetaron y se miraron en movimiento (canvas, fila «Revelar · dos
-   maquetas para elegir»): ésta, que gira la hoja entera como un solo objeto, y
-   una que giraba celda por celda con 90ms de diferencia. La segunda se
-   descartó porque al pasar cada celda por su canto se ve el fondo de la
-   pantalla a través de ella y la hoja deja de ser una superficie.
-
-   Sobre X y no sobre Y, que es lo que hubo al principio: girando sobre Y, una
-   hoja de una o dos celdas -un cuadrado chico con una cruz de guía adentro-
-   queda de canto en una línea vertical de dos píxeles con el glifo estirado, y
-   la cruz, que es lo que dice que eso es papel de manuscrito, se aplasta
-   contra sí misma. Sobre X el eje de giro es el lado largo de la hoja, así que
-   hasta una frase de dos renglones gira como una página que se da vuelta.
-
-   Cuatro cosas que no son negociables acá:
-
-   - La `perspective` va en el PADRE DIRECTO de lo que gira, y en un div
-     propio, no en el `Box` de afuera: `perspective` convierte al elemento en
-     bloque contenedor de sus descendientes absolutos, y el layout de
-     emergencia de más abajo -el que con el teclado abierto pone
-     `.knd-quiz-kana-wrap` en `static` para que el aviso de error se ancle al
-     piso del stage- dejaría de funcionar si el Box la tuviera.
-   - El dorso va en posición absoluta y CENTRADO sobre el eje de giro, con su
-     alto natural. Las tres combinaciones se probaron: con `inset: 0` queda
-     clavado al tamaño del frente y una frase larga se derrama fuera del papel;
-     compartiendo la celda de la grilla el papel contiene su texto pero la caja
-     pasa a medir lo que mide la cara MÁS ALTA, y entonces la hoja flota en el
-     medio de un hueco reservado y lo que cuelga abajo -la pista, el aviso de
-     error- queda a 126px en vez de a 14. Centrado y absoluto no dimensiona
-     nada: la caja sigue siendo la hoja, el dorso crece hacia los dos lados
-     desde el mismo centro sobre el que gira, y el texto lo contiene su propio
-     papel.
-   - `backface-visibility: hidden` en las dos caras y el dorso pre-girado
-     180°: es lo que hace que en cada mitad del giro se vea una sola.
-   - Nada de `filter` sobre las caras: aplana el contexto 3D y el giro se ve
-     como un aplastado lineal, sin volumen. */
-.knd-quiz-persp { perspective: 1400px; }
-
-.knd-quiz-turn {
-  display: grid;
-  position: relative;
-  transform-style: preserve-3d;
-  /* 380ms, y la curva de la maqueta: arranca lento, cruza el canto rápido y
-     frena al llegar. Es lo que hace que se lea como una hoja con peso. */
-  transition: transform 380ms cubic-bezier(0.45, 0.05, 0.35, 1);
-}
-.knd-quiz-turn.is-revealed { transform: rotateX(180deg); }
-
-.knd-quiz-face {
-  grid-area: 1 / 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
-.knd-quiz-face-back {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  /* El orden importa: primero se centra y después se da vuelta, así el eje de
-     giro del dorso es el mismo que el de la hoja. */
-  transform: translate(-50%, -50%) rotateX(180deg);
-  width: max-content;
-  /* El papel necesita margen propio: el frente es una grilla de celdas que ya
-     trae el suyo, el dorso es texto suelto sobre la hoja. */
-  padding: 1rem 1.25rem;
-}
-
 /* Con movimiento reducido el giro se cambia por un fundido entre las dos
    caras: se saca el movimiento, no la función de revelar. */
 @media (prefers-reduced-motion: reduce) {
-  .knd-quiz-turn { transition: none; }
-  .knd-quiz-turn.is-revealed { transform: none; }
-  .knd-quiz-face { transition: opacity 160ms ease; }
-  .knd-quiz-face-back { transform: translate(-50%, -50%); opacity: 0; }
-  .knd-quiz-turn.is-revealed .knd-quiz-face:not(.knd-quiz-face-back) { opacity: 0; }
-  .knd-quiz-turn.is-revealed .knd-quiz-face-back { opacity: 1; }
 }
-
-/* Las tres columnas de una fila de carta.
-
-   Las bases salen de medir, no de tantear: en el diccionario de la app el
-   p99 del largo de una lectura son 11 caracteres -«アコースティックギター»- y
-   once kana renderizados ocupan 176px, o sea 11rem. Su romaji ronda los 16
-   caracteres, 135px, pero se le da el mismo ancho para que una lectura larga
-   con romaji largo tampoco corte.
-
-   Son BASES y no anchos: `flex-shrink: 1` deja que se encojan cuando no hay
-   lugar, y como la base es una longitud -no el contenido- todas las filas
-   calculan lo mismo y las columnas quedan alineadas entre sí.
-
-   `word-break` para que, cuando no haya más remedio que partir, el corte
-   caiga donde sea antes que desbordar la celda. */
-.knd-card-kana { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
-.knd-card-romaji { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
-.knd-card-meaning { flex: 1 1 10rem; min-width: 0; word-break: break-word; }
-
-/* En teléfono el p99 no entra y no hay ancho que lo arregle: once kana más su
-   romaji más el significado no caben en 390px. Se vuelve a lo que sí entra
-   -unos siete kana- y el resto se parte, que es preferible a dejar el
-   significado en una tira de 100px. */
-/* En escritorio la fila va en una sola línea, en columnas alineadas. */
-.knd-card-row { flex-wrap: nowrap; }
 
 @media (max-width: 767.9px) {
-  /* En teléfono se parte en dos renglones: arriba la palabra y su lectura,
-     abajo el significado. Repartir el ancho en tres columnas deja las tres
-     angostas -una palabra de ocho kana como ちゅうしゃじょう se partía al medio
-     mientras al lado sobraba espacio-, y las columnas alineadas no valen
-     tanto cuando no hay ancho para que se note la alineación. */
-  .knd-card-row { flex-wrap: wrap; align-items: baseline; }
-  .knd-card-kana { flex: 0 1 auto; }
-  .knd-card-romaji { flex: 0 1 auto; }
-  .knd-card-meaning { flex: 1 0 100%; }
-}
-
-/* Un link dentro de un formulario -«+ romanización alternativa»-. Atenuado y
-   sin subrayar no se distinguía del texto de ayuda que tiene al lado: los dos
-   eran gris chico. Va subrayado siempre, que es lo que lo declara accionable,
-   y al pasar por encima sube un escalón, de `--a-dimmer` a `--a-dim`, igual
-   que las migas. */
-button.knd-inline-link,
-a.knd-inline-link {
-  /* Mismo motivo que la miga: era `dark.3`, el escalón de placeholder, y
-     daba 3,46:1 en oscuro y 3,11:1 en claro. */
-  color: var(--mantine-color-dark-2);
 }
 @media (hover: hover) {
-  button.knd-inline-link,
-  a.knd-inline-link { transition: color 120ms ease; }
-  button.knd-inline-link:hover,
-  a.knd-inline-link:hover { color: var(--mantine-color-dark-1); }
 }
 
 /* El buscador del diccionario ocupa casi toda la ventana en escritorio, y en
@@ -800,55 +486,7 @@ a.knd-inline-link {
    `size` del componente fija `--modal-size`; esto sólo lo corrige para el
    tramo donde no puede sobrar margen. */
 @media (max-width: 767.9px) {
-  /* No se pisa `--modal-size` -Mantine lo escribe inline y el inline gana-
-     sino el margen que ese valor usa adentro. */
-  .knd-dict-modal { --knd-dict-gutter: 0rem; }
 }
-
-/* El buscador del diccionario, en tres bandas: campo arriba, resultados con
-   su propio scroll, pie abajo. El cuerpo del modal deja de scrollear como un
-   bloque -si scrollea él, al bajar por los resultados se van de pantalla el
-   campo de búsqueda y la línea que dice a qué grupo se agrega-. */
-.knd-dict-modal .mantine-Modal-body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-sm);
-  min-height: 0;
-  /* Lo que sobra de la ventana descontando cabecera, pie del modal y aire.
-     Sin un alto máximo el cuerpo crece con los resultados y no hay nada que
-     scrollear adentro. */
-  max-height: calc(100dvh - 12rem);
-}
-.knd-dict-head,
-.knd-dict-foot { flex: none; }
-.knd-dict-head { display: flex; flex-direction: column; gap: var(--mantine-spacing-xs); }
-
-.knd-dict-results {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: var(--mantine-spacing-sm);
-  /* La barra fina y en el color del tema: la del sistema entra blanca y
-     ancha sobre el panel oscuro. */
-  scrollbar-width: thin;
-  scrollbar-color: var(--mantine-color-dark-4) transparent;
-  /* Aire para que la barra no se coma el borde del botón «Agregar». */
-  padding-right: 0.375rem;
-}
-
-/* Las columnas de un resultado, con base flexible por lo mismo que las de la
-   tabla de palabras: con ancho fijo, una lectura larga o su romaji se parten
-   en dos renglones aunque sobre lugar al costado. */
-.knd-dict-kana { flex: 0 1 8rem; min-width: 0; word-break: break-word; }
-.knd-dict-kanji { flex: 0 1 5rem; min-width: 0; word-break: break-word; }
-.knd-dict-romaji { flex: 0 1 8rem; min-width: 0; word-break: break-word; }
-
-/* En escritorio la fila va en una sola línea. */
-.knd-dict-row { flex-wrap: nowrap; }
-.knd-dict-gloss { flex: 1; min-width: 0; }
-.knd-dict-pos { white-space: nowrap; }
 
 /* En teléfono, pantalla completa y la fila en DOS renglones.
    Seis columnas -kana, kanji, romaji, glosa, categoría y botón- no entran en
@@ -860,59 +498,6 @@ a.knd-inline-link {
    grilla: así el orden del DOM -y con él el del tabulador y el del lector de
    pantalla- sigue siendo el natural de la fila. */
 @media (max-width: 767.9px) {
-  .knd-dict-modal .mantine-Modal-inner { padding: 0; }
-  .knd-dict-modal .mantine-Modal-content {
-    max-width: 100vw;
-    height: 100dvh;
-    max-height: 100dvh;
-    border-radius: 0;
-    /* Columna flexible: sin esto el `flex: 1` del cuerpo no tiene contra qué
-       estirarse -el contenedor no reparte nada- y el cuerpo mide lo que mide
-       su contenido. Con el cuerpo más alto que la pantalla, el que scrollea
-       vuelve a ser el modal entero y el pie se va con él. */
-    display: flex;
-    flex-direction: column;
-  }
-  .knd-dict-modal .mantine-Modal-body {
-    max-height: none;
-    flex: 1;
-    min-height: 0;
-  }
-
-  /* El botón sale del flujo y se ancla arriba a la derecha, con su lugar
-     reservado por el padding de la fila. Puesto en el flujo, una palabra
-     larga -«ぎょせんのりくみいん 漁船乗組員 gyosennorikumiin»- llena el primer
-     renglón y lo empuja al segundo, donde aparece a la IZQUIERDA del
-     significado: la columna de botones deja de existir y la lista se vuelve
-     imposible de recorrer con el pulgar. */
-  .knd-dict-row {
-    position: relative;
-    flex-wrap: wrap;
-    align-items: center;
-    padding-right: 5.5rem;
-  }
-  .knd-dict-kana { flex: 0 1 auto; order: 1; }
-  .knd-dict-kanji { flex: 0 1 auto; order: 2; }
-  .knd-dict-romaji { flex: 0 1 auto; order: 3; }
-  .knd-dict-add {
-    position: absolute;
-    top: 0;
-    right: 0;
-    order: 4;
-  }
-  /* La base grande es lo que fuerza el salto de renglón -flex no tiene un
-     "cortar acá"-, pero deja lugar para que la categoría comparta la línea
-     en vez de llevarse una tercera para ella sola. */
-  .knd-dict-gloss { flex: 1 1 60%; order: 5; }
-  /* El margen negativo cancela, sólo para el segundo renglón, la reserva que
-     la fila hace para el botón. Sin esto la categoría termina 88px antes del
-     borde -el ancho del botón- y queda flotando en el medio en vez de
-     alineada debajo de él. */
-  .knd-dict-pos {
-    order: 6;
-    margin-left: auto;
-    margin-right: -5.5rem;
-  }
 }
 
 /* La segunda mitad del arreglo del autocompletado, porque `autocomplete=off`
@@ -938,51 +523,7 @@ input:-webkit-autofill:active {
 
 :root[data-phone] {
 }
-
-/* El buscador del diccionario, en el encabezado del panel de «nueva
-   palabra». Dos etiquetas en el DOM y el CSS elige cuál se ve, igual que
-   `RenameButton`: en 390px la etiqueta entera se come el ancho que necesita
-   el nombre del grupo, que es lo que dice en qué grupo estás cargando. El
-   nombre accesible lo da el `aria-label`, así que la forma corta no pierde
-   información para un lector de pantalla. */
-/* Mantine separa la sección izquierda del texto con 10px. Con la lupa de
-   Bootstrap, que es un dibujo relleno y compacto, ese hueco es más grande que
-   el que deja el botón contra su propio borde -5,33px-, y el ícono queda
-   flotando lejos de la palabra que rotula. */
-.knd-dict-btn .mantine-Button-section { margin-right: 0.3125rem; }
-.knd-dict-label-short { display: none; }
-.knd-dict-btn { flex: none; }
-/* El título cede el ancho: es lo único de la fila que se puede recortar sin
-   perder una acción, y el nombre del grupo ya está arriba en la barra. */
-.knd-addform-title {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
 @media (max-width: 767.9px) {
-  .knd-dict-label-full { display: none; }
-  .knd-dict-label-short { display: inline; }
-}
-
-/* El kana de la fila de carta cuando es el botón de editar (ver GroupCards).
-   Apaga el cromo que el navegador le pone a un `button`.
-
-   `color: inherit` no es decorativo: Mantine NO fija color en `Text` cuando no
-   le pasás `c`, así que sin esto ganaba el `color: buttontext` de la hoja del
-   navegador y el kana pasaba de `#E9EBF4` a blanco puro -medido en vivo: el
-   mismo kana daba rgb(233,235,244) en un mazo incluido, donde sigue siendo un
-   `<p>`, y rgb(255,255,255) en uno propio-. El tamaño y la familia sí los
-   ponen las clases, que le ganan a la hoja del navegador; el color no, porque
-   no hay ninguna clase que lo declare. */
-.knd-card-edit {
-  background: none;
-  border: 0;
-  padding: 0;
-  text-align: left;
-  cursor: pointer;
-  color: inherit;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -1044,31 +585,6 @@ input:-webkit-autofill:active {
   background: rgb(25 23 19 / 16%);
   border-radius: 3px;
   box-shadow: var(--knd-sombra-hoja);
-}
-
-/* El dorso del giro es la MISMA hoja dada vuelta, no texto flotando sobre el
-   fondo de la app. Como es `inset: 0` dentro de la celda que dimensiona el
-   frente, hereda su tamaño exacto sin tener que calcularlo. */
-.knd-quiz-face-back {
-  background: var(--knd-papel);
-  border-radius: 3px;
-  box-shadow: var(--knd-sombra-hoja);
-  /* Nunca más ancho que la hoja del frente ni que la pantalla. */
-  max-width: min(100cqw - 3rem, 62rem);
-}
-
-/* Y lo de adentro se ata al ancho de la hoja. Sin esto el texto se salía por
-   los dos costados: el romaji de una frase es UNA sola palabra sin espacios
-   -«korehanihongodenantoiimasuka»- así que no tiene dónde cortar solo, y el
-   significado tampoco tenía contra qué medirse porque el `Stack` que lo
-   contiene mide lo que mide su contenido. `anywhere` le da permiso de cortar
-   la transcripción en cualquier letra, que para un romaji largo es preferible
-   a que se vaya de la hoja. */
-.knd-quiz-face-back > * { width: 100%; }
-.knd-quiz-face-back .mantine-Text-root {
-  max-width: 100%;
-  overflow-wrap: anywhere;
-  text-align: center;
 }
 
 /* Los tamaños de la hoja de la tarjeta, por anchura. En teléfono son los de
@@ -1170,50 +686,6 @@ input:-webkit-autofill:active {
   font-weight: 600;
   color: var(--mantine-color-dark-0);
 }
-
-/* ------------------------------------------------ opciones de «Mover a…» */
-/* Cada destino es una FILA entera clickeable, no una bolita con un texto al
-   lado: el blanco de un radio de 14px en un teléfono es más chico que la punta
-   de un dedo, y la lista de grupos puede tener cinco o veinte. Las medidas son
-   las de `mod_mover` en el canvas: 8/10px de relleno, radio de control, 2px
-   entre filas y la superficie de control para la elegida. */
-.knd-move-opt {
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--mantine-radius-sm);
-}
-/* El elegido se pinta con la superficie de control, como en el diseño: el
-   círculo solo es un blanco de 14px y en una lista de cinco o veinte no se ve
-   de un vistazo cuál está marcado.
-
-   `[data-checked]` lo pone Mantine en la raíz del `Radio`, medido. Acá había un
-   `data-on` propio calculado en el componente y nunca llegaba al DOM -Mantine
-   no reenvía atributos sueltos a la raíz del Radio-, así que la fila elegida
-   quedaba sin pintar. */
-.knd-move-opt[data-checked] {
-  background: var(--mantine-color-dark-5);
-}
-
-/* El círculo del diseño: un anillo de 1px con un punto adentro, no el disco
-   lleno con un punto NEGRO que trae Mantine -su `--radio-icon-color` es
-   `--mantine-color-black`, el único negro puro que aparecería en la app-. El
-   anillo se enciende en jade al elegirlo. El punto de adentro no se puede
-   pintar desde acá -Mantine escribe `--radio-icon-color` inline en la raíz del
-   control- y va por el prop `iconColor`, en GroupCards.tsx. */
-.knd-move-opt .mantine-Radio-radio {
-  background-color: transparent;
-  border-color: var(--mantine-color-dark-4);
-}
-.knd-move-opt[data-checked] .mantine-Radio-radio {
-  border-color: var(--mantine-color-jade-6);
-}
-/* `label` de Mantine trae su propio `padding-left`; acá el espacio entre la
-   bolita y el nombre lo pone el `gap` del cuerpo, que es el del diseño. */
-.knd-move-opt .mantine-Radio-body { gap: 0.625rem; align-items: center; }
-.knd-move-opt .mantine-Radio-labelWrapper { flex: 1; min-width: 0; }
-.knd-move-opt .mantine-Radio-label { padding-left: 0; cursor: pointer; }
-/* El `<label>` tapa toda la fila, así que el clic en cualquier parte -incluido
-   el número de cartas de la derecha- marca ese destino. */
-.knd-move-opt .mantine-Radio-inner { cursor: pointer; }
 
 /* La barra de acción: fila en escritorio, dos renglones en teléfono. Es la
    forma que tiene en el canvas -61px de alto con todo en línea contra 88px

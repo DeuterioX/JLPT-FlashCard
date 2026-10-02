@@ -17,6 +17,7 @@ import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
 import { RoundHeader, roundContext } from './RoundHeader';
 import { isPhone } from '@/lib/client/screen';
+import styles from './QuizRunner.module.css';
 
 export type Round = StoredRound;
 
@@ -617,17 +618,17 @@ function QuizPlay({
           // -del tamaño justo del contenido, no de la pantalla- el toast se
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
-          <Box pos="relative" className="knd-quiz-kana-wrap">
+          <Box pos="relative" className={styles.quizKanaWrap}>
             {/* El bloque que gira al revelar. La perspectiva va en ESTE div y
                 no en el `Box` de afuera: `perspective` convierte al elemento
                 en bloque contenedor de sus descendientes absolutos, y el
                 layout de emergencia de globals.css -el que con el teclado
-                abierto pone `.knd-quiz-kana-wrap` en `static` para que el
+                abierto pone `.${styles.quizKanaWrap}` en `static` para que el
                 aviso de error se ancle al piso del stage- dejaría de
                 funcionar si el Box la tuviera. */}
-            <div className="knd-quiz-persp">
-              <div className={`knd-quiz-turn${flipped ? ' is-revealed' : ''}`}>
-                <div className="knd-quiz-face">
+            <div className={styles.quizPersp}>
+              <div className={`${styles.quizTurn}${flipped ? ' is-revealed' : ''}`}>
+                <div className={styles.quizFace}>
                   {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
                       por carácter. El tamaño de la celda lo decide el CSS y
                       sigue achicándose cuando el teclado deja poco alto -el
@@ -659,7 +660,7 @@ function QuizPlay({
                     `aria-hidden` mientras no esté revelado: escondido para el
                     ojo pero presente en el DOM, un lector de pantalla cantaría
                     la respuesta antes de que la pidas. */}
-                <div className="knd-quiz-face knd-quiz-face-back" aria-hidden={!flipped}>
+                <div className={`${styles.quizFace} ${styles.quizFaceBack}`} aria-hidden={!flipped}>
                   {/* El hueco entre la lectura y el significado es más grande
                       que el de un Stack normal a propósito: son dos datos
                       distintos -cómo se dice y qué quiere decir-, no dos
@@ -719,7 +720,7 @@ function QuizPlay({
                 La respuesta revelada ya no está acá: se fue al dorso del
                 giro, que ocupa la misma celda que el kana y por lo tanto
                 tampoco mueve nada. */}
-            <Stack id="quiz-under-kana" className="knd-quiz-under" align="center" gap={5}>
+            <Stack id="quiz-under-kana" className={styles.quizUnder} align="center" gap={5}>
               {/* El botón de revelar no está en teléfono, así que algo tiene
                   que decir que la carta se toca. Cuelga del kana, como todo lo
                   demás de este bloque, y sólo mientras está tapada: que se
@@ -729,7 +730,7 @@ function QuizPlay({
               )}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
               {flash === 'wrong' && (
-                <Text id="quiz-wrong-hint" className="knd-quiz-toast">
+                <Text id="quiz-wrong-hint" className={styles.quizToast}>
                   Esa no es, probá de nuevo
                 </Text>
               )}
@@ -775,27 +776,27 @@ function QuizPlay({
       {/* <800px (ver globals.css): las métricas no entran junto al input de
           ancho fijo en el pie sin apretarse, así que viven en su propia
           barra pegada arriba de `quiz-footer` en vez de adentro. */}
-      <Box id="quiz-metrics-top-bar" className="knd-quiz-metrics-top-bar">
+      <Box id="quiz-metrics-top-bar" className={styles.quizMetricsTopBar}>
         {metricsBox('top')}
       </Box>
 
       <Paper id="quiz-footer" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
         {/* Grilla de 3 columnas en escritorio (métricas / input de ancho fijo
-            centrado / Revelar), flex simple en teléfono -ver `.knd-quiz-footer`
+            centrado / Revelar), flex simple en teléfono -ver `.${styles.quizFooter}`
             en globals.css, mismo mockup que fija el input en 300px en vez de
             estirarlo a lo que sobre-. */}
-        <Box className="knd-quiz-footer">
+        <Box className={styles.quizFooter}>
           {/* ≥800px (ver globals.css): acá adentro es donde viven las
               métricas en pantallas anchas -por debajo de 800px se ocultan
               (misma regla que ya escondía todo por debajo de 640px) porque
               tienen su propia barra arriba del stage. */}
           {metricsBox()}
 
-          <form id="quiz-answer-form" className="knd-quiz-answer-form" onSubmit={onSubmit}>
+          <form id="quiz-answer-form" className={styles.quizAnswerForm} onSubmit={onSubmit}>
             <TextInput
               ref={inputRef}
               id="answer-input"
-              className="knd-quiz-answer"
+              className={styles.quizAnswer}
               value={typed}
               onChange={(e) => {
                 setTyped(e.currentTarget.value);
@@ -811,7 +812,7 @@ function QuizPlay({
               // `ta="center"` NO alcanza acá: centra el div contenedor de
               // Mantine, no el <input> real -que trae su propio
               // `text-align` fijado directo en el CSS base-. El centrado
-              // real sale de `--input-text-align` en `.knd-quiz-answer`
+              // real sale de `--input-text-align` en `.${styles.quizAnswer}`
               // (globals.css).
               error={flash === 'wrong'}
               // Sin esto iOS convierte "ka" en "Ka" y sugiere corregir "shi":
@@ -827,7 +828,7 @@ function QuizPlay({
           {/* Prueba: hint "Espacio" a la izquierda del botón en vez de
               debajo (el mockup lo pone debajo, `.reveal small {display:
               block}`, pero se pidió probar esta variante). */}
-          <Group className="knd-quiz-reveal" gap="0.375rem" wrap="nowrap">
+          <Group className={styles.quizReveal} gap="0.375rem" wrap="nowrap">
             <Text size="0.59375rem" c="dark.3">
               <Kbd>Espacio</Kbd>
             </Text>

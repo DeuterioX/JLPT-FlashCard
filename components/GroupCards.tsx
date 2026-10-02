@@ -22,6 +22,7 @@ import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import type { DeckSummary, GroupSummary } from '@/lib/services/decks';
+import styles from './GroupCards.module.css';
 
 export type EditorCard = {
   id: number; prompt: string; meaning: string | null; primary: string;
@@ -102,7 +103,7 @@ function EditCardModal({
             puede querer escribir el kana sin teclado japonés. Debajo del
             romaji y después de él en el DOM, así el tabulador va romaji →
             hiragana → katakana → resto. */}
-        <div className="knd-kana-conv">
+        <div className={styles.kanaConv}>
           <Button
             id="edit-kana-hiragana"
             variant="default" size="compact-sm"
@@ -151,7 +152,7 @@ function EditCardModal({
         {/* Al final, después de los campos, como en el formulario de alta:
             es una acción sobre el formulario, no un campo más. */}
         <Anchor
-          className="knd-inline-link" component="button" type="button"
+          className={styles.inlineLink} component="button" type="button"
           size="xs" underline="always" onClick={() => setAlts([...alts, ''])}
         >
           + romanización alternativa
@@ -361,12 +362,12 @@ export function GroupCards({
                   agregar una que no está-. Acá además no gasta alto: la fila
                   del título estaba entera libre. */}
               <Group gap={10} wrap="nowrap">
-                <Text id="new-word-title" className="knd-addform-title" size="0.71875rem" lh={1.4} fw={600}>
+                <Text id="new-word-title" className={styles.addformTitle} size="0.71875rem" lh={1.4} fw={600}>
                   {`Nueva palabra en «${group.name}»`}
                 </Text>
                 <Button
                   id="dict-search-btn"
-                  className="knd-dict-btn"
+                  className={styles.dictBtn}
                   variant="default"
                   size="compact-sm"
                   type="button"
@@ -385,8 +386,8 @@ export function GroupCards({
                   {/* Dos etiquetas y el CSS elige cuál se ve, como en
                       `RenameButton`: en 390px «Buscar en el diccionario» se
                       come el ancho que necesita el nombre del grupo. */}
-                  <span className="knd-dict-label-full">Buscar en el diccionario</span>
-                  <span className="knd-dict-label-short">Diccionario</span>
+                  <span className={styles.dictLabelFull}>Buscar en el diccionario</span>
+                  <span className={styles.dictLabelShort}>Diccionario</span>
                 </Button>
               </Group>
               {/* `.field` del diseño: el rótulo va ADENTRO de la caja. Es el
@@ -399,10 +400,10 @@ export function GroupCards({
               {/* Grilla y no un `Group wrap`: envolver reparte los campos en
                   pares desparejos -Kana+Romaji, Significado+Agregar- en cuanto
                   la pantalla se angosta. El diseño pide cuatro columnas en
-                  escritorio y UNA en teléfono, y eso lo decide `.knd-addform`
+                  escritorio y UNA en teléfono, y eso lo decide `.${styles.addform}`
                   en globals.css. Los anchos salen de los `w={}` porque Mantine
                   los escribe inline y un ancho inline le gana a la grilla. */}
-              <div className="knd-addform">
+              <div className={styles.addform}>
                 <PaperField
                   inputRef={kanaRef}
                   id="nueva-kana" label="Kana" placeholder="えび"
@@ -413,7 +414,7 @@ export function GroupCards({
                     orden en que se usa -romaji, hiragana, katakana,
                     significado- sin un solo `tabIndex`: el orden del documento
                     ya es el correcto. */}
-                <div className="knd-addform-romaji">
+                <div className={styles.addformRomaji}>
                   <PaperField
                     id="nueva-romaji" label="Romaji" placeholder="ebi"
                     value={romaji}
@@ -433,7 +434,7 @@ export function GroupCards({
                       `setPrompt` y no `onPrompt` justamente por eso -`onPrompt`
                       reescribiría el romaji recién tipeado con su propia
                       transcripción, cambiando "si" por "shi" a mitad de camino-. */}
-                  <div className="knd-kana-conv">
+                  <div className={styles.kanaConv}>
                     <Button
                       id="nueva-kana-hiragana"
                       variant="default" size="compact-sm"
@@ -501,7 +502,7 @@ export function GroupCards({
               <Group gap="0.375rem" wrap="wrap">
                 <Text size="xs" c="dimmed">El romaji se completa solo desde el kana. Editalo si hace falta.</Text>
                 <Anchor
-                  id="add-alt-romaji" className="knd-inline-link" component="button" type="button"
+                  id="add-alt-romaji" className={styles.inlineLink} component="button" type="button"
                   size="xs" underline="always"
                   onClick={() => setAlts([...alts, ''])}
                 >
@@ -543,7 +544,7 @@ export function GroupCards({
                 {/* Los anchos viven en globals.css y no acá porque tienen que
                     cambiar entre escritorio y teléfono, y un `style` inline no
                     puede llevar una media query. */}
-                <Group className="knd-card-row" gap={12} style={{ padding: '0.625rem 0.8125rem' }}>
+                <Group className={styles.cardRow} gap={12} style={{ padding: '0.625rem 0.8125rem' }}>
                   {/* El kana NO va atenuado: es el dato principal de la fila, y
                       el mockup lo deja en el color de texto normal -son el
                       romaji y el significado los que van en `--a-dim`-. */}
@@ -557,25 +558,25 @@ export function GroupCards({
                       mouse solamente.
                       Conserva el id del botón que reemplaza. */}
                   {readOnly ? (
-                    <Text className="kana knd-card-kana knd-swipe-pin">{c.prompt}</Text>
+                    <Text className={`kana ${styles.cardKana} knd-swipe-pin`}>{c.prompt}</Text>
                   ) : (
                     <Text
                       component="button"
                       type="button"
                       id={`card-edit-${c.id}`}
-                      className="kana knd-card-kana knd-card-edit knd-swipe-pin"
+                      className={`kana ${styles.cardKana} ${styles.cardEdit} knd-swipe-pin`}
                       onClick={() => { editAction.setError(null); setEditCard(c); setEditOpen(true); }}
                     >
                       {c.prompt}
                     </Text>
                   )}
-                  <Text className="romaji knd-card-romaji" size="sm" c="dimmed">{c.primary}</Text>
-                  <Text className="knd-card-meaning" size="sm" c="dimmed">{c.meaning ?? ''}</Text>
+                  <Text className={`romaji ${styles.cardRomaji}`} size="sm" c="dimmed">{c.primary}</Text>
+                  <Text className={styles.cardMeaning} size="sm" c="dimmed">{c.meaning ?? ''}</Text>
                   {/* Un mazo incluido no trae acciones por carta: la pantalla es
                       un visor. En teléfono estos botones se ocultan por CSS y
                       las acciones llegan por gesto. */}
                   {!readOnly && (
-                    <Group className="knd-card-actions" gap={5} wrap="nowrap">
+                    <Group className={styles.cardActions} gap={5} wrap="nowrap">
                       <Button
                         id={`card-delete-${c.id}`}
                         variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
@@ -692,7 +693,7 @@ export function GroupCards({
                     id={`move-to-${g.id}`}
                     value={String(g.id)}
                     disabled={moveAction.busy}
-                    className="knd-move-opt"
+                    className={styles.moveOpt}
                     /* 16px, el preset más chico: el círculo del diseño mide 14 y
                        los 20 del default de Mantine, al lado de un nombre de
                        13px, pesan más que el nombre. */

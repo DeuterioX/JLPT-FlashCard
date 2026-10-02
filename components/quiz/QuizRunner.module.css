@@ -1,0 +1,286 @@
+/* Barra propia pegada arriba del pie del quiz: visible por debajo de
+   800px. Centrada -se probaron alineada a la izquierda y estirada a todo
+   el ancho, ninguna de las dos convenció-. */
+.quizMetricsTopBar {
+  display: flex;
+  justify-content: center;
+  padding: 0.5rem 1rem 0;
+  /* Esta franja y el pie son UNA barra, la de 118px del diseño: el cuadro de
+     cifras arriba y el input abajo, sobre la misma superficie y con una sola
+     línea que la separa del escenario. Antes esta franja no tenía fondo -se
+     veía el de la página por detrás- y encima traía su propio borde abajo, así
+     que había dos líneas y dos colores donde el diseño tiene uno. El borde de
+     arriba lo pone ésta y el pie se queda sin el suyo (más abajo). */
+  background: var(--mantine-color-dark-6);
+  border-top: 1px solid var(--mantine-color-dark-5);
+  /* Ver la nota de `flex-shrink` en `.quizFooter`, más abajo. */
+  flex-shrink: 0;
+}
+
+@media (min-width: 800px) {
+  .quizMetricsTopBar { display: none; }
+}
+
+/* Aviso de error del quiz (`.toast` del mockup): posición absoluta,
+   anclada al wrapper que envuelve SOLO al kana (`pos="relative"` puesto
+   ahí en QuizRunner, no en `quiz-stage`) -ese wrapper mide justo lo que
+   ocupa el kana, así que `top: 100%` cae pegado a su borde inferior sea
+   cual sea el alto real de la pantalla-. Anclado contra `quiz-stage` (que
+   es `flex: 1`, todo el alto disponible) quedaba lejísimos del kana en
+   cualquier ventana real -pasó de verdad, medido-: el mockup lo calculó
+   contra los 300px fijos de su propio stage estático, no contra una
+   pantalla completa. */
+.quizUnder {
+  position: absolute;
+  left: 50%;
+  top: 100%;
+  /* 14px del diseño mientras haya alto de sobra, pero proporcional al
+     stage cuando escasea -con el teclado abierto el stage queda en ~125px y
+     esos 14px fijos eran parte de lo que empujaba al toast afuera, encima de
+     las métricas-. `cqh` acá sí es válido: el bloque es DESCENDIENTE del
+     container (`#quiz-stage`), no el container mismo. */
+  margin-top: min(0.875rem, 7cqh);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.quizToast {
+  /* Shu al 18% sobre la superficie de tinta (`dark.6`). El aviso flota sobre
+     el escenario, no sobre el papel, así que sigue siendo un lavado oscuro. */
+  background: #392720;
+  border: 1px solid var(--mantine-color-shu-6);
+  color: var(--knd-shu-txt);
+  padding: 0.3125rem 0.8125rem; /* 5px 13px del diseño */
+  border-radius: 100px;
+  font-size: 0.71875rem; /* 11.5px del diseño */
+  white-space: nowrap;
+}
+
+@container (max-height: 100px) {
+  .quizKanaWrap {
+      position: static;
+    }
+}
+
+@container (max-height: 100px) {
+  .quizUnder {
+      top: auto;
+      bottom: 0.25rem;
+      margin-top: 0;
+    }
+}
+
+/* Pie del quiz: el mockup (`.quizbar`) lo arma como una grilla de 3
+   columnas -métricas ancladas a la izquierda, input de ancho FIJO
+   centrado, "Revelar" anclado a la derecha-, no un flex donde el input se
+   estira a lo que sobre (eso hacía que en pantallas anchas el input
+   ocupara casi todo el ancho, medido en vivo: 1084px en un laptop de
+   1440px). En teléfono, sin métricas (arriba), se queda como un flex
+   simple donde el input sí llena el espacio libre -ahí no hay "sobra" que
+   evitar y el mockup no muestra una variante angosta con ancho fijo-. */
+.quizFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--mantine-spacing-md);
+  /* El pie NUNCA se encoge: todo lo que falte de alto lo absorbe el stage
+     (ver `minHeight: 0` + `containerType` en QuizRunner.tsx). Por default un
+     ítem de flex tiene `flex-shrink: 1`, así que cuando el contenedor del
+     quiz se achica -y con el teclado abierto se achica muchísimo: el alto
+     útil en un iPhone queda en ~300px- el reparto del faltante le tocaba
+     también al pie. Peor: entre el `min-height: auto` del stage y el alto
+     propio del header/métricas, el layout tenía un piso de ~294px, y por
+     debajo de eso el pie entero (con el input adentro) terminaba
+     posicionado FUERA del contenedor -medido: a 240px de alto, el input
+     quedaba 54px por debajo del borde inferior, o sea invisible-. Como el
+     alto útil real del dispositivo (~302px) estaba a 8px de ese piso,
+     cualquier fluctuación momentánea del visual viewport durante un gesto
+     lo cruzaba y el input desaparecía y volvía: eso era el parpadeo. */
+  flex-shrink: 0;
+}
+
+.quizAnswerForm {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .quizFooter {
+      display: grid;
+      /* `minmax(0, 1fr)`, no `1fr` a secas: por default un ítem de grid no
+         encoge más allá del tamaño natural de su contenido. Con las
+         métricas ausentes acá abajo de 800px (ver arriba) esta columna
+         queda vacía, pero se deja igual de encogible para cuando sí entran
+         ≥800px -de otro modo la caja de métricas (necesita ~225px) no
+         entraba en el tercio que le tocaba y se superponía con el input de
+         300px fijo, pasó de verdad, medido: "Errores" quedaba tapado a
+         700px con el corte viejo de 641px-. */
+      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    }
+}
+
+@media (min-width: 768px) {
+  .quizAnswerForm {
+      grid-column: 2;
+      flex: none;
+      /* 300px del diseño (`.answer { width: 300px }`), en rem para que
+         escale con el resto de la app en 2K/4K. */
+      width: 18.75rem;
+      justify-self: center;
+    }
+}
+
+@media (min-width: 768px) {
+  .quizReveal { grid-column: 3; justify-self: end; }
+}
+
+/* El texto del input de respuesta va centrado (`.answer { text-align:
+   center }` del diseño). El prop `ta="center"` de Mantine NO alcanza:
+   centra el `<div>` contenedor (`mantine-TextInput-root`), pero el
+   `<input>` real trae su propio `text-align: var(--input-text-align,
+   start)` declarado directo en el CSS base de Mantine -gana por estar
+   puesto sobre el propio elemento, no por herencia, así que lo que se
+   herede del contenedor no lo pisa-. Hay que setear esa variable puntual,
+   no `text-align` a mano. */
+.quizAnswer {
+  --input-text-align: center;
+}
+
+/* Fondo con tinte rojo en el input de respuesta al errar (`--a-shu-bg` del
+   diseño): es un estado de juego -"la marcaste mal"-, no una validación de
+   formulario común, así que se reserva a este input puntual y no al
+   `TextInput` en general (el editor de mazo, el buscador, no necesitan ese
+   peso visual por un campo vacío). `className` en un TextInput de Mantine
+   cae en el wrapper más externo (`:global(.mantine-TextInput-root)`), tres niveles
+   arriba del `<input>` real -que es el que de verdad pinta el fondo
+   visible-, así que hace falta el selector descendiente. */
+.quizAnswer[data-error] input {
+  /* El input SÍ es papel, así que su error es un lavado de shu sobre el
+     crema y no sobre la tinta: el mismo `#392720` de antes lo habría
+     ensuciado hasta volverlo marrón. */
+  background-color: color-mix(in srgb, var(--mantine-color-shu-6) 14%, var(--knd-papel));
+}
+
+/* Revelar da vuelta el kana (maqueta: claude.ai/artifact/6w2SMrr2PQRpzmwkBeiRGa).
+   Antes la respuesta se agregaba debajo; ahora está en el dorso.
+
+   El revelado es un GIRO SOBRE EL EJE X: la hoja cae hacia adelante, pasa de
+   canto y sube por atrás con la lectura. Elegido contra dos alternativas que
+   se maquetaron y se miraron en movimiento (canvas, fila «Revelar · dos
+   maquetas para elegir»): ésta, que gira la hoja entera como un solo objeto, y
+   una que giraba celda por celda con 90ms de diferencia. La segunda se
+   descartó porque al pasar cada celda por su canto se ve el fondo de la
+   pantalla a través de ella y la hoja deja de ser una superficie.
+
+   Sobre X y no sobre Y, que es lo que hubo al principio: girando sobre Y, una
+   hoja de una o dos celdas -un cuadrado chico con una cruz de guía adentro-
+   queda de canto en una línea vertical de dos píxeles con el glifo estirado, y
+   la cruz, que es lo que dice que eso es papel de manuscrito, se aplasta
+   contra sí misma. Sobre X el eje de giro es el lado largo de la hoja, así que
+   hasta una frase de dos renglones gira como una página que se da vuelta.
+
+   Cuatro cosas que no son negociables acá:
+
+   - La `perspective` va en el PADRE DIRECTO de lo que gira, y en un div
+     propio, no en el `Box` de afuera: `perspective` convierte al elemento en
+     bloque contenedor de sus descendientes absolutos, y el layout de
+     emergencia de más abajo -el que con el teclado abierto pone
+     `.quizKanaWrap` en `static` para que el aviso de error se ancle al
+     piso del stage- dejaría de funcionar si el Box la tuviera.
+   - El dorso va en posición absoluta y CENTRADO sobre el eje de giro, con su
+     alto natural. Las tres combinaciones se probaron: con `inset: 0` queda
+     clavado al tamaño del frente y una frase larga se derrama fuera del papel;
+     compartiendo la celda de la grilla el papel contiene su texto pero la caja
+     pasa a medir lo que mide la cara MÁS ALTA, y entonces la hoja flota en el
+     medio de un hueco reservado y lo que cuelga abajo -la pista, el aviso de
+     error- queda a 126px en vez de a 14. Centrado y absoluto no dimensiona
+     nada: la caja sigue siendo la hoja, el dorso crece hacia los dos lados
+     desde el mismo centro sobre el que gira, y el texto lo contiene su propio
+     papel.
+   - `backface-visibility: hidden` en las dos caras y el dorso pre-girado
+     180°: es lo que hace que en cada mitad del giro se vea una sola.
+   - Nada de `filter` sobre las caras: aplana el contexto 3D y el giro se ve
+     como un aplastado lineal, sin volumen. */
+.quizPersp { perspective: 1400px; }
+
+.quizTurn {
+  display: grid;
+  position: relative;
+  transform-style: preserve-3d;
+  /* 380ms, y la curva de la maqueta: arranca lento, cruza el canto rápido y
+     frena al llegar. Es lo que hace que se lea como una hoja con peso. */
+  transition: transform 380ms cubic-bezier(0.45, 0.05, 0.35, 1);
+}
+
+.quizTurn.is-revealed { transform: rotateX(180deg); }
+
+.quizFace {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.quizFaceBack {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* El orden importa: primero se centra y después se da vuelta, así el eje de
+     giro del dorso es el mismo que el de la hoja. */
+  transform: translate(-50%, -50%) rotateX(180deg);
+  width: max-content;
+  /* El papel necesita margen propio: el frente es una grilla de celdas que ya
+     trae el suyo, el dorso es texto suelto sobre la hoja. */
+  padding: 1rem 1.25rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizTurn { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizTurn.is-revealed { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizFace { transition: opacity 160ms ease; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizFaceBack { transform: translate(-50%, -50%); opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizTurn.is-revealed .quizFace:not(.quizFaceBack) { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quizTurn.is-revealed .quizFaceBack { opacity: 1; }
+}
+
+/* El dorso del giro es la MISMA hoja dada vuelta, no texto flotando sobre el
+   fondo de la app. Como es `inset: 0` dentro de la celda que dimensiona el
+   frente, hereda su tamaño exacto sin tener que calcularlo. */
+.quizFaceBack {
+  background: var(--knd-papel);
+  border-radius: 3px;
+  box-shadow: var(--knd-sombra-hoja);
+  /* Nunca más ancho que la hoja del frente ni que la pantalla. */
+  max-width: min(100cqw - 3rem, 62rem);
+}
+
+/* Y lo de adentro se ata al ancho de la hoja. Sin esto el texto se salía por
+   los dos costados: el romaji de una frase es UNA sola palabra sin espacios
+   -«korehanihongodenantoiimasuka»- así que no tiene dónde cortar solo, y el
+   significado tampoco tenía contra qué medirse porque el `Stack` que lo
+   contiene mide lo que mide su contenido. `anywhere` le da permiso de cortar
+   la transcripción en cualquier letra, que para un romaji largo es preferible
+   a que se vaya de la hoja. */
+.quizFaceBack > * { width: 100%; }
+
+.quizFaceBack :global(.mantine-Text-root) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
