@@ -1262,6 +1262,8 @@ input:-webkit-autofill:active {
   /* La barra del AppShell se apaga sólo en las pantallas que traen la suya.
      Práctica y Estadísticas no tienen `MobileNavbar`, así que conservan la
      marca y el nombre de la app. */
+  body:has(.knd-mobile-navbar) #app-header { display: none; }
+
   .knd-navbar-back {
     display: grid;
     place-items: center;

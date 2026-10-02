@@ -99,11 +99,16 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
   if (path === '/quiz') return <>{children}</>;
 
   return (
-    <MantineShell header={phone ? undefined : { height: 48 }} padding="md">
-      {!phone && (
+    <MantineShell header={{ height: 48 }} padding="md">
+      {/* El header está SIEMPRE, también en teléfono: no es sólo navegación,
+          lleva la marca, y Práctica y Estadísticas no traen otra barra arriba.
+          Además reserva los 48px del `padding-top` del main, que la barra de
+          pantalla de Mazos (`fixed`) ocupa al taparlo. Lo que viaja sólo en
+          escritorio son los links y el botón de tema. */}
       <MantineShell.Header id="app-header">
         <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
+          {!phone && (<>
           {/* Cada link es su propia "píldora" (padding + radio + fondo en
               el activo), como en el diseño -no solo un `gap` entre textos
               sueltos, que es lo que los dejaba pegoteados. */}
@@ -131,15 +136,13 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
           </Group>
           {/* Al ras de la derecha, separado de la navegación: no es un lugar
               más al que ir, es una preferencia. */}
-          {/* Sin clase que lo esconda: esta barra entera sólo existe en
-              escritorio, así que el botón que vive adentro tampoco necesita
-              esconderse por su cuenta. Falta decidir dónde va en teléfono. */}
+          {/* Falta decidir dónde va en teléfono. */}
           <Box ml="auto">
             <ThemeToggle id="theme-toggle" />
           </Box>
+          </>)}
         </Group>
       </MantineShell.Header>
-      )}
 
       <MantineShell.Main id="main" className="knd-main-pb">
         {children}
