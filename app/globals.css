@@ -2023,6 +2023,16 @@ input:-webkit-autofill:active {
 #nav-desktop::-webkit-scrollbar { display: none; }
 #app-brand, #app-brand * { white-space: nowrap; }
 
+/* El punto de «incluido en la app». */
+.knd-builtin-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-left: 7px;
+  border-radius: 50%;
+  background: var(--mantine-color-jade-6);
+}
+
 /* El zorro de la marca. Se mide por ALTO y no por ancho: el dibujo es más alto
    que ancho, y atarlo al ancho deja que su proporción decida cuánto crece la
    barra -que en el quiz es alto que se le saca al escenario-. Con el alto fijo,

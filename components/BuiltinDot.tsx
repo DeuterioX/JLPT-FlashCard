@@ -1,4 +1,4 @@
-import { Tooltip, Box } from '@mantine/core';
+import { Tooltip } from '@mantine/core';
 
 /**
  * Marca los mazos que vienen con la app. Es solo un punto, a propósito:
@@ -8,13 +8,7 @@ import { Tooltip, Box } from '@mantine/core';
 export function BuiltinDot() {
   return (
     <Tooltip label="Incluido en la app · no se puede borrar" withArrow>
-      <Box
-        component="span"
-        w={6}
-        h={6}
-        ml={7}
-        style={{ borderRadius: '50%', background: 'var(--mantine-color-jade-6)', display: 'inline-block' }}
-      />
+      <span className="knd-builtin-dot" />
     </Tooltip>
   );
 }
