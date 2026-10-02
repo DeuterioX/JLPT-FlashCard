@@ -146,6 +146,20 @@ body { margin: 0; }
   padding-top: 6px;
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
+/* El fondo de la barra sigue por debajo del borde de la pantalla, donde no se
+   ve. Con zoom el scroll queda en fracciones de pixel (medido: `scrollY`
+   156.8 con `dpr` 3.0000001) y el navegador redondea distinto la capa fija y
+   la que scrollea: aunque la barra termina justo en el borde -medido, 956 de
+   956-, entre las dos queda una costura de menos de un pixel por donde se
+   asoma el contenido. Prolongar el fondo la tapa sin mover la barra. */
+.knd-nav-mobile::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  top: 100%;
+  height: 100%;
+  background: inherit;
+}
 /* La altura real de la barra, para que el contenido y la barra de acción no
    queden tapados. Cuelga del mismo atributo que decide si la barra existe. */
 :root[data-phone] { --knd-bottom-offset: calc(56px + env(safe-area-inset-bottom, 0px)); }
