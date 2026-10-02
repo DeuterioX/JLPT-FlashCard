@@ -1238,6 +1238,7 @@ input:-webkit-autofill:active {
 .knd-crumb-row {
   min-height: 1.625rem;
   align-items: center;
+  gap: 0.5rem;
   /* Una sola línea, siempre. Envolviendo, un nombre largo manda el nivel
      actual al renglón de abajo y la fila casi duplica su alto, así que el
      texto queda a distinta altura según en qué pantalla estés. */
@@ -1249,7 +1250,11 @@ input:-webkit-autofill:active {
    arriba y el actual-, en vez de que el actual se lleve todo el recorte: con
    tres niveles en un teléfono, recortar sólo el último lo dejaría en dos
    letras. */
-.knd-crumb-step { min-width: 0; }
+.knd-crumb-step {
+  min-width: 0;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+}
 /* El primer nivel no se encoge NUNCA. Es el ancla de orientación -y mide
    cuatro letras-, así que recortarlo a «M…» no gana espacio y sí pierde la
    única referencia fija de la miga. El faltante lo absorben los niveles de
@@ -1262,6 +1267,7 @@ input:-webkit-autofill:active {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.knd-crumb-sep { color: var(--mantine-color-dark-3); }
 /* La barra y los controles nunca se encogen: son del ancho de un carácter o
    de un botón, y recortarlos no gana nada. */
 .knd-crumb-sep,

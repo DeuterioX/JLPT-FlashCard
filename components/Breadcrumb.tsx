@@ -13,11 +13,6 @@ export type Crumb = { label: string; href: string };
  * pantalla en pantalla según qué botones lleva. Las dos cosas se reportaron
  * como bugs. Con un componente no pueden volver a pasar.
  *
- * Es UNA línea siempre: lo que no entra se corta con puntos suspensivos. Con
- * envoltura, un nombre largo mandaba el nivel actual al segundo renglón y la
- * fila pasaba de 30 a 58px, así que el texto quedaba a distinta altura según
- * la pantalla -que es justo lo que este componente viene a evitar-.
- *
  * `trail` son los niveles de arriba, que son enlaces; `current` es dónde se
  * está parado y no lo es -un enlace a la página actual no lleva a ningún lado
  * y sólo agrega un blanco más al tabulador-. `children` son los controles que
@@ -41,23 +36,18 @@ export function Breadcrumb({
   if (trail.length === 0 && !children) return null;
 
   return (
-    <Group id={id} className="knd-crumb-row" gap="0.5rem">
+    <Group id={id} className="knd-crumb-row">
       {trail.map((c) => (
         // La barra va como elemento APARTE y no dentro del texto del enlace:
-        // metida adentro queda con un espacio de texto de un lado y el `gap`
-        // del Group del otro, y el separador deja de medir lo mismo en todas
-        // las pantallas. Además un espacio literal pegado al cierre de un tag
-        // puede colapsar a ancho cero (ver CLAUDE.md).
-        <Group key={c.href} className="knd-crumb-step" gap="0.5rem" wrap="nowrap">
+        // adentro queda con un espacio de texto de un lado y el `gap` del otro,
+        // y deja de medir lo mismo en todas las pantallas.
+        <Group key={c.href} className="knd-crumb-step">
           <Anchor className="knd-crumb" component={Link} href={c.href} size="sm" underline="hover">
             {c.label}
           </Anchor>
-          <Text className="knd-crumb-sep" c="dark.3" size="sm">/</Text>
+          <Text className="knd-crumb-sep" size="sm">/</Text>
         </Group>
       ))}
-      {/* Mismo tamaño y mismo peso que los niveles de arriba: lo que lo
-          distingue es que no es un enlace y que conserva el color de texto
-          pleno, mientras que los de arriba van en `dark.3`. */}
       <Text
         id={currentId}
         className={`knd-crumb-current${currentClassName ? ` ${currentClassName}` : ''}`}
