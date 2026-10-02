@@ -447,9 +447,9 @@ function QuizPlay({
 
   // Se renderiza DOS veces -una arriba del stage, otra adentro del pie- y
   // CSS puro decide cuál se ve según el ancho (ver `.knd-quiz-metrics-top`
-  // y el corte de 800px en globals.css): mismo patrón que ya usan
-  // `.knd-nav-desktop`/`.knd-nav-mobile`, para no depender de
-  // `useMediaQuery` y su desincronización servidor/cliente. `top` sufija
+  // y el corte de 800px en globals.css): las dos variantes están
+  // siempre en el DOM, para no depender de `useMediaQuery` y su
+  // desincronización servidor/cliente. `top` sufija
   // los ids de la variante de arriba; la del pie conserva los ids
   // originales (`quiz-metrics`, etc.), sin sufijo.
   function metricsBox(suffix?: string) {

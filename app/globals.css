@@ -160,10 +160,9 @@ body { margin: 0; }
    no es algo que CSS pueda hacer solo). Por debajo de 800px -mismo corte
    que usa `.knd-group-grid`- no entran junto al input de ancho fijo en el
    pie sin apretarse, así que se muestran arriba; de 800px para arriba
-   entran cómodas adentro del pie. Mismo patrón que ya usan
-   `.knd-nav-desktop`/`.knd-nav-mobile`: las dos variantes están siempre
-   en el DOM, sin depender de `useMediaQuery` y su desincronización
-   servidor/cliente. */
+   entran cómodas adentro del pie. Las dos variantes están
+   siempre en el DOM y las decide el CSS, sin depender de `useMediaQuery` y su
+   desincronización servidor/cliente. */
 .knd-quiz-metrics {
   display: flex;
   border: 1px solid var(--mantine-color-dark-4);

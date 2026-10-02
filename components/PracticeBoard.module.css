@@ -1,7 +1,7 @@
 /* Editor de mazo: columna de grupos en escritorio, tira horizontal en
-   teléfono. Mismo patrón que `.knd-nav-desktop`/`.knd-nav-mobile`: los dos
-   bloques se renderizan siempre y CSS puro decide cuál se ve, para no
-   depender de `useMediaQuery` y su desincronización servidor/cliente. */
+   teléfono. Los dos bloques se renderizan
+   siempre y el CSS decide cuál se ve, para no depender de `useMediaQuery` y su
+   desincronización servidor/cliente. */
 
 /* Scroll horizontal sin la barra nativa a la vista -se puede seguir
    scrolleando con el dedo o la rueda, solo se esconde el widget-. La

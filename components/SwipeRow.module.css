@@ -7,8 +7,8 @@
 /* Fila con acciones por gesto (ver SwipeRow.tsx). Los paneles
    y el gesto son SÓLO de teléfono: en escritorio la fila muestra sus botones
    como el resto de las listas de la app, así que acá no hay nada que
-   descubrir. Mismo patrón de dos variantes en el DOM que ya usan
-   `.knd-nav-desktop`/`.knd-nav-mobile`, sin `useMediaQuery`. */
+   descubrir. Las dos variantes están en el DOM y las
+   decide el CSS, sin `useMediaQuery`. */
 .swipeRow { position: relative; overflow: hidden; }
 
 .swipeSide { display: none; }
