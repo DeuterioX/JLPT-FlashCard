@@ -11,10 +11,9 @@ import { APP_NAME } from '../lib/app-meta';
  * completa- se quedó con el cuadrado de la あ que tenían las dos antes. Con
  * un solo componente eso no puede volver a pasar.
  *
- * El zorro va a 34px: comprobado renderizando a tamaño real y ampliando sin
- * interpolar, a 24 y 26 la cara se empasta y abajo de 30 se pierden los
- * anteojos. La cabecera del quiz compensa ese alto con menos padding, así
- * que mide lo mismo que antes (ver la nota en QuizRunner).
+ * El zorro va a 34px (`.knd-brand-logo`). La cabecera del quiz compensa ese
+ * alto con menos padding, así que mide lo mismo que antes (ver la nota en
+ * QuizRunner).
  *
  * `alt` vacío a propósito: el nombre está al lado, así que un lector de
  * pantalla que anunciara la imagen estaría repitiendo.
@@ -30,20 +29,11 @@ export function Brand({
 }) {
   return (
     <Group id={id} gap={7} wrap="nowrap">
-      {/* Se mide por ALTO y no por ancho: el dibujo es más alto que ancho, y
-          atarlo al ancho deja que su proporción decida cuánto crece la barra
-          -que en el quiz es alto que se le saca al stage-. Con el alto fijo,
-          cambiar el dibujo no mueve ninguna cabecera. */}
-      <Image
-        src={logo}
-        alt=""
-        width={34}
-        height={34}
-        priority
-        style={{ height: '2.125rem', width: 'auto', flexShrink: 0 }} // TODO: sacarlo a un estilo CSS
-      />
-      {/* TODO: agregar como subtitulo la frase キツネ・カード */}
-      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>} 
+      {/* El tamaño lo pone `.knd-brand-logo`: se mide por ALTO y no por ancho
+          -ver la clase-. `width`/`height` siguen acá porque Next los pide para
+          reservar el lugar y no es lo mismo que el tamaño con el que se pinta. */}
+      <Image src={logo} alt="" width={34} height={34} priority className="knd-brand-logo" />
+      {withName && <Text id={nameId} fw={700} size="sm">{APP_NAME}</Text>}
     </Group>
   );
 }
