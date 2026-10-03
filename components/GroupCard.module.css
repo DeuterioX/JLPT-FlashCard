@@ -94,9 +94,25 @@
   background-origin: content-box;
 }
 
-.gcPapel[data-off] {
+.groupCard[data-off] .gcPapel {
   background-color: var(--knd-papel-off);
 }
+
+/* Tres niveles de brillo -kana, nombre, romaji- que se mantienen con la
+   tarjeta apagada. El kana y el romaji van sobre PAPEL, así que su color es
+   tinta y no la escala de la interfaz: `dark.2` sobre crema daba 2,2:1.
+   Apagados, la tinta se va con el papel: lo que se lee es la hoja entera. */
+.gcKana { color: var(--knd-sumi); }
+.gcRomaji { color: var(--knd-sumi-dim); }
+.groupCard[data-off] .gcKana { color: var(--knd-papel-ink); }
+.groupCard[data-off] .gcRomaji { color: var(--knd-papel-ink-dim); }
+
+/* El nombre y el conteo van sobre la franja de tinta, no sobre el papel, así
+   que ésos sí usan la escala de la interfaz. */
+.gcName,
+.gcMore { color: var(--mantine-color-dark-0); }
+.groupCard[data-off] .gcName,
+.groupCard[data-off] .gcMore { color: var(--mantine-color-dark-3); }
 
 .gcFila {
   height: var(--knd-gc-paso);
@@ -118,7 +134,7 @@
 
 /* Un grupo de PALABRAS -no de kana sueltos- baja el cuerpo: «けんきゅうしゃ» no
    entra al tamaño de un kana solo. */
-.gcPapel[data-palabras] {
+.gcPapel[data-vocab] {
   --knd-gc-kana: 0.8125rem;
 }
 

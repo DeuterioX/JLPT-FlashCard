@@ -39,15 +39,15 @@ export function ConfirmModal({
       {/* Sólo mientras está abierto: así el error de un intento fallido no
           sigue ahí la próxima vez que se abra. */}
       {opened && (
-        <Cuerpo confirm={confirm} confirmId={confirmId} onConfirm={onConfirm} onClose={onClose}>
+        <Body confirm={confirm} confirmId={confirmId} onConfirm={onConfirm} onClose={onClose}>
           {children}
-        </Cuerpo>
+        </Body>
       )}
     </Modal>
   );
 }
 
-function Cuerpo({
+function Body({
   confirm, confirmId, onConfirm, onClose, children,
 }: {
   confirm: string;

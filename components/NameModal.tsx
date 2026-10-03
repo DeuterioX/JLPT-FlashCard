@@ -22,7 +22,7 @@ import { useAction } from '@/lib/client/action';
  * igual que en cualquier otro `useAction`.
  */
 export function NameModal({
-  id, opened, onClose, jp, title, ...campo
+  id, opened, onClose, jp, title, ...field
 }: Props) {
   return (
     <Modal
@@ -35,7 +35,7 @@ export function NameModal({
           arranca limpio cada vez: con el nombre que toca y sin el error de la
           vez anterior. Renombrar dos grupos seguidos usa el mismo modal, así
           que con el estado afuera el segundo abría con el nombre del primero. */}
-      {opened && <Formulario id={id} onClose={onClose} {...campo} />}
+      {opened && <Form id={id} onClose={onClose} {...field} />}
     </Modal>
   );
 }
@@ -64,19 +64,19 @@ type Props = {
   onSubmit: (value: string) => Promise<string | void>;
 };
 
-function Formulario({
+function Form({
   id, onClose, label, placeholder, initial = '', submit, submitId, onSubmit,
 }: Omit<Props, 'opened' | 'jp' | 'title'>) {
   const [value, setValue] = useState(initial);
   const action = useAction();
-  const frenado = !value.trim() || action.busy;
+  const blocked = !value.trim() || action.busy;
 
   return (
     <Stack
       component="form"
       onSubmit={(e: SubmitEvent) => {
         e.preventDefault();
-        if (frenado) return;
+        if (blocked) return;
         void action.run(() => onSubmit(value));
       }}
     >
@@ -89,7 +89,7 @@ function Formulario({
       />
       {action.error && <Text c="var(--knd-shu-txt)" size="sm">{action.error}</Text>}
       <ModalActions onCancel={onClose} busy={action.busy}>
-        <Button id={submitId} type="submit" disabled={frenado} loading={action.busy}>
+        <Button id={submitId} type="submit" disabled={blocked} loading={action.busy}>
           {submit}
         </Button>
       </ModalActions>

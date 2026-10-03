@@ -34,3 +34,21 @@ guidance elsewhere in this codebase) provide the space:
 This applies anywhere inline elements sit next to text or each other — not just `Kbd`.
 Before adding a new instance of "element + label" or "element · element" in JSX, reach
 for `Group`+`gap` first.
+
+## Identificadores en inglés, comentarios y textos en castellano
+
+**Todo identificador va en inglés**: variables, funciones, componentes, props,
+tipos, clases CSS y atributos `data-*`. Nada de `const palabras`, `function
+Formulario`, `data-palabras` ni `.gcFila`.
+
+**Todo lo que lee una persona va en castellano rioplatense (voseo)**: los
+comentarios, los textos de la interfaz, los mensajes de error y los mensajes de
+commit.
+
+La mezcla no es arbitraria. El código se lee junto a React, Mantine y el DOM,
+que están en inglés, y un `onToggle` al lado de un `onApretar` obliga a traducir
+mentalmente en cada línea. Los comentarios y la interfaz, en cambio, no tienen
+con qué chocar, y el castellano es el idioma en el que se piensa este proyecto.
+
+Esto ya se corrigió en masa una vez, con un `git mv` de identificadores por todo
+el repo. Volver a introducir uno en castellano es volver a pagar eso.

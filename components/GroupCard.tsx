@@ -21,15 +21,8 @@ export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
-  // Tres niveles de brillo -kana, nombre, romaji- que se mantienen con la
-  // tarjeta apagada. El kana y el romaji van sobre PAPEL, así que su color es
-  // tinta y no la escala de la interfaz: `dark.2` sobre crema daba 2,2:1.
-  const kanaColor = checked ? 'var(--knd-sumi)' : 'var(--knd-papel-ink)';
-  const romajiColor = checked ? 'var(--knd-sumi-dim)' : 'var(--knd-papel-ink-dim)';
-  const nameColor = checked ? 'dark.0' : 'dark.3';
-
   // Cuántas quedan afuera de la previsualización. 0 = el grupo entra entero.
-  const resto = group.cardCount - group.preview.length;
+  const hidden = group.cardCount - group.preview.length;
 
   /**
    * El kana baja de 15 a 13px cuando el grupo tiene PALABRAS. Lo decide el
@@ -40,7 +33,7 @@ export function GroupCard({
    * 101px de contenido: de seis a siete. Medido con el mazo: alcanza para
    * けんきゅうしゃ y las tres ましょう, que son el grueso.
    */
-  const palabras = group.preview.some((p) => [...p.prompt].length > 2);
+  const isVocab = group.preview.some((p) => [...p.prompt].length > 2);
 
   return (
     <Card
@@ -58,6 +51,9 @@ export function GroupCard({
         }
       }}
       className={styles.groupCard}
+      // Apagada se marca ACÁ y una sola vez: de este atributo cuelgan los tres
+      // colores y el papel, que antes eran tres ternarios en el JSX.
+      data-off={checked ? undefined : ''}
     >
       <Stack gap={6} className={styles.gcBody}>
         <Group gap={6} wrap="nowrap" justify="space-between" className={styles.gcHead}>
@@ -65,7 +61,7 @@ export function GroupCard({
               que ahora diga "Serie A" no la cambia. `lh` explícito porque con
               un `size` en string libre Mantine devuelve una caja de línea
               MENOR que la letra y los renglones se pisan. */}
-          <Text size="11.5px" lh={1.4} fw={500} c={nameColor} className={`kana ${styles.gcName}`}>
+          <Text size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`}>
             {group.name}
           </Text>
           <Switch checked={checked} readOnly tabIndex={-1} aria-hidden className={styles.gcSwitch} />
@@ -79,24 +75,23 @@ export function GroupCard({
             de doce tarjetas. */}
         <div
           className={`${styles.gcPapel} ${styles.gcWords}`}
-          data-off={checked ? undefined : ''}
-          data-palabras={palabras ? '' : undefined}
+          data-vocab={isVocab ? '' : undefined}
         >
           {group.preview.map((p) => (
             <div key={p.prompt} className={styles.gcFila}>
-              <Text className={`kana ${styles.gcCut} ${styles.gcKana}`} lh={1.2} c={kanaColor}>
+              <Text className={`kana ${styles.gcCut} ${styles.gcKana}`} lh={1.2}>
                 {p.prompt}
               </Text>
-              <Text className={`romaji ${styles.gcCut} ${styles.gcRomaji}`} c={romajiColor} lh={1.2}>
+              <Text className={`romaji ${styles.gcCut} ${styles.gcRomaji}`} lh={1.2}>
                 {p.romaji}
               </Text>
             </div>
           ))}
         </div>
-        {resto > 0 && (
+        {hidden > 0 && (
           // Centrado contra la hoja, que es un bloque centrado.
-          <Text size="xs" c={nameColor} className="tabular" ta="center">
-            {resto === 1 ? '1 palabra más' : `${resto} palabras más`}
+          <Text size="xs" className={`tabular ${styles.gcMore}`} ta="center">
+            {hidden === 1 ? '1 palabra más' : `${hidden} palabras más`}
           </Text>
         )}
       </Stack>
