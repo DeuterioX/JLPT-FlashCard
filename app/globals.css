@@ -101,6 +101,27 @@ body { margin: 0; }
 .romaji { font-family: var(--knd-f-mono); }
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* Crece hasta llenar lo que le deja su fila. `-fill` además deja que se achique
+   por debajo de su contenido, que es lo que un hijo flex no hace solo y sin lo
+   cual `text-overflow` no aparece nunca. */
+.knd-grow { flex: 1; }
+.knd-fill { flex: 1; min-width: 0; }
+.knd-nowrap { white-space: nowrap; }
+
+/* El marco de una lista: el radio del Paper recorta las filas de adentro, que
+   llegan hasta el borde. */
+.knd-list { overflow: hidden; }
+
+/* La fila de una lista. Medidas de `.row` del diseño, que no caen en ninguna
+   escala de Mantine: 10px arriba y abajo, 13 a los costados. */
+.knd-row-pad { padding: 0.625rem 0.8125rem; }
+
+/* Los dos rótulos chicos en versalitas del diseño: el de una métrica
+   («ACIERTOS», sobre su cifra) y el de una marca de estado («SÓLO LECTURA»),
+   que es más chico y va en romaji. */
+.knd-metric-label { letter-spacing: 0.06em; }
+.knd-tag { letter-spacing: 0.08em; }
+
 /* El rojo del texto que avisa de un error, en una clase y no en un prop `c=`:
    Mantine escribe ese prop INLINE, y un inline le gana a cualquier regla -ya
    nos costó el hover de la navegación y la píldora del menú-. Es `--knd-shu-txt`

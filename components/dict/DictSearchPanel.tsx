@@ -132,7 +132,7 @@ export function DictSearchPanel({
           onChange={(e) => setQ(e.currentTarget.value)}
           autoFocus
           rightSection={
-            <Text size="xs" c="dimmed" style={{ whiteSpace: 'nowrap' }}>
+            <Text size="xs" c="dimmed" className="knd-nowrap">
               {loading ? '…' : hits.length}
             </Text>
           }

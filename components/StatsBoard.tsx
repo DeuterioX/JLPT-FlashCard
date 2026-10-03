@@ -213,7 +213,7 @@ export function StatsBoard({
                 <Text className={`romaji ${styles.worstRom}`} c="dimmed">{w.primary}</Text>
                 <Progress
                   value={w.rate * 100} color="shu.6" size={4} radius={2}
-                  style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
+                  className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
                 <Text className={`${styles.worstNum} tabular`} c="dark.3" ta="right">{w.errors}/{w.seen}</Text>
               </Group>
@@ -237,7 +237,7 @@ export function StatsBoard({
                 <Text className={styles.groupName} c="dimmed">{g.name}</Text>
                 <Progress
                   value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
-                  style={{ flex: 1 }} styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
+                  className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
                 <Text size="0.6875rem" lh={1.4} c="dimmed" className="tabular" w={30} ta="right">
                   {Math.round(g.accuracy * 100)}%
@@ -268,7 +268,7 @@ export function StatsBoard({
           {o.history.map((h) => (
             <Group key={h.id} id={`history-row-${h.id}`} gap="sm" wrap="nowrap" py={6}>
               <HistoryDate iso={h.startedAt} />
-              <Text size="0.71875rem" lh={1.4} c="dimmed" style={{ flex: 1, minWidth: 0 }}>{h.label}</Text>
+              <Text size="0.71875rem" lh={1.4} c="dimmed" className="knd-fill">{h.label}</Text>
               {/* Columna de duración del diseño, que faltaba entera. El dato
                   sale de `finishedAt - startedAt` en el servicio. */}
               <Text className="romaji" size="0.71875rem" lh={1.4} c="dimmed">

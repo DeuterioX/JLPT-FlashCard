@@ -81,7 +81,7 @@ export function RoundSummary({
                 <Group key={m.cardId} gap="sm" wrap="nowrap">
                   <Text className="kana" w={34}>{m.prompt}</Text>
                   <Text className="romaji" size="xs" c="dimmed" w={46}>{m.primary}</Text>
-                  <Progress value={(m.count / worst) * 100} color="shu.6" size="xs" style={{ flex: 1 }} />
+                  <Progress value={(m.count / worst) * 100} color="shu.6" size="xs" className="knd-grow" />
                   {/* `dark.3` (--a-dimmer), no `dimmed` (dark.2, el mismo
                       tono que el romaji de al lado): en el diseño es un
                       escalón más apagado que la columna de al lado. */}

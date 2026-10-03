@@ -127,7 +127,7 @@ function EditCardModal({
         </div>
         {alts.map((a, i) => (
           <Group key={i} gap="xs" wrap="nowrap">
-            <div style={{ flex: 1 }}>
+            <div className="knd-grow">
               <PaperField
                 label="Alt"
                 aria-label={`Romanización alternativa ${i + 1}`}
@@ -523,7 +523,7 @@ export function GroupCards({
           )}
         </Group>
 
-        <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
+        <Paper id="cards-list" withBorder className="knd-list">
           {cards.map((c, i) => (
             <Box key={c.id} id={`card-row-${c.id}`}>
               {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
@@ -541,7 +541,7 @@ export function GroupCards({
                 {/* Los anchos viven en globals.css y no acá porque tienen que
                     cambiar entre escritorio y teléfono, y un `style` inline no
                     puede llevar una media query. */}
-                <Group className={styles.cardRow} gap={12} style={{ padding: '0.625rem 0.8125rem' }}>
+                <Group className={`${styles.cardRow} knd-row-pad`} gap={12}>
                   {/* El kana NO va atenuado: es el dato principal de la fila, y
                       el mockup lo deja en el color de texto normal -son el
                       romaji y el significado los que van en `--a-dim`-. */}

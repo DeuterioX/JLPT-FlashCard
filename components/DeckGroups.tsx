@@ -103,7 +103,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             )}
         </Group>
 
-        <Paper id="groups-list" withBorder style={{ overflow: 'hidden' }}>
+        <Paper id="groups-list" withBorder className="knd-list">
           {deck.groups.map((g, i) => (
             <div key={g.id} id={`group-row-${g.id}`}>
               {i > 0 && <Divider color={'var(--knd-border-soft)'} />}
@@ -124,11 +124,11 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
               <Group
                 gap={12}
                 wrap="nowrap"
-                style={{ padding: '0.625rem 0.8125rem' }}
+                className="knd-row-pad"
               >
                 {/* `knd-swipe-pin`: el nombre no se va de pantalla cuando el gesto
                     corre la fila para descubrir Borrar. Ver globals.css. */}
-                <Stack gap={0} className="knd-swipe-pin" style={{ flex: 1, minWidth: 0 }}>
+                <Stack gap={0} className="knd-swipe-pin knd-fill">
                   {/* El nombre ES el enlace. Antes el único elemento enfocable
                       de la fila era el botón «Ver cartas», y al sacarlo -la
                       fila entera ya navega al tocarla- el teclado se quedaba
