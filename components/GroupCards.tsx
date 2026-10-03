@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, type FormEvent } from 'react';
+import { useRef, useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box, Radio,
@@ -93,7 +93,7 @@ function EditCardModal({
     >
       <Stack
         component="form"
-        onSubmit={(e: FormEvent) => {
+        onSubmit={(e: SubmitEvent) => {
           e.preventDefault();
           if (!prompt.trim() || !romaji.trim() || busy) return;
           onSave({ prompt, romaji, meaning, alts });
@@ -348,7 +348,7 @@ export function GroupCards({
             <Stack
               gap="xs"
               component="form"
-              onSubmit={(e: FormEvent) => {
+              onSubmit={(e: SubmitEvent) => {
                 e.preventDefault();
                 if (!prompt.trim() || !romaji.trim() || addAction.busy) return;
                 void add();

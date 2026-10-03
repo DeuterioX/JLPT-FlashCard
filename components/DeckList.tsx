@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -188,7 +188,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
         <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title={<ModalTitle jp="新">Nuevo mazo</ModalTitle>}>
           <Stack
             component="form"
-            onSubmit={(e: FormEvent) => {
+            onSubmit={(e: SubmitEvent) => {
               e.preventDefault();
               if (!name.trim() || createAction.busy) return;
               void create();

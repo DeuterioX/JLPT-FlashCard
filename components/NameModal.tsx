@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type FormEvent } from 'react';
+import { useState, type SubmitEvent } from 'react';
 import { Button, Modal, Stack, Text } from '@mantine/core';
 import { ModalTitle } from './ModalTitle';
 import { ModalActions } from './ModalActions';
@@ -74,7 +74,7 @@ function Formulario({
   return (
     <Stack
       component="form"
-      onSubmit={(e: FormEvent) => {
+      onSubmit={(e: SubmitEvent) => {
         e.preventDefault();
         if (frenado) return;
         void action.run(() => onSubmit(value));

@@ -1,7 +1,7 @@
 'use client';
 
 import {
-  useEffect, useEffectEvent, useRef, useState, type FormEvent, type MouseEvent,
+  useEffect, useEffectEvent, useRef, useState, type SubmitEvent, type MouseEvent,
 } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, Text, TextInput, Button, Progress, Paper, Box, Kbd, Center, Loader } from '@mantine/core';
@@ -262,7 +262,7 @@ function QuizPlay({
     return ms;
   }
 
-  function onSubmit(e: FormEvent) {
+  function onSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!card) return;
 
