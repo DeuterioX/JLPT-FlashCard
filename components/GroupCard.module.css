@@ -1,5 +1,38 @@
-/* El foco por teclado es de la tarjeta entera, que es el control (rol switch),
-   y no del `Switch` de adentro. */
+/* La tarjeta es el control entero, de ahí el puntero, y 44px es el objetivo
+   táctil mínimo. El padding va como VARIABLE y no por el prop `padding` de
+   Card: ese prop se resuelve a esta misma variable con el `varsResolver` de
+   Mantine y ahí gana el que se calcula último. En rem, que era el único
+   padding de la app que no escalaba en 2K/4K. */
+.groupCard {
+  cursor: pointer;
+  min-height: 44px;
+  --card-padding: 0.5rem 0.375rem;
+  /* El borde suave del diseño, no el `dark.4` que trae `withBorder`. */
+  border-color: var(--knd-border-soft);
+}
+
+/* El cuerpo crece hasta llenar la tarjeta: la grilla las estira a todas al
+   mismo alto, y sin esto a un grupo de tres cartas le queda media tarjeta
+   vacía abajo. */
+.gcBody {
+  flex: 1;
+  min-height: 0;
+}
+
+.gcHead { padding: 0 0.125rem; }
+
+/* Para un nombre sin espacios más largo que la tarjeta, que en las tres
+   columnas de teléfono desbordaba -probado con «arigatougozaimasu»-. */
+.gcName {
+  word-break: break-word;
+  min-width: 0;
+}
+
+/* Decorativo: quien recibe el click es la tarjeta. */
+.gcSwitch { pointer-events: none; }
+
+/* El foco por teclado es de la tarjeta entera, que es el control, y no del
+   `Switch` de adentro. */
 .groupCard:focus-visible {
   outline: 2px solid var(--mantine-color-jade-6);
   outline-offset: 2px;
