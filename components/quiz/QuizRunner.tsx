@@ -516,7 +516,7 @@ function QuizPlay({
       // exactamente el área visible, así que no hay nada a dónde scrollear ni
       // de dónde volver, y si Safari igual scrollea al enfocar, el
       // `focusin` de `applyVisualViewportInset` lo devuelve a 0.
-      style={{ height: '100dvh', touchAction: 'none' }}
+      className={styles.round}
       onMouseDown={keepInputFocused}
     >
       <RoundHeader
@@ -549,7 +549,6 @@ function QuizPlay({
           color, sin costura. */}
       <Box
         id="quiz-stage"
-        className="knd-round-stage"
         pos="relative"
         // El stage es el ÚNICO que absorbe el faltante de alto (header y pie
         // son `flex-shrink: 0`), y para poder hacerlo tiene que poder
@@ -581,11 +580,7 @@ function QuizPlay({
         // (el thumb ocupaba casi todo el alto, justo lo que corresponde a un
         // desborde de 12px). Lo que se recorta es espacio de métricas de la
         // fuente, no tinta del glifo, así que el kana se ve igual.
-        style={{
-          flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
-          display: 'grid', placeItems: 'center',
-          paddingBlock: '0.5rem',
-        }}
+        className={`knd-round-stage ${styles.stage}`}
         /* En teléfono el escenario ES el botón de revelar: el botón se
            esconde y el toque sobre la carta la da vuelta. Es el gesto que
            uno hace con una tarjeta de verdad, y devuelve el ancho del pie al
@@ -780,7 +775,7 @@ function QuizPlay({
         {metricsBox('top')}
       </Box>
 
-      <Paper id="quiz-footer" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0 }}>
+      <Paper id="quiz-footer" withBorder radius={0} p="sm" className={styles.footerPaper}>
         {/* Grilla de 3 columnas en escritorio (métricas / input de ancho fijo
             centrado / Revelar), flex simple en teléfono -ver `.${styles.quizFooter}`
             en globals.css, mismo mockup que fija el input en 300px en vez de

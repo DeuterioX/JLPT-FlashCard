@@ -95,7 +95,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
             {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
           </SectionLabel>
           {readOnly
-            ? <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>sólo lectura</Text>
+            ? <Text className="romaji knd-tag" size={rem(9)} tt="uppercase" c="dark.3">sólo lectura</Text>
             : (
               <Button id="new-group-btn" size="compact-sm" onClick={() => setNewOpen(true)}>
                 + Nuevo grupo

@@ -1,0 +1,7 @@
+/* El borde de abajo de la barra. `flex-shrink: 0` porque con el teclado abierto
+   el alto útil se vuelve escasísimo y lo que cede tiene que ser el escenario,
+   nunca esta barra ni el pie. */
+.header {
+  border-bottom: 1px solid var(--mantine-color-dark-5);
+  flex-shrink: 0;
+}

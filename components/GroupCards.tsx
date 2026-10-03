@@ -338,7 +338,7 @@ export function GroupCards({
     }}>
       <Stack id="group-cards-screen" gap="md">
         {!readOnly && (
-          <Paper id="new-word-panel" withBorder radius={9} style={{ padding: '0.8125rem', borderColor: 'var(--knd-border-soft)' }}>
+          <Paper id="new-word-panel" withBorder radius={9} className={styles.newWordPanel}>
             {/* Un `form` de verdad y no un `div` con botón: así Enter agrega
                 desde cualquiera de los campos -incluidas las romanizaciones
                 alternativas, que están acá adentro- y en teléfono el teclado
@@ -472,7 +472,7 @@ export function GroupCards({
                 <Group id="alt-romaji-list" gap="xs" wrap="wrap">
                   {alts.map((a, i) => (
                     <Group key={i} gap={5} wrap="nowrap">
-                      <div style={{ width: 150 }}>
+                      <div className={styles.altCol}>
                         <PaperField
                           label="Alt"
                           aria-label={`Romanización alternativa ${i + 1}`}
@@ -517,7 +517,7 @@ export function GroupCards({
             {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
           </SectionLabel>
           {readOnly && !manyGroups && (
-            <Text className="romaji" size={rem(9)} tt="uppercase" c="dark.3" style={{ letterSpacing: '0.08em' }}>
+            <Text className="romaji knd-tag" size={rem(9)} tt="uppercase" c="dark.3">
               sólo lectura
             </Text>
           )}
@@ -673,7 +673,7 @@ export function GroupCards({
                        anillo y punto en jade. */
                     iconColor="jade.6"
                     label={
-                      <Group gap={10} wrap="nowrap" justify="space-between" style={{ flex: 1 }}>
+                      <Group gap={10} wrap="nowrap" justify="space-between" className="knd-grow">
                         <Text size={rem(13)}>{g.name}</Text>
                         <Text size={rem(11)} c="dark.3" className="tabular">{g.cardCount}</Text>
                       </Group>

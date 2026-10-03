@@ -3,6 +3,7 @@
 import { Overlay, Paper, Stack, Group, Text, Progress, Kbd } from '@mantine/core';
 import { accuracy, type RoundState } from '@/lib/quiz/engine';
 import { SectionLabel } from '../SectionLabel';
+import styles from './RoundSummary.module.css';
 
 export type MissEntry = { cardId: number; prompt: string; primary: string; count: number };
 
@@ -40,7 +41,7 @@ export function RoundSummary({
         radius="lg"
         maw={400}
         w="90%"
-        style={{ padding: '1.25rem 1.5rem' }}
+        className={styles.panel}
       >
         <Stack gap="0.875rem">
           {/* 15px del mockup: como con el label de GroupCard, un `size`
@@ -56,19 +57,19 @@ export function RoundSummary({
           <Group id="round-summary-stats" gap="1.375rem">
             <Stack id="round-summary-accuracy" gap={0}>
               <Text size="xl" fw={600} className="tabular">{Math.round(accuracy(state) * 100)}%</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Aciertos</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Aciertos</Text>
             </Stack>
             <Stack id="round-summary-correct" gap={0}>
               <Text size="xl" fw={600} className="tabular">{state.correct}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Cartas</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Cartas</Text>
             </Stack>
             <Stack id="round-summary-errors" gap={0}>
               <Text size="xl" fw={600} className="tabular knd-error">{state.incorrect}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Errores</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Errores</Text>
             </Stack>
             <Stack id="round-summary-time" gap={0}>
               <Text size="xl" fw={600} className="tabular">{mins}:{String(secs).padStart(2, '0')}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Tiempo</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Tiempo</Text>
             </Stack>
           </Group>
 

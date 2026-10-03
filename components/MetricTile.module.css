@@ -1,0 +1,6 @@
+/* Padding asimétrico 11/13 y el borde suave del diseño: el `withBorder` de
+   Mantine trae `dark.4`, un tono más claro. */
+.tile {
+  padding: 0.6875rem 0.8125rem;
+  border-color: var(--knd-border-soft);
+}

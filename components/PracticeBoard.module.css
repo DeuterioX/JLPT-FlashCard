@@ -56,3 +56,22 @@
       width: 100%;
     }
 }
+
+/* `.stage { padding: 18px 16px }` del diseño: 18px de aire contra el header, y
+   abajo el `gap` de 16 que el escenario le pone a todo lo que apila -ese es el
+   aire hacia la grilla, y por eso la franja que scrollea no repite el suyo-. */
+.switcherBar {
+  padding-top: 1.125rem;
+  padding-bottom: var(--mantine-spacing-md);
+  padding-inline: var(--mantine-spacing-md);
+}
+
+/* Con muchos mazos el SegmentedControl no entra en una pantalla angosta: no
+   puede envolver -su indicador animado asume una sola fila- ni scrollea solo.
+   El `min-width: 0` es lo que le permite achicarse en vez de empujar a sus
+   hermanos fuera de pantalla. */
+.deckPicker {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+}

@@ -7,3 +7,13 @@
       gap: 0.5rem;
     }
 }
+
+/* El inset horizontal es el mismo `md` del contenido de arriba, para que la
+   barra quede alineada con las tarjetas; el vertical es el del diseño. Los tres
+   bordes en 0 porque sólo lleva el de arriba, que la separa del contenido. */
+.bar {
+  padding: 0.75rem var(--mantine-spacing-md);
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}

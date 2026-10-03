@@ -106,15 +106,7 @@ export function PracticeBoard({
       wrap="wrap"
       gap="sm"
       bg="dark.7"
-      style={{
-        // `.stage { padding: 18px 16px }` del diseño: el aire entre el
-        // header y esta fila es 18px, no 0.
-        paddingTop: '1.125rem',
-        // Y este es el aire hacia la grilla de grupos, el `gap` de
-        // 16px que el `.stage` del diseño le pone a todo lo que apila.
-        paddingBottom: 'var(--mantine-spacing-md)',
-        paddingInline: 'var(--mantine-spacing-md)',
-      }}
+      className={styles.switcherBar}
     >
       {/* Con muchos mazos el SegmentedControl no entra en una pantalla
           angosta: Mantine no lo hace, pero no puede hacer wrap a varias
@@ -123,7 +115,7 @@ export function PracticeBoard({
           para que el `overflow-x` realmente pueda achicar la caja en
           vez de empujar a los hermanos fuera de pantalla; mismo patrón
           que ya usan las listas horizontales de la app. */}
-      <Box id="deck-picker" className={styles.deckSwitcher} style={{ flex: '1 1 auto', minWidth: 0, overflowX: 'auto' }}>
+      <Box id="deck-picker" className={`${styles.deckSwitcher} ${styles.deckPicker}`}>
         <SegmentedControl
           id="deck-segmented-control"
           value={deckId}

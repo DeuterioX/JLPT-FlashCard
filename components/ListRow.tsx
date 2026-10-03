@@ -1,4 +1,5 @@
 import { Group, Stack, Text, Box, rem } from '@mantine/core';
+import styles from './ListRow.module.css';
 
 export function ListRow({
   icon, title, subtitle, actions, onClick,
@@ -27,7 +28,7 @@ export function ListRow({
     >
       {/* `knd-swipe-pin`: lo que identifica a la fila no se va de pantalla
           cuando el gesto la corre para descubrir Borrar. Ver globals.css. */}
-      {icon && <Box w={34} className="kana knd-swipe-pin" style={{ fontSize: rem(17) }}>{icon}</Box>}
+      {icon && <Box w={34} className={`kana knd-swipe-pin ${styles.rowIcon}`}>{icon}</Box>}
       <Stack gap={0} className="knd-swipe-pin knd-fill">
         <Text size={rem(13)} lh={1.45} fw={500} className="kana">{title}</Text>
         {subtitle && <Text size={rem(11)} lh={1.45} c="dark.3">{subtitle}</Text>}

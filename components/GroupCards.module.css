@@ -188,3 +188,13 @@ a.inlineLink {
 /* El `<label>` tapa toda la fila, así que el clic en cualquier parte -el número
    de cartas incluido- marca ese destino. */
 .moveOpt :global(.mantine-Radio-inner) { cursor: pointer; }
+
+/* El panel de alta de palabra: su aire y el borde suave del diseño. */
+.newWordPanel {
+  padding: 0.8125rem;
+  border-color: var(--knd-border-soft);
+}
+
+/* La columna de una romanización alternativa: ancho fijo para que las varias
+   queden alineadas entre sí. */
+.altCol { width: 150px; }

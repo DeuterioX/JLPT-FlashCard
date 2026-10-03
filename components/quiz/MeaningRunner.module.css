@@ -106,3 +106,35 @@
 @media (max-width: 767.9px) {
   .meaningFooter { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* La ronda ocupa la pantalla y nada más: `100dvh` y no `100vh` porque en el
+   teléfono la barra del navegador aparece y desaparece. */
+.round {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* El escenario es lo ÚNICO que cede alto cuando se abre el teclado, de ahí el
+   `flex: 1` con `min-height: 0`. `container-type: size` es lo que les da a las
+   unidades `cqh` de la carta una caja contra la cual medir. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  position: relative;
+}
+
+/* El pie sólo lleva el borde de arriba, y no cede alto nunca. */
+.footerPaper {
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+  flex-shrink: 0;
+}

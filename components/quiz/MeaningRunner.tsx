@@ -121,17 +121,12 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   const progress = cards.length === 0 ? 0 : (i / cards.length) * 100;
 
   return (
-    <Box style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    <Box className={styles.round}>
       <RoundHeader id="meaning-header" context={context} keyDesktopOnly />
 
       <Box
         id="meaning-stage"
-        className="knd-round-stage"
-        style={{
-          flex: 1, minHeight: 0, containerType: 'size', overflow: 'hidden',
-          display: 'flex', flexDirection: 'column', alignItems: 'center',
-          justifyContent: 'center', gap: '1rem', position: 'relative',
-        }}
+        className={`knd-round-stage ${styles.stage}`}
         /* En teléfono el escenario ES el interruptor de revelar: el botón se
            esconde y el toque sobre la carta muestra y tapa el significado.
            Sigue siendo un interruptor, como el botón que reemplaza. */
@@ -204,7 +199,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
 
       <Progress id="meaning-progress" value={progress} size="xs" radius={0} />
 
-      <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
+      <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" className={styles.footerPaper}>
         <Box className={styles.meaningFooter}>
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
             {[['Sabidas', known, false], ['Restantes', remaining, false], ['No sabidas', unknown, true]]

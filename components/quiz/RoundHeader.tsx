@@ -1,5 +1,6 @@
 import { Group, Kbd, Text } from '@mantine/core';
 import { Brand } from '../Brand';
+import styles from './RoundHeader.module.css';
 
 /**
  * La barra de arriba de una ronda, compartida por el quiz y el repaso de
@@ -39,7 +40,7 @@ export function RoundHeader({
       py={4}
       justify="space-between"
       bg="dark.6"
-      style={{ borderBottom: '1px solid var(--mantine-color-dark-5)', flexShrink: 0 }}
+      className={styles.header}
     >
       <Brand id={brandId} nameId={nameId} />
       {/* `Group` con `gap`, no texto suelto con espacios intercalados a mano:

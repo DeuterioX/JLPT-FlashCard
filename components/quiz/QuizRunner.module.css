@@ -261,3 +261,34 @@
   overflow-wrap: anywhere;
   text-align: center;
 }
+
+/* La ronda ocupa la pantalla. `touch-action: none` porque el escenario recibe
+   el toque que da vuelta la carta, y no queremos que el navegador lo interprete
+   como el arranque de un scroll. */
+.round {
+  height: 100dvh;
+  touch-action: none;
+}
+
+/* El escenario es lo ÚNICO que cede alto cuando se abre el teclado, de ahí el
+   `flex: 1` con `min-height: 0`. `container-type: size` es lo que le da a las
+   unidades `cqh` del kana una caja contra la cual medir. El `overflow: hidden`
+   no es decorativo: con `line-height: 1` la caja del kana queda 12px más corta
+   que la caja de línea natural de la fuente -medido-, y ese sobrante alcanzaba
+   para que Safari mostrara una barra de scroll encima del escenario. */
+.stage {
+  flex: 1;
+  min-height: 0;
+  container-type: size;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  padding-block: 0.5rem;
+}
+
+/* El pie sólo lleva el borde de arriba, que lo separa del escenario. */
+.footerPaper {
+  border-left: 0;
+  border-right: 0;
+  border-bottom: 0;
+}

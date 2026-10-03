@@ -19,15 +19,7 @@ export function ActionBar({ children }: { children: React.ReactNode }) {
       id="action-bar"
       withBorder
       radius={0}
-      style={{
-        // El inset horizontal es el mismo `md` del contenido de arriba, para
-        // que la barra quede alineada con las tarjetas. El vertical (12px)
-        // es el del diseño.
-        padding: '0.75rem var(--mantine-spacing-md)',
-        borderLeft: 0,
-        borderRight: 0,
-        borderBottom: 0,
-      }}
+      className={styles.bar}
     >
       {/* En escritorio el conteo va a la izquierda y la acción a la
           derecha, en una fila. En teléfono la fila no entra -medido: «4
