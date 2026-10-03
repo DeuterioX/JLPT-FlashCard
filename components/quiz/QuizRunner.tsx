@@ -665,37 +665,14 @@ function QuizPlay({
                     <Stack align="center" gap={14}>
                       <Text
                         id="quiz-revealed-answer"
-                        className="romaji"
-                        /* Escala hermana de la del kana, un escalón abajo:
-                           el kana usa `min(18vw, 42cqh)` y esto `min(12vw,
-                           26cqh)`. El dorso es el premio del giro y tiene
-                           que leerse de un vistazo, no ser una nota al pie
-                           del signo que reemplaza. */
-                        style={{
-                          fontSize: 'clamp(1.5rem, min(12vw, 26cqh), 88px)',
-                          lineHeight: 1.1,
-                          // El dorso ahora es papel: la lectura va en tinta,
-                          // no en el color de texto del tema oscuro.
-                          color: 'var(--knd-sumi)',
-                        }}
+                        className={`romaji ${styles.revealedAnswer}`}
                       >
                         {shown ?? card.primary}
                       </Text>
                       {card.meaning && (
                         <Text
                           id="quiz-revealed-meaning"
-                          style={{
-                            fontSize: 'clamp(1.0625rem, min(5.5vw, 11cqh), 32px)',
-                            lineHeight: 1.25,
-                            // Verde, que es lo que dice que acertaste, pero no
-                            // el jade de la app: ése está calibrado contra
-                            // superficies oscuras y sobre el papel da 2,41:1.
-                            // `--knd-verde-papel` es el mismo verde dos tonos
-                            // más oscuro, 4,99:1 sobre la hoja. El gris sumi
-                            // que había acá antes se leía bien pero no decía
-                            // nada: era la misma tinta que el resto del papel.
-                            color: 'var(--knd-verde-papel)',
-                          }}
+                          className={styles.revealedMeaning}
                         >
                           {card.meaning}
                         </Text>

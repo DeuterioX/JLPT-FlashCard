@@ -1,0 +1,17 @@
+/* El tamaño va en `rem` y no por la prop `size` de la librería, que lo escribe
+   en los atributos `width`/`height` del SVG -o sea, en píxeles-. La app escala
+   subiendo el `font-size` de la raíz por media query (ver el tope de
+   globals.css), de 16px a 32 entre 1280 y 3200, así que un ícono en píxeles se
+   queda clavado mientras el texto de al lado crece: medido, en 3200 la etiqueta
+   del buscador llegaba a 28px y la lupa seguía en 18.
+
+   `display: block` y no el `inline` por defecto del SVG: en línea, la caja de
+   texto que lo contiene le suma el descendente de la fuente y crece -medido en
+   la barra de pestañas, 25,2px en vez de 21,6-, así que la etiqueta de abajo
+   quedaba más abajo que las de sus vecinas. */
+.icon {
+  display: block;
+  width: var(--knd-icon-size);
+  height: var(--knd-icon-size);
+  flex: none;
+}
