@@ -4,8 +4,8 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--knd-sumi-dim);
-  /* El rótulo no se selecciona con el texto: está adentro del campo, así que
-     un doble clic para elegir una palabra lo arrastraría al portapapeles. */
+  /* El rótulo no se selecciona con el texto: está adentro del campo, y un
+     doble clic lo arrastraría al portapapeles. */
   user-select: none;
 }
 

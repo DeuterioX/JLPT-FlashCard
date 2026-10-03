@@ -1,17 +1,13 @@
-/* La pantalla de Significados (ver MeaningRunner.tsx). */
-
-/* El hueco del significado, reservado también sin revelar: si apareciera de
-   la nada, la hoja saltaría hacia arriba al revelar. */
+/* El hueco del significado está reservado también sin revelar: si apareciera
+   de la nada, la hoja saltaría hacia arriba al revelar. */
 .meaningSlot {
   min-height: 4rem;
 }
 
-/* Los tamaños del canvas, explícitos y no por `clamp`: 13/21px en teléfono y
-   15/30px en escritorio. Antes el significado salía de un `clamp` con `cqh`
-   adentro y se quedaba en el piso -17px- en cuanto el contenedor no le daba
-   una altura de la que calcular, así que la respuesta -que es LO QUE hay que
-   leer en esta pantalla- terminaba más chica que el kana de una fila de
-   lista. */
+/* Tamaños explícitos y no por `clamp`: con `cqh` adentro, el significado se
+   quedaba en el piso de 17px en cuanto el contenedor no le daba una altura de
+   la que calcular, así que la respuesta -que es LO QUE hay que leer en esta
+   pantalla- terminaba más chica que el kana de una fila de lista. */
 .meaningReading { font-size: 0.8125rem; }
 
 .meaningAnswer { font-size: 1.3125rem; line-height: 1.25; }
@@ -24,10 +20,9 @@
   .meaningAnswer { font-size: 1.875rem; }
 }
 
-/* La animación corre cuando el hueco pasa a estar VISIBLE, no al montarse: la
-   respuesta está montada todo el tiempo -ver el comentario en
-   MeaningRunner.tsx- así que atarla al montaje la dispararía una sola vez, al
-   entrar a la carta. Colgada del estado del hueco, arranca en cada revelado. */
+/* La animación cuelga de que el hueco pase a estar VISIBLE y no del montaje: la
+   respuesta está montada todo el tiempo, así que atada al montaje se
+   dispararía una sola vez por carta. */
 .meaningSlot[data-oculto] { visibility: hidden; }
 
 .meaningSlot:not([data-oculto]) .meaningReading,
@@ -42,9 +37,9 @@
     .meaningSlot .meaningAnswer { animation: none; }
 }
 
-/* El pie: las métricas a la izquierda, la calificación en el centro y el
-   interruptor de revelar a la derecha, que es la misma ranura donde el quiz
-   pone su Revelar. En teléfono los tres bloques se apilan en dos filas. */
+/* El pie: métricas a la izquierda, calificación en el centro y el interruptor
+   de revelar a la derecha, la misma ranura donde el quiz pone su Revelar. En
+   teléfono los tres bloques se apilan en dos filas. */
 .meaningFooter {
   display: flex;
   flex-wrap: wrap;
@@ -71,6 +66,11 @@
 }
 
 @media (max-width: 767.9px) {
+  /* `display: contents` hace que los botones de los dos grupos pasen a ser
+       hijos directos de la grilla y caigan en las tres columnas de 1fr,
+       midiendo EXACTAMENTE lo mismo. Con `flex: 2` y `flex: 1` no da igual: el
+       grupo de dos tiene un `gap` adentro que se descuenta de sus dos botones y
+       no del tercero. */
   .meaningActions,
     .meaningReveal { display: contents; }
 }
@@ -95,10 +95,10 @@
 }
 
 @media (max-width: 767.9px) {
-  /* En teléfono revelar es tocar la carta, así que el botón se va: ver el
-       `onClick` del escenario en QuizRunner.tsx y MeaningRunner.tsx. En el quiz
+  /* En teléfono revelar es tocar la carta, así que el botón se va. En el quiz
        eso le devuelve el ancho del pie al input, que es lo único que ahí hace
-       falta; en Significados deja los dos de calificarse repartiéndose la fila. */
+       falta; en Significados deja a los dos de calificar repartiéndose la
+       fila. */
     .knd-quiz-reveal,
     .meaningReveal { display: none; }
 }

@@ -1,56 +1,43 @@
-/* Migas de navegación: sin esto son `Anchor` sin ningún estado -ni color ni
-   subrayado- y se leen como texto en vez de como links. El color sube un
-   escalón, de `--a-dimmer` a `--a-dim`, que es el mismo par que la app usa
-   en todas partes para "apagado" y "apagado pero presente"; el subrayado lo
-   pone Mantine con `underline="hover"`. El mockup no define un hover acá
-   -sus migas son `span`, no links-, así que el valor es una decisión de acá.
+/* Sin esto las migas son `Anchor` sin color ni hover y se leen como texto. El
+   color de reposo va acá y no en un prop `c=`: Mantine lo escribe INLINE y un
+   inline le gana a cualquier clase, así que con `c=` puesto el hover nunca
+   llegaba a aplicarse. El `a` del selector le gana a
+   `:global(.mantine-Anchor-root)` sin depender del orden de carga.
 
-   El color de reposo va acá y no en un prop `c=`: Mantine lo escribe INLINE
-   en el elemento, y un estilo inline le gana a cualquier regla de clase, así
-   que con `c="dark.3"` puesto el hover nunca llegaba a aplicarse. El selector
-   lleva el `a` para ganarle a `:global(.mantine-Anchor-root)` sin depender del orden
-   en que se carguen las hojas. */
-/* `dark.2` y no `dark.3`: el 3 es el escalón de PLACEHOLDER, y un nivel de
-   la miga es un enlace. Medido en vivo, en el 3 daba 2,87:1 en oscuro y
-   3,11:1 en claro, debajo del mínimo para texto; en el 2 da 7,25:1 y 5,39:1 y
-   sigue estando un escalón por debajo del nivel actual, que es lo que lo
-   distingue. Venía de antes de la escala de tinta -con el índigo daba
-   3,16:1-, así que no lo trajo el cambio de paleta. */
+   `dark.2` y no `dark.3` -el escalón de PLACEHOLDER-: medido en vivo, el 3 daba
+   2,87:1 en oscuro y 3,11:1 en claro, debajo del mínimo para texto; el 2 da
+   7,25:1 y 5,39:1 y sigue un escalón por debajo del nivel actual, que es lo que
+   lo distingue. */
 a.crumb { color: var(--mantine-color-dark-2); transition: color 120ms ease; }
 
 a.crumb:hover { color: var(--mantine-color-dark-1); }
 
-/* La cabecera de las tres pantallas de la sección Mazos. Sin un piso común
-   mide lo que mide su contenido, y ese contenido cambia de pantalla en
-   pantalla -mazos no lleva botones, grupos lleva «Renombrar» de 22px y
-   palabras suma «Buscar en el diccionario» de 26px-, así que la línea se
-   movía 5px al navegar entre ellas. El piso es el alto del botón más alto,
-   el mismo número que ya usa `.knd-sect-row`. */
+/* Piso común para la cabecera de las tres pantallas de Mazos: sin él mide lo
+   que mide su contenido, y la línea se movía 5px al navegar entre ellas -mazos
+   no lleva botones, grupos lleva «Renombrar» de 22px y palabras suma «Buscar
+   en el diccionario» de 26px-. Es el mismo número de `.knd-sect-row`. */
 .crumbRow {
   min-height: 1.625rem;
   align-items: center;
   gap: 0.5rem;
-  /* Una sola línea, siempre. Envolviendo, un nombre largo manda el nivel
-     actual al renglón de abajo y la fila casi duplica su alto, así que el
-     texto queda a distinta altura según en qué pantalla estés. */
+  /* Una sola línea, siempre: envolviendo, un nombre largo manda el nivel
+     actual al renglón de abajo y la fila casi duplica su alto. */
   flex-wrap: nowrap;
   min-width: 0;
 }
 
-/* Lo que no entra se corta. Se reparten el faltante los DOS -los niveles de
-   arriba y el actual-, en vez de que el actual se lleve todo el recorte: con
-   tres niveles en un teléfono, recortar sólo el último lo dejaría en dos
-   letras. */
+/* Lo que no entra se corta, y el faltante lo reparten los DOS -los niveles de
+   arriba y el actual-: con tres niveles en un teléfono, recortar sólo el
+   último lo dejaría en dos letras. */
 .crumbStep {
   min-width: 0;
   gap: 0.5rem;
   flex-wrap: nowrap;
 }
 
-/* El primer nivel no se encoge NUNCA. Es el ancla de orientación -y mide
-   cuatro letras-, así que recortarlo a «M…» no gana espacio y sí pierde la
-   única referencia fija de la miga. El faltante lo absorben los niveles de
-   abajo, que son los largos. */
+/* El primer nivel no se encoge NUNCA: es el ancla de orientación y mide cuatro
+   letras, así que recortarlo a «M…» no gana espacio y sí pierde la única
+   referencia fija de la miga. */
 .crumbStep:first-of-type { flex: none; }
 
 .crumb,
@@ -62,16 +49,14 @@ a.crumb:hover { color: var(--mantine-color-dark-1); }
 }
 
 /* El último nivel es SIEMPRE un nombre que puso el usuario -un mazo, un
-   grupo-, así que puede estar en japonés y va en la gótica de kana. Es una
-   regla de la miga y no una decisión de cada pantalla: antes viajaba como un
-   `currentClassName` que las dos pantallas que lo pasaban llenaban con
-   'kana'. */
+   grupo-, así que puede venir en japonés y va en la gótica de kana. Es una
+   regla de la miga y no una decisión de cada pantalla. */
 .crumbCurrent { font-family: var(--knd-f-kana); }
 
 .crumbSep { color: var(--mantine-color-dark-3); }
 
-/* La barra y los controles nunca se encogen: son del ancho de un carácter o
-   de un botón, y recortarlos no gana nada. */
+/* La barra y los controles no se encogen: miden un carácter o un botón, y
+   recortarlos no gana nada. */
 .crumbSep,
 .crumbRow > button,
 .crumbRow > a[class*='Button'] {
@@ -79,8 +64,7 @@ a.crumb:hover { color: var(--mantine-color-dark-1); }
 }
 
 @media (max-width: 767.9px) {
-  /* En teléfono los botones van a 30px (ver la regla de `:global(.mantine-Button-root)`
-       más arriba), así que el piso los acompaña. */
+  /* En teléfono los botones van a 30px, así que el piso los acompaña. */
     .crumbRow { min-height: 1.875rem; }
 }
 

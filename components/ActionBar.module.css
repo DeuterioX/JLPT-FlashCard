@@ -1,3 +1,5 @@
+/* En teléfono la barra de acción se apila en dos renglones: en 390px el conteo
+   y los dos verbos en una sola fila parten «4 grupos · 20 cartas» al medio. */
 @media (max-width: 767.9px) {
   .actionbarRow {
       flex-direction: column;

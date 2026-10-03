@@ -1,6 +1,6 @@
-/* Una pantalla en tres franjas (`Screen`): arriba, lo que scrollea y abajo.
-   Llena el `main` y le anula el padding con margen negativo, para que sus
-   barras vayan de borde a borde; el padding pasa a la franja que scrollea. */
+/* Una pantalla en tres franjas: arriba, lo que scrollea y abajo. Llena el
+   `main` y le anula el padding con margen negativo para que sus barras vayan de
+   borde a borde; el padding pasa a la franja que scrollea. */
 .screen {
   flex: 1;
   min-height: 0;
@@ -18,9 +18,8 @@
   padding: var(--mantine-spacing-md);
 }
 
-/* La barra de mazos de Práctica ya trae su aire hacia la grilla en su
-   `padding-bottom` -es donde aparece su borde al scrollear-: sumarle el
-   padding de arriba de la franja lo duplicaría. */
+/* La barra de mazos de Práctica ya trae su aire hacia la grilla en su propio
+   `padding-bottom`: sumarle el de la franja lo duplicaría. */
 :global(#deck-switcher-bar) + .screenScroll { padding-top: 0; }
 
 .screen[data-scrolled] > :global(#deck-switcher-bar) { border-bottom-color: var(--mantine-color-default-border); }

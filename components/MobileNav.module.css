@@ -1,5 +1,5 @@
-/* Cada pestaña: columna centrada -centrar es trabajo de la celda, no del
-   glifo- con el `gap: 1px` del mockup entre el kanji y la etiqueta. */
+/* Cada pestaña centra su contenido: centrar es trabajo de la celda, no del
+   glifo. */
 a.tab {
   flex: 1;
   display: flex;

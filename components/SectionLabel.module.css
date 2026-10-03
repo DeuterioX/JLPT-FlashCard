@@ -1,16 +1,14 @@
-/* El término japonés del encabezado de sección ("Básicos · gojūon") es de
-   escritorio: el mockup del teléfono rotula las mismas secciones con la
-   categoría sola, porque al lado de una grilla de 3 columnas no entra. Se
-   resuelve por CSS y no con `useMediaQuery` para que servidor y cliente
-   rendericen lo mismo -el mismo criterio que la navegación de acá abajo-. */
+/* El término japonés del encabezado ("Básicos · gojūon") es de escritorio: al
+   lado de una grilla de 3 columnas no entra, y el mockup del teléfono rotula
+   con la categoría sola. Por CSS y no con `useMediaQuery`, para que servidor y
+   cliente rendericen lo mismo. */
 .sectSuffix { display: inline; }
 
 @media (max-width: 767.9px) {
   .sectSuffix { display: none; }
 }
 
-/* La línea del encabezado de sección, con su marca de 18px en shu al
-   arranque (ver SectionLabel.tsx). Era un `Divider` pelado. */
+/* La línea del encabezado de sección, con su marca en shu al arranque. */
 .sectRule {
   position: relative;
   flex: 1;

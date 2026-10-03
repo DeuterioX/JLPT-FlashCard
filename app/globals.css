@@ -1,20 +1,12 @@
 /* El tema de Mantine controla colores y tipografías (ver theme.ts). */
 
-/* Mantine construye casi todos sus tamaños en `rem`, relativos al
-   font-size del elemento raíz. Subir ESE valor por media query escala de
-   forma pareja toda la app -textos, paddings, gaps- sin tocar un tamaño
-   componente por componente. Por debajo de 2000px de ancho CSS real
-   (ojo: no es la resolución nominal del monitor, el escalado de Windows
-   la desvincula del `window.innerWidth` que ve el navegador -medido en
-   vivo-) queda en el 100% de fábrica; de ahí en adelante sube 20% cada
-   300px -el mismo paso que usa el grid de tarjetas más abajo-, hasta
-   llegar al doble justo a los 3200px:
-     <2000      → 100%
-     2000–2299  → 120%
-     2300–2599  → 140%
-     2600–2899  → 160%
-     2900–3199  → 180%
-     ≥3200      → 200% */
+/* Mantine construye casi todos sus tamaños en `rem`, así que subir el
+   font-size de la raíz por media query escala toda la app de forma pareja
+   -textos, paddings, gaps- sin tocar un tamaño componente por componente. Hasta
+   2000px de ancho CSS real -no la resolución nominal del monitor: el escalado
+   de Windows la desvincula del `window.innerWidth` que ve el navegador, medido
+   en vivo- queda en el 100%, y de ahí sube 20% cada 300px, el mismo paso que la
+   grilla de tarjetas, hasta el doble justo a los 3200. */
 html { font-size: 100%; }
 @media (min-width: 2000px) {
   html { font-size: 120%; }
@@ -37,39 +29,27 @@ html { font-size: 100%; }
 }
 
 /* Mantine resuelve el estado de error de CUALQUIER input contra
-   `--mantine-color-error` (ver node_modules/@mantine/core/styles/Input.css),
-   y trae un rojo de fábrica (`--mantine-color-red-6`) que no es el `shu`
-   del diseño -confirmado en vivo: el borde de error del quiz quedaba en
-   rgb(224,49,49), no el rgb(226,96,74) de `shu.6` que ya usa el resto de
-   los estados de error de la app-. Un solo `:root {...}` no alcanza: Mantine
-   la vuelve a fijar bajo `:root[data-mantine-color-scheme="dark"]`, un
-   selector más específico que gana aunque esta hoja cargue después -pasó
-   de verdad, medido: el `:root` solo no tenía ningún efecto-. Repetir el
-   mismo selector empata la especificidad, y ahí sí gana el orden de carga. */
+   `--mantine-color-error`, y su rojo de fábrica no es el `shu` del diseño
+   -medido en vivo: el borde de error del quiz quedaba en rgb(224,49,49) y no en
+   el rgb(226,96,74) de `shu.6` que usa el resto de la app-. Un solo `:root` no
+   alcanza: Mantine la vuelve a fijar bajo
+   `:root[data-mantine-color-scheme="dark"]`, más específico, y el `:root` solo
+   no tenía ningún efecto. Repetir el mismo selector empata la especificidad, y
+   ahí sí gana el orden de carga. */
 :root,
 :root[data-mantine-color-scheme='dark'],
 :root[data-mantine-color-scheme='light'] {
   --mantine-color-error: var(--mantine-color-shu-6);
 }
 
-/* El fondo de CUALQUIER input es el fondo de la página (`--a-bg` del
-   diseño, dark.7), no el tono de superficie que trae Mantine por default
-   -mismo criterio que usa `.field` en el editor de mazo, no es exclusivo
-   del quiz-. El error (más abajo) es más específico y sigue ganando.
-
-   `font-size: 1rem` (16px), no los 14px del diseño (`.answer`/`.field`):
-   Safari/iOS hace zoom automático de toda la página al enfocar un input
-   con `font-size` menor a 16px -para que el texto sea legible- y ese zoom
-   se queda pegado incluso después de perder el foco, así que TODO se ve
-   corrido y con scroll de más -confirmado en un iPhone real, con el
-   mismo síntoma exacto ("hace zoom y sigue scrolleando")-. 16px es el
-   mínimo que evita el zoom en cualquier navegador móvil, así que se pisa
-   acá para cualquier input de la app, no solo el del quiz. */
+/* Vale para CUALQUIER input de la app, no sólo el del quiz. `font-size: 1rem`
+   y no los 14px del diseño: Safari/iOS hace zoom de toda la página al enfocar
+   un input de menos de 16px y ese zoom se queda pegado incluso después de
+   perder el foco, así que TODO se ve corrido y con scroll de más -confirmado en
+   un iPhone real: "hace zoom y sigue scrolleando"-. */
 .mantine-TextInput-input {
-  /* Se escribe sobre PAPEL. Era el fondo de la página, que es lo que pedía
-     el mockup viejo; «tinta y papel» pone todos los campos en la misma hoja
-     donde vive el kana -el del quiz, los del editor, el del diccionario-,
-     que es de lo que se trata la dirección. */
+  /* Se escribe sobre PAPEL: «tinta y papel» pone todos los campos -el del quiz,
+     los del editor, el del diccionario- en la misma hoja donde vive el kana. */
   background-color: var(--knd-papel);
   color: var(--knd-sumi);
   border-color: rgb(25 23 19 / 28%);
@@ -79,29 +59,25 @@ html { font-size: 100%; }
   color: var(--knd-sumi-dim);
 }
 
-/* El borde de foco de CUALQUIER input (el de respuesta del quiz, los del
-   editor de mazo, el buscador) usa este azul dedicado del diseño
-   (`--a-focus`), no el jade primario que Mantine aplica por default a
-   todo foco. No se puede resolver desde `theme.ts`: en Mantine 9 el
-   `styles` de un componente ya no compila selectores anidados a una regla
-   CSS real (se vuelca como `style` inline, y `'&:focus'` ahí no es una
-   propiedad válida) -confirmado en vivo, sin usar esa vía-. Se ataca acá
-   directo contra `.mantine-TextInput-input`, la clase pública y estable
-   que Mantine deja para justo este caso.
-   `:not([data-error])` es necesario: sin él, este `border-color` fijo le
-   gana SIEMPRE al de Mantine así el input esté en foco Y en error a la
-   vez -el caso real del quiz, el input se queda enfocado después de un
-   envío-, porque acá se pisa la propiedad final `border-color` directo,
-   no la variable `--input-bd` de la que depende el propio mecanismo de
-   error de Mantine (confirmado en vivo: sin esta exclusión, el error
-   mostraba el azul de foco en vez del rojo `shu`). */
+/* El foco de CUALQUIER input -el de respuesta del quiz, los del editor de mazo,
+   el buscador-. No se puede resolver desde `theme.ts`: en Mantine 9 el `styles`
+   de un componente ya no compila selectores anidados a una regla CSS real -se
+   vuelca como `style` inline, y `'&:focus'` ahí no es una propiedad válida-, así
+   que se ataca contra `.mantine-TextInput-input`, la clase pública y estable que
+   Mantine deja para justo este caso.
+
+   `:not([data-error])` es necesario: acá se pisa la propiedad final
+   `border-color` y no la variable `--input-bd` de la que depende el mecanismo de
+   error de Mantine, así que sin la exclusión este borde le ganaba SIEMPRE,
+   aunque el input esté en foco Y en error a la vez -el caso real del quiz, donde
+   el input se queda enfocado después de un envío: el error mostraba el foco en
+   vez del rojo `shu`-. */
 .mantine-TextInput-input:focus:not([data-error]),
 .mantine-TextInput-input:focus-within:not([data-error]) {
-  /* El foco es tinta más un halo de shu, no un azul prestado. Sobre un campo
-     oscuro ese halo se habría leído como error -shu es el color de error de
-     la app-; sobre papel se lee como lo que es, la pauta del 原稿用紙
-     marcando dónde estás escribiendo. Por eso este cambio no podía entrar
-     antes que el papel. */
+  /* El foco es tinta más un halo de shu: sobre un campo oscuro ese halo se
+     habría leído como error -shu es el color de error de la app-, y sobre papel
+     se lee como lo que es, la pauta del 原稿用紙 marcando dónde estás
+     escribiendo. */
   border-color: var(--knd-sumi);
   box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
 }
@@ -116,24 +92,20 @@ body { margin: 0; }
 /* Zen Kaku Gothic New para todo kana: es una tipografía japonesa real,
    así que ぬ y め se distinguen de verdad. */
 .kana { font-family: var(--knd-f-kana); }
-/* La serif japonesa, para el KANJI DE RÓTULO: el glifo de cada encabezado de
-   sección, el de cada modal, los tres de la barra de pestañas y el carácter
-   dentro del 原稿用紙. En el canvas son dos familias distintas a propósito y
-   no una sola: la gótica (`.kana`) es señalización -se lee de un vistazo en
-   una lista- y la mincho es escritura a mano, que es lo que hay dentro de una
-   hoja de manuscrito. Poner el kana del papel en la gótica lo volvía un
-   cartel. */
+/* La serif japonesa, para el KANJI DE RÓTULO -encabezados, modales, la barra de
+   pestañas- y el carácter dentro del 原稿用紙. Son dos familias distintas a
+   propósito: la gótica (`.kana`) es señalización -se lee de un vistazo en una
+   lista- y la mincho es escritura a mano, que es lo que hay dentro de una hoja
+   de manuscrito. En la gótica, el kana del papel se volvía un cartel. */
 .mincho { font-family: var(--knd-f-mincho); }
 .romaji { font-family: var(--knd-f-mono); }
 .tabular { font-variant-numeric: tabular-nums; }
 
 /* La barra de pestañas. Quién la renderiza lo decide el SERVIDOR por el
-   user-agent (ver `app/layout.tsx`), así que acá no hay nada que esconder: si
-   está en el documento es porque es un teléfono, y tiene que verse.
-
-   Esto importa más de lo que parece: atada a un `@media (max-width: …)`, un
-   teléfono acostado -844px de ancho- quedaba renderizando la barra y
-   escondiéndola al mismo tiempo, o sea sin ninguna navegación. */
+   user-agent, así que acá no hay nada que esconder: si está en el documento es
+   porque es un teléfono. Atada a un `@media (max-width: …)`, un teléfono
+   acostado -844px de ancho- quedaba renderizándola y escondiéndola al mismo
+   tiempo, o sea sin ninguna navegación. */
 .knd-nav-mobile {
   display: flex;
   height: calc(56px + env(safe-area-inset-bottom, 0px));
@@ -148,67 +120,61 @@ body { margin: 0; }
 @media (max-width: 767.9px) {
 }
 
-/* Métricas del quiz (aciertos, restantes, errores): caja con borde propio
-   y celdas separadas por líneas verticales (`.metrics` del mockup), label
-   chico en mayúscula arriba y valor grande abajo -no texto corrido en una
-   sola línea ("Aciertos 92%"), que es como estaba antes-.
+/* Métricas del quiz: caja con borde propio y celdas separadas por líneas
+   verticales, rótulo chico en mayúscula arriba y valor grande abajo, no texto
+   corrido en una sola línea.
 
-   Se renderiza DOS VECES en QuizRunner.tsx -una barra propia arriba del
-   stage, otra adentro de `quiz-footer`- y acá se decide cuál se ve según
-   el ancho, en vez de renderizar una sola vez y moverla de lugar con CSS
-   puro (mover un nodo del DOM entre dos padres distintos según el ancho
-   no es algo que CSS pueda hacer solo). Por debajo de 800px -mismo corte
-   que usa `.knd-group-grid`- no entran junto al input de ancho fijo en el
-   pie sin apretarse, así que se muestran arriba; de 800px para arriba
-   entran cómodas adentro del pie. Las dos variantes están
-   siempre en el DOM y las decide el CSS, sin depender de `useMediaQuery` y su
+   Se renderiza DOS VECES -una barra propia arriba del stage, otra adentro del
+   pie- y acá se decide cuál se ve según el ancho, porque mover un nodo del DOM
+   entre dos padres distintos no es algo que CSS pueda hacer. Por debajo de 800px
+   -el mismo corte que la grilla de grupos- no entran junto al input de ancho
+   fijo en el pie sin apretarse, así que se muestran arriba. Las dos variantes
+   están siempre en el DOM, sin depender de `useMediaQuery` y su
    desincronización servidor/cliente. */
 .knd-quiz-metrics {
   display: flex;
   border: 1px solid var(--mantine-color-dark-4);
-  border-radius: 0.5rem; /* 8px del diseño */
+  border-radius: 0.5rem;
   overflow: hidden;
-  /* El cuadro mide lo que miden sus tres celdas y NADA más. Sin esto, dentro
-     de la grilla del pie es un ítem de una columna `1fr` y se estiraba hasta
-     tocar los botones -se veía en Significados-: tres cifras cortas repartidas
-     en media pantalla, con los separadores lejos de lo que separan. El fondo
-     lo da la barra: el cuadro es un marco, no una superficie. */
+  /* El cuadro mide lo que miden sus tres celdas y NADA más: sin esto, en la
+     grilla del pie es un ítem de una columna `1fr` y se estiraba hasta tocar los
+     botones -se veía en Significados-, con tres cifras cortas repartidas en
+     media pantalla y los separadores lejos de lo que separan. El fondo lo da la
+     barra: el cuadro es un marco, no una superficie. */
   flex: none;
 }
 .knd-quiz-metric {
   display: flex;
   flex-direction: column;
-  gap: 0.0625rem; /* 1px del diseño */
-  padding: 0.375rem 0.875rem; /* 6px 14px del diseño */
+  gap: 0.0625rem;
+  padding: 0.375rem 0.875rem;
   border-left: 1px solid var(--mantine-color-dark-4);
 }
 .knd-quiz-metric:first-child {
   border-left: none;
 }
 .knd-quiz-metric-label {
-  font-size: 0.5625rem; /* 9px del diseño */
+  font-size: 0.5625rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--mantine-color-dark-3); /* --a-dimmer del diseño */
+  color: var(--mantine-color-dark-3);
 }
 .knd-quiz-metric-value {
-  font-size: 0.875rem; /* 14px del diseño */
+  font-size: 0.875rem;
   font-weight: 600;
 }
-/* La línea que separa la barra del escenario es ink5, no el borde `default`
-   (ink4) que trae `withBorder`: es la misma línea que la cabecera. */
+/* La línea que separa la barra del escenario es ink5 y no el borde `default`
+   que trae `withBorder`: es la misma línea que la cabecera. */
 #quiz-footer, #meaning-footer-paper { border-top-color: var(--mantine-color-dark-5); }
-/* La instancia de adentro del pie tiene id propio (`quiz-metrics`, sin
-   sufijo, ver QuizRunner.tsx) precisamente para poder apuntarle acá sin
-   afectar a la de la barra de arriba, que comparte la misma clase
-   `.knd-quiz-metrics` pero no este id. El selector por id le gana en
-   especificidad al `display: flex` de la clase, así que no importa el
-   orden en la hoja. */
+/* La instancia de adentro del pie tiene id propio para poder apuntarle sin
+   afectar a la de la barra de arriba, que comparte la clase pero no el id. El
+   selector por id le gana en especificidad al `display: flex` de la clase, así
+   que no importa el orden en la hoja. */
 #quiz-metrics {
   display: none;
 }
-/* Mientras la franja de cifras está arriba, el borde de la barra es el de
-   ella: si los dos lo tuvieran quedaría una línea en medio de la barra. */
+/* Mientras la franja de cifras está arriba, el borde de la barra es el de ella:
+   con los dos quedaría una línea en medio de la barra. */
 @media (max-width: 799px) {
   #quiz-footer { border-top: 0; }
 }
@@ -216,130 +182,86 @@ body { margin: 0; }
   #quiz-metrics { display: flex; }
 }
 
-/* El botón por defecto no tenía NINGÚN hover: al fijarle el fondo a
-   `--a-surface-2` en theme.ts, el reposo quedó igual que el `--button-hover`
-   que Mantine deriva, así que el estado existía pero era invisible -medido,
-   `rgb(33,38,57)` en los dos-.
-
-   Se repone cambiando el BORDE y no el fondo, que es una decisión de acá: el
-   mockup no define hover para `.btn`, así que no hay valor del diseño que
-   copiar. El borde evita las dos colisiones que tendría un fondo: la fila ya
-   se pinta de `--a-surface-2` al pasar por encima, y ese es justo el fondo
-   que el botón tiene en reposo.
-
-   Va acá y no en el tema porque el `styles` de un componente en Mantine 9 no
-   compila selectores anidados (ver la nota de `.mantine-TextInput-input`). */
+/* El botón por defecto no tenía NINGÚN hover: con el fondo que le fija
+   `theme.ts`, el reposo quedó igual que el `--button-hover` que Mantine deriva,
+   así que el estado existía pero era invisible -medido, `rgb(33,38,57)` en los
+   dos-. Se repone cambiando el BORDE y no el fondo, porque un fondo chocaría
+   dos veces: la fila ya se pinta de ese mismo escalón al pasar por encima, y es
+   justo el fondo que el botón tiene en reposo. Va acá y no en el tema porque el
+   `styles` de un componente en Mantine 9 no compila selectores anidados. */
 .mantine-Button-root[data-variant='default']:hover {
   border-color: var(--mantine-color-dark-3);
 }
 
-/* Fila de lista clickeable: se toca en cualquier parte, no sólo en su
-   botón. El fondo del hover es `--a-surface-2`, el mismo escalón que el
-   diseño usa para "esto está activo o bajo el cursor" (el grupo seleccionado
-   del editor, el link activo de la navegación).
-
-   No se envuelve la fila en un `<button>` porque adentro ya hay botones, y
-   anidarlos es HTML inválido: el click se maneja en el contenedor y se
-   ignora cuando cae sobre un control real. El teclado llega igual a la misma
-   acción por el botón de la fila, que ya es enfocable y tiene su nombre. */
+/* Fila de lista clickeable: se toca en cualquier parte, no sólo en su botón. No
+   se envuelve en un `<button>` porque adentro ya hay botones y anidarlos es HTML
+   inválido: el click se maneja en el contenedor y se ignora cuando cae sobre un
+   control real. El teclado llega igual a la misma acción por el botón de la
+   fila, que ya es enfocable y tiene su nombre. */
 .knd-row-tap { cursor: pointer; }
 /* El hover va detrás de `hover: hover` porque en una pantalla táctil no hay
-   puntero que se vaya: el navegador deja la fila en estado hover después del
-   toque y queda iluminada hasta que tocás otra cosa, lo que se lee como una
-   selección que no existe. La pregunta es por el dispositivo, no por el ancho
-   -`max-width` acá dejaría el problema en una tablet y lo apagaría en una
-   ventana angosta de escritorio, que es justo al revés-. En táctil el
-   feedback del toque ya lo da la navegación misma. */
+   puntero que se vaya: el navegador deja la fila iluminada después del toque, y
+   eso se lee como una selección que no existe. La pregunta es por el dispositivo
+   y no por el ancho: un `max-width` dejaría el problema en una tablet y lo
+   apagaría en una ventana angosta de escritorio, que es justo al revés. */
 @media (hover: hover) {
   .knd-row-tap:hover { background: var(--mantine-color-dark-5); }
 }
 
-/* Fila del encabezado de sección: el label más lo que lo acompañe. El alto
-   se fija acá porque si no lo dicta el vecino, y el vecino cambia según la
-   pantalla: medido, la misma fila daba 14px con sólo el texto de "sólo
-   lectura", 22px con un botón `compact-xs` y 26px con uno `compact-sm`, así
-   que al navegar de un mazo a un grupo el encabezado saltaba de alto. 26px
-   es el alto de `compact-sm`, el tamaño que usa el botón de esta misma
-   ranura en la lista de mazos ("+ Nuevo mazo"). */
+/* Fila del encabezado de sección. El alto se fija acá porque si no lo dicta el
+   vecino, y el vecino cambia según la pantalla: medido, la misma fila daba 14px
+   con sólo el texto de "sólo lectura", 22px con un botón `compact-xs` y 26px con
+   uno `compact-sm`, así que al navegar de un mazo a un grupo el encabezado
+   saltaba de alto. El piso es el alto de `compact-sm`, el botón más alto que
+   cae en esta ranura. */
 .knd-sect-row {
   min-height: 1.625rem;
 }
 
 @media (max-width: 767.9px) {
-  /* El filete que anuncia el gesto: 3px pegados al borde de la fila, de punta
-     a punta, sin retiro y sin radio.
-
-     Es el PROPIO PANEL asomando: el panel se mete 3px adentro de la fila y el
-     botón ocupa el resto. Antes era una raya pintada en la fila y el panel un
-     elemento aparte pegado a ella; del mismo color, pero con dos fondos, y con
-     zoom la unión entre los dos se notaba. Con un solo fondo no hay unión. Y
-     lo que anuncia la acción pasa a ser literalmente la acción: arrastrar
-     termina de descubrir eso mismo.
-
-     Jade a la izquierda para la acción no destructiva de esa lista -Mover una
-     carta, Renombrar un grupo, Practicar un mazo- y shu a la derecha para Borrar, y sólo el de la acción que esa
-     fila tenga disponible: un filete que no está es una acción que no está.
-
-     Es tal cual `filos_swipe` en el canvas, y ahí está probado y descartado
-     retirarlo: con 8px arriba y abajo el filete queda de 3x39 apoyado ENCIMA
-     del borde de 1px de la lista, el borde asoma en el hueco entre un filete y
-     el siguiente, y el marco entero termina pareciendo un borde punteado rojo.
-     Que en una lista donde todas las filas tienen la misma acción quede una
-     línea corrida no es un problema: es verdad. Lo que tiene que distinguirse
-     es la fila que NO la tiene. */
-
   /* Lo que identifica a la fila -el ícono y el nombre, o el kana de una carta-
      se queda quieto mientras la fila se corre hacia la IZQUIERDA. Sin esto,
      descubrir Borrar se lleva puesto el nombre: medido, arranca a 13px del
      borde y el panel mide 96, así que sale entero de cuadro y quedás mirando
      una caja vacía con un bloque rojo al lado, sin saber qué vas a borrar.
 
-     La cuenta es el desplazamiento al revés, y sólo para ese lado: con la fila
-     en -96 esto vale +96 y el nombre no se movió; con la fila en +96
-     -descubriendo la acción de la izquierda- `max()` lo deja en 0 y el nombre
-     acompaña a la fila, que ahí se ve igual. La fila SE MUEVE -se ve correrse
-     su superficie, su filete y el panel que aparece-, lo único que no se va es
-     el dato.
-
-     `position: sticky` no sirve para esto: no reacciona al `transform` de un
+     La cuenta es el desplazamiento al revés y sólo para ese lado: con la fila
+     en -96 esto vale +96 y el nombre no se movió; con la fila en +96 `max()` lo
+     deja en 0 y el nombre la acompaña. La fila SE MUEVE; lo único que no se va
+     es el dato. `position: sticky` no sirve: no reacciona al `transform` de un
      padre, sólo al scroll de un contenedor. */
   .knd-swipe-pin {
     transform: translateX(max(0px, calc(-1 * var(--knd-swipe-x, 0px))));
     transition: var(--knd-swipe-anim, none);
   }
 
-  /* Lo mismo en mazos y grupos, por el mismo motivo: las acciones llegan por
-     gesto y el ancho vuelve al nombre. Medido en 390px antes del cambio, la
-     fila del mazo propio -el único con algo que borrar- le dejaba al nombre y
-     al subtítulo 150 de 390px, partía el subtítulo en cuatro líneas con
-     «Borrar» flotando en el medio y crecía de 71 a 88px de alto. */
+  /* Las acciones llegan por gesto y el ancho vuelve al nombre. Medido en 390px
+     antes del cambio, la fila del mazo propio -el único con algo que borrar- le
+     dejaba al nombre y al subtítulo 150 de 390px, partía el subtítulo en cuatro
+     líneas con «Borrar» flotando en el medio y crecía de 71 a 88px de alto. */
   .knd-row-actions { display: none; }
 }
 
-/* "carta N de M" (`.under-glyph` del mockup): a diferencia del toast de
-   arriba, este SÍ va anclado a `quiz-stage` entero, no al wrapper del
-   kana -en el mockup cuelga del borde inferior de su stage (`bottom:
-   26px` de sus 300px fijos), pegado a la barra de progreso que viene
-   justo después, no pegado al kana-. */
+/* "carta N de M": a diferencia del aviso de error, este SÍ va anclado a
+   `quiz-stage` entero y no al wrapper del kana -en el mockup cuelga del borde
+   inferior del stage, pegado a la barra de progreso que viene después-. */
 .knd-quiz-caption {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 1rem;
   text-align: center;
-  color: var(--mantine-color-dark-3); /* --a-dimmer del diseño */
-  font-size: 0.6875rem; /* 11px del diseño */
+  color: var(--mantine-color-dark-3);
+  font-size: 0.6875rem;
 }
 
-/* Con el teclado abierto el stage queda en ~125px de alto y ahí ya no
-   entran a la vez el kana, el toast de error (que cuelga del kana) y este
-   caption (anclado al piso del stage): se pisaban entre sí y el toast se
-   desbordaba sobre la barra de métricas -medido-. El caption es lo que
-   sobra: "carta N de M" es la misma información que ya da RESTANTES en las
-   métricas, que siguen visibles. La consulta es contra `#quiz-stage`, que
-   es un container de tamaño (ver QuizRunner.tsx); no sirve una media query
-   acá, porque el alto que importa es el del contenedor que fija JS contra
-   el visual viewport, no el de la ventana. */
+/* Con el teclado abierto el stage queda en ~125px y ahí no entran a la vez el
+   kana, el aviso de error -que cuelga del kana- y este caption -anclado al piso
+   del stage-: se pisaban y el aviso se desbordaba sobre las métricas, medido. El
+   caption es lo que sobra: "carta N de M" es la misma información que ya da
+   RESTANTES. La consulta va contra `#quiz-stage`, que es un container de tamaño;
+   una media query no sirve, porque el alto que importa es el del contenedor que
+   fija JS contra el visual viewport, no el de la ventana. */
 @container (max-height: 200px) {
   .knd-quiz-caption {
     display: none;
@@ -347,49 +269,28 @@ body { margin: 0; }
 
 }
 
-/* Umbral MUCHO más bajo que el del caption de acá arriba, y a propósito: con
-   el teclado abierto el stage mide ~135px en el dispositivo real, así que
-   cualquier regla que apunte a "pantalla apretada" con un corte generoso se
-   aplica SIEMPRE que hay teclado. Esto de acá abajo es un layout de
-   emergencia y tiene que activarse solo cuando de verdad no hay salida:
-   medido, el toast necesita 30px y recién por debajo de ~100px de stage deja
-   de entrar debajo del kana (a 89px quedan 26px libres). Con el corte en
-   200px el toast terminaba tapando el glifo en el caso normal.
-
-   Cuando sí se activa: poniendo el wrapper del kana en `static`, el bloque
-   contenedor de lo que cuelga del kana pasa a ser `#quiz-stage` (que es `position:
-   relative`), y el toast se ancla al piso del stage -libre, porque a esa
-   altura el caption ya está oculto-. Ahí sí se superpone con el kana, pero
-   la alternativa es que el `overflow: hidden` del stage lo recorte: que el
-   mensaje de error quede invisible es lo único que no se puede negociar. */
 @container (max-height: 100px) {
 }
 @media (min-width: 768px) {
-  /* Posiciones de columna EXPLÍCITAS, no el orden de aparición en el DOM:
-     por debajo de 800px `#quiz-metrics` es `display: none` (arriba de
-     stage), y un ítem `display: none` queda afuera del auto-placement del
-     grid -no "ocupa su lugar en silencio", el grid vuelve a numerar
-     saltándoselo-. Sin esto, el input caía en la primera columna
-     (`minmax(0,1fr)`, pensada para las métricas) y "Revelar" en la del
-     medio (`auto`, pensada para el input) -pasó de verdad, medido: el
-     input quedaba pegado a la izquierda en vez de centrado-. Con columna
-     fija cada uno cae siempre donde tiene que cair, esté o no la caja de
-     métricas presente. */
+  /* Posiciones de columna EXPLÍCITAS y no el orden de aparición en el DOM: por
+     debajo de 800px `#quiz-metrics` es `display: none`, y un ítem así queda
+     afuera del auto-placement del grid -no "ocupa su lugar en silencio": el
+     grid vuelve a numerar saltándoselo-. Sin esto, el input caía en la primera
+     columna y "Revelar" en la del medio, pasó de verdad: el input quedaba
+     pegado a la izquierda en vez de centrado. */
   #quiz-metrics { grid-column: 1; }
 }
 @media (min-width: 800px) {
   #quiz-metrics {
     justify-self: start;
     min-width: 0;
-    /* `justify-self: start` -no `stretch`- deja al ítem con el ancho
-       natural de su contenido, y ESE es el que seguía desbordando la
-       columna: `min-width: 0` por sí solo no lo topa, porque acá el ítem
-       ni siquiera está tratando de encajar en el ancho del track (pasó de
-       verdad, medido: seguía superpuesto con el input después del primer
-       intento). `max-width: 100%` sí se resuelve contra el ancho real del
-       track así el ítem no haga stretch, y recién ahí `overflow-x` tiene
-       algo que recortar en vez de desbordar -por si en 800px justo, con
-       ventanas más chicas de lo normal, siguiera sin entrar-. */
+    /* `justify-self: start` -no `stretch`- deja al ítem con el ancho natural de
+       su contenido, y ESE es el que seguía desbordando la columna: `min-width:
+       0` por sí solo no lo topa, porque el ítem no está ni tratando de encajar
+       en el ancho del track -medido: seguía superpuesto con el input después del
+       primer intento-. `max-width: 100%` sí se resuelve contra el track aunque
+       el ítem no haga stretch, y recién ahí `overflow-x` tiene algo que
+       recortar. */
     max-width: 100%;
     overflow-x: auto;
   }
@@ -430,25 +331,16 @@ body { margin: 0; }
 @media (max-width: 767.9px) {
 }
 
-/* Un botón deshabilitado: superficie de control apagada y palabra atenuada,
-   con su contorno. Los dos salen de la escala de tinta, así que funcionan en
-   los dos esquemas sin una sola rama.
-
-   Acá hubo dos intentos peores. Los colores de Mantine no sirven: en claro el
-   fondo salía `rgb(233 236 239)` y la letra `rgb(173 181 189)`, el
-   gris-azulado de su paleta de fábrica, los únicos colores de la pantalla
-   fuera de esta paleta. Y el `opacity: .42` del `apagado` del diseño tampoco,
-   por un motivo que sólo se ve midiendo: la opacidad mezcla al botón CONTRA SU
-   SUPERFICIE, y el rótulo del primario es casi del color de la página
-   -`#F2F7F4` contra `#FBFCF9`-, así que al apagarse se funde con ella. Medido
-   sobre el modal de mover: fondo efectivo y superficie daban 1,00:1 y la letra
-   contra su fondo 1,02:1 en claro y 1,05:1 en oscuro. O sea que el botón
-   deshabilitado era literalmente invisible en los dos temas. La opacidad
-   funciona en el canvas porque ahí el apagado se dibuja sobre tableros
-   oscuros; en una página clara no.
-
-   Con estos dos tonos la palabra da 5,5:1 en oscuro y 4,9:1 en claro contra su
-   propio fondo, y el fondo se despega de la superficie del modal. */
+/* Un botón deshabilitado: superficie de control apagada y palabra atenuada, las
+   dos de la escala de tinta, así que funcionan en los dos esquemas sin una sola
+   rama. Los colores de Mantine no sirven -serían los únicos colores de la
+   pantalla fuera de esta paleta- y el `opacity: .42` del diseño tampoco, por un
+   motivo que sólo se ve midiendo: la opacidad mezcla al botón CONTRA SU
+   SUPERFICIE, y el rótulo del primario es casi del color de la página, así que
+   al apagarse se funde con ella. Medido sobre el modal de mover, fondo efectivo
+   y superficie daban 1,00:1 y la letra contra su fondo 1,02:1 en claro y 1,05:1
+   en oscuro: el botón deshabilitado era literalmente invisible en los dos temas.
+   Con estos dos tonos la palabra da 5,5:1 en oscuro y 4,9:1 en claro. */
 .mantine-Button-root:disabled:not([data-loading]),
 .mantine-Button-root[data-disabled]:not([data-loading]) {
   opacity: 1;
@@ -457,20 +349,16 @@ body { margin: 0; }
   border: 1px solid var(--mantine-color-dark-4);
 }
 
-/* En teléfono los botones suben a 30px de alto, que es el número del diseño
-   (`.phone .btn { min-height: 30px }`). Los 22px de `compact-xs` son una
-   medida pensada para el mouse: con el dedo hay que apuntar. No van a 44px
-   porque estos conviven con el texto de la fila y la lista tiene que poder
-   escanearse; los 44 el diseño los reserva para las acciones por gesto, que
-   ya los tienen. */
+/* En teléfono los botones suben a 30px de alto, el número del diseño: los 22 de
+   `compact-xs` son una medida pensada para el mouse. No van a 44 porque
+   conviven con el texto de la fila y la lista tiene que poder escanearse; los 44
+   el diseño los reserva para las acciones por gesto. */
 @media (max-width: 767.9px) {
   .mantine-Button-root { min-height: 1.875rem; }
 }
 @media (hover: hover) {
 }
 
-/* Con movimiento reducido el giro se cambia por un fundido entre las dos
-   caras: se saca el movimiento, no la función de revelar. */
 @media (prefers-reduced-motion: reduce) {
 }
 
@@ -479,23 +367,9 @@ body { margin: 0; }
 @media (hover: hover) {
 }
 
-/* El buscador del diccionario ocupa casi toda la ventana en escritorio, y en
-   teléfono la ventana entera: sus filas llevan kana, kanji, romaji, glosa,
-   categoría y un botón, y cualquier ancho menor deja la glosa cortada. El
-   `size` del componente fija `--modal-size`; esto sólo lo corrige para el
-   tramo donde no puede sobrar margen. */
 @media (max-width: 767.9px) {
 }
 
-/* En teléfono, pantalla completa y la fila en DOS renglones.
-   Seis columnas -kana, kanji, romaji, glosa, categoría y botón- no entran en
-   390px por más ancho que se le dé al modal: lo que sobraba se cortaba, y el
-   primero en irse era el botón «Agregar», que es justamente el punto de toda
-   la pantalla. Arriba queda la palabra y el botón; abajo, el significado.
-
-   El reparto es por `order` y un `flex-basis: 100%` en la glosa, no por una
-   grilla: así el orden del DOM -y con él el del tabulador y el del lector de
-   pantalla- sigue siendo el natural de la fila. */
 @media (max-width: 767.9px) {
 }
 
@@ -526,48 +400,44 @@ input:-webkit-autofill:active {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
-   La hoja de 原稿用紙 del quiz (ver components/quiz/GenkoSheet.tsx).
+   La hoja de 原稿用紙 del quiz.
 
-   Las LÍNEAS no son bordes: el contenedor se pinta del color de la línea y
-   las celdas se separan con `gap: 1px`, así que cada línea mide exactamente
-   un píxel y las dos direcciones salen idénticas por construcción. Con un
-   borde por celda hay que ir sacando el de arriba y el de la izquierda para
-   no dibujarlos dos veces, y eso cambia el tamaño de la caja de relleno según
-   qué bordes le queden: la cruz de adentro caía en medio píxel en un eje y en
-   entero en el otro, y una de las dos guías se veía siempre más gruesa.
+   Las LÍNEAS no son bordes: el contenedor se pinta del color de la línea y las
+   celdas se separan con `gap: 1px`, así que cada línea mide un píxel exacto y
+   las dos direcciones salen idénticas por construcción. Con un borde por celda
+   hay que ir sacando el de arriba y el de la izquierda para no dibujarlos dos
+   veces, y eso cambia el tamaño de la caja de relleno según qué bordes le
+   queden: la cruz de adentro caía en medio píxel en un eje y en entero en el
+   otro, y una de las dos guías se veía siempre más gruesa.
    ───────────────────────────────────────────────────────────────────────── */
 .knd-genko {
   /* El ancho útil: el del stage menos aire a los costados, con un techo para
      que en una pantalla ancha la tira no se estire de punta a punta. */
   --knd-genko-disp: min(100cqw - 3rem, 62rem);
   /* El lado de la celda es el ancho útil repartido entre los caracteres, con
-     techo -para que un kana solo no ocupe media pantalla- y piso -para que
-     una frase larga no quede ilegible-. Por debajo del piso las celdas ya no
-     entran en una fila y la grilla envuelve, que es lo que hace el papel de
-     verdad. El `42cqh` entra a mandar cuando el recurso escaso es el ALTO,
-     que es lo que pasa con el teclado abierto. */
-  /* El techo es 11,25rem (180px) y NO los 360 del canvas. Es una salida
-     deliberada de la maqueta: ahí el único tablero con una celda sola es el
-     del quiz con あ, donde 360px se ven bien porque es lo único en la
-     pantalla. En la app una carta de un kana es el caso NORMAL -todo Hiragana
-     y todo Katakana son de un carácter-, y una celda de 360 se come media
-     pantalla y deja a la palabra de seis kana con celdas tres veces más
-     chicas: la misma hoja cambia de escala según la carta que toque. Con este
-     techo あ mide 180 y けんきゅうしゃ 165, o sea que la hoja pesa parecido en
-     todas las cartas, que es lo que hace el papel de verdad -el cuadro del
-     原稿用紙 tiene UN tamaño-. El `42cqh` sigue entrando a mandar cuando el
-     recurso escaso es el alto, que es lo que pasa con el teclado abierto. */
+     piso -para que una frase larga no quede ilegible- y techo. Por debajo del
+     piso las celdas ya no entran en una fila y la grilla envuelve, que es lo que
+     hace el papel de verdad. El `42cqh` entra a mandar cuando el recurso escaso
+     es el ALTO, o sea con el teclado abierto.
+
+     El techo es 11,25rem y NO los 360px del canvas, que es una salida deliberada
+     de la maqueta: ahí el único tablero con una celda sola es el del quiz con
+     あ, donde se ven bien porque es lo único en la pantalla. En la app una carta
+     de un kana es el caso NORMAL -todo Hiragana y todo Katakana son de un
+     carácter- y una celda de 360 se come media pantalla, dejando a la palabra de
+     seis kana con celdas tres veces más chicas: la misma hoja cambiando de
+     escala según la carta que toque. Con este techo あ mide 180 y けんきゅうしゃ
+     165, o sea que el cuadro del 原稿用紙 tiene UN tamaño. */
   --knd-genko-lado: clamp(
     2.5rem,
     min(calc(var(--knd-genko-ancho-celdas) / var(--knd-genko-n)), 42cqh),
     11.25rem
   );
-  /* Lo que queda para las CELDAS: el ancho útil menos las líneas. Son
-     `n - 1` separaciones de un píxel más los dos de relleno del contenedor.
-     Sin descontarlas el total se pasaba del tope por unos pocos píxeles y la
-     grilla envolvía cuando no hacía falta -medido: en escritorio una palabra
-     de cinco kana daba 5 × 198,4 = 992 justo, y los 6px de líneas la partían
-     en dos filas-. */
+  /* Lo que queda para las CELDAS: el ancho útil menos las líneas, que son
+     `n - 1` separaciones de un píxel más los dos de relleno del contenedor. Sin
+     descontarlas el total se pasaba del tope y la grilla envolvía cuando no
+     hacía falta -medido: en escritorio una palabra de cinco kana daba
+     5 × 198,4 = 992 justo, y los 6px de líneas la partían en dos filas-. */
   --knd-genko-ancho-celdas: calc(
     var(--knd-genko-disp) - var(--knd-genko-n) * 1px - 1px
   );
@@ -586,21 +456,17 @@ input:-webkit-autofill:active {
   box-shadow: var(--knd-sombra-hoja);
 }
 
-/* Los tamaños de la hoja de la tarjeta, por anchura. En teléfono son los de
-   arriba; de 800px para arriba, los de escritorio del diseño. */
 @media (min-width: 800px) {
 }
 @media (min-width: 768px) {
 }
 
 /* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
-   primero y el significado un pelo después. Es el mismo gesto que el fundido
-   del quiz -algo entra en el lugar de otra cosa- y acá hace falta más que allá
-   porque no hay nada que se vaya: el hueco está reservado y vacío, así que sin
-   movimiento el texto simplemente está o no está y el ojo no registra el
-   cambio. El escalonado es de 70ms, lo justo para que se lean en orden -cómo
-   se dice, y después qué quiere decir- sin que la segunda línea se haga
-   esperar. */
+   primero y el significado un pelo después. Acá hace falta más que en el fundido
+   del quiz porque no hay nada que se vaya -el hueco está reservado y vacío-, así
+   que sin movimiento el texto simplemente está o no está y el ojo no registra el
+   cambio. Los 70ms de escalonado son lo justo para que se lean en orden -cómo se
+   dice, y después qué quiere decir-. */
 @keyframes knd-revelar {
   from { opacity: 0; transform: translateY(0.5rem); }
   to { opacity: 1; transform: none; }
@@ -610,36 +476,20 @@ input:-webkit-autofill:active {
 }
 
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
-   `Espacio` o un `1` ahí prometen algo que no se puede apretar. */
+   `Espacio` o un `1` prometen algo que no se puede apretar. */
 @media (max-width: 767.9px) {
   .knd-desktop-only { display: none; }
 }
-/* En teléfono los tres botones van en UNA fila, repartidos en partes iguales y
-   a ancho completo, con el cuadro de cifras arriba: es el pie de 118px del
-   diseño. Antes «No la sabía» y «La sabía» iban juntos por un lado y «Revelar»
-   por otro, y los tres quedaban apretados contra su propio contenido.
-
-   `display: contents` en los dos grupos hace que sus botones pasen a ser hijos
-   directos de la grilla, así los tres caen en las tres columnas de 1fr y miden
-   EXACTAMENTE lo mismo. Repartir con `flex: 2` y `flex: 1` no da igual: el
-   grupo de dos tiene un `gap` adentro que se descuenta de sus dos botones y no
-   del tercero. Las teclas que viven en esos grupos no molestan porque en
-   teléfono están en `display: none` -no hay teclado físico que apretar-, así
-   que no ocupan celda. */
 @media (max-width: 767.9px) {
 }
 @media (min-width: 768px) {
 }
 
 /* ------------------------------------------------------------------ campos */
-/* El campo de papel con el rótulo adentro (`campo()` del diseño). Las medidas
-   son las del canvas: 36px de alto -40 el buscador-, 12px de relleno lateral,
-   10px entre el rótulo y el texto, radio de control.
-
-   El borde en `rgb(25 23 19 / 28%)` y no en un gris de la escala: es sumi
-   translúcido, o sea el mismo color del texto rebajado, que es lo que hace el
-   filete de una hoja rayada. Un gris opaco de la rampa oscura sobre crema se
-   ve verdoso. */
+/* El campo de papel con el rótulo adentro. El borde es sumi translúcido y no un
+   gris de la escala: es el mismo color del texto rebajado, que es lo que hace el
+   filete de una hoja rayada; un gris opaco de la rampa oscura sobre crema se ve
+   verdoso. */
 .knd-field {
   display: flex;
   align-items: center;
@@ -656,26 +506,26 @@ input:-webkit-autofill:active {
   border-radius: 0.5rem;
 }
 
-/* El foco vive en el CONTENEDOR y no en el `<input>`: el borde y el halo son
-   de la hojita, y el input de adentro no tiene ninguno propio. `1.5px` engorda
-   el filete sin mover el texto, porque la caja es `border-box`. */
+/* El foco vive en el CONTENEDOR y no en el `<input>`: el borde y el halo son de
+   la hojita. `1.5px` engorda el filete sin mover el texto, porque la caja es
+   `border-box`. */
 .knd-field:focus-within {
   border: 1.5px solid var(--knd-sumi);
   box-shadow: 0 0 0 3px rgb(196 64 46 / 22%);
 }
 
-/* La nota debajo de un campo: 12px en el gris apagado de la escala. Es la
-   misma que el diseño pone abajo del Significado en Editar palabra. */
+/* La nota debajo de un campo, la misma que el diseño pone abajo del Significado
+   en Editar palabra. */
 .knd-field-note {
   font-size: 0.75rem;
   color: var(--mantine-color-dark-3);
   line-height: 1.5;
 }
 
-/* La frase de un diálogo de borrar: 14px, gris de lectura y renglón holgado,
-   con en negrita -y en la tinta más fuerte- sólo lo que desaparece. Va como
-   clase y no con `c=`/`fw=` sueltos porque el `<b>` de adentro necesita su
-   propio color, y eso desde props de Mantine no se puede. */
+/* La frase de un diálogo de borrar, con en negrita -y en la tinta más fuerte-
+   sólo lo que desaparece. Va como clase y no con `c=`/`fw=` sueltos porque el
+   `<b>` de adentro necesita su propio color, y eso desde props de Mantine no se
+   puede. */
 .knd-delete-note {
   font-size: 0.875rem;
   line-height: 1.55;
@@ -686,29 +536,22 @@ input:-webkit-autofill:active {
   color: var(--mantine-color-dark-0);
 }
 
-/* La barra de acción: fila en escritorio, dos renglones en teléfono. Es la
-   forma que tiene en el canvas -61px de alto con todo en línea contra 88px
-   apilado-, y el motivo es de ancho: en 390px el conteo y los dos verbos en
-   una sola fila parten «4 grupos · 20 cartas» en dos renglones. */
 @media (max-width: 767.9px) {
 }
 @media (min-width: 768px) {
 }
 
-/* El «Borrar» de una fila de lista: 12px, peso 600 y 8px de relleno lateral,
-   que son los del canvas -su `.btn.danger` de fila es un texto shu, no un
-   botón lleno-. `compact-xs` trae 11px y 9px, que es la medida del resto de
-   los botones chicos de la app.
+/* El «Borrar» de una fila de lista es un texto shu y no un botón lleno, con su
+   propia medida: `compact-xs` trae la del resto de los botones chicos de la app.
 
-   El color va por el prop `color="shu.6"` y no por `c=`: es el `#C4402E` del
-   diseño, el mismo rojo del filete del encabezado de sección y del glifo de
-   los modales. Estaba en `--knd-shu-txt`, la variante aclarada para texto
-   corrido, y al lado de cualquier otro shu de la pantalla se leía salmón. */
+   El color va por el prop `color="shu.6"` y no por `c=`: es el mismo rojo del
+   filete del encabezado de sección y del glifo de los modales. Estaba en
+   `--knd-shu-txt`, la variante aclarada para texto corrido, y al lado de
+   cualquier otro shu de la pantalla se leía salmón. */
 .knd-row-delete {
   /* `!important` porque el tamaño `compact-xs` llega como estilo INLINE -lo
-     escribe el `vars` del tema-, y contra un inline no gana ninguna clase por
-     especificidad. Es el único lugar donde hace falta y está acotado a estos
-     tres botones. */
+     escribe el `vars` del tema- y contra un inline no gana ninguna clase por
+     especificidad. */
   --button-fz: 0.75rem !important;
   --button-padding-x: 0.5rem !important;
 }
@@ -718,23 +561,21 @@ input:-webkit-autofill:active {
 @media (max-width: 767.9px) {
   .knd-phone-only { display: block; }
 
-  /* La única pista de que la carta se toca. Va bajo el «carta N de M», en el
-     mismo gris apagado y un escalón más chica: es una instrucción que se lee
-     una vez y después estorba. */
+  /* La única pista de que la carta se toca. Va bajo el «carta N de M» y un
+     escalón más chica: es una instrucción que se lee una vez y después
+     estorba. */
   .knd-tap-hint {
     font-size: 0.6875rem;
     line-height: 1.4;
     color: var(--mantine-color-dark-3);
     text-align: center;
   }
-  /* Sigue ocupando su lugar: ver el comentario en MeaningRunner.tsx. */
+  /* Sigue ocupando su lugar, para que la hoja no salte al aparecer. */
   .knd-tap-hint[data-oculto] { visibility: hidden; }
 }
 
 /* El escenario de una ronda: el degradé radial del diseño, que separa la hoja
-   del fondo plano sin dibujar una caja. Estaba escrito a mano, idéntico, en el
-   quiz y en el repaso de significados -con quince líneas de explicación de por
-   qué esos valores exactos en uno solo de los dos-. */
+   del fondo plano sin dibujar una caja. */
 .knd-round-stage {
   background: radial-gradient(
     ellipse 70% 55% at 50% 50%,
@@ -743,13 +584,11 @@ input:-webkit-autofill:active {
   );
 }
 
-/* La barra de arriba, cuando la ventana se angosta.
-   Quién ve esta barra lo decide el user-agent, no el ancho, así que una
-   laptop con la ventana achicada la conserva -eso es a propósito: achicar una
-   ventana no te convierte en un teléfono-. Pero conservarla no quiere decir
-   dejarla envolver: medido a 500px, la marca partía en dos renglones y
-   «Estadísticas» se caía a una segunda fila. Los links se mantienen en una
-   línea y, si no entran, se corren; la marca no se parte nunca. */
+/* La barra de arriba cuando la ventana se angosta. Quién la ve lo decide el
+   user-agent y no el ancho, así que un laptop con la ventana achicada la
+   conserva -a propósito: achicar una ventana no te convierte en un teléfono-.
+   Pero conservarla no es dejarla envolver: medido a 500px, la marca partía en
+   dos renglones y «Estadísticas» se caía a una segunda fila. */
 #app-header .mantine-Group-root { flex-wrap: nowrap; }
 #nav-desktop {
   overflow-x: auto;

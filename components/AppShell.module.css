@@ -1,9 +1,7 @@
-/* La página es una columna del alto de la pantalla: header, contenido y
-   barra de pestañas. Sólo el contenido scrollea, así que nada flota encima
-   de nada y nadie tiene que reservarle lugar a una barra.
-
-   `100dvh` y no `100vh`: en el teléfono la barra del navegador aparece y
-   desaparece, y con `vh` la barra de pestañas quedaba debajo de ella. */
+/* La página es una columna del alto de la pantalla y sólo el contenido
+   scrollea, así que nada flota encima de nada. `100dvh` y no `100vh`: en el
+   teléfono la barra del navegador aparece y desaparece, y con `vh` la barra de
+   pestañas quedaba debajo de ella. */
 .shell {
   display: flex;
   flex-direction: column;
@@ -14,15 +12,14 @@
 .appHeader {
   flex: none;
   height: 3rem;
-  /* El borde que ponía el `AppShell` de Mantine, con sus mismos colores. */
   border-bottom: 1px solid var(--mantine-color-dark-4);
 }
 
 :root[data-mantine-color-scheme='light'] .appHeader { border-bottom-color: var(--mantine-color-gray-3); }
 
-/* `display: flex` para que una pantalla con barras propias (`.knd-screen`)
-   pueda llenar el alto que queda. `min-height: 0` porque un hijo flex no se
-   achica por debajo de su contenido, y sin achicarse no hay scroll. */
+/* `display: flex` para que una pantalla con barras propias (`Screen`) llene
+   el alto que queda. `min-height: 0` porque un hijo flex no se achica por
+   debajo de su contenido, y sin achicarse no hay scroll. */
 .main {
   flex: 1;
   min-height: 0;

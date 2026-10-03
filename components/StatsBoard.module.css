@@ -1,9 +1,7 @@
-/* Estadísticas: rango, tiles y "Practicar mis peores" comparten un único
-   contenedor. En el documento fluyen en orden -rango, tiles, botón-, que en
-   una pantalla angosta es exactamente lo que hace falta (botón debajo de
-   las tiles, a lo ancho completo). En escritorio, CSS Grid los reacomoda a
-   como está en el diseño (rango y botón en la misma fila, tiles debajo),
-   sin duplicar ni esconder nada. */
+/* Rango, tiles y "Practicar mis peores" en un solo contenedor: en el documento
+   fluyen en orden, que es lo que hace falta en una pantalla angosta, y en
+   escritorio el grid los reacomoda como el diseño -rango y botón en una fila,
+   tiles debajo- sin duplicar ni esconder nada. */
 .statsTop {
   display: flex;
   flex-direction: column;
@@ -39,14 +37,12 @@
 }
 
 /* ------------------------------------------------------- filas de Estadísticas */
-/* Las columnas de ancho fijo de «Las que más errás» y «Aciertos por grupo». Van
-   en CSS y no en `w={}` porque cambian de ancho entre teléfono y escritorio -en
-   390px un kana de 46px y un romaji de 58 no dejan barra- y Mantine escribe
-   `w=` inline, donde una media query no llega.
-
-   Que sean FIJAS es lo que hace comparables las barras: la barra es el único
-   `flex: 1` de la fila, así que cualquier columna que mida distinto según su
-   contenido le cambia el largo a la barra fila por fila. */
+/* Las columnas de «Las que más errás» y «Aciertos por grupo» van en CSS y no en
+   `w={}` porque cambian de ancho entre teléfono y escritorio -en 390px un kana
+   de 46px y un romaji de 58 no dejan barra- y Mantine escribe `w=` inline,
+   donde una media query no llega. Que sean FIJAS es lo que hace comparables las
+   barras: la barra es el único `flex: 1` de la fila, así que una columna que
+   mida distinto según su contenido le cambia el largo fila por fila. */
 .worstKana { width: 1.5rem; flex: none; font-size: 1rem; line-height: 1.2; }
 
 .worstRom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }

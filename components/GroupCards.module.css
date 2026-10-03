@@ -1,30 +1,25 @@
 @media (max-width: 767.9px) {
-  /* En teléfono la fila es SÓLO la palabra: kana, romaji, significado y tres
-       botones no entran en 390px, y bajarlos a su propia línea deja cada carta
-       en ~100px de alto, que es una lista de vocabulario que no se puede
-       escanear. Las acciones llegan por gesto, y por el modal que abre el
-       toque para quien no lo use. */
+  /* En teléfono la fila es SÓLO la palabra: con los tres botones no entra en
+       390px, y bajarlos a su propia línea deja cada carta en ~100px de alto,
+       que es una lista que no se puede escanear. Las acciones llegan por gesto
+       y por el modal que abre el toque. */
     .cardActions { display: none; }
 }
 
-/* `.formgrid` del diseño: Kana, Romaji, Significado y el botón en cuatro
-   columnas, y UNA sola columna en teléfono. Un `flex-wrap` acá no sirve:
-   reparte los campos en pares según lo que vaya entrando -Kana+Romaji arriba,
-   Significado+Agregar abajo- en vez de apilarlos, que es lo que el diseño
-   pide cuando no hay ancho. */
+/* Kana, Romaji, Significado y el botón en cuatro columnas, y UNA sola en
+   teléfono. Un `flex-wrap` no sirve: reparte los campos en pares según lo que
+   vaya entrando en vez de apilarlos. */
 .addform {
   display: grid;
   grid-template-columns: 1.1fr 1fr 1.2fr auto;
   gap: 0.5rem;
-  /* `start` y no `center`: la celda del kana es más alta que las otras -lleva
-     los botones debajo- y centrando, los demás campos flotarían contra ella
-     en vez de alinearse por arriba. */
+  /* `start` y no `center`: la celda del kana es más alta -lleva los botones
+     debajo- y centrando, los demás campos flotarían contra ella. */
   align-items: start;
 }
 
-/* La celda del romaji: el campo y, debajo, los dos botones que leen de él
-   para escribir el kana. La columna flex hace que la botonera mida
-   exactamente lo mismo que el input de arriba. */
+/* El campo del romaji y, debajo, los dos botones que leen de él para escribir
+   el kana: la columna flex hace que la botonera mida lo mismo que el input. */
 .addformRomaji {
   display: flex;
   flex-direction: column;
@@ -32,9 +27,8 @@
   min-width: 0;
 }
 
-/* Los dos botones se reparten ese ancho, y `auto-fit` los apila solos cuando
-   no entran de a dos. No hace falta un breakpoint: decide el ancho
-   disponible. */
+/* `auto-fit` apila los dos botones solos cuando no entran de a dos, sin que
+   haga falta un breakpoint. */
 .kanaConv {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(7rem, 1fr));
@@ -45,39 +39,29 @@
   .addform { grid-template-columns: 1fr; gap: 0.4375rem; }
 }
 
-/* Las tres columnas de una fila de carta.
+/* Las tres columnas de una fila de carta. Las bases salen de medir: en el
+   diccionario de la app el p99 del largo de una lectura son 11 caracteres
+   -«アコースティックギター»-, y once kana renderizados ocupan 176px, o sea 11rem;
+   su romaji ronda los 135px pero se le da el mismo ancho.
 
-   Las bases salen de medir, no de tantear: en el diccionario de la app el
-   p99 del largo de una lectura son 11 caracteres -«アコースティックギター»- y
-   once kana renderizados ocupan 176px, o sea 11rem. Su romaji ronda los 16
-   caracteres, 135px, pero se le da el mismo ancho para que una lectura larga
-   con romaji largo tampoco corte.
-
-   Son BASES y no anchos: `flex-shrink: 1` deja que se encojan cuando no hay
-   lugar, y como la base es una longitud -no el contenido- todas las filas
-   calculan lo mismo y las columnas quedan alineadas entre sí.
-
-   `word-break` para que, cuando no haya más remedio que partir, el corte
-   caiga donde sea antes que desbordar la celda. */
+   Son BASES y no anchos: se encogen cuando no hay lugar, y como la base es una
+   longitud -no el contenido- todas las filas calculan lo mismo y las columnas
+   quedan alineadas entre sí. `word-break` para que, cuando no haya más remedio
+   que partir, el corte caiga antes que el desborde. */
 .cardKana { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
 
 .cardRomaji { flex: 0 1 11rem; min-width: 0; word-break: break-word; }
 
 .cardMeaning { flex: 1 1 10rem; min-width: 0; word-break: break-word; }
 
-/* En teléfono el p99 no entra y no hay ancho que lo arregle: once kana más su
-   romaji más el significado no caben en 390px. Se vuelve a lo que sí entra
-   -unos siete kana- y el resto se parte, que es preferible a dejar el
-   significado en una tira de 100px. */
 /* En escritorio la fila va en una sola línea, en columnas alineadas. */
 .cardRow { flex-wrap: nowrap; }
 
 @media (max-width: 767.9px) {
-  /* En teléfono se parte en dos renglones: arriba la palabra y su lectura,
-       abajo el significado. Repartir el ancho en tres columnas deja las tres
-       angostas -una palabra de ocho kana como ちゅうしゃじょう se partía al medio
-       mientras al lado sobraba espacio-, y las columnas alineadas no valen
-       tanto cuando no hay ancho para que se note la alineación. */
+  /* En teléfono se parte en dos renglones -arriba la palabra y su lectura,
+       abajo el significado-: once kana más su romaji más el significado no
+       caben en 390px, y en tres columnas una palabra de ocho kana como
+       ちゅうしゃじょう se partía al medio mientras al lado sobraba espacio. */
     .cardRow { flex-wrap: wrap; align-items: baseline; }
 }
 
@@ -93,15 +77,14 @@
   .cardMeaning { flex: 1 0 100%; }
 }
 
-/* Un link dentro de un formulario -«+ romanización alternativa»-. Atenuado y
-   sin subrayar no se distinguía del texto de ayuda que tiene al lado: los dos
-   eran gris chico. Va subrayado siempre, que es lo que lo declara accionable,
-   y al pasar por encima sube un escalón, de `--a-dimmer` a `--a-dim`, igual
-   que las migas. */
+/* Un link dentro de un formulario -«+ romanización alternativa»-: atenuado y
+   sin subrayar no se distinguía del texto de ayuda de al lado. Va subrayado
+   siempre, que es lo que lo declara accionable, y al pasar por encima sube un
+   escalón, igual que las migas. */
 button.inlineLink,
 a.inlineLink {
-  /* Mismo motivo que la miga: era `dark.3`, el escalón de placeholder, y
-     daba 3,46:1 en oscuro y 3,11:1 en claro. */
+  /* Mismo motivo que la miga: `dark.3`, el escalón de placeholder, daba 3,46:1
+     en oscuro y 3,11:1 en claro. */
   color: var(--mantine-color-dark-2);
 }
 
@@ -115,24 +98,21 @@ a.inlineLink {
     a.inlineLink:hover { color: var(--mantine-color-dark-1); }
 }
 
-/* El buscador del diccionario, en el encabezado del panel de «nueva
-   palabra». Dos etiquetas en el DOM y el CSS elige cuál se ve, igual que
-   `RenameButton`: en 390px la etiqueta entera se come el ancho que necesita
-   el nombre del grupo, que es lo que dice en qué grupo estás cargando. El
-   nombre accesible lo da el `aria-label`, así que la forma corta no pierde
-   información para un lector de pantalla. */
-/* Mantine separa la sección izquierda del texto con 10px. Con la lupa de
-   Bootstrap, que es un dibujo relleno y compacto, ese hueco es más grande que
-   el que deja el botón contra su propio borde -5,33px-, y el ícono queda
-   flotando lejos de la palabra que rotula. */
+/* El botón del diccionario lleva dos etiquetas en el DOM y el CSS elige cuál
+   se ve, igual que `RenameButton`: en 390px la entera se come el ancho que
+   necesita el nombre del grupo, que es lo que dice dónde estás cargando. El
+   nombre accesible lo da el `aria-label`. */
+/* Mantine separa la sección izquierda del texto con 10px, y con la lupa de
+   Bootstrap -un dibujo relleno y compacto- ese hueco queda más grande que el
+   que deja el botón contra su propio borde (5,33px). */
 .dictBtn :global(.mantine-Button-section) { margin-right: 0.3125rem; }
 
 .dictLabelShort { display: none; }
 
 .dictBtn { flex: none; }
 
-/* El título cede el ancho: es lo único de la fila que se puede recortar sin
-   perder una acción, y el nombre del grupo ya está arriba en la barra. */
+/* El título cede el ancho: es lo único recortable de la fila sin perder una
+   acción, y el nombre del grupo ya está arriba en la barra. */
 .addformTitle {
   flex: 1;
   min-width: 0;
@@ -149,16 +129,13 @@ a.inlineLink {
   .dictLabelShort { display: inline; }
 }
 
-/* El kana de la fila de carta cuando es el botón de editar (ver GroupCards).
-   Apaga el cromo que el navegador le pone a un `button`.
-
-   `color: inherit` no es decorativo: Mantine NO fija color en `Text` cuando no
-   le pasás `c`, así que sin esto ganaba el `color: buttontext` de la hoja del
-   navegador y el kana pasaba de `#E9EBF4` a blanco puro -medido en vivo: el
-   mismo kana daba rgb(233,235,244) en un mazo incluido, donde sigue siendo un
-   `<p>`, y rgb(255,255,255) en uno propio-. El tamaño y la familia sí los
-   ponen las clases, que le ganan a la hoja del navegador; el color no, porque
-   no hay ninguna clase que lo declare. */
+/* El kana de la fila es el botón de editar: esto le apaga el cromo que el
+   navegador le pone a un `button`. `color: inherit` no es decorativo: Mantine
+   NO fija color en `Text` cuando no le pasás `c`, así que sin esto ganaba el
+   `color: buttontext` del navegador y el kana pasaba a blanco puro -medido en
+   vivo: el mismo kana daba rgb(233,235,244) en un mazo incluido, donde sigue
+   siendo un `<p>`, y rgb(255,255,255) en uno propio-. El tamaño y la familia sí
+   los ponen las clases; el color no, porque ninguna lo declara. */
 .cardEdit {
   background: none;
   border: 0;
@@ -171,32 +148,26 @@ a.inlineLink {
 /* ------------------------------------------------ opciones de «Mover a…» */
 /* Cada destino es una FILA entera clickeable, no una bolita con un texto al
    lado: el blanco de un radio de 14px en un teléfono es más chico que la punta
-   de un dedo, y la lista de grupos puede tener cinco o veinte. Las medidas son
-   las de `mod_mover` en el canvas: 8/10px de relleno, radio de control, 2px
-   entre filas y la superficie de control para la elegida. */
+   de un dedo, y la lista de grupos puede tener cinco o veinte. */
 .moveOpt {
   padding: 0.5rem 0.625rem;
   border-radius: var(--mantine-radius-sm);
 }
 
-/* El elegido se pinta con la superficie de control, como en el diseño: el
-   círculo solo es un blanco de 14px y en una lista de cinco o veinte no se ve
-   de un vistazo cuál está marcado.
-
-   `[data-checked]` lo pone Mantine en la raíz del `Radio`, medido. Acá había un
-   `data-on` propio calculado en el componente y nunca llegaba al DOM -Mantine
-   no reenvía atributos sueltos a la raíz del Radio-, así que la fila elegida
-   quedaba sin pintar. */
+/* El elegido se pinta con la superficie de control: el círculo solo es un
+   blanco de 14px y en una lista de cinco o veinte no se ve de un vistazo cuál
+   está marcado. El estado se lee del `[data-checked]` que Mantine pone en la
+   raíz del `Radio`, medido: un atributo propio calculado en el componente no
+   llega nunca ahí -Mantine no reenvía atributos sueltos a esa raíz- y la fila
+   elegida quedaba sin pintar. */
 .moveOpt[data-checked] {
   background: var(--mantine-color-dark-5);
 }
 
-/* El círculo del diseño: un anillo de 1px con un punto adentro, no el disco
-   lleno con un punto NEGRO que trae Mantine -su `--radio-icon-color` es
-   `--mantine-color-black`, el único negro puro que aparecería en la app-. El
-   anillo se enciende en jade al elegirlo. El punto de adentro no se puede
-   pintar desde acá -Mantine escribe `--radio-icon-color` inline en la raíz del
-   control- y va por el prop `iconColor`, en GroupCards.tsx. */
+/* Un anillo de 1px con un punto adentro, no el disco lleno con el punto NEGRO
+   de Mantine -su `--radio-icon-color` es el único negro puro que aparecería en
+   la app-. El punto no se puede pintar desde acá, porque Mantine escribe esa
+   variable inline en la raíz del control: va por el prop `iconColor`. */
 .moveOpt :global(.mantine-Radio-radio) {
   background-color: transparent;
   border-color: var(--mantine-color-dark-4);
@@ -207,13 +178,13 @@ a.inlineLink {
 }
 
 /* `label` de Mantine trae su propio `padding-left`; acá el espacio entre la
-   bolita y el nombre lo pone el `gap` del cuerpo, que es el del diseño. */
+   bolita y el nombre lo pone el `gap` del cuerpo. */
 .moveOpt :global(.mantine-Radio-body) { gap: 0.625rem; align-items: center; }
 
 .moveOpt :global(.mantine-Radio-labelWrapper) { flex: 1; min-width: 0; }
 
 .moveOpt :global(.mantine-Radio-label) { padding-left: 0; cursor: pointer; }
 
-/* El `<label>` tapa toda la fila, así que el clic en cualquier parte -incluido
-   el número de cartas de la derecha- marca ese destino. */
+/* El `<label>` tapa toda la fila, así que el clic en cualquier parte -el número
+   de cartas incluido- marca ese destino. */
 .moveOpt :global(.mantine-Radio-inner) { cursor: pointer; }

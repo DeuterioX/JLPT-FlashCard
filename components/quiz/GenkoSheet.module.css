@@ -13,9 +13,8 @@
   height: 100%;
 }
 
-/* `non-scaling-stroke` mantiene el trazo en un píxel de CSS sin importar
-   cuánto escale el viewBox, y sin tener que calcular el grosor en unidades
-   del viewBox desde el lado de la celda. */
+/* `non-scaling-stroke` mantiene el trazo en un píxel de CSS por más que escale
+   el viewBox, sin tener que calcular el grosor desde el lado de la celda. */
 .genkoCruz line {
   stroke: rgb(160 66 50 / 20%);
   stroke-width: 1;

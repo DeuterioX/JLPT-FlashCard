@@ -1,16 +1,14 @@
-/* Foco visible por teclado en la tarjeta de grupo, que ahora es el control
-   interactivo completo (rol switch) en vez del Switch interno. */
+/* El foco por teclado es de la tarjeta entera, que es el control (rol switch),
+   y no del `Switch` de adentro. */
 .groupCard:focus-visible {
   outline: 2px solid var(--mantine-color-jade-6);
   outline-offset: 2px;
 }
 
-/* Las cartas previsualizadas en la tarjeta de grupo: una línea cada una,
-   recortada con puntos suspensivos.
-
-   El `min-width: 0` no es decorativo: dentro de una columna flex un elemento
-   se niega a achicarse por debajo de su contenido, así que sin eso el
-   `text-overflow` no aparece nunca y la palabra desborda o se parte igual. */
+/* Cada carta previsualizada va en una línea, recortada con puntos
+   suspensivos. El `min-width: 0` no es decorativo: dentro de una columna flex
+   un elemento se niega a achicarse por debajo de su contenido, así que sin eso
+   el `text-overflow` no aparece nunca. */
 .gcWords { max-width: 100%; width: 100%; }
 
 .gcCut {
@@ -22,42 +20,31 @@
   text-align: center;
 }
 
-/* La columna de papel de la tarjeta de grupo (ver GroupCard.tsx).
-
-   La tarjeta pasa a ser dos cosas: una franja de tinta arriba -interruptor y
-   nombre- y una hoja abajo con las cartas. El estado lo dice el PAPEL, que es
-   lo que se ve de lejos en una grilla de doce tarjetas: crema cuando el grupo
-   entra en la ronda, gris cuando no.
-
-   El paso de la pauta y el alto del renglón son la MISMA variable: si se
-   separan, los renglones dejan de caer sobre las líneas -que es todo el punto
-   del papel de manuscrito-. */
+/* La hoja de la tarjeta: el estado del grupo lo dice el PAPEL -crema cuando
+   entra en la ronda, gris cuando no-, que es lo que se ve de lejos en una
+   grilla de doce tarjetas. El paso de la pauta y el alto del renglón son la
+   MISMA variable: separados, los renglones dejan de caer sobre las líneas, que
+   es todo el punto del papel de manuscrito. */
 .gcPapel {
-  /* El paso del renglón, que es también el alto de cada fila. El diseño usa
-     38,4px en escritorio y 27 en teléfono: una tarjeta de escritorio es casi
-     el doble de alta, así que con un solo paso o queda apretada arriba o
-     sobra papel abajo. */
+  /* Dos pasos de renglón porque una tarjeta de escritorio es casi el doble de
+     alta: con uno solo, o queda apretada arriba o sobra papel abajo. */
   --knd-gc-paso: 1.6875rem;
   --knd-gc-kana: 0.875rem;
   --knd-gc-romaji: 0.5625rem;
-  /* El aire entre el primer y el último renglón y el borde de la hoja. En el
-     diseño sale solo: la tarjeta tiene alto FIJO y sobra papel, así que los
-     renglones quedan centrados con holgura. Acá la tarjeta la estira la
-     grilla al alto de la más alta de su fila, y con cinco renglones la hoja
-     medía exactamente lo que sumaban: el primero y el último quedaban
-     pegados al borde. */
+  /* Aire contra el borde de la hoja. En el diseño sale solo -la tarjeta tiene
+     alto FIJO y sobra papel-; acá la estira la grilla al alto de la más alta de
+     su fila, y con cinco renglones el primero y el último quedaban pegados al
+     borde. */
   --knd-gc-aire: 0.3125rem;
   flex: 1;
   width: 100%;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  /* Los renglones arrancan ARRIBA, no centrados en la hoja. Centrados, un
-     grupo de tres kana quedaba flotando en el medio del papel con aire arriba
-     y abajo, y al lado de otro de cinco las dos hojas no compartían ningún
-     renglón: la pauta dejaba de leerse como pauta. Desde arriba, el primer
-     renglón de todas las tarjetas cae a la misma altura, que es lo que hace
-     una hoja rayada de verdad. Horizontalmente cada renglón sigue centrado. */
+  /* Los renglones arrancan ARRIBA: centrados, un grupo de tres kana flotaba en
+     el medio del papel y al lado de otro de cinco las dos hojas no compartían
+     ningún renglón, así que la pauta dejaba de leerse como pauta. Desde arriba,
+     el primer renglón de todas las tarjetas cae a la misma altura. */
   justify-content: flex-start;
   overflow: hidden;
   padding-block: var(--knd-gc-aire);
@@ -68,9 +55,9 @@
     var(--knd-pauta) 0 1px,
     transparent 1px var(--knd-gc-paso)
   );
-  /* La pauta arranca donde arranca el CONTENIDO, no en el borde: con el
-     origen por defecto -la caja de relleno- las líneas se corrían el alto del
-     aire y dejaban de caer sobre los renglones, que es todo el punto. */
+  /* La pauta arranca donde arranca el CONTENIDO: con el origen por defecto las
+     líneas se corrían el alto del aire y dejaban de caer sobre los
+     renglones. */
   background-origin: content-box;
 }
 
@@ -96,9 +83,8 @@
     }
 }
 
-/* Un grupo de PALABRAS -no de kana sueltos- baja el cuerpo: «けんきゅうしゃ»
-   no entra al tamaño de un kana solo. El recorte con puntos suspensivos se
-   encarga de lo que igual no entre. */
+/* Un grupo de PALABRAS -no de kana sueltos- baja el cuerpo: «けんきゅうしゃ» no
+   entra al tamaño de un kana solo. */
 .gcPapel[data-palabras] {
   --knd-gc-kana: 0.8125rem;
 }

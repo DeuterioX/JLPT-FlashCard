@@ -1,12 +1,10 @@
 /* Editor de mazo: columna de grupos en escritorio, tira horizontal en
-   teléfono. Los dos bloques se renderizan
-   siempre y el CSS decide cuál se ve, para no depender de `useMediaQuery` y su
-   desincronización servidor/cliente. */
+   teléfono. Los dos bloques se renderizan siempre y el CSS decide cuál se ve,
+   para no depender de `useMediaQuery` y su desincronización
+   servidor/cliente. */
 
-/* Scroll horizontal sin la barra nativa a la vista -se puede seguir
-   scrolleando con el dedo o la rueda, solo se esconde el widget-. La
-   comparten esta tira, el selector de mazos de Práctica y las métricas
-   del quiz cuando no entran completas (ver el grid de `.knd-quiz-footer`). */
+/* Scroll horizontal sin la barra nativa a la vista: se sigue scrolleando con el
+   dedo o la rueda, sólo se esconde el widget. */
 .deckSwitcher,
 .knd-quiz-metrics {
   scrollbar-width: none; /* Firefox */
@@ -18,13 +16,11 @@
   display: none; /* Chrome, Safari */
 }
 
-/* Los dos verbos con los que arranca una ronda, soldados en un solo control
-   (ver PracticeBoard).
-
-   Sueltos con un hueco se leen como dos acciones que no tienen nada que ver;
-   juntos dicen que son la misma decisión con dos salidas. El radio vive en el
-   contenedor -con `overflow: hidden` las esquinas de adentro salen rectas
-   solas- y la costura es un borde izquierdo en la segunda mitad. */
+/* Los dos verbos con los que arranca una ronda van soldados en un solo
+   control: sueltos con un hueco se leen como dos acciones que no tienen nada
+   que ver, y juntos dicen que son la misma decisión con dos salidas. El radio
+   vive en el contenedor -con `overflow: hidden` las esquinas de adentro salen
+   rectas solas- y la costura es el borde izquierdo de la segunda mitad. */
 .verbs {
   display: inline-flex;
   border: 1px solid var(--mantine-color-dark-4);
@@ -33,9 +29,9 @@
   flex: none;
 }
 
-/* Cada mitad pierde su propio marco: el del grupo es el único. La regla de
-   `:disabled` de más arriba le devuelve un borde a los botones apagados, y
-   adentro del grupo eso dibujaría una línea de más. */
+/* Cada mitad pierde su marco: el del grupo es el único. La regla de `:disabled`
+   le devuelve un borde a los botones apagados, y adentro del grupo eso
+   dibujaría una línea de más. */
 .verbs :global(.mantine-Button-root),
 .verbs :global(.mantine-Button-root):disabled:not([data-loading]),
 .verbs :global(.mantine-Button-root)[data-disabled]:not([data-loading]) {
@@ -48,15 +44,12 @@
 }
 
 @media (max-width: 767.9px) {
-  /* El control soldado pasa a ocupar el ancho, con las dos mitades repartidas
-       en partes iguales (`ancho_total` de `botones_juntos`). Un control de dos
-       verbos centrado en una pantalla angosta deja dos huecos muertos a los
-       costados y encima hace los blancos más chicos de lo necesario. */
-    /* Grilla de dos pistas iguales y no flex: las dos mitades no tienen el
-       mismo relleno lateral -12px la default y 18 la primaria, que son los del
-       diseño- y con `flex: 1 1 0` quedaban 171,5 contra 184,5 aun con
-       `min-width: 0`, o sea que la costura no caía en el medio. Dos `minmax(0,
-       1fr)` miden lo mismo por definición, sin depender del contenido. */
+  /* El control soldado pasa a ocupar el ancho: centrado en una pantalla
+       angosta deja dos huecos muertos a los costados y hace los blancos más
+       chicos de lo necesario. Grilla de dos pistas iguales y no flex: las dos
+       mitades no tienen el mismo relleno lateral -12px la default y 18 la
+       primaria- y con `flex: 1 1 0` quedaban 171,5 contra 184,5 aun con
+       `min-width: 0`, o sea que la costura no caía en el medio. */
     .verbs {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
