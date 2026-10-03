@@ -116,10 +116,10 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
                 leading={readOnly
                   ? undefined
-                  : { etiqueta: 'Renombrar', onAction: () => setGRename(g) }}
+                  : { label: 'Renombrar', onAction: () => setGRename(g) }}
                 trailing={readOnly || deck.groups.length === 1
                   ? undefined
-                  : { etiqueta: 'Borrar', onAction: () => setConfirm(g) }}
+                  : { label: 'Borrar', onAction: () => setConfirm(g) }}
               >
               <Group
                 gap={12}
@@ -138,11 +138,10 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     component={Link}
                     href={`/decks/${deck.id}/groups/${g.id}`}
                     underline="never"
-                    c="var(--mantine-color-text)"
                     size={rem(13)}
                     lh={1.45}
                     fw={500}
-                    className="kana"
+                    className="kana knd-strong"
                   >
                     {g.name}
                   </Anchor>

@@ -46,7 +46,7 @@ const OPEN_RATIO = 0.4;
 
 export type SwipeAction = {
   /** La palabra del panel. Es lo que dice qué hace ese lado. */
-  etiqueta: string;
+  label: string;
   onAction: () => void;
 };
 
@@ -184,10 +184,10 @@ export function SwipeRow({
         <div className={`${styles.swipeSide} ${styles.swipeLead}`} ref={leftRef}>
           <button
             type="button"
-            aria-label={`${leading.etiqueta} ${label}`}
+            aria-label={`${leading.label} ${label}`}
             onClick={() => { close(); leading.onAction(); }}
           >
-            {leading.etiqueta}
+            {leading.label}
           </button>
         </div>
       )}
@@ -195,10 +195,10 @@ export function SwipeRow({
         <div className={`${styles.swipeSide} ${styles.swipeTrail}`} ref={rightRef}>
           <button
             type="button"
-            aria-label={`${trailing.etiqueta} ${label}`}
+            aria-label={`${trailing.label} ${label}`}
             onClick={() => { close(); trailing.onAction(); }}
           >
-            {trailing.etiqueta}
+            {trailing.label}
           </button>
         </div>
       )}

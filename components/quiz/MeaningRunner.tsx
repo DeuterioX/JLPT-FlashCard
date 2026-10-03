@@ -41,8 +41,8 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   const cards = round.cards;
   const [i, setI] = useState(0);
   const [revealed, setRevelado] = useState(false);
-  const [known, setSabidas] = useState(0);
-  const [unknown, setNoSabidas] = useState(0);
+  const [known, setKnown] = useState(0);
+  const [unknown, setUnknown] = useState(0);
   const [startedAt] = useState(() => Date.now());
   const [endedAt, setFin] = useState<number | null>(null);
   const [sessionError, setSessionError] = useState<string | null>(null);
@@ -88,7 +88,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       revealed: true,
       ms: Date.now() - sinceRef.current,
     });
-    if (knewIt) setSabidas((n) => n + 1); else setNoSabidas((n) => n + 1);
+    if (knewIt) setKnown((n) => n + 1); else setUnknown((n) => n + 1);
     sinceRef.current = Date.now();
     setRevelado(false);
     setI((n) => n + 1);
@@ -197,7 +197,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       </Box>
 
       {sessionError && (
-        <Text id="meaning-session-error" size="xs" c="var(--knd-shu-txt)" ta="center" py={4}>
+        <Text id="meaning-session-error" size="xs" className="knd-error" ta="center" py={4}>
           {sessionError}
         </Text>
       )}
@@ -207,11 +207,11 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" style={{ borderLeft: 0, borderRight: 0, borderBottom: 0, flexShrink: 0 }}>
         <Box className={styles.meaningFooter}>
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
-            {[['Sabidas', known, false], ['Restantes', remaining, false], ['No known', unknown, true]]
-              .map(([lab, val, mal]) => (
+            {[['Sabidas', known, false], ['Restantes', remaining, false], ['No sabidas', unknown, true]]
+              .map(([lab, val, bad]) => (
                 <Box key={lab as string} className="knd-quiz-metric">
                   <Text className="knd-quiz-metric-label">{lab as string}</Text>
-                  <Text className="knd-quiz-metric-value tabular" c={mal && Number(val) > 0 ? 'var(--knd-shu-txt)' : undefined}>
+                  <Text className="knd-quiz-metric-value tabular" data-bad={bad && Number(val) > 0 ? '' : undefined}>
                     {val as number}
                   </Text>
                 </Box>

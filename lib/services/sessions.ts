@@ -14,7 +14,7 @@ export type RoundPayload = {
 };
 
 /**
- * Arma las cartas de un conjunto de grupos, con todas sus romanizaciones.
+ * Arma las cartas de un conjunto de grupos, con all sus romanizaciones.
  * Se exporta aparte de `openRound` porque la Tarea 14 (editor de mazos) la
  * reutiliza para previsualizar cartas sin abrir una ronda.
  */
@@ -55,12 +55,12 @@ export function openRound(
   const found = db.select().from(cardGroup).where(inArray(cardGroup.id, groupIds)).all();
   if (found.length !== new Set(groupIds).size) throw notFound('alguno de los grupos');
 
-  const todas = cardsForGroups(db, groupIds);
+  const all = cardsForGroups(db, groupIds);
   // Una ronda de significados sólo puede correr sobre cartas que TENGAN uno.
   // El filtro va acá y no en la consulta para que el mensaje de error pueda
   // distinguir «no hay cartas» de «no hay significados», que no es lo mismo.
-  const cards = mode === 'meaning' ? todas.filter((c) => c.meaning) : todas;
-  if (todas.length === 0) throw badRequest('Los grupos elegidos no tienen cartas');
+  const cards = mode === 'meaning' ? all.filter((c) => c.meaning) : all;
+  if (all.length === 0) throw badRequest('Los grupos elegidos no tienen cartas');
   if (cards.length === 0) {
     throw badRequest('Ninguna de esas cartas tiene significado para repasar');
   }

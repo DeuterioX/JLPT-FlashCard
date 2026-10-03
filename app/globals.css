@@ -101,6 +101,22 @@ body { margin: 0; }
 .romaji { font-family: var(--knd-f-mono); }
 .tabular { font-variant-numeric: tabular-nums; }
 
+/* El rojo del texto que avisa de un error, en una clase y no en un prop `c=`:
+   Mantine escribe ese prop INLINE, y un inline le gana a cualquier regla -ya
+   nos costó el hover de la navegación y la píldora del menú-. Es `--knd-shu-txt`
+   y no `shu.6`: la variante aclarada, que es la que se lee como texto. */
+.knd-error { color: var(--knd-shu-txt); }
+
+/* Lo que vuelve al color de texto pleno dentro de un bloque atenuado: el número
+   dentro de un conteo, el nombre dentro de una advertencia. */
+.knd-strong { color: var(--mantine-color-text); }
+
+/* El glifo del título de un modal va en `shu.6` -el rojo del canvas- y no en
+   `--knd-shu-txt`, que es la variante aclarada para texto: el glifo no se lee,
+   se reconoce, y es la misma marca que el filete de los encabezados de sección.
+   Con el aclarado quedaba salmón y no coincidía con ningún otro shu. */
+.knd-modal-glyph { color: var(--mantine-color-shu-6); }
+
 /* La barra de pestañas. Quién la renderiza lo decide el SERVIDOR por el
    user-agent, así que acá no hay nada que esconder: si está en el documento es
    porque es un teléfono. Atada a un `@media (max-width: …)`, un teléfono
@@ -163,6 +179,11 @@ body { margin: 0; }
   font-size: 0.875rem;
   font-weight: 600;
 }
+
+/* El valor se pone rojo cuando cuenta errores y hay al menos uno. Lo marca un
+   `data-bad` en el elemento y no un `c=` con un ternario: ese prop lo escribe
+   Mantine inline, y además el color deja de estar en el CSS. */
+.knd-quiz-metric-value[data-bad] { color: var(--knd-shu-txt); }
 /* La línea que separa la barra del escenario es ink5 y no el borde `default`
    que trae `withBorder`: es la misma línea que la cabecera. */
 #quiz-footer, #meaning-footer-paper { border-top-color: var(--mantine-color-dark-5); }

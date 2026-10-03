@@ -180,7 +180,7 @@ describe('overview', () => {
     closeRound(db, two.sessionId);
 
     const labels = new Map(overview(db, 'all').history.map((h) => [h.id, h.label]));
-    // El mazo encabeza la etiqueta, como en el diseño ("Hiragana · 6 grupos
+    // El mazo encabeza la label, como en el diseño ("Hiragana · 6 grupos
     // · 28 cartas"); antes empezaba directamente por la cuenta de grupos.
     expect(labels.get(one.sessionId)).toBe('Hiragana · 1 grupo · 5 cartas');
     expect(labels.get(two.sessionId)).toBe('Hiragana · 2 grupos · 10 cartas');

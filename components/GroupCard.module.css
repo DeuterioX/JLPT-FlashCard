@@ -58,7 +58,7 @@
    grilla de doce tarjetas. El paso de la pauta y el alto del renglón son la
    MISMA variable: separados, los renglones dejan de caer sobre las líneas, que
    es todo el punto del papel de manuscrito. */
-.gcPapel {
+.gcSheet {
   /* Dos pasos de renglón porque una tarjeta de escritorio es casi el doble de
      alta: con uno solo, o queda apretada arriba o sobra papel abajo. */
   --knd-gc-paso: 1.6875rem;
@@ -94,7 +94,7 @@
   background-origin: content-box;
 }
 
-.groupCard[data-off] .gcPapel {
+.groupCard[data-off] .gcSheet {
   background-color: var(--knd-papel-off);
 }
 
@@ -114,7 +114,7 @@
 .groupCard[data-off] .gcName,
 .groupCard[data-off] .gcMore { color: var(--mantine-color-dark-3); }
 
-.gcFila {
+.gcRow {
   height: var(--knd-gc-paso);
   min-width: 0;
   display: flex;
@@ -124,7 +124,7 @@
 }
 
 @media (min-width: 800px) {
-  .gcPapel {
+  .gcSheet {
       --knd-gc-paso: 2.4rem;
       --knd-gc-kana: 1.1875rem;
       --knd-gc-romaji: 0.59375rem;
@@ -134,7 +134,7 @@
 
 /* Un grupo de PALABRAS -no de kana sueltos- baja el cuerpo: «けんきゅうしゃ» no
    entra al tamaño de un kana solo. */
-.gcPapel[data-vocab] {
+.gcSheet[data-vocab] {
   --knd-gc-kana: 0.8125rem;
 }
 

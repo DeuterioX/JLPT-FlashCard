@@ -61,7 +61,7 @@ function Body({
   return (
     <Stack gap={14}>
       <Text className="knd-delete-note">{children}</Text>
-      {action.error && <Text c="var(--knd-shu-txt)" size="sm">{action.error}</Text>}
+      {action.error && <Text className="knd-error" size="sm">{action.error}</Text>}
       <ModalActions onCancel={onClose} busy={action.busy}>
         <Button
           id={confirmId}

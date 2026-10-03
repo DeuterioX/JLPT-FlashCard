@@ -4,7 +4,7 @@ import { useEffect, useRef, useState, type ReactNode } from 'react';
 import styles from './GenkoSheet.module.css';
 
 /**
- * La hoja de 原稿用紙: una celda por carácter, con la cruz de guía adentro.
+ * La sheet de 原稿用紙: una celda por carácter, con la cruz de guía adentro.
  *
  * El papel de manuscrito japonés es una grilla donde cada carácter ocupa su
  * propio cuadro, y la cruz tenue de adentro sirve para centrar ESE trazo. Una
@@ -40,11 +40,11 @@ export function GenkoSheet({
   // `[...text]` y no `text.split('')`: きゃ son dos unidades de código pero
   // hay kana fuera del plano básico, y partir por code unit los rompería.
   const chars = [...text];
-  const hoja = useRef<HTMLDivElement>(null);
-  const padding = useRowPadding(hoja, chars.length);
+  const sheet = useRef<HTMLDivElement>(null);
+  const padding = useRowPadding(sheet, chars.length);
   return (
     <div
-      ref={hoja}
+      ref={sheet}
       id={id}
       data-testid={testId}
       className="knd-genko"
@@ -54,10 +54,10 @@ export function GenkoSheet({
         // El índice como clave es correcto acá: la lista no se reordena ni se
         // filtra, es el texto partido en orden, y dos celdas con el mismo
         // carácter -las dos い de いいえ- no son intercambiables.
-        <span key={i} className={styles.genkoCelda}>
+        <span key={i} className={styles.genkoCell}>
           <Guides />
           {ch !== ' ' && (
-            <span className={`${styles.genkoGlifo} mincho`} style={tone ? { color: tone } : undefined}>
+            <span className={`${styles.genkoGlyph} mincho`} style={tone ? { color: tone } : undefined}>
               {ch}
             </span>
           )}
@@ -68,7 +68,7 @@ export function GenkoSheet({
           última fila se veía como un bloque gris: el fondo del contenedor, que
           es el color de la línea, asomando donde no hay celdas. */}
       {Array.from({ length: padding }, (_, i) => (
-        <span key={`hueco-${i}`} className={styles.genkoCelda} aria-hidden>
+        <span key={`hueco-${i}`} className={styles.genkoCell} aria-hidden>
           <Guides />
         </span>
       ))}
@@ -83,7 +83,7 @@ export function GenkoSheet({
  * fijo-, así que desde acá no se puede calcular: hay que preguntárselo al
  * layout ya resuelto. Se lee la lista de pistas que quedó en
  * `grid-template-columns`, que tiene una entrada por columna, y se mide de
- * nuevo cada vez que la hoja cambia de tamaño -girar el teléfono, abrir el
+ * nuevo cada vez que la sheet cambia de tamaño -girar el teléfono, abrir el
  * teclado, entrar una carta más larga-.
  *
  * Arranca en 0 y se completa después de montar, a propósito: el servidor no
@@ -125,7 +125,7 @@ function useRowPadding(ref: React.RefObject<HTMLDivElement | null>, n: number) {
 function Guides(): ReactNode {
   return (
     <svg
-      className={styles.genkoCruz}
+      className={styles.genkoCross}
       viewBox="0 0 100 100"
       preserveAspectRatio="none"
       shapeRendering="geometricPrecision"

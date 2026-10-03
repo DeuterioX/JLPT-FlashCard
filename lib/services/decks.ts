@@ -238,7 +238,7 @@ export function deleteGroup(db: Db, id: number): void {
  * tocar. Se salta lo que no sea letra al principio, así «¡hola!» queda
  * «¡Hola!» y no sin cambiar.
  */
-function capitalizar(s: string): string {
+function capitalize(s: string): string {
   return s.replace(/^([^\p{L}]*)(\p{L})/u, (_, previo, letra) => previo + letra.toUpperCase());
 }
 
@@ -277,7 +277,7 @@ export function createCard(
       .values({
         groupId,
         prompt,
-        meaning: input.meaning?.trim() ? capitalizar(input.meaning.trim()) : null,
+        meaning: input.meaning?.trim() ? capitalize(input.meaning.trim()) : null,
         sortOrder: max + 1,
       })
       .returning().all();
@@ -312,7 +312,7 @@ export function updateCard(
     const patch: Partial<typeof card.$inferInsert> = {};
     if (input.prompt !== undefined) patch.prompt = input.prompt.trim();
     if (input.meaning !== undefined) {
-      patch.meaning = input.meaning?.trim() ? capitalizar(input.meaning.trim()) : null;
+      patch.meaning = input.meaning?.trim() ? capitalize(input.meaning.trim()) : null;
     }
     // Mover de grupo es solo esto. attempt apunta a la carta, no al grupo,
     // así que el historial de métricas viaja con ella.

@@ -468,7 +468,7 @@ function QuizPlay({
         </Box>
         <Box id={withSuffix('quiz-errors')} className="knd-quiz-metric">
           <Text component="span" className="knd-quiz-metric-label">Errores</Text>
-          <Text component="span" className="knd-quiz-metric-value tabular" c="var(--knd-shu-txt)">
+          <Text component="span" className="knd-quiz-metric-value tabular knd-error">
             {state.incorrect}
           </Text>
         </Box>
@@ -768,7 +768,7 @@ function QuizPlay({
       </Box>
 
       {sessionError && (
-        <Text id="quiz-session-error" size="xs" c="var(--knd-shu-txt)" ta="center" py={4}>{sessionError}</Text>
+        <Text id="quiz-session-error" size="xs" className="knd-error" ta="center" py={4}>{sessionError}</Text>
       )}
 
       <Progress id="quiz-progress" value={progress} size="xs" radius={0} />

@@ -134,10 +134,10 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 label={d.name}
                 tappable
                 onTap={() => router.push(`/decks/${d.id}`)}
-                leading={{ etiqueta: 'Practicar', onAction: () => router.push('/') }}
+                leading={{ label: 'Practicar', onAction: () => router.push('/') }}
                 trailing={d.isBuiltin
                   ? undefined
-                  : { etiqueta: 'Borrar', onAction: () => setConfirm(d) }}
+                  : { label: 'Borrar', onAction: () => setConfirm(d) }}
               >
               <ListRow
                 icon={iconFor(d)}
@@ -151,7 +151,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                       component={Link}
                       href={`/decks/${d.id}`}
                       underline="never"
-                      c="var(--mantine-color-text)"
+                      className="knd-strong"
                       inherit
                     >
                       {d.name}
@@ -210,7 +210,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
               Separados por coma, y opcional: si lo dejás vacío se crea un grupo
               solo, llamado «General».
             </Text>
-            {createAction.error && <Text c="var(--knd-shu-txt)" size="sm">{createAction.error}</Text>}
+            {createAction.error && <Text className="knd-error" size="sm">{createAction.error}</Text>}
             <ModalActions onCancel={() => setCreating(false)} busy={createAction.busy}>
               <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createAction.busy} loading={createAction.busy}>
                 Crear

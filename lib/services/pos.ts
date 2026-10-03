@@ -11,7 +11,7 @@
  * la distinción -i / -na de los adjetivos SÍ se conserva, porque cambia cómo
  * se usa la palabra en la frase.
  */
-const EXACTOS: Record<string, string> = {
+const EXACT: Record<string, string> = {
   n: 'sustantivo',
   'n-suf': 'sufijo',
   'n-pref': 'prefijo',
@@ -40,11 +40,11 @@ const EXACTOS: Record<string, string> = {
  * útil -`unc` es «sin clasificar», y una etiqueta que dice eso es peor que
  * ninguna-.
  */
-export function posEnCastellano(pos: string | null): string | null {
+export function posInSpanish(pos: string | null): string | null {
   if (!pos) return null;
   const code = pos.trim();
   if (!code || code === 'unc') return null;
-  if (EXACTOS[code]) return EXACTOS[code];
+  if (EXACT[code]) return EXACT[code];
   // Las familias cubren de una los 30 y pico de códigos restantes: todas las
   // clases de verbo (v1, v5r, vs-i, vk, v2a-s...) y los adjetivos arcaicos
   // (adj-t, adj-nari, adj-ku...).

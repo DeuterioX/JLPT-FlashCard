@@ -87,7 +87,7 @@ function Form({
         value={value}
         onChange={(e) => setValue(e.currentTarget.value)}
       />
-      {action.error && <Text c="var(--knd-shu-txt)" size="sm">{action.error}</Text>}
+      {action.error && <Text className="knd-error" size="sm">{action.error}</Text>}
       <ModalActions onCancel={onClose} busy={action.busy}>
         <Button id={submitId} type="submit" disabled={blocked} loading={action.busy}>
           {submit}

@@ -160,14 +160,14 @@ export function PracticeBoard({
             CERO (regla en CLAUDE.md, encontrado primero en el header
             del quiz). */}
         <Group id="selection-count" gap="0.25rem" wrap="wrap">
-          <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{chosen.length}</Text>
+          <Text component="span" size={rem(13)} className="knd-strong" fw={600}>{chosen.length}</Text>
           <Text component="span" size={rem(13)} c="dimmed">grupos</Text>
           <Text component="span" size={rem(13)} c="dimmed">·</Text>
-          <Text component="span" size={rem(13)} c="var(--mantine-color-text)" fw={600}>{cardCount}</Text>
+          <Text component="span" size={rem(13)} className="knd-strong" fw={600}>{cardCount}</Text>
           <Text component="span" size={rem(13)} c="dimmed">cartas</Text>
         </Group>
         {roundAction.error && (
-          <Text size="sm" c="var(--knd-shu-txt)">
+          <Text size="sm" className="knd-error">
             {roundAction.error}
           </Text>
         )}

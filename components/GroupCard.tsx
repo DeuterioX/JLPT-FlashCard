@@ -74,11 +74,11 @@ export function GroupCard({
             la ronda, gris si no-, que es lo que se ve de lejos en una grilla
             de doce tarjetas. */}
         <div
-          className={`${styles.gcPapel} ${styles.gcWords}`}
+          className={`${styles.gcSheet} ${styles.gcWords}`}
           data-vocab={isVocab ? '' : undefined}
         >
           {group.preview.map((p) => (
-            <div key={p.prompt} className={styles.gcFila}>
+            <div key={p.prompt} className={styles.gcRow}>
               <Text className={`kana ${styles.gcCut} ${styles.gcKana}`} lh={1.2}>
                 {p.prompt}
               </Text>

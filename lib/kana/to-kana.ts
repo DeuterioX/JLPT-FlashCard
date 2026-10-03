@@ -42,9 +42,9 @@ for (const group of KATAKANA) {
   }
 }
 
-const VOCALES = 'aiueo';
+const VOWELS = 'aiueo';
 /** Marca interna para la vocal larga, antes de convertirla en chōonpu. */
-const LARGA = '';
+const LONG_MARK = '';
 
 /**
  * Transcribe romaji a kana. Es la vuelta de `toRomaji`, y tiene una
@@ -65,12 +65,12 @@ const LARGA = '';
  * editable en la UI.
  */
 export function toKana(romaji: string, script: KanaScript): string {
-  const mapa = script === 'katakana' ? KATA : HIRA;
+  const table = script === 'katakana' ? KATA : HIRA;
   let s = romaji.toLowerCase().trim();
   if (!s) return '';
 
   if (script === 'katakana') {
-    s = s.replace(/([aiueo])\1/g, `$1${LARGA}`).replace(/ou/g, `o${LARGA}`);
+    s = s.replace(/([aiueo])\1/g, `$1${LONG_MARK}`).replace(/ou/g, `o${LONG_MARK}`);
   }
 
   let out = '';
@@ -78,46 +78,46 @@ export function toKana(romaji: string, script: KanaScript): string {
   while (i < s.length) {
     const ch = s[i];
 
-    if (ch === LARGA) { out += 'ー'; i += 1; continue; }
+    if (ch === LONG_MARK) { out += 'ー'; i += 1; continue; }
     if (ch === "'") { i += 1; continue; }
 
     // "nn" al final es la forma alternativa de ん que la tabla ya acepta.
     // Sólo al final: en el medio, la segunda n arranca la sílaba siguiente
     // (konnichiwa es ko-n-ni-chi-wa, no ko-nn-i-chi-wa).
     if (ch === 'n' && s[i + 1] === 'n' && i + 2 >= s.length) {
-      out += mapa.n ?? 'ん';
+      out += table.n ?? 'ん';
       i += 2;
       continue;
     }
 
     // Sokuon: consonante repetida. La n queda afuera porque una n repetida
     // es ん + sílaba, no una consonante geminada.
-    if (ch === s[i + 1] && ch !== 'n' && !VOCALES.includes(ch) && /[a-z]/.test(ch)) {
+    if (ch === s[i + 1] && ch !== 'n' && !VOWELS.includes(ch) && /[a-z]/.test(ch)) {
       out += script === 'katakana' ? 'ッ' : 'っ';
       i += 1;
       continue;
     }
 
     // ん: una n que no puede estar arrancando sílaba.
-    if (ch === 'n' && (i + 1 >= s.length || !(VOCALES + 'y').includes(s[i + 1]))) {
-      out += mapa.n ?? 'ん';
+    if (ch === 'n' && (i + 1 >= s.length || !(VOWELS + 'y').includes(s[i + 1]))) {
+      out += table.n ?? 'ん';
       i += 1;
       continue;
     }
 
     // La coincidencia más larga primero: "shi" antes que "si", "kya" antes
     // que "ka". Sin esto, cualquier contracción saldría partida.
-    let hallado = false;
+    let found = false;
     for (let n = 3; n >= 1; n -= 1) {
-      const trozo = s.slice(i, i + n);
-      if (mapa[trozo]) {
-        out += mapa[trozo];
+      const chunk = s.slice(i, i + n);
+      if (table[chunk]) {
+        out += table[chunk];
         i += n;
-        hallado = true;
+        found = true;
         break;
       }
     }
-    if (hallado) continue;
+    if (found) continue;
 
     out += ch;
     i += 1;

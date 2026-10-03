@@ -180,7 +180,7 @@ export function StatsBoard({
           >
             {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
-          {reviewAction.error && <Text size="xs" c="var(--knd-shu-txt)">{reviewAction.error}</Text>}
+          {reviewAction.error && <Text className="knd-error" size="xs">{reviewAction.error}</Text>}
         </Stack>
       </div>
 

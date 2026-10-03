@@ -26,7 +26,7 @@ export function ModalTitle({ jp, children }: { jp: string; children: React.React
     // `baseline` y no `center`: el glifo tiene otra caja de línea que el
     // latino, y centrados por caja quedan a distinta altura visual.
     <Group gap={rem(9)} wrap="nowrap" align="baseline">
-      <Text className="mincho" size={rem(18)} lh={1} c="var(--mantine-color-shu-6)">{jp}</Text>
+      <Text className="mincho knd-modal-glyph" size={rem(18)} lh={1}>{jp}</Text>
       <Text size={rem(14)} fw={700}>{children}</Text>
     </Group>
   );

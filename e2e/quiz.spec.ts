@@ -196,9 +196,9 @@ test('en teléfono el input queda visible con el teclado abierto', async ({ page
  */
 test.describe('una sesión que falla avisa', () => {
   test('el repaso de significados muestra el aviso', async ({ page, request }) => {
-    const nombre = `Vocab ${Date.now()}`;
+    const name = `Vocab ${Date.now()}`;
     const mazo = await request.post('/api/decks', {
-      data: { name: nombre, groups: ['Prueba'] },
+      data: { name: name, groups: ['Prueba'] },
     });
     const { groups } = await mazo.json();
     await request.post(`/api/groups/${groups[0].id}/cards`, {
@@ -208,9 +208,9 @@ test.describe('una sesión que falla avisa', () => {
     await page.goto('/');
     // El selector de mazo es un `SegmentedControl`: cada opción es un
     // `<input type="radio">` con su `<label>` al lado. Se clickea el label.
-    const opcion = page.locator('#deck-segmented-control label', { hasText: nombre });
-    await expect(opcion).toBeVisible();
-    await opcion.click();
+    const option = page.locator('#deck-segmented-control label', { hasText: name });
+    await expect(option).toBeVisible();
+    await option.click();
     await page.getByRole('button', { name: 'Todos' }).click();
 
     await page.locator('#begin-meaning-btn').click();

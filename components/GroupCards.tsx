@@ -136,7 +136,7 @@ function EditCardModal({
               />
             </div>
             <Button
-              variant="subtle" c="var(--knd-shu-txt)" size="compact-sm"
+              variant="subtle" className="knd-error" size="compact-sm"
               aria-label={`Quitar romanización alternativa ${i + 1}`}
               onClick={() => setAlts(alts.filter((_, j) => j !== i))}
             >
@@ -159,7 +159,7 @@ function EditCardModal({
         >
           + romanización alternativa
         </Anchor>
-        {error && <Text c="var(--knd-shu-txt)" size="sm">{error}</Text>}
+        {error && <Text className="knd-error" size="sm">{error}</Text>}
         {/* `type="submit"` y no un `onClick`: sin un botón de submit, un form
             con más de un campo no se manda con Enter -esa es la regla de
             "envío implícito" del HTML-, y el Enter del modal no hacía nada. */}
@@ -374,7 +374,7 @@ export function GroupCards({
                   onClick={() => setDictOpen(true)}
                   leftSection={(
                     /* 18px y no 14: a 14 la lupa quedaba más chica que la
-                       altura de las mayúsculas de la etiqueta, que va en 14px
+                       altura de las mayúsculas de la label, que va en 14px
                        negrita. Un círculo con cola tiene menos masa visual que
                        una letra del mismo cuerpo, así que para leerse a la par
                        tiene que ser más grande. El trazo baja a 1.7 para que
@@ -482,7 +482,7 @@ export function GroupCards({
                         />
                       </div>
                       <Button
-                        variant="subtle" c="var(--knd-shu-txt)" size="compact-xs"
+                        variant="subtle" className="knd-error" size="compact-xs"
                         aria-label={`Quitar romanización alternativa ${i + 1}`}
                         onClick={() => setAlts(alts.filter((_, j) => j !== i))}
                       >
@@ -492,7 +492,7 @@ export function GroupCards({
                   ))}
                 </Group>
               )}
-              {addAction.error && <Text c="var(--knd-shu-txt)" size="sm">{addAction.error}</Text>}
+              {addAction.error && <Text className="knd-error" size="sm">{addAction.error}</Text>}
               {/* Sin el `·` que separaba la frase del link: con el formulario
                   en una columna la ayuda ocupa dos líneas, y el punto quedaba
                   abriendo la segunda como si fuera una viñeta. El link se
@@ -532,10 +532,10 @@ export function GroupCards({
                 tappable={!readOnly}
                 onTap={() => { editAction.setError(null); setEditCard(c); setEditOpen(true); }}
                 leading={!readOnly && manyGroups
-                  ? { etiqueta: 'Mover', onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
+                  ? { label: 'Mover', onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
                   : undefined}
                 trailing={!readOnly
-                  ? { etiqueta: 'Borrar', onAction: () => setDeleting(c) }
+                  ? { label: 'Borrar', onAction: () => setDeleting(c) }
                   : undefined}
               >
                 {/* Los anchos viven en globals.css y no acá porque tienen que
@@ -611,7 +611,7 @@ export function GroupCards({
         />
 
         {/* El grupo actual aparece deshabilitado en vez de ausente: dice dónde
-            estás parado sin necesidad de otra etiqueta. */}
+            estás parado sin necesidad de otra label. */}
         <ConfirmModal
           id="delete-card-modal" opened={!!deleting} onClose={() => setDeleting(null)}
           jp="削" title="¿Borrar la palabra?" confirm="Borrar la palabra"
@@ -641,7 +641,7 @@ export function GroupCards({
           <Stack gap={10}>
             <Text size="sm" c="dimmed">
               {'Mover '}
-              <Text component="b" c="var(--mantine-color-text)" className="kana" inherit>
+              <Text component="b" className="kana knd-strong" inherit>
                 {moving?.prompt}
               </Text>
               {' a:'}
@@ -682,7 +682,7 @@ export function GroupCards({
                 ))}
               </Stack>
             </Radio.Group>
-            {moveAction.error && <Text c="var(--knd-shu-txt)" size="sm">{moveAction.error}</Text>}
+            {moveAction.error && <Text className="knd-error" size="sm">{moveAction.error}</Text>}
             <ModalActions onCancel={() => setMoving(null)} busy={moveAction.busy}>
               <Button
                 id="confirm-move-card"

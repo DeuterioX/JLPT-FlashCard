@@ -5,7 +5,7 @@ import { ModalTitle } from '../ModalTitle';
 import { useRouter } from 'next/navigation';
 import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
 import type { DictHit } from '@/lib/services/dict';
-import { posEnCastellano } from '@/lib/services/pos';
+import { posInSpanish } from '@/lib/services/pos';
 import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import styles from './DictSearchPanel.module.css';
@@ -137,7 +137,7 @@ export function DictSearchPanel({
             </Text>
           }
         />
-        {searchError && <Text c="var(--knd-shu-txt)" size="sm">{searchError}</Text>}
+        {searchError && <Text className="knd-error" size="sm">{searchError}</Text>}
       </div>
 
       <div className={styles.dictResults}>
@@ -168,9 +168,9 @@ export function DictSearchPanel({
                   Traducida: JMdict la guarda como código -`n`, `v5s`,
                   `adj-na`- y así salía a la pantalla, donde no le dice nada
                   a nadie que no conozca el formato. */}
-              {posEnCastellano(h.pos) && (
+              {posInSpanish(h.pos) && (
                 <Text className={styles.dictPos} size="xs" c="dark.3" fs="italic">
-                  {posEnCastellano(h.pos)}
+                  {posInSpanish(h.pos)}
                 </Text>
               )}
               {addedIds.has(h.id) ? (
@@ -197,7 +197,7 @@ export function DictSearchPanel({
           </Text>
         )}
 
-        {addAction.error && <Text c="var(--knd-shu-txt)" size="sm">{addAction.error}</Text>}
+        {addAction.error && <Text className="knd-error" size="sm">{addAction.error}</Text>}
 
       </div>
 

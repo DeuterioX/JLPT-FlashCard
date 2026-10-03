@@ -63,7 +63,7 @@ export function RoundSummary({
               <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Cartas</Text>
             </Stack>
             <Stack id="round-summary-errors" gap={0}>
-              <Text size="xl" fw={600} className="tabular" c="var(--knd-shu-txt)">{state.incorrect}</Text>
+              <Text size="xl" fw={600} className="tabular knd-error">{state.incorrect}</Text>
               <Text size="xs" c="dimmed" tt="uppercase" style={{ letterSpacing: '0.06em' }}>Errores</Text>
             </Stack>
             <Stack id="round-summary-time" gap={0}>
