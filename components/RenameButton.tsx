@@ -36,7 +36,7 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
           inline, y un estilo inline le gana a la hoja de estilos. Con la
           clase en el SVG, en escritorio se veían la etiqueta Y el ícono. */}
       <span className={styles.renameIcon}>
-        <Icon glyph={PencilFill} rem={0.875} />
+        <Icon glyph={PencilFill} />
       </span>
     </Button>
   );

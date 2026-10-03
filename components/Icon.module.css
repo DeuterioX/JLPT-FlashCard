@@ -11,7 +11,7 @@
    quedaba más abajo que las de sus vecinas. */
 .icon {
   display: block;
-  width: var(--knd-icon-size);
-  height: var(--knd-icon-size);
   flex: none;
+  width: 0.875rem;
+  height: 0.875rem;
 }

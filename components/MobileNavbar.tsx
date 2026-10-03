@@ -38,7 +38,7 @@ export function MobileNavbar({
           aria-label={`Volver a ${up.label}`}
           underline="never"
         >
-          <Icon glyph={ChevronLeft} rem={0.9375} />
+          <Icon glyph={ChevronLeft} />
         </Anchor>
       )}
       {/* Sólo el zorro, sin «Kitsune Cards»: la flecha, la marca y el título

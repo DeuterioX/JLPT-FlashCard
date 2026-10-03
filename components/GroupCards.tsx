@@ -140,7 +140,7 @@ function EditCardModal({
               aria-label={`Quitar romanización alternativa ${i + 1}`}
               onClick={() => setAlts(alts.filter((_, j) => j !== i))}
             >
-              <Icon glyph={X} rem={0.875} />
+              <Icon glyph={X} />
             </Button>
           </Group>
         ))}
@@ -379,7 +379,7 @@ export function GroupCards({
                        una letra del mismo cuerpo, así que para leerse a la par
                        tiene que ser más grande. El trazo baja a 1.7 para que
                        al agrandarse no pese más que el texto. */
-                    <Icon glyph={Search} rem={0.875} />
+                    <Icon glyph={Search} />
                   )}
                 >
                   {/* Dos etiquetas y el CSS elige cuál se ve, como en
@@ -486,7 +486,7 @@ export function GroupCards({
                         aria-label={`Quitar romanización alternativa ${i + 1}`}
                         onClick={() => setAlts(alts.filter((_, j) => j !== i))}
                       >
-                        <Icon glyph={X} rem={0.875} />
+                        <Icon glyph={X} />
                       </Button>
                     </Group>
                   ))}

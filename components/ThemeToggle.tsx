@@ -38,7 +38,7 @@ export function ThemeToggle({ id }: { id?: string }) {
       aria-label={target === 'dark' ? 'Cambiar a tinta oscura' : 'Cambiar a tinta clara'}
       title={target === 'dark' ? 'Tinta oscura' : 'Tinta clara'}
     >
-      <Icon glyph={target === 'dark' ? MoonStarsFill : SunFill} rem={0.875} />
+      <Icon glyph={target === 'dark' ? MoonStarsFill : SunFill} />
     </Button>
   );
 }
