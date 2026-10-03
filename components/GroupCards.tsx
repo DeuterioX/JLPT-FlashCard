@@ -15,6 +15,8 @@ import { Icon } from './Icon';
 import { DictSearchPanel } from './dict/DictSearchPanel';
 import { SwipeRow } from './SwipeRow';
 import { ModalTitle } from './ModalTitle';
+import { NameModal } from './NameModal';
+import { ConfirmModal } from './ConfirmModal';
 import { ModalActions } from './ModalActions';
 import { PaperField } from './PaperField';
 import { toRomaji } from '@/lib/kana/transliterate';
@@ -200,8 +202,6 @@ export function GroupCards({
   const [dictOpen, setDictOpen] = useState(false);
 
   const [renameOpen, setRenameOpen] = useState(false);
-  const [renameValue, setRenameValue] = useState(group.name);
-  const renameAction = useAction();
 
   const [prompt, setPrompt] = useState('');
   const [romaji, setRomaji] = useState('');
@@ -215,7 +215,6 @@ export function GroupCards({
   // irreversible y hasta ahora era el ÚNICO borrado de la app que no pedía
   // confirmación -el de mazo y el de grupo sí la piden-.
   const [deleting, setDeleting] = useState<EditorCard | null>(null);
-  const deleteAction = useAction();
 
   // La carta que se edita y si el modal está abierto van SEPARADOS. Antes el
   // modal se montaba recién al abrirlo, con `opened` fijo en true: Mantine
@@ -253,16 +252,16 @@ export function GroupCards({
     setRomajiTouched(v.trim() !== '');
   }
 
-  const renameGroup = () => renameAction.run(async () => {
+  const renameGroup = async (name: string) => {
     const res = await fetch(`/api/groups/${group.id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ name: renameValue }),
+      body: JSON.stringify({ name }),
     });
     if (!res.ok) return errorFrom(res);
     setRenameOpen(false);
     router.refresh();
-  });
+  };
 
   const add = () => addAction.run(async () => {
     const res = await fetch(`/api/groups/${group.id}/cards`, {
@@ -286,13 +285,13 @@ export function GroupCards({
     router.refresh();
   });
 
-  const removeCard = () => deleteAction.run(async () => {
+  const removeCard = async () => {
     if (!deleting) return;
     const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
     if (!res.ok) return errorFrom(res);
     setDeleting(null);
     router.refresh();
-  });
+  };
 
   const saveCard = (next: { prompt: string; romaji: string; meaning: string; alts: string[] }) =>
     editAction.run(async () => {
@@ -334,7 +333,7 @@ export function GroupCards({
       ],
       currentId: 'group-name',
       action: readOnly ? <BuiltinDot /> : (
-        <RenameButton id="rename-group-btn" onClick={() => { setRenameValue(group.name); renameAction.setError(null); setRenameOpen(true); }} />
+        <RenameButton id="rename-group-btn" onClick={() => setRenameOpen(true)} />
       ),
     }}>
       <Stack id="group-cards-screen" gap="md">
@@ -524,8 +523,6 @@ export function GroupCards({
           )}
         </Group>
 
-        {deleteAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteAction.error}</Text>}
-
         <Paper id="cards-list" withBorder style={{ overflow: 'hidden' }}>
           {cards.map((c, i) => (
             <Box key={c.id} id={`card-row-${c.id}`}>
@@ -538,7 +535,7 @@ export function GroupCards({
                   ? { etiqueta: 'Mover', onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
                   : undefined}
                 trailing={!readOnly
-                  ? { etiqueta: 'Borrar', onAction: () => { deleteAction.setError(null); setDeleting(c); } }
+                  ? { etiqueta: 'Borrar', onAction: () => setDeleting(c) }
                   : undefined}
               >
                 {/* Los anchos viven en globals.css y no acá porque tienen que
@@ -580,13 +577,12 @@ export function GroupCards({
                       <Button
                         id={`card-delete-${c.id}`}
                         variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
-                        onClick={() => { deleteAction.setError(null); setDeleting(c); }}
+                        onClick={() => setDeleting(c)}
                         // Sin ruedita: este botón sólo ABRE el modal, el borrado
                         // lo ejecuta el de adentro y la ruedita va ahí. Antes
                         // giraba esta fila porque el estado guardaba qué carta
                         // se estaba borrando; con la acción compartida eso sería
                         // hacer girar todas las filas a la vez.
-                        disabled={deleteAction.busy}
                       >
                         Borrar
                       </Button>
@@ -608,58 +604,28 @@ export function GroupCards({
           {cards.length === 0 && <Text p="md" size="sm" c="dimmed">Todavía no hay cartas en este grupo.</Text>}
         </Paper>
 
-        <Modal id="rename-group-modal" opened={renameOpen} onClose={() => setRenameOpen(false)} title={<ModalTitle jp="改">Renombrar grupo</ModalTitle>}>
-          <Stack
-            component="form"
-            onSubmit={(e: FormEvent) => {
-              e.preventDefault();
-              if (!renameValue.trim() || renameAction.busy) return;
-              void renameGroup();
-            }}
-          >
-            <PaperField
-              id="rename-group-input" label="Nombre"
-              value={renameValue} onChange={(e) => setRenameValue(e.currentTarget.value)}
-            />
-            {renameAction.error && <Text c="var(--knd-shu-txt)" size="sm">{renameAction.error}</Text>}
-            <ModalActions onCancel={() => setRenameOpen(false)} busy={renameAction.busy}>
-              <Button type="submit" disabled={!renameValue.trim() || renameAction.busy} loading={renameAction.busy}>
-                Guardar
-              </Button>
-            </ModalActions>
-          </Stack>
-        </Modal>
+        <NameModal
+          id="rename-group" opened={renameOpen} onClose={() => setRenameOpen(false)}
+          jp="改" title="Renombrar grupo" label="Nombre"
+          initial={group.name} submit="Guardar" onSubmit={renameGroup}
+        />
 
         {/* El grupo actual aparece deshabilitado en vez de ausente: dice dónde
             estás parado sin necesidad de otra etiqueta. */}
-        <Modal
-          id="delete-card-modal"
-          opened={!!deleting}
-          onClose={() => setDeleting(null)}
-          title={<ModalTitle jp="削">¿Borrar la palabra?</ModalTitle>}
+        <ConfirmModal
+          id="delete-card-modal" opened={!!deleting} onClose={() => setDeleting(null)}
+          jp="削" title="¿Borrar la palabra?" confirm="Borrar la palabra"
+          confirmId="confirm-delete-card" onConfirm={removeCard}
         >
-          <Stack gap={14}>
-            {/* La frase del diseño, con lo que se lleva puesto en negrita: el
-                verbo adelante -«Se va a borrar»- y resaltado sólo lo que
-                desaparece, que es lo que hay que leer antes de decidir. Los
-                intentos de esa carta se borran con ella, así que la estadística
-                cambia y el diálogo lo dice. */}
-            <Text className="knd-delete-note">
-              {'Se va a borrar '}
-              <b>{`«${deleting?.prompt ?? ''}»`}</b>
-              {deleting?.meaning ? ` (${deleting.meaning})` : ''}
-              {' y sus '}
-              <b>intentos registrados</b>
-              {'. No se puede deshacer.'}
-            </Text>
-            {deleteAction.error && <Text c="var(--knd-shu-txt)" size="sm">{deleteAction.error}</Text>}
-            <ModalActions onCancel={() => setDeleting(null)} busy={deleteAction.busy}>
-              <Button id="confirm-delete-card" color="shu.6" onClick={removeCard} loading={deleteAction.busy}>
-                Borrar la palabra
-              </Button>
-            </ModalActions>
-          </Stack>
-        </Modal>
+          {/* Los intentos de esa carta se borran con ella, así que la
+              estadística cambia y el diálogo lo dice. */}
+          {'Se va a borrar '}
+          <b>{`«${deleting?.prompt ?? ''}»`}</b>
+          {deleting?.meaning ? ` (${deleting.meaning})` : ''}
+          {' y sus '}
+          <b>intentos registrados</b>
+          {'. No se puede deshacer.'}
+        </ConfirmModal>
 
         <Modal
           id="move-card-modal"

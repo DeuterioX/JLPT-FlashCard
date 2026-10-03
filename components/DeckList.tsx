@@ -12,6 +12,7 @@ import { SwipeRow } from './SwipeRow';
 import { ModalActions } from './ModalActions';
 import { PaperField } from './PaperField';
 import { ModalTitle } from './ModalTitle';
+import { ConfirmModal } from './ConfirmModal';
 import { BuiltinDot } from './BuiltinDot';
 import { SectionLabel } from './SectionLabel';
 import { errorFrom } from '@/lib/client/errors';
@@ -71,18 +72,12 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
   // es la misma forma que repetían todos los botones de la app.
   const createAction = useAction();
   const [confirm, setConfirm] = useState<DeckSummary | null>(null);
-  const removeAction = useAction();
 
   function openCreate() {
     setName('');
     setGroups('');
     createAction.setError(null);
     setCreating(true);
-  }
-
-  function openConfirm(d: DeckSummary) {
-    removeAction.setError(null);
-    setConfirm(d);
   }
 
   const create = () => createAction.run(async () => {
@@ -101,12 +96,12 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
     router.refresh();
   });
 
-  const remove = (d: DeckSummary) => removeAction.run(async () => {
+  const remove = async (d: DeckSummary) => {
     const res = await fetch(`/api/decks/${d.id}`, { method: 'DELETE' });
     if (!res.ok) return errorFrom(res);
     setConfirm(null);
     router.refresh();
-  });
+  };
 
   const totalCards = decks.reduce((n, d) => n + d.cardCount, 0);
 
@@ -142,7 +137,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 leading={{ etiqueta: 'Practicar', onAction: () => router.push('/') }}
                 trailing={d.isBuiltin
                   ? undefined
-                  : { etiqueta: 'Borrar', onAction: () => openConfirm(d) }}
+                  : { etiqueta: 'Borrar', onAction: () => setConfirm(d) }}
               >
               <ListRow
                 icon={iconFor(d)}
@@ -171,7 +166,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                     {!d.isBuiltin && (
                       <Button
                         id={`deck-delete-${d.id}`}
-                        variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete" onClick={() => openConfirm(d)}
+                        variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete" onClick={() => setConfirm(d)}
                       >
                         Borrar
                       </Button>
@@ -224,33 +219,21 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           </Stack>
         </Modal>
 
-        <Modal id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)} title={<ModalTitle jp="削">¿Borrar el mazo?</ModalTitle>}>
-          <Stack gap={14}>
-            {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas.
-                La frase es la del diseño -el verbo adelante, en negrita sólo lo
-                que desaparece-, con los dos niveles que se lleva un mazo. */}
-            <Text className="knd-delete-note">
-              {'Se va a borrar '}
-              <b>{`«${confirm?.name ?? ''}»`}</b>
-              {', sus '}
-              <b>{confirm?.groupCount === 1 ? '1 grupo' : `${confirm?.groupCount ?? 0} grupos`}</b>
-              {' y sus '}
-              <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
-              {'. No se puede deshacer.'}
-            </Text>
-            {removeAction.error && <Text c="var(--knd-shu-txt)" size="sm">{removeAction.error}</Text>}
-            <ModalActions onCancel={() => setConfirm(null)} busy={removeAction.busy}>
-              <Button
-                color="shu.6"
-                onClick={() => confirm && remove(confirm)}
-                loading={removeAction.busy}
-                disabled={removeAction.busy}
-              >
-                Borrar el mazo
-              </Button>
-            </ModalActions>
-          </Stack>
-        </Modal>
+        <ConfirmModal
+          id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)}
+          jp="削" title="¿Borrar el mazo?" confirm="Borrar el mazo"
+          onConfirm={() => remove(confirm!)}
+        >
+          {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas,
+              con los dos niveles que se lleva un mazo. */}
+          {'Se va a borrar '}
+          <b>{`«${confirm?.name ?? ''}»`}</b>
+          {', sus '}
+          <b>{confirm?.groupCount === 1 ? '1 grupo' : `${confirm?.groupCount ?? 0} grupos`}</b>
+          {' y sus '}
+          <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
+          {'. No se puede deshacer.'}
+        </ConfirmModal>
       </Stack>
     </Screen>
   );
