@@ -1,4 +1,4 @@
-import { Group, Text, rem } from '@mantine/core';
+import { Group, Text } from '@mantine/core';
 import styles from './SectionLabel.module.css';
 
 /**
@@ -29,11 +29,11 @@ export function SectionLabel({
   suffix?: string;
 }) {
   return (
-    <Group id={id} gap={10} wrap="nowrap" className="knd-grow">
+    <Group id={id} wrap="nowrap" className={`knd-grow ${styles.sectRow}`}>
       {/* El glifo japonés que identifica la sección. Va en la mincho del
           diseño y es lo primero de la fila. */}
       {jp && (
-        <Text className="mincho knd-nowrap" size={rem(19)} lh={1} c="dark.0">
+        <Text className={`mincho knd-nowrap ${styles.sectGlyph}`}>
           {jp}
         </Text>
       )}
@@ -41,7 +41,7 @@ export function SectionLabel({
           `letter-spacing`, que es el tratamiento del mockup viejo: el de
           «tinta y papel» deja el rótulo como texto común y le da el peso al
           glifo de al lado. */}
-      <Text size={rem(11)} lh={1.5} c="dark.3" className="knd-nowrap">
+      <Text className={`knd-nowrap ${styles.sectCount}`}>
         {children}
         {/* Template literal y no texto suelto con un espacio al lado del
             tag: un espacio pegado al cierre de un tag puede colapsar a

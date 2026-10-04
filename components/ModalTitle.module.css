@@ -1,0 +1,25 @@
+/* `baseline` y no `center`: el glifo tiene otra caja de línea que el latino, y
+   centrados por caja quedan a distinta altura visual. */
+.title {
+  gap: 0.5625rem;
+  align-items: baseline;
+  flex-wrap: nowrap;
+}
+
+/* El glifo va en `shu.6` -el rojo del canvas- y no en la variante aclarada para
+   texto: no se lee, se reconoce, y es la misma marca que el filete de los
+   encabezados de sección. Con el aclarado quedaba salmón. */
+.glyph {
+  font-size: 1.125rem;
+  line-height: 1;
+  color: var(--mantine-color-shu-6);
+}
+
+/* `line-height: 1` explícito y no heredado: el prop `size` de Mantine fijaba
+   los dos, y al pasar el tamaño a una clase el interlineado se iba al del tema
+   -medido, de 14 a 21,7px- y el título empujaba el modal hacia abajo. */
+.text {
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 1;
+}

@@ -27,3 +27,6 @@
 :global(#deck-switcher-bar) + .screenScroll { padding-top: 0; }
 
 .screen[data-scrolled] > :global(#deck-switcher-bar) { border-bottom-color: var(--mantine-color-default-border); }
+
+/* El `gap` entre lo que apila una pantalla, el `md` del shell. */
+.screenScroll { gap: var(--mantine-spacing-md); }

@@ -12,3 +12,17 @@ a.tab {
 
 /* Jade, y no la píldora de escritorio: acá no hay píldora que diga cuál es. */
 a.tabOn { color: var(--mantine-color-jade-6); }
+
+/* El kanji de la pestaña, 18px como en el `tabbar()` del canvas, y la etiqueta
+   en 11. El `line-height` es explícito porque con un tamaño fuera de la escala
+   Mantine devuelve una caja de línea MENOR que la letra y le come el
+   descendente a «Práctica». */
+.tabGlyph {
+  font-size: 1.125rem;
+  line-height: 1.2;
+}
+
+.tabLabel {
+  font-size: 11px;
+  line-height: 1.3;
+}

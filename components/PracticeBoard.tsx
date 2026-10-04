@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, SegmentedControl, Button, Text, Box, rem } from '@mantine/core';
+import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from './ActionBar';
 import { Screen } from './Screen';
@@ -87,7 +87,7 @@ export function PracticeBoard({
 
   if (!deck) {
     return (
-      <Stack p="xl" gap="xs">
+      <Stack className={styles.empty}>
         <Text c="dimmed">Todavía no hay mazos para practicar.</Text>
       </Stack>
     );
@@ -104,8 +104,6 @@ export function PracticeBoard({
     <Group
       id="deck-switcher-bar"
       wrap="wrap"
-      gap="sm"
-      bg="dark.7"
       className={styles.switcherBar}
     >
       {/* Con muchos mazos el SegmentedControl no entra en una pantalla
@@ -126,8 +124,8 @@ export function PracticeBoard({
       {/* "Seleccionar:" y los dos botones son una sola unidad -si no
           entran al lado del selector de mazos, bajan los tres juntos a
           la línea siguiente, nunca separados entre sí-. */}
-      <Group id="select-all-controls" gap="xs" wrap="nowrap" ml="auto">
-        <Text size="xs" c="dimmed">Seleccionar:</Text>
+      <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
+        <Text className={styles.selectLabel}>Seleccionar:</Text>
         {/* `.btn` en el diseño trae borde SIEMPRE (`.ghost` solo le saca
             el fondo, no el borde). La variante `default` de Mantine es
             la que ya viene con borde neutro sin depender del color
@@ -151,12 +149,12 @@ export function PracticeBoard({
             texto JSX pegado al cierre de un tag puede colapsar a ancho
             CERO (regla en CLAUDE.md, encontrado primero en el header
             del quiz). */}
-        <Group id="selection-count" gap="0.25rem" wrap="wrap">
-          <Text component="span" size={rem(13)} className="knd-strong" fw={600}>{chosen.length}</Text>
-          <Text component="span" size={rem(13)} c="dimmed">grupos</Text>
-          <Text component="span" size={rem(13)} c="dimmed">·</Text>
-          <Text component="span" size={rem(13)} className="knd-strong" fw={600}>{cardCount}</Text>
-          <Text component="span" size={rem(13)} c="dimmed">cartas</Text>
+        <Group id="selection-count" wrap="wrap" className={styles.count}>
+          <Text component="span" className={`knd-strong ${styles.countNum}`}>{chosen.length}</Text>
+          <Text component="span" className={styles.countWord}>grupos</Text>
+          <Text component="span" className={styles.countWord}>·</Text>
+          <Text component="span" className={`knd-strong ${styles.countNum}`}>{cardCount}</Text>
+          <Text component="span" className={styles.countWord}>cartas</Text>
         </Group>
         {roundAction.error && (
           <Text size="sm" className="knd-error">

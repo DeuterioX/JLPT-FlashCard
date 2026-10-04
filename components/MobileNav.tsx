@@ -1,6 +1,6 @@
 'use client';
 
-import { Anchor, Box, Text, rem } from '@mantine/core';
+import { Anchor, Box, Text } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LINKS, isActive } from '@/lib/nav';
@@ -29,10 +29,8 @@ export function MobileNav() {
              `DesktopNav`. */
           className={isActive(path, l.href) ? `${styles.tab} ${styles.tabOn}` : styles.tab}
         >
-          <Text className="mincho" size={rem(18)} lh={1.2}>{l.jp}</Text>
-          {/* `lh` explícito: con un `size` libre Mantine deja interlineado 1
-              y se come el descendente de «Práctica». */}
-          <Text size="11px" lh={1.3}>{l.label}</Text>
+          <Text className={`mincho ${styles.tabGlyph}`}>{l.jp}</Text>
+          <Text className={styles.tabLabel}>{l.label}</Text>
         </Anchor>
       ))}
     </Box>

@@ -26,3 +26,20 @@
   height: 1px;
   background: var(--mantine-color-shu-6);
 }
+
+.sectRow { gap: 0.625rem; }
+
+/* El glifo del encabezado. `line-height` explícito y no heredado: el prop
+   `size` de Mantine fijaba los dos, y sin él el interlineado se va al del tema
+   y empuja toda la fila. */
+.sectGlyph {
+  font-size: 1.1875rem;
+  line-height: 1;
+  color: var(--mantine-color-dark-0);
+}
+
+.sectCount {
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: var(--mantine-color-dark-3);
+}

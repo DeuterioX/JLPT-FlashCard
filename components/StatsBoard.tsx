@@ -121,7 +121,6 @@ export function StatsBoard({
   });
 
   const reviewCount = Math.min(REVIEW_LIMIT, worst.length);
-  const panelStyle = { padding: '0.8125rem', borderColor: 'var(--knd-border-soft)' };
   const rangeDays = RANGE_DAYS[range];
   const rangeLabel = RANGE_LABEL[range];
   // "1,4 por día" del diseño. Con el rango "Siempre" no hay denominador
@@ -170,7 +169,7 @@ export function StatsBoard({
             hint={`de ${o.totalCards} cartas`} />
         </SimpleGrid>
 
-        <Stack id="stats-review" gap={4} align="flex-end" className={styles.statsReview}>
+        <Stack id="stats-review" className={styles.statsReview}>
           <Button
             id="review-btn"
             className={styles.reviewBtn}
@@ -180,7 +179,7 @@ export function StatsBoard({
           >
             {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
           </Button>
-          {reviewAction.error && <Text className="knd-error" size="xs">{reviewAction.error}</Text>}
+          {reviewAction.error && <Text className={`knd-error ${styles.reviewError}`}>{reviewAction.error}</Text>}
         </Stack>
       </div>
 
@@ -189,13 +188,13 @@ export function StatsBoard({
             `--a-border-soft` (no el `dark.4` que trae `withBorder`), radio 9
             y padding 13. El encabezado lleva el título a la izquierda y una
             aclaración al ras de la derecha, un escalón más chica y apagada. */}
-        <Paper id="worst-panel" withBorder radius={9} style={panelStyle}>
-          <Stack id="worst-list" gap="xs">
-            <Group gap="sm" wrap="nowrap">
-              <Text id="worst-title" size="0.71875rem" lh={1.4} fw={600}>Las que más errás</Text>
-              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">errores / veces vista</Text>
+        <Paper id="worst-panel" withBorder className={styles.panel}>
+          <Stack id="worst-list" className={styles.panelList}>
+            <Group wrap="nowrap" className={styles.panelHead}>
+              <Text id="worst-title" className={styles.panelTitle}>Las que más errás</Text>
+              <Text className={styles.panelNote}>errores / veces vista</Text>
             </Group>
-            {worst.length === 0 && <Text size="sm" c="dimmed">Todavía no hay datos suficientes.</Text>}
+            {worst.length === 0 && <Text className={styles.panelEmpty}>Todavía no hay datos suficientes.</Text>}
             {worst.slice(0, 8).map((w) => (
               // Mismos anchos que la lista equivalente del resumen de ronda
               // (34/46): antes acá eran 44/54 y las dos listas, que son la
@@ -208,38 +207,38 @@ export function StatsBoard({
               // más larga por fila: se leían como barras de distinto largo
               // comparando cosas distintas, cuando lo único que tiene que
               // variar es lo PINTADO de adentro.
-              <Group key={w.cardId} id={`worst-row-${w.cardId}`} gap={9} wrap="nowrap">
+              <Group key={w.cardId} id={`worst-row-${w.cardId}`} wrap="nowrap" className={styles.panelRow}>
                 <Text className={`kana ${styles.worstKana}`}>{w.prompt}</Text>
-                <Text className={`romaji ${styles.worstRom}`} c="dimmed">{w.primary}</Text>
+                <Text className={`romaji ${styles.worstRom}`}>{w.primary}</Text>
                 <Progress
                   value={w.rate * 100} color="shu.6" size={4} radius={2}
                   className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
-                <Text className={`${styles.worstNum} tabular`} c="dark.3" ta="right">{w.errors}/{w.seen}</Text>
+                <Text className={`${styles.worstNum} tabular`}>{w.errors}/{w.seen}</Text>
               </Group>
             ))}
           </Stack>
         </Paper>
 
-        <Paper id="by-group-panel" withBorder radius={9} style={panelStyle}>
-          <Stack id="by-group-list" gap="xs">
-            <Group gap="sm" wrap="nowrap">
-              <Text id="by-group-title" size="0.71875rem" lh={1.4} fw={600}>Aciertos por grupo</Text>
+        <Paper id="by-group-panel" withBorder className={styles.panel}>
+          <Stack id="by-group-list" className={styles.panelList}>
+            <Group wrap="nowrap" className={styles.panelHead}>
+              <Text id="by-group-title" className={styles.panelTitle}>Aciertos por grupo</Text>
               {/* Esta aclaración faltaba por completo. Sigue al rango
                   elegido en vez de decir siempre "últimos 30 días". */}
-              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">
+              <Text className={styles.panelNote}>
                 {rangeDays === null ? 'siempre' : `últimos ${rangeLabel}`}
               </Text>
             </Group>
-            {o.byGroup.length === 0 && <Text size="sm" c="dimmed">Todavía no practicaste nada.</Text>}
+            {o.byGroup.length === 0 && <Text className={styles.panelEmpty}>Todavía no practicaste nada.</Text>}
             {o.byGroup.slice(0, 10).map((g) => (
-              <Group key={g.groupId} id={`group-row-${g.groupId}`} gap={9} wrap="nowrap">
-                <Text className={styles.groupName} c="dimmed">{g.name}</Text>
+              <Group key={g.groupId} id={`group-row-${g.groupId}`} wrap="nowrap" className={styles.panelRow}>
+                <Text className={styles.groupName}>{g.name}</Text>
                 <Progress
                   value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
                   className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
                 />
-                <Text size="0.6875rem" lh={1.4} c="dimmed" className="tabular" w={30} ta="right">
+                <Text className={`tabular ${styles.groupPct}`}>
                   {Math.round(g.accuracy * 100)}%
                 </Text>
               </Group>
@@ -248,30 +247,30 @@ export function StatsBoard({
         </Paper>
       </SimpleGrid>
 
-      <Paper id="history-panel" withBorder radius={9} style={panelStyle}>
-        <Stack id="history-list" gap={6}>
+      <Paper id="history-panel" withBorder className={styles.panel}>
+        <Stack id="history-list" className={styles.historyList}>
           {/* Los otros dos paneles tienen su aclaración al ras de la derecha y
               éste no tenía ninguna: el diseño le pone cuántas rondas está
               mostrando, que acá es lo que el servicio devuelve. */}
-          <Group gap="sm" wrap="nowrap">
-            <Text id="history-title" size="0.71875rem" lh={1.4} fw={600}>Historial de rondas</Text>
+          <Group wrap="nowrap" className={styles.panelHead}>
+            <Text id="history-title" className={styles.panelTitle}>Historial de rondas</Text>
             {o.history.length > 0 && (
-              <Text size="0.625rem" lh={1.4} c="dark.3" ml="auto">
+              <Text className={styles.panelNote}>
                 {o.history.length === 1 ? 'última ronda' : `últimas ${o.history.length}`}
               </Text>
             )}
           </Group>
-          {o.history.length === 0 && <Text size="sm" c="dimmed">Sin rondas terminadas.</Text>}
+          {o.history.length === 0 && <Text className={styles.panelEmpty}>Sin rondas terminadas.</Text>}
           {/* Sin `Divider` entre filas: en el diseño esta lista va sin
               líneas (`border: none`), separada solo por el padding de cada
               fila. Las líneas las tiene la lista de mazos, no esta. */}
           {o.history.map((h) => (
-            <Group key={h.id} id={`history-row-${h.id}`} gap="sm" wrap="nowrap" py={6}>
+            <Group key={h.id} id={`history-row-${h.id}`} wrap="nowrap" className={styles.historyRow}>
               <HistoryDate iso={h.startedAt} />
-              <Text size="0.71875rem" lh={1.4} c="dimmed" className="knd-fill">{h.label}</Text>
+              <Text className={`knd-fill ${styles.historyLabel}`}>{h.label}</Text>
               {/* Columna de duración del diseño, que faltaba entera. El dato
                   sale de `finishedAt - startedAt` en el servicio. */}
-              <Text className="romaji" size="0.71875rem" lh={1.4} c="dimmed">
+              <Text className={`romaji ${styles.historyLabel}`}>
                 {formatDuration(h.durationMs) ?? ''}
               </Text>
               {/* El porcentaje de cada ronda va en el semáforo, como en el

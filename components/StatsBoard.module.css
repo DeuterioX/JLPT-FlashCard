@@ -19,15 +19,23 @@
    mida distinto según su contenido le cambia el largo fila por fila. */
 .worstKana { width: 1.5rem; flex: none; font-size: var(--mantine-font-size-md); line-height: 1.2; }
 
-.worstRom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+.worstRom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; color: var(--mantine-color-dimmed); }
 
-.worstNum { width: 2.375rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
+.worstNum {
+  width: 2.375rem;
+  flex: none;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--mantine-color-dark-3);
+  text-align: right;
+}
 
 .groupName {
   width: 3.875rem;
   flex: none;
   font-size: 0.6875rem;
   line-height: 1.4;
+  color: var(--mantine-color-dimmed);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -71,3 +79,60 @@
 .historyPct[data-tone='good'] { color: var(--mantine-color-jade-6); }
 .historyPct[data-tone='warn'] { color: var(--knd-ambar-txt); }
 .historyPct[data-tone='bad'] { color: var(--knd-shu-txt); }
+
+/* Los tres paneles son `.card-box` del diseño: borde suave -no el `dark.4` que
+   trae `withBorder`-, radio 9 y 13 de aire. */
+.panel {
+  padding: 0.8125rem;
+  border-color: var(--knd-border-soft);
+  border-radius: 9px;
+}
+
+.statsReview { gap: 4px; align-items: flex-end; }
+.reviewError { font-size: var(--mantine-font-size-xs); }
+
+.panelList { gap: var(--mantine-spacing-xs); }
+.historyList { gap: 0.375rem; }
+
+/* El encabezado de un panel: el título a la izquierda y la aclaración al ras de
+   la derecha, un escalón más chica y apagada. */
+.panelHead { gap: var(--mantine-spacing-sm); }
+
+.panelTitle {
+  font-size: 0.71875rem;
+  line-height: 1.4;
+  font-weight: 600;
+}
+
+.panelNote {
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: var(--mantine-color-dark-3);
+  margin-left: auto;
+}
+
+.panelEmpty {
+  font-size: var(--mantine-font-size-sm);
+  color: var(--mantine-color-dimmed);
+}
+
+.panelRow { gap: 0.5625rem; }
+
+.groupPct {
+  width: 30px;
+  font-size: 0.6875rem;
+  line-height: 1.4;
+  color: var(--mantine-color-dimmed);
+  text-align: right;
+}
+
+.historyRow {
+  gap: var(--mantine-spacing-sm);
+  padding-block: 0.375rem;
+}
+
+.historyLabel {
+  font-size: 0.71875rem;
+  line-height: 1.4;
+  color: var(--mantine-color-dimmed);
+}

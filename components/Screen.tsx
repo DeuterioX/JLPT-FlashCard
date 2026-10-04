@@ -50,7 +50,6 @@ export function Screen({
       {top}
       <Stack
         className={styles.screenScroll}
-        gap="md"
         /* Marca si hay contenido scrolleado debajo de lo de arriba, para que
            una barra pueda mostrar su borde inferior sólo entonces. Se escribe
            directo en el DOM y no en un estado: no hay nada que volver a

@@ -1,4 +1,5 @@
-import { Group, Text, rem } from '@mantine/core';
+import { Group, Text } from '@mantine/core';
+import styles from './ModalTitle.module.css';
 
 /**
  * El título de un modal: su glifo y después el texto en castellano.
@@ -25,9 +26,9 @@ export function ModalTitle({ jp, children }: { jp: string; children: React.React
   return (
     // `baseline` y no `center`: el glifo tiene otra caja de línea que el
     // latino, y centrados por caja quedan a distinta altura visual.
-    <Group gap={rem(9)} wrap="nowrap" align="baseline">
-      <Text className="mincho knd-modal-glyph" size={rem(18)} lh={1}>{jp}</Text>
-      <Text size={rem(14)} fw={700}>{children}</Text>
+    <Group className={styles.title}>
+      <Text className={`mincho ${styles.glyph}`}>{jp}</Text>
+      <Text className={styles.text}>{children}</Text>
     </Group>
   );
 }

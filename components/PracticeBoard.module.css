@@ -75,3 +75,49 @@
   min-width: 0;
   overflow-x: auto;
 }
+
+/* La franja lleva el fondo de la página: es su propia banda, no una tarjeta. */
+.switcherBar {
+  gap: var(--mantine-spacing-sm);
+  background: var(--mantine-color-dark-7);
+}
+
+/* «Seleccionar:» y los dos botones son una sola unidad: si no entran al lado
+   del selector de mazos bajan los tres juntos, nunca separados entre sí. */
+.selectAll {
+  gap: var(--mantine-spacing-xs);
+  margin-left: auto;
+}
+
+/* Los `size` con nombre de Mantine fijan tamaño E interlineado; al mudar el
+   tamaño a la clase hay que traerse los dos. */
+.selectLabel {
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  color: var(--mantine-color-dimmed);
+}
+
+/* `.count` del diseño: la base atenuada y sólo los números en el color de texto
+   con peso 600, no el 700 que el navegador le pone a un `<b>` suelto. */
+.count { gap: 0.25rem; }
+
+/* `line-height: 1` explícito: el prop `size` de Mantine fijaba tamaño E
+   interlineado, y al mudar sólo el tamaño a la clase el interlineado se iba al
+   del tema -medido, de 13 a 20,15px-. */
+.countNum {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.countWord {
+  font-size: 0.8125rem;
+  line-height: 1;
+  color: var(--mantine-color-dimmed);
+}
+
+/* La pantalla sin mazos. */
+.empty {
+  padding: var(--mantine-spacing-xl);
+  gap: var(--mantine-spacing-xs);
+}

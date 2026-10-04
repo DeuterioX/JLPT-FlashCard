@@ -138,12 +138,6 @@ body { margin: 0; }
    dentro de un conteo, el nombre dentro de una advertencia. */
 .knd-strong { color: var(--mantine-color-text); }
 
-/* El glifo del título de un modal va en `shu.6` -el rojo del canvas- y no en
-   `--knd-shu-txt`, que es la variante aclarada para texto: el glifo no se lee,
-   se reconoce, y es la misma marca que el filete de los encabezados de sección.
-   Con el aclarado quedaba salmón y no coincidía con ningún otro shu. */
-.knd-modal-glyph { color: var(--mantine-color-shu-6); }
-
 /* La barra de pestañas. Quién la renderiza lo decide el SERVIDOR por el
    user-agent, así que acá no hay nada que esconder: si está en el documento es
    porque es un teléfono. Atada a un `@media (max-width: …)`, un teléfono

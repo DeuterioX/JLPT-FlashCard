@@ -35,8 +35,8 @@ export function ThemeToggle({ id }: { id?: string }) {
       variant="default"
       size="compact-xs"
       onClick={() => setColorScheme(target)}
-      aria-label={target === 'dark' ? 'Cambiar a tinta oscura' : 'Cambiar a tinta clara'}
-      title={target === 'dark' ? 'Tinta oscura' : 'Tinta clara'}
+      aria-label={target === 'dark' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
+      title={target === 'dark' ? 'Modo oscuro' : 'Modo claro'}
     >
       <Icon glyph={target === 'dark' ? MoonStarsFill : SunFill} />
     </Button>

@@ -50,3 +50,15 @@
 
   .navbarAction { margin-left: auto; flex: none; }
 }
+
+/* La fila de la barra: 8px entre la flecha, el zorro y el título. */
+.navbarRow { gap: 0.5rem; }
+
+.navbarTitleText {
+  font-size: var(--mantine-font-size-sm);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* 6px entre acciones, el mismo hueco apretado que usan las filas de lista. */
+.navbarAction { gap: 0.375rem; }

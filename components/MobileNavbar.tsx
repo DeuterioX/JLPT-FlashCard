@@ -29,7 +29,7 @@ export function MobileNavbar({
   action?: React.ReactNode;
 }) {
   return (
-    <Group className={styles.mobileNavbar} gap="0.5rem" wrap="nowrap">
+    <Group className={`${styles.mobileNavbar} ${styles.navbarRow}`} wrap="nowrap">
       {up && (
         <Anchor
           className={styles.navbarBack}
@@ -46,8 +46,8 @@ export function MobileNavbar({
           que dice dónde estás. El nombre de la app queda a un toque, en la
           raíz. */}
       <Brand withName={false} />
-      <Text className={styles.navbarTitle} fw={700} size="sm" lh={1.4}>{title}</Text>
-      {action && <Group className={styles.navbarAction} gap={6} wrap="nowrap">{action}</Group>}
+      <Text className={`${styles.navbarTitle} ${styles.navbarTitleText}`}>{title}</Text>
+      {action && <Group className={styles.navbarAction} wrap="nowrap">{action}</Group>}
     </Group>
   );
 }
