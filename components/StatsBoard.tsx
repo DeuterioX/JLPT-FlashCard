@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import {
   Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress,
 } from '@mantine/core';
-import { MetricTile } from './MetricTile';
+import { MetricTile, type Tone } from './MetricTile';
 import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
@@ -33,10 +33,10 @@ function tone(acc: number, ambar: string) {
  * (`--knd-ambar-txt`, `--knd-shu-txt`) y cambian con el esquema; el jade sirve
  * igual en los dos lados porque su tono ya está calibrado por esquema.
  */
-function toneTxt(acc: number) {
-  if (acc >= 0.85) return 'var(--mantine-color-jade-6)';
-  if (acc >= 0.6) return 'var(--knd-ambar-txt)';
-  return 'var(--knd-shu-txt)';
+function toneOf(acc: number): Tone {
+  if (acc >= 0.85) return 'good';
+  if (acc >= 0.6) return 'warn';
+  return 'bad';
 }
 
 /** `2:14` del diseño. */
@@ -157,12 +157,12 @@ export function StatsBoard({
               número que resume la pantalla, así que dice cómo vas con el color
               antes de que lo leas. */}
           <MetricTile id="stat-accuracy" label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
-            color={toneTxt(o.accuracy)}
+            tone={toneOf(o.accuracy)}
             hint={`${o.correct} de ${o.attempts}`} />
           {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
               sí les da, así que quedaban truncadas al lado de las otras dos.
               Las dos dependen del rango elegido, no de un "30 días" fijo. */}
-          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} color="var(--knd-shu-txt)"
+          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} tone="bad"
             hint={rangeDays === null ? 'en total' : `en ${rangeLabel}`} />
           <MetricTile id="stat-rounds" label="Rondas" value={o.rounds}
             hint={roundsPerDay ?? undefined} />
@@ -277,8 +277,7 @@ export function StatsBoard({
               {/* El porcentaje de cada ronda va en el semáforo, como en el
                   diseño: es lo único de la fila que dice si la ronda salió
                   bien, y sin color había que leer el número para saberlo. */}
-              <Text size="0.71875rem" lh={1.4} fw={500} className="tabular" w={44} ta="right"
-                c={toneTxt(h.accuracy)}>
+              <Text className={`tabular ${styles.historyPct}`} ta="right" data-tone={toneOf(h.accuracy)}>
                 {Math.round(h.accuracy * 100)}%
               </Text>
             </Group>

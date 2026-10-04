@@ -3,4 +3,35 @@
 .tile {
   padding: 0.6875rem 0.8125rem;
   border-color: var(--knd-border-soft);
+  border-radius: 8px;
 }
+
+.body { gap: 2px; }
+
+/* Los tres tamaños son literales del diseño y ninguno cae en la escala de
+   Mantine: 9px el rótulo, 21 el número y 10,5 la línea de abajo -el `xs` más
+   chico de Mantine es 12-. */
+.label {
+  font-size: 0.5625rem;
+  line-height: 1.4;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-3);
+}
+
+.value {
+  font-size: 1.3125rem;
+  line-height: 1.25;
+  font-weight: 600;
+}
+
+.hint {
+  font-size: 0.65625rem;
+  line-height: 1.4;
+  color: var(--mantine-color-dark-3);
+}
+
+/* El semáforo. El jade sirve en los dos esquemas porque ya está calibrado por
+   esquema; el ámbar y el shu van en su variante bajada para texto. */
+.value[data-tone='good'] { color: var(--mantine-color-jade-6); }
+.value[data-tone='warn'] { color: var(--knd-ambar-txt); }
+.value[data-tone='bad'] { color: var(--knd-shu-txt); }

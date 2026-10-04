@@ -74,3 +74,16 @@
 @media (min-width: 768px) {
   .groupName { width: 5.625rem; }
 }
+
+/* El porcentaje de cada ronda del historial: ancho fijo para que la columna
+   quede alineada, y el mismo semáforo que las tiles de arriba. */
+.historyPct {
+  width: 44px;
+  font-size: 0.71875rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.historyPct[data-tone='good'] { color: var(--mantine-color-jade-6); }
+.historyPct[data-tone='warn'] { color: var(--knd-ambar-txt); }
+.historyPct[data-tone='bad'] { color: var(--knd-shu-txt); }
