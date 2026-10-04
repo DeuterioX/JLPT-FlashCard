@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { db } from '@/lib/db/client';
 import { getDeck, type DeckSummary } from '@/lib/services/decks';
 import { AppError } from '@/lib/services/errors';
-import { DeckGroups } from '@/components/DeckGroups';
+import { DeckGroups } from '@/components/decks/DeckGroups';
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;

@@ -1,7 +1,7 @@
 import { db } from '@/lib/db/client';
 import { parseRange } from '@/lib/api/params';
 import { statsFor } from '@/lib/services/stats';
-import { StatsBoard } from '@/components/StatsBoard';
+import { StatsBoard } from '@/components/stats/StatsBoard';
 
 export default async function Page({
   searchParams,

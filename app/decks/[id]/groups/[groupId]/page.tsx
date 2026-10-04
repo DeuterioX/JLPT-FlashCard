@@ -4,7 +4,7 @@ import { getDeck, type DeckSummary } from '@/lib/services/decks';
 import { cardsForGroups } from '@/lib/services/sessions';
 import { isDictionaryLoaded } from '@/lib/services/dict';
 import { AppError } from '@/lib/services/errors';
-import { GroupCards, type EditorCard } from '@/components/GroupCards';
+import { GroupCards, type EditorCard } from '@/components/decks/GroupCards';
 
 export default async function Page({
   params,

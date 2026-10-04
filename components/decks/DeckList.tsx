@@ -6,15 +6,15 @@ import Link from 'next/link';
 import {
   Anchor, Button, Divider, Group, Modal, Paper, Stack, Text,
 } from '@mantine/core';
-import { Screen } from './Screen';
-import { ListRow } from './ListRow';
-import { SwipeRow } from './SwipeRow';
-import { ModalActions } from './ModalActions';
-import { PaperField } from './PaperField';
-import { ModalTitle } from './ModalTitle';
-import { ConfirmModal } from './ConfirmModal';
+import { Screen } from '../Screen';
+import { ListRow } from '../ListRow';
+import { SwipeRow } from '../SwipeRow';
+import { ModalActions } from '../ModalActions';
+import { PaperField } from '../PaperField';
+import { ModalTitle } from '../ModalTitle';
+import { ConfirmModal } from '../ConfirmModal';
 import { BuiltinDot } from './BuiltinDot';
-import { SectionLabel } from './SectionLabel';
+import { SectionLabel } from '../SectionLabel';
 import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import type { DeckSummary } from '@/lib/services/decks';

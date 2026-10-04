@@ -1,6 +1,6 @@
 import { Button } from '@mantine/core';
 import { PencilFill } from 'react-bootstrap-icons';
-import { Icon } from './Icon';
+import { Icon } from '../Icon';
 import styles from './RenameButton.module.css';
 
 /**

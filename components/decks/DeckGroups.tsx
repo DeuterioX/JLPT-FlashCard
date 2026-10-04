@@ -6,13 +6,13 @@ import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Anchor, rem,
 } from '@mantine/core';
-import { Screen } from './Screen';
+import { Screen } from '../Screen';
 import { RenameButton } from './RenameButton';
-import { SectionLabel } from './SectionLabel';
+import { SectionLabel } from '../SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
-import { SwipeRow } from './SwipeRow';
-import { NameModal } from './NameModal';
-import { ConfirmModal } from './ConfirmModal';
+import { SwipeRow } from '../SwipeRow';
+import { NameModal } from '../NameModal';
+import { ConfirmModal } from '../ConfirmModal';
 import { errorFrom } from '@/lib/client/errors';
 import type { DeckSummary } from '@/lib/services/decks';
 

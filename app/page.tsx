@@ -2,7 +2,7 @@ import { cookies } from 'next/headers';
 import { db } from '@/lib/db/client';
 import { listDecks } from '@/lib/services/decks';
 import { SELECTION_COOKIE, parseSelection } from '@/lib/selection-cookie';
-import { PracticeBoard } from '@/components/PracticeBoard';
+import { PracticeBoard } from '@/components/practice/PracticeBoard';
 
 export default async function Page() {
   // Server Component: llama al service directo, sin fetch a sí mismo.

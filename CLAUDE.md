@@ -52,3 +52,34 @@ con qué chocar, y el castellano es el idioma en el que se piensa este proyecto.
 
 Esto ya se corrigió en masa una vez, con un `git mv` de identificadores por todo
 el repo. Volver a introducir uno en castellano es volver a pagar eso.
+
+## Dónde va un componente
+
+```
+components/
+  <los compartidos>          el armazón y el kit genérico
+  practice/  decks/  stats/  quiz/
+```
+
+**En la carpeta de una pantalla** va lo que nombra un concepto de esa pantalla:
+un mazo, un grupo, una carta, una métrica, una ronda. Si el nombre del
+componente no significa nada fuera de esa pantalla, va ahí.
+
+**En la raíz** quedan dos cosas: el armazón de la app -`AppShell`, `Screen`,
+las navegaciones, la miga- y el kit genérico, que son las formas sin
+significado de dominio: una fila (`ListRow`), una fila que se desliza
+(`SwipeRow`), un modal (`ModalTitle`, `ModalActions`, `NameModal`,
+`ConfirmModal`), un campo (`PaperField`), un ícono, un rótulo de sección.
+
+La prueba para decidir: **¿una pantalla nueva lo usaría?** Si sí, va a la raíz
+aunque hoy lo use una sola. Si no, va a la carpeta de su pantalla aunque hoy lo
+usen tres.
+
+No es la regla de «lo usa un solo archivo»: con esa, `ModalTitle` terminaba en
+`decks/` porque hoy todos sus usuarios están ahí, y el próximo modal de otra
+pantalla tendría que mudarlo de vuelta.
+
+Esto es la variante conservadora. Next no opina -su documentación lista tres
+estrategias y no elige-, y la alternativa idiomática de App Router era colocar
+cada grupo al lado de su ruta (`app/decks/_components/`). Se eligió quedarse en
+`components/` para no mezclar componentes con el árbol de rutas.

@@ -6,19 +6,19 @@ import {
   Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box, Radio,
   rem,
 } from '@mantine/core';
-import { Screen } from './Screen';
+import { Screen } from '../Screen';
 import { RenameButton } from './RenameButton';
-import { SectionLabel } from './SectionLabel';
+import { SectionLabel } from '../SectionLabel';
 import { BuiltinDot } from './BuiltinDot';
 import { Search, X } from 'react-bootstrap-icons';
-import { Icon } from './Icon';
-import { DictSearchPanel } from './dict/DictSearchPanel';
-import { SwipeRow } from './SwipeRow';
-import { ModalTitle } from './ModalTitle';
-import { NameModal } from './NameModal';
-import { ConfirmModal } from './ConfirmModal';
-import { ModalActions } from './ModalActions';
-import { PaperField } from './PaperField';
+import { Icon } from '../Icon';
+import { DictSearchPanel } from './DictSearchPanel';
+import { SwipeRow } from '../SwipeRow';
+import { ModalTitle } from '../ModalTitle';
+import { NameModal } from '../NameModal';
+import { ConfirmModal } from '../ConfirmModal';
+import { ModalActions } from '../ModalActions';
+import { PaperField } from '../PaperField';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
 import { errorFrom } from '@/lib/client/errors';

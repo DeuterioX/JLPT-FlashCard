@@ -1,7 +1,7 @@
 'use client';
 
 import { Stack, Box } from '@mantine/core';
-import { SectionLabel } from './SectionLabel';
+import { SectionLabel } from '../SectionLabel';
 import type { GroupSummary } from '@/lib/services/decks';
 import { GroupCard } from './GroupCard';
 import styles from './GroupGrid.module.css';
