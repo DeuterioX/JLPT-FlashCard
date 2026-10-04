@@ -18,6 +18,9 @@
   padding: 0;
   background: transparent;
   font: inherit;
+  /* Literal y no `--mantine-font-size-md`: acá 16px no es el cuerpo de la
+     escala, es el piso por debajo del cual Safari hace zoom al enfocar un
+     input (ver `.mantine-TextInput-input` en globals.css). */
   font-size: 1rem;
   color: var(--knd-sumi);
 }
@@ -29,6 +32,6 @@
 .fieldEnd {
   flex: none;
   font-family: var(--knd-f-mono);
-  font-size: 0.75rem;
+  font-size: var(--mantine-font-size-xs);
   color: var(--knd-sumi-dim);
 }

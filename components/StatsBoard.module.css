@@ -43,7 +43,7 @@
    donde una media query no llega. Que sean FIJAS es lo que hace comparables las
    barras: la barra es el único `flex: 1` de la fila, así que una columna que
    mida distinto según su contenido le cambia el largo fila por fila. */
-.worstKana { width: 1.5rem; flex: none; font-size: 1rem; line-height: 1.2; }
+.worstKana { width: 1.5rem; flex: none; font-size: var(--mantine-font-size-md); line-height: 1.2; }
 
 .worstRom { width: 2rem; flex: none; font-size: 0.6875rem; line-height: 1.4; }
 

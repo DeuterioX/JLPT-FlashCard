@@ -42,8 +42,11 @@ html { font-size: 100%; }
   --mantine-color-error: var(--mantine-color-shu-6);
 }
 
-/* Vale para CUALQUIER input de la app, no sólo el del quiz. `font-size: 1rem`
-   y no los 14px del diseño: Safari/iOS hace zoom de toda la página al enfocar
+/* Vale para CUALQUIER input de la app, no sólo el del quiz. El tamaño va
+   literal y NO como `--mantine-font-size-md`, aunque hoy valgan lo mismo: acá
+   16px no es «el cuerpo de la escala», es el piso de Safari. Si la escala
+   cambiara, este número no tiene que acompañarla. Es 1rem y no los 14px del
+   diseño porque Safari/iOS hace zoom de toda la página al enfocar
    un input de menos de 16px y ese zoom se queda pegado incluso después de
    perder el foco, así que TODO se ve corrido y con scroll de más -confirmado en
    un iPhone real: "hace zoom y sigue scrolleando"-. */
@@ -204,7 +207,7 @@ body { margin: 0; }
   color: var(--mantine-color-dark-3);
 }
 .knd-quiz-metric-value {
-  font-size: 0.875rem;
+  font-size: var(--mantine-font-size-sm);
   font-weight: 600;
 }
 
@@ -566,7 +569,7 @@ input:-webkit-autofill:active {
 /* La nota debajo de un campo, la misma que el diseño pone abajo del Significado
    en Editar palabra. */
 .knd-field-note {
-  font-size: 0.75rem;
+  font-size: var(--mantine-font-size-xs);
   color: var(--mantine-color-dark-3);
   line-height: 1.5;
 }
@@ -576,7 +579,7 @@ input:-webkit-autofill:active {
    `<b>` de adentro necesita su propio color, y eso desde props de Mantine no se
    puede. */
 .knd-delete-note {
-  font-size: 0.875rem;
+  font-size: var(--mantine-font-size-sm);
   line-height: 1.55;
   color: var(--mantine-color-dark-2);
 }
