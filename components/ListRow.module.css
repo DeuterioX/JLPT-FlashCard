@@ -1,2 +1,23 @@
-/* El ícono de la fila: 17px, el del diseño. */
-.rowIcon { font-size: 1.0625rem; }
+/* El título va 13 y no el `sm` de 14 de Mantine, y el subtítulo 11 en el gris
+   más apagado y no 12 en el del medio: son las medidas de `.row` del diseño. */
+/* El ícono de la fila. El ancho va en px y no en rem a propósito: es la caja
+   que alinea los kana de toda la lista entre sí, y en rem cada tamaño de
+   pantalla le daría otro ancho. */
+.rowIcon {
+  width: 34px;
+  font-size: 1.0625rem;
+}
+
+.rowText { gap: 0; }
+
+.rowTitle {
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  font-weight: 500;
+}
+
+.rowSubtitle {
+  font-size: 0.6875rem;
+  line-height: 1.45;
+  color: var(--mantine-color-dark-3);
+}

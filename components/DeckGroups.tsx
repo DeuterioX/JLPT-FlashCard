@@ -122,9 +122,8 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                   : { label: 'Borrar', onAction: () => setConfirm(g) }}
               >
               <Group
-                gap={12}
                 wrap="nowrap"
-                className="knd-row-pad"
+                className="knd-row"
               >
                 {/* `knd-swipe-pin`: el nombre no se va de pantalla cuando el gesto
                     corre la fila para descubrir Borrar. Ver globals.css. */}
@@ -149,7 +148,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
                   </Text>
                 </Stack>
-                <Group className="knd-row-actions" gap={5} wrap="nowrap">
+                <Group className="knd-row-actions" wrap="nowrap">
                   {/* El último grupo no se borra: una carta siempre pertenece a
                       uno, así que el mazo necesita al menos uno. */}
                   {!readOnly && (

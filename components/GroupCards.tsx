@@ -541,7 +541,7 @@ export function GroupCards({
                 {/* Los anchos viven en globals.css y no acá porque tienen que
                     cambiar entre escritorio y teléfono, y un `style` inline no
                     puede llevar una media query. */}
-                <Group className={`${styles.cardRow} knd-row-pad`} gap={12}>
+                <Group className={`${styles.cardRow} knd-row`}>
                   {/* El kana NO va atenuado: es el dato principal de la fila, y
                       el mockup lo deja en el color de texto normal -son el
                       romaji y el significado los que van en `--a-dim`-. */}
