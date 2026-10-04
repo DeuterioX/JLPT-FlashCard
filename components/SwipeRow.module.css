@@ -16,96 +16,82 @@
 
 @media (max-width: 767.9px) {
   /* El panel vive AFUERA de la fila, pegado a su borde, y entra junto con ella
-       cuando se corre: la fila es más ancha que la pantalla y el `overflow:
-       hidden` recorta lo que sobra. Viviendo DEBAJO, con la fila tapándolo,
-       asomaba por la costura con zoom -el borde de la fila cae en una fracción
-       de pixel- y al arrastrar el nombre se pintaba encima de él. El recorte
-       también corta los toques: cerrado, un panel no se come ninguno. */
-    .swipeSide {
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      /* El botón (6rem) más el filete (3px): un solo contenedor con un solo
-         fondo. */
-      width: calc(6rem + 3px);
-      display: grid;
-      place-items: center;
-      /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
-         queda quieto, en vez de quedar tapado por él. */
-      z-index: 2;
-      /* Se mueve con la fila: mismo desplazamiento y misma animación, que
-         `SwipeRow` publica en estas dos variables. */
-      transform: translateX(var(--knd-swipe-x, 0px));
-      transition: var(--knd-swipe-anim, none);
-    }
-}
+     cuando se corre: la fila es más ancha que la pantalla y el `overflow:
+     hidden` recorta lo que sobra. Viviendo DEBAJO, con la fila tapándolo,
+     asomaba por la costura con zoom -el borde de la fila cae en una fracción
+     de pixel- y al arrastrar el nombre se pintaba encima de él. El recorte
+     también corta los toques: cerrado, un panel no se come ninguno. */
+  .swipeSide {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    /* El botón (6rem) más el filete (3px): un solo contenedor con un solo
+       fondo. */
+    width: calc(6rem + 3px);
+    display: grid;
+    place-items: center;
+    /* Por encima de la cara: al entrar pasa por arriba del nombre, que se
+       queda quieto, en vez de quedar tapado por él. */
+    z-index: 2;
+    /* Se mueve con la fila: mismo desplazamiento y misma animación, que
+       `SwipeRow` publica en estas dos variables. */
+    transform: translateX(var(--knd-swipe-x, 0px));
+    transition: var(--knd-swipe-anim, none);
+  }
 
-@media (max-width: 767.9px) {
   /* El panel descubierto lleva EL COLOR DE SU FILETE, lleno: jade a la
-       izquierda para la acción no destructiva -Mover, Renombrar, Practicar- y
-       shu a la derecha para Borrar, y sólo el de la acción que esa fila tenga
-       disponible: un filete que no está es una acción que no está. Con dos
-       grises de la escala y la palabra coloreada se rompía la promesa del
-       filete -el borde anuncia rojo y detrás aparecía gris-.
+     izquierda para la acción no destructiva -Mover, Renombrar, Practicar- y
+     shu a la derecha para Borrar, y sólo el de la acción que esa fila tenga
+     disponible: un filete que no está es una acción que no está. Con dos
+     grises de la escala y la palabra coloreada se rompía la promesa del
+     filete -el borde anuncia rojo y detrás aparecía gris-.
 
-       El filete va de punta a punta y no retirado: con 8px arriba y abajo queda
-       apoyado ENCIMA del borde de 1px de la lista, que asoma en el hueco entre
-       un filete y el siguiente, y el marco entero parece un punteado rojo. Que
-       en una lista donde todas las filas tienen la misma acción quede una línea
-       corrida no es un problema: es verdad. */
-    .swipeLead {
-      right: calc(100% - 3px);
-      padding-right: 3px;
-      background: var(--mantine-color-jade-6);
-    }
-}
+     El filete va de punta a punta y no retirado: con 8px arriba y abajo queda
+     apoyado ENCIMA del borde de 1px de la lista, que asoma en el hueco entre
+     un filete y el siguiente, y el marco entero parece un punteado rojo. Que
+     en una lista donde todas las filas tienen la misma acción quede una línea
+     corrida no es un problema: es verdad. */
+  .swipeLead {
+    right: calc(100% - 3px);
+    padding-right: 3px;
+    background: var(--mantine-color-jade-6);
+  }
 
-@media (max-width: 767.9px) {
   /* Y va del lado opuesto al borde con el que compite el gesto "atrás" de
-       Safari. */
-    .swipeTrail {
-      left: calc(100% - 3px);
-      padding-left: 3px;
-      background: var(--mantine-color-shu-6);
-    }
-}
+     Safari. */
+  .swipeTrail {
+    left: calc(100% - 3px);
+    padding-left: 3px;
+    background: var(--mantine-color-shu-6);
+  }
 
-@media (max-width: 767.9px) {
   .swipeSide button {
-      width: 100%;
-      height: 100%;
-      border: none;
-      background: none;
-      cursor: pointer;
-      font: 600 0.75rem var(--mantine-font-family);
-      color: var(--knd-verde-ink);
-    }
-}
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font: 600 0.75rem var(--mantine-font-family);
+    color: var(--knd-verde-ink);
+  }
 
-@media (max-width: 767.9px) {
   .swipeTrail button { color: #f7f3ea; }
-}
 
-@media (max-width: 767.9px) {
   /* La cara termina donde empieza el filete, no pasa por debajo de él: si
-       pasara, su borde quedaría 3px adentro del panel y con zoom se cuela a
-       través de él aunque sea opaco y esté encima, como una raya oscura dentro
-       del rojo -confirmado escondiendo la cara: sin ella el panel es liso-.
-       Sólo del lado que tiene panel, que va antes que la cara en el DOM. */
-    .swipeLead ~ .swipeFront { margin-left: 3px; }
-}
+     pasara, su borde quedaría 3px adentro del panel y con zoom se cuela a
+     través de él aunque sea opaco y esté encima, como una raya oscura dentro
+     del rojo -confirmado escondiendo la cara: sin ella el panel es liso-.
+     Sólo del lado que tiene panel, que va antes que la cara en el DOM. */
+  .swipeLead ~ .swipeFront { margin-left: 3px; }
 
-@media (max-width: 767.9px) {
   .swipeTrail ~ .swipeFront { margin-right: 3px; }
-}
 
-@media (max-width: 767.9px) {
   .swipeFront {
-      /* `pan-y` le deja el scroll vertical al navegador y nos deja el
-         horizontal: sin esto el swipe pelea con el scroll de la lista. */
-      touch-action: pan-y;
-      /* Sin esto el arrastre selecciona el texto de la fila. */
-      user-select: none;
-      -webkit-user-select: none;
-    }
+    /* `pan-y` le deja el scroll vertical al navegador y nos deja el
+       horizontal: sin esto el swipe pelea con el scroll de la lista. */
+    touch-action: pan-y;
+    /* Sin esto el arrastre selecciona el texto de la fila. */
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }

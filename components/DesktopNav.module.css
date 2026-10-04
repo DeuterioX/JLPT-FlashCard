@@ -24,8 +24,6 @@ a.navLinkOn {
 
 @media (hover: hover) {
   a.navLink { transition: color 120ms ease; }
-}
 
-@media (hover: hover) {
   a.navLink:not(.navLinkOn):hover { color: var(--mantine-color-text); }
 }

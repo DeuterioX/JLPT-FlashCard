@@ -10,32 +10,6 @@
 
 .reviewBtn { width: 100%; }
 
-@media (min-width: 768px) {
-  .statsTop {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      grid-template-areas: "range review" "tiles tiles";
-      align-items: start;
-      column-gap: var(--mantine-spacing-md);
-    }
-}
-
-@media (min-width: 768px) {
-  .statsRange { grid-area: range; }
-}
-
-@media (min-width: 768px) {
-  .statsTiles { grid-area: tiles; }
-}
-
-@media (min-width: 768px) {
-  .statsReview { grid-area: review; }
-}
-
-@media (min-width: 768px) {
-  .reviewBtn { width: auto; }
-}
-
 /* ------------------------------------------------------- filas de Estadísticas */
 /* Las columnas de «Las que más errás» y «Aciertos por grupo» van en CSS y no en
    `w={}` porque cambian de ancho entre teléfono y escritorio -en 390px un kana
@@ -60,18 +34,28 @@
 }
 
 @media (min-width: 768px) {
+  .statsTop {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "range review" "tiles tiles";
+    align-items: start;
+    column-gap: var(--mantine-spacing-md);
+  }
+
+  .statsRange { grid-area: range; }
+
+  .statsTiles { grid-area: tiles; }
+
+  .statsReview { grid-area: review; }
+
+  .reviewBtn { width: auto; }
+
   .worstKana { width: 2.875rem; }
-}
 
-@media (min-width: 768px) {
   .worstRom { width: 3.625rem; }
-}
 
-@media (min-width: 768px) {
   .worstNum { width: 2.75rem; }
-}
 
-@media (min-width: 768px) {
   .groupName { width: 5.625rem; }
 }
 

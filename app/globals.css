@@ -24,10 +24,6 @@ html { font-size: 100%; }
   html { font-size: 200%; }
 }
 
-:root {
-
-}
-
 /* Mantine resuelve el estado de error de CUALQUIER input contra
    `--mantine-color-error`, y su rojo de fábrica no es el `shu` del diseño
    -medido en vivo: el borde de error del quiz quedaba en rgb(224,49,49) y no en
@@ -160,11 +156,7 @@ body { margin: 0; }
   padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--mantine-color-dark-6);
   border-top: 1px solid var(--mantine-color-default-border);
-}
-.knd-nav-mobile { flex: none; }
-#deck-switcher-bar { border-bottom: 1px solid transparent; }
-
-@media (max-width: 767.9px) {
+  flex: none;
 }
 
 /* Métricas del quiz: caja con borde propio y celdas separadas por líneas
@@ -321,8 +313,6 @@ body { margin: 0; }
 
 }
 
-@container (max-height: 100px) {
-}
 @media (min-width: 768px) {
   /* Posiciones de columna EXPLÍCITAS y no el orden de aparición en el DOM: por
      debajo de 800px `#quiz-metrics` es `display: none`, y un ítem así queda
@@ -346,41 +336,6 @@ body { margin: 0; }
     max-width: 100%;
     overflow-x: auto;
   }
-}
-
-@media (min-width: 800px) {
-}
-
-@media (min-width: 1100px) {
-}
-
-@media (min-width: 1400px) {
-}
-
-@media (min-width: 1700px) {
-}
-
-@media (min-width: 2000px) {
-}
-
-@media (min-width: 2300px) {
-}
-
-@media (min-width: 2600px) {
-}
-
-@media (min-width: 2900px) {
-}
-
-@media (min-width: 3200px) {
-}
-
-@media (max-width: 767.9px) {
-}
-
-@media (min-width: 768px) {
-}
-@media (max-width: 767.9px) {
 }
 
 /* Un botón deshabilitado: superficie de control apagada y palabra atenuada, las
@@ -408,22 +363,6 @@ body { margin: 0; }
 @media (max-width: 767.9px) {
   .mantine-Button-root { min-height: 1.875rem; }
 }
-@media (hover: hover) {
-}
-
-@media (prefers-reduced-motion: reduce) {
-}
-
-@media (max-width: 767.9px) {
-}
-@media (hover: hover) {
-}
-
-@media (max-width: 767.9px) {
-}
-
-@media (max-width: 767.9px) {
-}
 
 /* La segunda mitad del arreglo del autocompletado, porque `autocomplete=off`
    no alcanza: Chrome lo ignora en varios casos y pinta el campo que rellena
@@ -440,15 +379,6 @@ input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0 100rem var(--mantine-color-body) inset;
   -webkit-text-fill-color: var(--mantine-color-text);
   caret-color: var(--mantine-color-text);
-}
-@media (max-width: 767.9px) {
-}
-@media (max-width: 767.9px) {
-}
-
-:root[data-phone] {
-}
-@media (max-width: 767.9px) {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────
@@ -508,11 +438,6 @@ input:-webkit-autofill:active {
   box-shadow: var(--knd-sombra-hoja);
 }
 
-@media (min-width: 800px) {
-}
-@media (min-width: 768px) {
-}
-
 /* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
    primero y el significado un pelo después. Acá hace falta más que en el fundido
    del quiz porque no hay nada que se vaya -el hueco está reservado y vacío-, así
@@ -524,17 +449,10 @@ input:-webkit-autofill:active {
   to { opacity: 1; transform: none; }
 }
 
-@media (prefers-reduced-motion: reduce) {
-}
-
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
    `Espacio` o un `1` prometen algo que no se puede apretar. */
 @media (max-width: 767.9px) {
   .knd-desktop-only { display: none; }
-}
-@media (max-width: 767.9px) {
-}
-@media (min-width: 768px) {
 }
 
 /* ------------------------------------------------------------------ campos */
@@ -586,11 +504,6 @@ input:-webkit-autofill:active {
 .knd-delete-note b {
   font-weight: 600;
   color: var(--mantine-color-dark-0);
-}
-
-@media (max-width: 767.9px) {
-}
-@media (min-width: 768px) {
 }
 
 /* El «Borrar» de una fila de lista es un texto shu y no un botón lleno, con su

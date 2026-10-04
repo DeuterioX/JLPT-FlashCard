@@ -20,6 +20,10 @@
 
 /* La barra de mazos de Práctica ya trae su aire hacia la grilla en su propio
    `padding-bottom`: sumarle el de la franja lo duplicaría. */
+/* Arranca sin borde y lo muestra al scrollear: con la página quieta sería un
+   subrayado suelto. */
+:global(#deck-switcher-bar) { border-bottom: 1px solid transparent; }
+
 :global(#deck-switcher-bar) + .screenScroll { padding-top: 0; }
 
 .screen[data-scrolled] > :global(#deck-switcher-bar) { border-bottom-color: var(--mantine-color-default-border); }

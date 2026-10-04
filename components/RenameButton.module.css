@@ -6,14 +6,10 @@
 
 @media (max-width: 767.9px) {
   .renameLabel { display: none; }
-}
 
-@media (max-width: 767.9px) {
   /* `inline-flex` y no `inline`: adentro hay un SVG en bloque, y en línea la
-       caja de texto le sumaría el descendente de la fuente. */
-    .renameIcon { display: inline-flex; }
-}
+     caja de texto le sumaría el descendente de la fuente. */
+  .renameIcon { display: inline-flex; }
 
-@media (max-width: 767.9px) {
   .renameBtn { padding-inline: 0.5rem; }
 }

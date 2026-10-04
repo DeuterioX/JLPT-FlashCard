@@ -63,18 +63,17 @@
    caption ya está oculto-. Ahí sí se superpone con el kana, pero la alternativa
    es que el `overflow: hidden` del stage lo recorte: que el mensaje de error
    quede invisible es lo único que no se negocia. */
-@container (max-height: 100px) {
-  .quizKanaWrap {
-      position: static;
-    }
-}
 
 @container (max-height: 100px) {
+  .quizKanaWrap {
+    position: static;
+  }
+
   .quizUnder {
-      top: auto;
-      bottom: 0.25rem;
-      margin-top: 0;
-    }
+    top: auto;
+    bottom: 0.25rem;
+    margin-top: 0;
+  }
 }
 
 /* Pie del quiz: una grilla de 3 columnas -métricas a la izquierda, input de
@@ -105,28 +104,24 @@
 
 @media (min-width: 768px) {
   .quizFooter {
-      display: grid;
-      /* `minmax(0, 1fr)` y no `1fr` a secas: por default un ítem de grid no
-         encoge más allá del tamaño natural de su contenido, y así la caja de
-         métricas -que necesita ~225px- no entraba en el tercio que le tocaba y
-         se superponía con el input de 300px fijo, pasó de verdad: "Errores"
-         quedaba tapado a 700px. */
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    }
-}
+    display: grid;
+    /* `minmax(0, 1fr)` y no `1fr` a secas: por default un ítem de grid no
+       encoge más allá del tamaño natural de su contenido, y así la caja de
+       métricas -que necesita ~225px- no entraba en el tercio que le tocaba y
+       se superponía con el input de 300px fijo, pasó de verdad: "Errores"
+       quedaba tapado a 700px. */
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
 
-@media (min-width: 768px) {
   .quizAnswerForm {
-      grid-column: 2;
-      flex: none;
-      /* 300px del diseño, en rem para que escale con el resto de la app en
-         2K/4K. */
-      width: 18.75rem;
-      justify-self: center;
-    }
-}
+    grid-column: 2;
+    flex: none;
+    /* 300px del diseño, en rem para que escale con el resto de la app en
+       2K/4K. */
+    width: 18.75rem;
+    justify-self: center;
+  }
 
-@media (min-width: 768px) {
   .quizReveal { grid-column: 3; justify-self: end; }
 }
 
@@ -215,27 +210,18 @@
 
 /* Con movimiento reducido el giro se cambia por un fundido entre las dos caras:
    se saca el movimiento, no la función de revelar. */
+
 @media (prefers-reduced-motion: reduce) {
   .quizTurn { transition: none; }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .quizTurn.is-revealed { transform: none; }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .quizFace { transition: opacity 160ms ease; }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .quizFaceBack { transform: translate(-50%, -50%); opacity: 0; }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .quizTurn.is-revealed .quizFace:not(.quizFaceBack) { opacity: 0; }
-}
 
-@media (prefers-reduced-motion: reduce) {
   .quizTurn.is-revealed .quizFaceBack { opacity: 1; }
 }
 

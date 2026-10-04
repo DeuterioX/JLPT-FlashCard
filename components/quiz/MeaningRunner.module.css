@@ -12,14 +12,6 @@
 
 .meaningAnswer { font-size: 1.3125rem; line-height: 1.25; }
 
-@media (min-width: 768px) {
-  .meaningReading { font-size: 0.9375rem; }
-}
-
-@media (min-width: 768px) {
-  .meaningAnswer { font-size: 1.875rem; }
-}
-
 /* La animación cuelga de que el hueco pase a estar VISIBLE y no del montaje: la
    respuesta está montada todo el tiempo, así que atada al montaje se
    dispararía una sola vez por carta. */
@@ -49,61 +41,51 @@
 
 .meaningActions { flex: 1; justify-content: center; }
 
-@media (max-width: 767.9px) {
-  .meaningFooter {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 0.75rem 0.5rem;
-      align-items: center;
-    }
-}
-
-@media (max-width: 767.9px) {
-  .meaningFooter > .knd-quiz-metrics {
-      grid-column: 1 / -1;
-      justify-self: center;
-    }
-}
-
-@media (max-width: 767.9px) {
-  /* `display: contents` hace que los botones de los dos grupos pasen a ser
-       hijos directos de la grilla y caigan en las tres columnas de 1fr,
-       midiendo EXACTAMENTE lo mismo. Con `flex: 2` y `flex: 1` no da igual: el
-       grupo de dos tiene un `gap` adentro que se descuenta de sus dos botones y
-       no del tercero. */
-  .meaningActions,
-    .meaningReveal { display: contents; }
-}
-
 @media (min-width: 768px) {
-  .meaningFooter {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    }
-}
+  .meaningReading { font-size: 0.9375rem; }
 
-@media (min-width: 768px) {
+  .meaningAnswer { font-size: 1.875rem; }
+
+  .meaningFooter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  }
+
   .meaningFooter > .knd-quiz-metrics { justify-self: start; }
-}
 
-@media (min-width: 768px) {
   .meaningActions { justify-self: center; }
-}
 
-@media (min-width: 768px) {
   .meaningReveal { justify-self: end; }
 }
 
 @media (max-width: 767.9px) {
-  /* En teléfono revelar es tocar la carta, así que el botón se va. En el quiz
-       eso le devuelve el ancho del pie al input, que es lo único que ahí hace
-       falta; en Significados deja a los dos de calificar repartiéndose la
-       fila. */
-    .knd-quiz-reveal,
-    .meaningReveal { display: none; }
-}
+  .meaningFooter {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem 0.5rem;
+    align-items: center;
+  }
 
-@media (max-width: 767.9px) {
+  .meaningFooter > .knd-quiz-metrics {
+    grid-column: 1 / -1;
+    justify-self: center;
+  }
+
+  /* `display: contents` hace que los botones de los dos grupos pasen a ser
+     hijos directos de la grilla y caigan en las tres columnas de 1fr,
+     midiendo EXACTAMENTE lo mismo. Con `flex: 2` y `flex: 1` no da igual: el
+     grupo de dos tiene un `gap` adentro que se descuenta de sus dos botones y
+     no del tercero. */
+  .meaningActions,
+  .meaningReveal { display: contents; }
+
+  /* En teléfono revelar es tocar la carta, así que el botón se va. En el quiz
+     eso le devuelve el ancho del pie al input, que es lo único que ahí hace
+     falta; en Significados deja a los dos de calificar repartiéndose la
+     fila. */
+  .knd-quiz-reveal,
+  .meaningReveal { display: none; }
+
   .meaningFooter { grid-template-columns: repeat(2, 1fr); }
 }
 

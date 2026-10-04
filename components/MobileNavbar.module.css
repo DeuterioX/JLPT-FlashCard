@@ -14,47 +14,39 @@
 
 :root[data-phone] {
   .mobileNavbar {
-      display: flex;
-      align-items: center;
-      /* OCUPA el lugar de la barra de la app, no se suma a ella: misma altura
-         y mismo fondo, y la de la app se apaga, así los 46px que gastaba la
-         miga vuelven al contenido. */
-      height: 3rem;
-      padding-inline: var(--mantine-spacing-md);
-      background: var(--mantine-color-dark-6);
-      border-bottom: 1px solid var(--mantine-color-dark-4);
-    }
-}
+    display: flex;
+    align-items: center;
+    /* OCUPA el lugar de la barra de la app, no se suma a ella: misma altura
+       y mismo fondo, y la de la app se apaga, así los 46px que gastaba la
+       miga vuelven al contenido. */
+    height: 3rem;
+    padding-inline: var(--mantine-spacing-md);
+    background: var(--mantine-color-dark-6);
+    border-bottom: 1px solid var(--mantine-color-dark-4);
+  }
 
-:root[data-phone] {
   /* La barra de la app se apaga sólo en las pantallas que traen la suya:
-       Práctica y Estadísticas conservan la marca y el nombre. */
-    body:has(.mobileNavbar) :global(#app-header) { display: none; }
-}
+     Práctica y Estadísticas conservan la marca y el nombre. */
+  body:has(.mobileNavbar) :global(#app-header) { display: none; }
 
-:root[data-phone] {
   .navbarBack {
-      display: grid;
-      place-items: center;
-      width: 1.875rem;
-      height: 1.875rem;
-      flex: none;
-      border: 1px solid var(--mantine-color-dark-4);
-      border-radius: var(--mantine-radius-sm);
-      background: var(--mantine-color-dark-5);
-      color: var(--mantine-color-text);
-    }
-}
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    flex: none;
+    border: 1px solid var(--mantine-color-dark-4);
+    border-radius: var(--mantine-radius-sm);
+    background: var(--mantine-color-dark-5);
+    color: var(--mantine-color-text);
+  }
 
-:root[data-phone] {
   .navbarTitle {
-      min-width: 0;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-}
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 
-:root[data-phone] {
   .navbarAction { margin-left: auto; flex: none; }
 }

@@ -1,8 +1,3 @@
-@media (max-width: 767.9px) {
-  /* No se pisa `--modal-size` -Mantine lo escribe inline y el inline gana-,
-       sino el margen que ese valor usa adentro. */
-    .dictModal { --knd-dict-gutter: 0rem; }
-}
 
 /* El buscador en tres bandas: campo arriba, resultados con su propio scroll,
    pie abajo. Si scrollea el cuerpo entero, al bajar por los resultados se van
@@ -54,83 +49,69 @@
 .dictPos { white-space: nowrap; }
 
 @media (max-width: 767.9px) {
+  /* No se pisa `--modal-size` -Mantine lo escribe inline y el inline gana-,
+     sino el margen que ese valor usa adentro. */
+  .dictModal { --knd-dict-gutter: 0rem; }
+
   .dictModal :global(.mantine-Modal-inner) { padding: 0; }
-}
 
-@media (max-width: 767.9px) {
   .dictModal :global(.mantine-Modal-content) {
-      max-width: 100vw;
-      height: 100dvh;
-      max-height: 100dvh;
-      border-radius: 0;
-      /* Columna flexible: sin esto el `flex: 1` del cuerpo no tiene contra qué
-         estirarse y mide lo que mide su contenido, así que el que scrollea
-         vuelve a ser el modal entero y el pie se va con él. */
-      display: flex;
-      flex-direction: column;
-    }
-}
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+    /* Columna flexible: sin esto el `flex: 1` del cuerpo no tiene contra qué
+       estirarse y mide lo que mide su contenido, así que el que scrollea
+       vuelve a ser el modal entero y el pie se va con él. */
+    display: flex;
+    flex-direction: column;
+  }
 
-@media (max-width: 767.9px) {
   .dictModal :global(.mantine-Modal-body) {
-      max-height: none;
-      flex: 1;
-      min-height: 0;
-    }
-}
+    max-height: none;
+    flex: 1;
+    min-height: 0;
+  }
 
-@media (max-width: 767.9px) {
   /* El botón sale del flujo y se ancla arriba a la derecha, con su lugar
-       reservado por el padding de la fila. En el flujo, una palabra larga
-       -«ぎょせんのりくみいん 漁船乗組員 gyosennorikumiin»- llena el primer renglón y
-       lo empuja al segundo, donde aparece a la IZQUIERDA del significado: la
-       columna de botones deja de existir. */
-    .dictRow {
-      position: relative;
-      flex-wrap: wrap;
-      align-items: center;
-      padding-right: 5.5rem;
-    }
-}
+     reservado por el padding de la fila. En el flujo, una palabra larga
+     -«ぎょせんのりくみいん 漁船乗組員 gyosennorikumiin»- llena el primer renglón y
+     lo empuja al segundo, donde aparece a la IZQUIERDA del significado: la
+     columna de botones deja de existir. */
+  .dictRow {
+    position: relative;
+    flex-wrap: wrap;
+    align-items: center;
+    padding-right: 5.5rem;
+  }
 
-@media (max-width: 767.9px) {
   /* El reparto en dos renglones es por `order` y la base de la glosa, y no por
-       una grilla: así el orden del DOM -y con él el del tabulador y el del
-       lector de pantalla- sigue siendo el natural de la fila. */
+     una grilla: así el orden del DOM -y con él el del tabulador y el del
+     lector de pantalla- sigue siendo el natural de la fila. */
   .dictKana { flex: 0 1 auto; order: 1; }
-}
 
-@media (max-width: 767.9px) {
   .dictKanji { flex: 0 1 auto; order: 2; }
-}
 
-@media (max-width: 767.9px) {
   .dictRomaji { flex: 0 1 auto; order: 3; }
-}
 
-@media (max-width: 767.9px) {
   .dictAdd {
-      position: absolute;
-      top: 0;
-      right: 0;
-      order: 4;
-    }
-}
+    position: absolute;
+    top: 0;
+    right: 0;
+    order: 4;
+  }
 
-@media (max-width: 767.9px) {
   /* La base grande es lo que fuerza el salto de renglón -flex no tiene un
-       "cortar acá"-, pero deja lugar para que la categoría comparta la línea en
-       vez de llevarse una tercera para ella sola. */
-    .dictGloss { flex: 1 1 60%; order: 5; }
-}
+     "cortar acá"-, pero deja lugar para que la categoría comparta la línea en
+     vez de llevarse una tercera para ella sola. */
+  .dictGloss { flex: 1 1 60%; order: 5; }
 
-@media (max-width: 767.9px) {
   /* El margen negativo cancela, sólo para el segundo renglón, la reserva que la
-       fila hace para el botón: sin esto la categoría termina 88px antes del
-       borde y queda flotando en el medio en vez de alineada debajo de él. */
-    .dictPos {
-      order: 6;
-      margin-left: auto;
-      margin-right: -5.5rem;
-    }
+     fila hace para el botón: sin esto la categoría termina 88px antes del
+     borde y queda flotando en el medio en vez de alineada debajo de él. */
+  .dictPos {
+    order: 6;
+    margin-left: auto;
+    margin-right: -5.5rem;
+  }
 }
