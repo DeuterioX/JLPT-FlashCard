@@ -56,12 +56,14 @@ export default function Page() {
     if (round === null) router.replace('/');
   }, [round, router]);
 
-  if (!round) return <Center h="100vh"><Loader /></Center>;
+  if (!round)
+    return <Center h="100vh"><Loader /></Center>;
   // `key`: si alguna vez cambiara la ronda guardada con la página montada, se
   // remonta y vuelve a decidir cómo arrancar (ver ahí).
   // Las dos rondas comparten la ruta porque comparten todo lo de antes -la
   // sesión abierta, la ronda en `sessionStorage`, el volver a la home con
   // Esc-; lo único distinto es qué se hace con cada carta.
-  if (round.mode === 'meaning') return <MeaningRunner key={round.sessionId} round={round} />;
+  if (round.mode === 'meaning')
+    return <MeaningRunner key={round.sessionId} round={round} />;
   return <QuizRunner key={round.sessionId} round={round} />;
 }
