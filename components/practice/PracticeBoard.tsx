@@ -163,7 +163,7 @@ export function PracticeBoard({
         )}
         {/* Los dos verbos con los que arranca una ronda. El modo no es un
             selector aparte: es la acción, y el que apretás decide de qué
-            ronda se trata. «Repasar significado» se apaga cuando ninguna de
+            ronda se trata. «Repasar significados» se apaga cuando ninguna de
             las cartas elegidas tiene uno -un mazo de kana entero-, con el
             motivo en el `title`.
 
@@ -180,7 +180,7 @@ export function PracticeBoard({
             disabled={chosen.length === 0 || meaningCount === 0 || roundAction.busy || pending}
             title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
           >
-            Repasar significado
+            Repasar significados
           </Button>
           <Button
             id="begin-round-btn"

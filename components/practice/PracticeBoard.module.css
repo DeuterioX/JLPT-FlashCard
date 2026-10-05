@@ -57,6 +57,24 @@
     }
 }
 
+/* Por debajo de 375px los dos rótulos no entran lado a lado -medido: a 360px
+   «Repasar significados» desborda su mitad del control-, así que las dos
+   mitades pasan a una sola columna. Sigue siendo UN control soldado y no dos
+   botones sueltos: lo único que cambia es que la costura, que es el borde
+   izquierdo de la segunda mitad, pasa a ser el de arriba.
+
+   Va DESPUÉS del bloque de arriba y escrito como grilla, no como `flex`: ahí
+   `.verbs` deja de ser flex y pasa a ser `grid`, así que un `flex-direction`
+   acá no haría nada y, por orden de fuente, aquel bloque le ganaría igual. */
+@media (max-width: 374.9px) {
+  .verbs { grid-template-columns: minmax(0, 1fr); }
+
+  .verbs :global(.mantine-Button-root) + :global(.mantine-Button-root) {
+    border-left: 0;
+    border-top: 1px solid var(--mantine-color-dark-4);
+  }
+}
+
 /* `.stage { padding: 18px 16px }` del diseño: 18px de aire contra el header, y
    abajo el `gap` de 16 que el escenario le pone a todo lo que apila -ese es el
    aire hacia la grilla, y por eso la franja que scrollea no repite el suyo-. */
