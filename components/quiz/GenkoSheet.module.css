@@ -1,9 +1,11 @@
+/* Sin fondo propio: el papel lo pinta el contenedor, debajo de las líneas. Una
+   celda opaca taparía el degradé que las dibuja, y además era la que hacía que
+   cada línea fuera el borde de dos rectángulos redondeados por separado. */
 .genkoCell {
   position: relative;
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  background: var(--knd-papel);
 }
 
 .genkoCross {

@@ -390,6 +390,9 @@ input:-webkit-autofill:active {
   /* El ancho útil: el del stage menos aire a los costados, con un techo para
      que en una pantalla ancha la tira no se estire de punta a punta. */
   --knd-genko-disp: min(100cqw - 3rem, 62rem);
+  /* El sumi rebajado de la cuadrícula. Translúcido a propósito: es tinta sobre
+     el papel, no un gris de la rampa oscura, que sobre crema se ve verdoso. */
+  --knd-genko-linea: rgb(25 23 19 / 16%);
   /* El lado de la celda es el ancho útil repartido entre los caracteres, con
      piso -para que una frase larga no quede ilegible- y techo. Por debajo del
      piso las celdas ya no entran en una fila y la grilla envuelve, que es lo que
@@ -415,14 +418,11 @@ input:-webkit-autofill:active {
      cada línea para su lado: unas quedan de un píxel y otras de dos. Es el
      mismo motivo por el que la maqueta fuerza un lado entero. */
   --knd-genko-lado: var(--knd-genko-lado-crudo);
-  /* Lo que queda para las CELDAS: el ancho útil menos las líneas, que son
-     `n - 1` separaciones de un píxel más los dos de relleno del contenedor. Sin
-     descontarlas el total se pasaba del tope y la grilla envolvía cuando no
-     hacía falta -medido: en escritorio una palabra de cinco kana daba
-     5 × 198,4 = 992 justo, y los 6px de líneas la partían en dos filas-. */
-  --knd-genko-ancho-celdas: calc(
-    var(--knd-genko-disp) - var(--knd-genko-n) * 1px - 1px
-  );
+  /* Lo que queda para las CELDAS: el ancho útil menos el píxel de reborde donde
+     se dibujan la última vertical y la última horizontal. Sin descontarlo el
+     total se pasa del tope y la grilla envuelve cuando no hace falta -medido:
+     en escritorio una palabra de cinco kana daba 5 × 198,4 = 992 justo-. */
+  --knd-genko-ancho-celdas: calc(var(--knd-genko-disp) - 1px);
 
   display: grid;
   grid-template-columns: repeat(auto-fit, var(--knd-genko-lado));
@@ -431,9 +431,37 @@ input:-webkit-autofill:active {
      envuelve: las celdas entrarían siempre en una fila por más chicas que
      quedaran. */
   max-width: var(--knd-genko-disp);
-  gap: 1px;
-  padding: 1px;
-  background: rgb(25 23 19 / 16%);
+
+  /* LAS LÍNEAS SON UN DEGRADÉ, no el hueco entre celdas.
+     
+     Antes la cuadrícula se dibujaba al revés: las celdas eran rectángulos
+     opacos y entre ellas quedaba un `gap: 1px` por el que asomaba el fondo del
+     contenedor. El problema es que ahí cada línea es el borde de DOS
+     rectángulos distintos, y el navegador redondea el borde de cada uno por su
+     cuenta: con la grilla arrancando en medio píxel -medido: `x = 31,5` a
+     390px, porque `justify-content: center` reparte un sobrante impar- unas
+     líneas salían de un píxel y otras de dos, alternadas.
+     
+     Como degradé son UNA sola cosa pintada de corrido sobre el contenedor, así
+     que comparten una única fase de subpíxel: caiga donde caiga, todas se
+     antialiasean igual. Es el mismo razonamiento por el que la cruz de guía de
+     cada celda es un SVG y no dos divs de un píxel.
+     
+     El `padding` de un píxel abajo y a la derecha es dónde se dibujan la última
+     vertical y la última horizontal, que si no caerían justo fuera de la caja. */
+  padding: 0 1px 1px 0;
+  background-color: var(--knd-papel);
+  background-image:
+    repeating-linear-gradient(
+      to right,
+      var(--knd-genko-linea) 0 1px,
+      transparent 1px var(--knd-genko-lado)
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      var(--knd-genko-linea) 0 1px,
+      transparent 1px var(--knd-genko-lado)
+    );
   border-radius: 3px;
   box-shadow: var(--knd-sombra-hoja);
 }
