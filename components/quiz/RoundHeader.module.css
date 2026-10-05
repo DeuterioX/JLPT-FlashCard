@@ -7,8 +7,8 @@
 }
 
 /* «salir» de escritorio: la misma tipografía apagada que tenía como texto
-   suelto -no cambia nada de cómo se ve-, pero ahora se puede apretar. Antes
-   era un `Text` y la única salida era `Esc`. */
+   suelto -no cambia nada de cómo se ve-, pero ahora se puede apretar. Antes era
+   un `Text` y la única salida de una ronda era `Esc`. */
 .exitText {
   font-size: var(--mantine-font-size-xs);
   line-height: var(--mantine-line-height-xs);
@@ -19,11 +19,45 @@
   color: var(--mantine-color-text);
 }
 
-/* El botón de teléfono. `display` propio y no `knd-phone-only`, que pone
-   `block`: un botón de Mantine es `inline-flex` y con `block` se le descentra
-   la etiqueta. */
-.exitButton { display: none; }
+/* La flecha de volver sólo existe en teléfono; en escritorio salir es `Esc`. */
+.back { display: none; }
 
-@media (max-width: 767.9px) {
-  .exitButton { display: inline-flex; }
+:root[data-phone] {
+  /* Mismas medidas que la flecha de `MobileNavbar`: es el mismo control en la
+     misma posición, y dos botones de volver de distinto tamaño en pantallas
+     contiguas se notan. */
+  .back {
+    display: grid;
+    place-items: center;
+    width: 1.875rem;
+    height: 1.875rem;
+    flex: none;
+    border: 1px solid var(--mantine-color-dark-4);
+    border-radius: var(--mantine-radius-sm);
+    background: var(--mantine-color-dark-5);
+    color: var(--mantine-color-text);
+  }
+
+  /* Lo que acompaña a `Esc` se va con ella: el punto separador, la tecla y el
+     «salir». Queda sólo el contexto -«Hiragana · 26 grupos»-, que es lo único
+     de esa punta que sigue diciendo algo. */
+  .exitAside { display: none; }
+
+  /* Sólo el zorro, sin «Kitsune Cards», por lo mismo que `MobileNavbar`: la
+     flecha, la marca y el contexto compiten por 368px y el que no puede perder
+     es el que dice qué estás practicando. Medido con el mazo de nombre más
+     largo -«Minna no Nihongo I · 26 grupos»- a 390px: con el nombre puesto, el
+     contexto se caía a un segundo renglón, fuera de la barra. */
+  .header [data-brand-name] { display: none; }
+
+  /* Y si aun así no entra, que corte con puntos suspensivos en vez de
+     envolver. */
+  .aside { min-width: 0; }
+
+  .context {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

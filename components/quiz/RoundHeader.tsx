@@ -1,5 +1,8 @@
-import { Button, Group, Kbd, Text, UnstyledButton } from '@mantine/core';
+import { Anchor, Group, Kbd, Text, UnstyledButton } from '@mantine/core';
+import Link from 'next/link';
+import { ChevronLeft } from 'react-bootstrap-icons';
 import { Brand } from '../Brand';
+import { Icon } from '../Icon';
 import styles from './RoundHeader.module.css';
 
 /**
@@ -26,7 +29,7 @@ export function RoundHeader({
   nameId?: string;
   /** «Hiragana · 1 grupo». Vacío si no hay nada que decir. */
   context?: string;
-  /** Abandonar la ronda. Es lo mismo que hace `Esc`. */
+  /** Abandonar la ronda desde el «salir» de escritorio. Lo mismo que `Esc`. */
   onExit: () => void;
 }) {
   return (
@@ -38,44 +41,52 @@ export function RoundHeader({
       bg="dark.6"
       className={styles.header}
     >
-      <Brand id={brandId} nameId={nameId} />
+      <Group gap="0.5rem" wrap="nowrap">
+        {/* Salir de la ronda en teléfono es la MISMA flecha que sube un nivel
+            en el resto de la app -`MobileNavbar`-, y no un botón propio a la
+            derecha: era inventar un segundo gesto para la misma cosa.
+
+            `replace` por el mismo motivo que el `Esc`: con `push`, el Back del
+            sistema te devuelve a una ronda que ya abandonaste.
+
+            Se prende por `[data-phone]` y no por un `@media` de ancho, igual
+            que la barra de pantalla: las dos son NAVEGACIÓN y tienen que
+            contestar lo mismo, o aparece el hueco que ya pasó una vez -una
+            ventana angosta de laptop quedándose sin ninguna salida-. */}
+        <Anchor
+          id={`${id}-back`}
+          className={styles.back}
+          component={Link}
+          href="/"
+          replace
+          aria-label="Salir de la ronda"
+          underline="never"
+        >
+          <Icon glyph={ChevronLeft} />
+        </Anchor>
+        <Brand id={brandId} nameId={nameId} />
+      </Group>
       {/* `Group` con `gap`, no texto suelto con espacios intercalados a mano:
           un espacio de texto JSX pegado al cierre de un tag puede colapsar a
           ancho CERO -pasó de verdad, confirmado midiendo en vivo-, y ajustar
           «cuánto» espacio con más espacios o `nbsp` no es un valor real, es
           adivinar. El `gap` va en rem y no en un número pelado, que Mantine
           interpreta en px y no escala en 2K/4K con el resto de la app. */}
-      <Group gap="0.5rem" wrap="nowrap">
-        {context && <Text size="xs" c="dimmed">{context}</Text>}
-        {/* El punto separa el contexto de la tecla, así que se va con ella: en
-            teléfono quedaba colgado justo antes del botón. */}
-        {context && <Text size="xs" c="dimmed" className="knd-desktop-only">·</Text>}
-        {/* La tecla, sólo en escritorio. El quiz la mostraba también en
-            teléfono con el argumento de que ahí el teclado está abierto igual,
-            pero un teclado de teléfono no tiene `Esc`: anunciarla era pedir
-            algo que no se puede apretar. */}
-        <Kbd className="knd-desktop-only">Esc</Kbd>
+      <Group gap="0.5rem" wrap="nowrap" className={styles.aside}>
+        {context && <Text size="xs" c="dimmed" className={styles.context}>{context}</Text>}
+        {/* El punto separa el contexto de la tecla, así que se va con ella. */}
+        {context && <Text size="xs" c="dimmed" className={styles.exitAside}>·</Text>}
+        {/* La tecla y el «salir» de escritorio no existen en teléfono: ahí no
+            hay `Esc` que apretar -ni con el teclado abierto en el quiz- y
+            salir es la flecha de la izquierda. */}
+        <Kbd className={styles.exitAside}>Esc</Kbd>
         <UnstyledButton
           id={`${id}-exit`}
-          className={`${styles.exitText} knd-desktop-only`}
+          className={`${styles.exitText} ${styles.exitAside}`}
           onClick={onExit}
         >
           salir
         </UnstyledButton>
-        {/* En teléfono salir tiene que ser algo que se toca. Antes acá había
-            texto suelto al lado de una tecla que no existe, así que la única
-            forma de abandonar una ronda era el botón de atrás del navegador.
-            Mismo botón que «Renombrar» en Grupos y Cartas: es la misma clase
-            de cosa, una acción al ras de la derecha de la barra. */}
-        <Button
-          id={`${id}-exit-phone`}
-          className={styles.exitButton}
-          variant="default"
-          size="compact-sm"
-          onClick={onExit}
-        >
-          Salir
-        </Button>
       </Group>
     </Group>
   );
