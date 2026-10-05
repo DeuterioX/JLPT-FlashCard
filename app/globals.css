@@ -404,11 +404,17 @@ input:-webkit-autofill:active {
      seis kana con celdas tres veces más chicas: la misma hoja cambiando de
      escala según la carta que toque. Con este techo あ mide 180 y けんきゅうしゃ
      165, o sea que el cuadro del 原稿用紙 tiene UN tamaño. */
-  --knd-genko-lado: clamp(
+  --knd-genko-lado-crudo: clamp(
     2.5rem,
     min(calc(var(--knd-genko-ancho-celdas) / var(--knd-genko-n)), 42cqh),
     11.25rem
   );
+  /* Entero, no el float que sale de la división. Con un lado fraccionario
+     -112,67px medidos con una palabra de tres kana- cada borde de la
+     cuadrícula cae en una fase de subpíxel distinta, y el navegador redondea
+     cada línea para su lado: unas quedan de un píxel y otras de dos. Es el
+     mismo motivo por el que la maqueta fuerza un lado entero. */
+  --knd-genko-lado: var(--knd-genko-lado-crudo);
   /* Lo que queda para las CELDAS: el ancho útil menos las líneas, que son
      `n - 1` separaciones de un píxel más los dos de relleno del contenedor. Sin
      descontarlas el total se pasaba del tope y la grilla envolvía cuando no
@@ -432,15 +438,8 @@ input:-webkit-autofill:active {
   box-shadow: var(--knd-sombra-hoja);
 }
 
-/* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
-   primero y el significado un pelo después. Acá hace falta más que en el fundido
-   del quiz porque no hay nada que se vaya -el hueco está reservado y vacío-, así
-   que sin movimiento el texto simplemente está o no está y el ojo no registra el
-   cambio. Los 70ms de escalonado son lo justo para que se lean en orden -cómo se
-   dice, y después qué quiere decir-. */
-@keyframes knd-revelar {
-  from { opacity: 0; transform: translateY(0.5rem); }
-  to { opacity: 1; transform: none; }
+@supports (width: round(down, 1px, 1px)) {
+  .knd-genko { --knd-genko-lado: round(down, var(--knd-genko-lado-crudo), 1px); }
 }
 
 /* Las teclas no se anuncian en teléfono: no hay teclado físico, así que un
@@ -522,14 +521,24 @@ input:-webkit-autofill:active {
 
   /* La única pista de que la carta se toca. Va bajo el «carta N de M» y un
      escalón más chica: es una instrucción que se lee una vez y después
-     estorba. */
+     estorba.
+
+     Anclada al piso del escenario, como el caption, y NO en el flujo. En el
+     flujo reservaba 15px más su hueco de 16 aunque estuviera escondida, y el
+     escenario centra a sus hijos: la hoja y la respuesta quedaban 15,5px por
+     encima del centro real, reveladas o no -medido-. Absoluta no participa
+     del centrado y tampoco puede hacer saltar nada al aparecer, que era lo
+     que el `visibility` venía a evitar. */
   .knd-tap-hint {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2.75rem;
     font-size: 0.6875rem;
     line-height: 1.4;
     color: var(--mantine-color-dark-3);
     text-align: center;
   }
-  /* Sigue ocupando su lugar, para que la hoja no salte al aparecer. */
   .knd-tap-hint[data-oculto] { visibility: hidden; }
 }
 

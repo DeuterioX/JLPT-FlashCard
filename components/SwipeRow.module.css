@@ -1,7 +1,7 @@
 @media (hover: hover) {
   /* El fondo lo pinta la cara que se desliza y no el contenedor, así que el
        hover va ahí. */
-    .swipeFront.knd-row-tap:hover { background: var(--mantine-color-dark-5); }
+    .swipeFront:global(.knd-row-tap):hover { background: var(--mantine-color-dark-5); }
 }
 
 /* Fila con acciones por gesto. Los paneles y el gesto son SÓLO de teléfono: en

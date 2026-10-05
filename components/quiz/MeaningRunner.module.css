@@ -1,3 +1,18 @@
+/* La respuesta no aparece de golpe: sube un poco y se va revelando, el romaji
+   primero y el significado un pelo después. Acá hace falta más que en el fundido
+   del quiz porque no hay nada que se vaya -el hueco está reservado y vacío-, así
+   que sin movimiento el texto simplemente está o no está y el ojo no registra el
+   cambio. Los 70ms de escalonado son lo justo para que se lean en orden -cómo se
+   dice, y después qué quiere decir-.
+
+   Vive acá y no en `globals.css` porque esta pantalla es su único usuario, y
+   porque un `@keyframes` global nombrado desde adentro de un módulo también se
+   renombra: la animación quedaba apuntando a un nombre que no existía. */
+@keyframes revelar {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to { opacity: 1; transform: none; }
+}
+
 /* El hueco del significado está reservado también sin revelar: si apareciera
    de la nada, la hoja saltaría hacia arriba al revelar. */
 .meaningSlot {
@@ -8,9 +23,13 @@
    quedaba en el piso de 17px en cuanto el contenedor no le daba una altura de
    la que calcular, así que la respuesta -que es LO QUE hay que leer en esta
    pantalla- terminaba más chica que el kana de una fila de lista. */
-.meaningReading { font-size: 0.8125rem; }
+.meaningReading { font-size: 0.9375rem; }
 
-.meaningAnswer { font-size: 1.3125rem; line-height: 1.25; }
+/* 1,75rem y no los 21px de la maqueta: ahí la carta de teléfono es un cuadro
+   de 280px y el significado vive al lado; acá la hoja ocupa el ancho y queda
+   media pantalla libre debajo, con el significado -que es LO QUE hay que leer
+   en esta pantalla- más chico que el nombre de un mazo en la lista. */
+.meaningAnswer { font-size: 1.75rem; line-height: 1.25; }
 
 /* La animación cuelga de que el hueco pase a estar VISIBLE y no del montaje: la
    respuesta está montada todo el tiempo, así que atada al montaje se
@@ -19,7 +38,7 @@
 
 .meaningSlot:not([data-oculto]) .meaningReading,
 .meaningSlot:not([data-oculto]) .meaningAnswer {
-  animation: knd-revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
+  animation: revelar 260ms cubic-bezier(0.2, 0.75, 0.25, 1) both;
 }
 
 .meaningSlot:not([data-oculto]) .meaningAnswer { animation-delay: 70ms; }
@@ -51,7 +70,7 @@
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   }
 
-  .meaningFooter > .knd-quiz-metrics { justify-self: start; }
+  .meaningFooter > :global(.knd-quiz-metrics) { justify-self: start; }
 
   .meaningActions { justify-self: center; }
 
@@ -66,7 +85,7 @@
     align-items: center;
   }
 
-  .meaningFooter > .knd-quiz-metrics {
+  .meaningFooter > :global(.knd-quiz-metrics) {
     grid-column: 1 / -1;
     justify-self: center;
   }
@@ -79,11 +98,10 @@
   .meaningActions,
   .meaningReveal { display: contents; }
 
-  /* En teléfono revelar es tocar la carta, así que el botón se va. En el quiz
-     eso le devuelve el ancho del pie al input, que es lo único que ahí hace
-     falta; en Significados deja a los dos de calificar repartiéndose la
-     fila. */
-  .knd-quiz-reveal,
+  /* En teléfono revelar es tocar la carta, así que el botón se va. El quiz
+     esconde el suyo en su propio módulo: nombrarlo acá no servía de nada
+     -escrito adentro de un módulo, `.knd-quiz-reveal` se renombra y no
+     matchea con ningún elemento-. */
   .meaningReveal { display: none; }
 
   .meaningFooter { grid-template-columns: repeat(2, 1fr); }

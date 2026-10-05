@@ -6,13 +6,13 @@
 /* Scroll horizontal sin la barra nativa a la vista: se sigue scrolleando con el
    dedo o la rueda, sólo se esconde el widget. */
 .deckSwitcher,
-.knd-quiz-metrics {
+:global(.knd-quiz-metrics) {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Edge legado */
 }
 
 .deckSwitcher::-webkit-scrollbar,
-.knd-quiz-metrics::-webkit-scrollbar {
+:global(.knd-quiz-metrics)::-webkit-scrollbar {
   display: none; /* Chrome, Safari */
 }
 
