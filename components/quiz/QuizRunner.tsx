@@ -622,7 +622,9 @@ function QuizPlay({
                 aviso de error se ancle al piso del stage- dejaría de
                 funcionar si el Box la tuviera. */}
             <div className={styles.quizPersp}>
-              <div className={`${styles.quizTurn}${flipped ? ' is-revealed' : ''}`}>
+              {/* El estado va en un `data-*` y no en una clase: las clases de
+                  un módulo se hashean y una escrita a mano deja de matchear. */}
+              <div className={styles.quizTurn} data-revealed={flipped || undefined}>
                 <div className={styles.quizFace}>
                   {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
                       por carácter. El tamaño de la celda lo decide el CSS y
