@@ -1,8 +1,9 @@
 'use client';
 
 import { Button, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
-import { MoonFill, SunFill } from 'react-bootstrap-icons';
+import { Lightbulb, LightbulbFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
+import styles from './ThemeToggle.module.css';
 
 /**
  * El interruptor entre tinta clara y tinta oscura.
@@ -17,9 +18,15 @@ import { Icon } from './Icon';
  * que es justo lo que necesita el botón para ofrecer el otro. Al apretarlo se
  * fija uno explícito, y Mantine lo recuerda entre visitas.
  *
- * El ícono es el destino, no el estado: mostrando la luna, apretarlo lleva a
- * oscuro. Al revés -mostrar dónde estás- el botón se lee como un indicador y
- * no como un control.
+ * El ícono es el destino, no el estado: mostrando la lamparita apagada,
+ * apretarlo lleva a oscuro. Al revés -mostrar dónde estás- el botón se lee
+ * como un indicador y no como un control.
+ *
+ * Lamparita y no sol/luna: el sol y la luna dicen la hora del día, que es una
+ * razón para querer un tema pero no es el tema; la lamparita dice si la luz
+ * está prendida, que es literalmente lo que el botón hace. Y el par
+ * apagada/prendida es el MISMO dibujo en dos estados, así que lo que cambia al
+ * apretar se lee como un cambio y no como otro ícono.
  */
 export function ThemeToggle({ id }: { id?: string }) {
   const { setColorScheme } = useMantineColorScheme();
@@ -32,13 +39,14 @@ export function ThemeToggle({ id }: { id?: string }) {
   return (
     <Button
       id={id}
+      className={styles.themeToggle}
       variant="default"
       size="compact-xs"
       onClick={() => setColorScheme(target)}
       aria-label={target === 'dark' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
       title={target === 'dark' ? 'Modo oscuro' : 'Modo claro'}
     >
-      <Icon glyph={target === 'dark' ? MoonFill : SunFill} />
+      <Icon glyph={target === 'dark' ? Lightbulb : LightbulbFill} />
     </Button>
   );
 }

@@ -1,0 +1,9 @@
+/* El mismo alto que la píldora del menú de al lado. Esa píldora no tiene alto
+   propio: le sale de su interlineado `sm` más sus 5px de relleno arriba y
+   abajo, y da 30px -medido-. El botón, en cambio, trae el alto fijo de su
+   tamaño `compact-xs`, que son 22, y pegados en la misma barra la diferencia
+   se ve. Va el número y no la cuenta porque la cuenta depende de dos tokens de
+   Mantine que no son del botón. */
+.themeToggle {
+  height: 1.875rem;
+}
