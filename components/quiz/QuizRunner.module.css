@@ -125,6 +125,15 @@
   .quizReveal { grid-column: 3; justify-self: end; }
 }
 
+/* En teléfono revelar es TOCAR la carta, así que el botón no tiene por qué
+   estar: anuncia una tecla que no existe y le come ancho al input, que con
+   `flex: 1` se queda con todo lo que deje. La regla existía, pero vivía en el
+   módulo de Significados y nombraba `.knd-quiz-reveal`, una clase que ningún
+   elemento lleva desde que esta pantalla tiene módulo propio. */
+@media (max-width: 767.9px) {
+  .quizReveal { display: none; }
+}
+
 /* El texto del input de respuesta va centrado, y el prop `ta="center"` de
    Mantine NO alcanza: centra el `<div>` contenedor, pero el `<input>` real trae
    su propio `text-align: var(--input-text-align, start)` declarado sobre el

@@ -1,4 +1,4 @@
-import { Group, Kbd, Text } from '@mantine/core';
+import { Button, Group, Kbd, Text, UnstyledButton } from '@mantine/core';
 import { Brand } from '../Brand';
 import styles from './RoundHeader.module.css';
 
@@ -19,19 +19,15 @@ import styles from './RoundHeader.module.css';
  * pie, sólo al escenario.
  */
 export function RoundHeader({
-  id, brandId, nameId, context, keyDesktopOnly = false,
+  id, brandId, nameId, context, onExit,
 }: {
   id: string;
   brandId?: string;
   nameId?: string;
   /** «Hiragana · 1 grupo». Vacío si no hay nada que decir. */
   context?: string;
-  /**
-   * Esconde la tecla `Esc` en teléfono, donde no hay teclado físico que
-   * apretar. El repaso de significados lo hace -ahí no hay ningún campo que
-   * abra el teclado- y el quiz no, porque ahí el teclado está abierto igual.
-   */
-  keyDesktopOnly?: boolean;
+  /** Abandonar la ronda. Es lo mismo que hace `Esc`. */
+  onExit: () => void;
 }) {
   return (
     <Group
@@ -50,9 +46,36 @@ export function RoundHeader({
           adivinar. El `gap` va en rem y no en un número pelado, que Mantine
           interpreta en px y no escala en 2K/4K con el resto de la app. */}
       <Group gap="0.5rem" wrap="nowrap">
-        {context && <Text size="xs" c="dimmed">{`${context} ·`}</Text>}
-        <Kbd className={keyDesktopOnly ? 'knd-desktop-only' : undefined}>Esc</Kbd>
-        <Text size="xs" c="dimmed">salir</Text>
+        {context && <Text size="xs" c="dimmed">{context}</Text>}
+        {/* El punto separa el contexto de la tecla, así que se va con ella: en
+            teléfono quedaba colgado justo antes del botón. */}
+        {context && <Text size="xs" c="dimmed" className="knd-desktop-only">·</Text>}
+        {/* La tecla, sólo en escritorio. El quiz la mostraba también en
+            teléfono con el argumento de que ahí el teclado está abierto igual,
+            pero un teclado de teléfono no tiene `Esc`: anunciarla era pedir
+            algo que no se puede apretar. */}
+        <Kbd className="knd-desktop-only">Esc</Kbd>
+        <UnstyledButton
+          id={`${id}-exit`}
+          className={`${styles.exitText} knd-desktop-only`}
+          onClick={onExit}
+        >
+          salir
+        </UnstyledButton>
+        {/* En teléfono salir tiene que ser algo que se toca. Antes acá había
+            texto suelto al lado de una tecla que no existe, así que la única
+            forma de abandonar una ronda era el botón de atrás del navegador.
+            Mismo botón que «Renombrar» en Grupos y Cartas: es la misma clase
+            de cosa, una acción al ras de la derecha de la barra. */}
+        <Button
+          id={`${id}-exit-phone`}
+          className={styles.exitButton}
+          variant="default"
+          size="compact-sm"
+          onClick={onExit}
+        >
+          Salir
+        </Button>
       </Group>
     </Group>
   );

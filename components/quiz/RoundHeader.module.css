@@ -5,3 +5,25 @@
   border-bottom: 1px solid var(--mantine-color-dark-5);
   flex-shrink: 0;
 }
+
+/* «salir» de escritorio: la misma tipografía apagada que tenía como texto
+   suelto -no cambia nada de cómo se ve-, pero ahora se puede apretar. Antes
+   era un `Text` y la única salida era `Esc`. */
+.exitText {
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  color: var(--mantine-color-dimmed);
+}
+
+.exitText:hover {
+  color: var(--mantine-color-text);
+}
+
+/* El botón de teléfono. `display` propio y no `knd-phone-only`, que pone
+   `block`: un botón de Mantine es `inline-flex` y con `block` se le descentra
+   la etiqueta. */
+.exitButton { display: none; }
+
+@media (max-width: 767.9px) {
+  .exitButton { display: inline-flex; }
+}

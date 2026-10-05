@@ -522,6 +522,7 @@ function QuizPlay({
       <RoundHeader
         id="quiz-header" brandId="quiz-brand" nameId="quiz-app-name"
         context={contextLabel}
+        onExit={() => router.replace('/')}
       />
 
       {/* Degradé radial sutil del mockup (`.quiz-stage`): hoy era un fondo
