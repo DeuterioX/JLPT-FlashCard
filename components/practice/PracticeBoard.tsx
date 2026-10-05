@@ -163,9 +163,14 @@ export function PracticeBoard({
         )}
         {/* Los dos verbos con los que arranca una ronda. El modo no es un
             selector aparte: es la acción, y el que apretás decide de qué
-            ronda se trata. «Significados» se apaga cuando ninguna de las
-            cartas elegidas tiene uno -un mazo de kana entero-, con el
-            motivo en el `title`. */}
+            ronda se trata. «Repasar significado» se apaga cuando ninguna de
+            las cartas elegidas tiene uno -un mazo de kana entero-, con el
+            motivo en el `title`.
+
+            Mismo verbo y distinto objeto: lo que cambia entre los dos modos
+            es QUÉ se repasa, no con cuánto rigor. Y sin flecha: medido, con
+            «➜» los rótulos desbordan su mitad del control a 360 y 375px, que
+            son los anchos de teléfono más comunes. */}
         <Box className={styles.verbs}>
           <Button
             id="begin-meaning-btn"
@@ -175,7 +180,7 @@ export function PracticeBoard({
             disabled={chosen.length === 0 || meaningCount === 0 || roundAction.busy || pending}
             title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
           >
-            Significados ➜
+            Repasar significado
           </Button>
           <Button
             id="begin-round-btn"
@@ -183,7 +188,7 @@ export function PracticeBoard({
             loading={roundAction.busy || pending}
             disabled={chosen.length === 0 || roundAction.busy || pending}
           >
-            Escribir ➜
+            Repasar escritura
           </Button>
         </Box>
       </ActionBar>

@@ -22,6 +22,11 @@
 /* La flecha de volver sólo existe en teléfono; en escritorio salir es `Esc`. */
 .back { display: none; }
 
+/* El nombre de la ronda, también sólo en teléfono: ahí ocupa el lugar que deja
+   el nombre de la app. En escritorio no hace falta -el nombre de la app se
+   queda, y de qué ronda se trata ya lo dijo el botón que apretaste-. */
+.title { display: none; }
+
 :root[data-phone] {
   /* Mismas medidas que la flecha de `MobileNavbar`: es el mismo control en la
      misma posición, y dos botones de volver de distinto tamaño en pantallas
@@ -49,6 +54,16 @@
      largo -«Minna no Nihongo I · 26 grupos»- a 390px: con el nombre puesto, el
      contexto se caía a un segundo renglón, fuera de la barra. */
   .header [data-brand-name] { display: none; }
+
+  /* Mismas medidas que el título de `MobileNavbar`. */
+  .title {
+    display: block;
+    flex: none;
+    font-size: var(--mantine-font-size-sm);
+    font-weight: 700;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
 
   /* Y si aun así no entra, que corte con puntos suspensivos en vez de
      envolver. */

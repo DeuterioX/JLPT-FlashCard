@@ -22,11 +22,18 @@ import styles from './RoundHeader.module.css';
  * pie, sólo al escenario.
  */
 export function RoundHeader({
-  id, brandId, nameId, context, onExit,
+  id, brandId, nameId, title, context, onExit,
 }: {
   id: string;
   brandId?: string;
   nameId?: string;
+  /**
+   * Cómo se llama esta ronda: «Repasar escritura», «Repasar significado».
+   * Sólo se ve en teléfono, donde ocupa el lugar que deja el nombre de la app
+   * -igual que el título de `MobileNavbar`-. En escritorio el nombre de la app
+   * se queda y el modo ya se sabe por el botón que apretaste.
+   */
+  title?: string;
   /** «Hiragana · 1 grupo». Vacío si no hay nada que decir. */
   context?: string;
   /** Abandonar la ronda desde el «salir» de escritorio. Lo mismo que `Esc`. */
@@ -40,6 +47,12 @@ export function RoundHeader({
       justify="space-between"
       bg="dark.6"
       className={styles.header}
+      /* `nowrap`: con el título puesto, el `wrap` de fábrica partía la barra en
+         dos renglones y la dejaba de 76px en vez de 43 -medido-. Esa altura
+         sale del escenario, que es lo único que cede cuando se abre el
+         teclado, así que la barra tiene que medir siempre lo mismo. Lo que
+         falte lo cede el contexto, que corta con puntos suspensivos. */
+      wrap="nowrap"
     >
       <Group gap="0.5rem" wrap="nowrap">
         {/* Salir de la ronda en teléfono es la MISMA flecha que sube un nivel
@@ -65,6 +78,7 @@ export function RoundHeader({
           <Icon glyph={ChevronLeft} />
         </Anchor>
         <Brand id={brandId} nameId={nameId} />
+        {title && <Text id={`${id}-title`} className={styles.title}>{title}</Text>}
       </Group>
       {/* `Group` con `gap`, no texto suelto con espacios intercalados a mano:
           un espacio de texto JSX pegado al cierre de un tag puede colapsar a

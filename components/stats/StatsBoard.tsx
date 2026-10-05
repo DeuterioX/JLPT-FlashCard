@@ -177,7 +177,7 @@ export function StatsBoard({
             loading={reviewAction.busy}
             disabled={reviewAction.busy || worst.length === 0}
           >
-            {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores ➜`}
+            {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores`}
           </Button>
           {reviewAction.error && <Text className={`knd-error ${styles.reviewError}`}>{reviewAction.error}</Text>}
         </Stack>

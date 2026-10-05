@@ -122,7 +122,10 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
 
   return (
     <Box className={styles.round}>
-      <RoundHeader id="meaning-header" context={context} onExit={() => router.replace('/')} />
+      <RoundHeader
+        id="meaning-header" title="Repasar significado" context={context}
+        onExit={() => router.replace('/')}
+      />
 
       <Box
         id="meaning-stage"

@@ -521,6 +521,7 @@ function QuizPlay({
     >
       <RoundHeader
         id="quiz-header" brandId="quiz-brand" nameId="quiz-app-name"
+        title="Repasar escritura"
         context={contextLabel}
         onExit={() => router.replace('/')}
       />
