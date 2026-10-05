@@ -3,7 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
-import { CheckSquare, DashSquare } from 'react-bootstrap-icons';
+import { CheckSquareFill, DashSquare } from 'react-bootstrap-icons';
 import { Icon } from '../Icon';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from '../ActionBar';
@@ -142,7 +142,7 @@ export function PracticeBoard({
             id="select-all-btn" variant="default" size="compact-xs"
             aria-label="Todos" title="Todos" onClick={() => setAll(true)}
           >
-            <Icon glyph={CheckSquare} />
+            <Icon glyph={CheckSquareFill} />
           </Button>
           <Button
             id="select-none-btn" variant="default" size="compact-xs"
