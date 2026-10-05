@@ -34,10 +34,16 @@
      llegando hasta el borde de la pantalla. */
   /* La flecha vive en un `Group` anidado, que de suyo mide lo que su contenido:
      sin estirar también el grupo, el `stretch` de adentro no tiene contra qué
-     estirarse y la flecha quedaba de 34px en una barra de 43 -medido-. */
+     estirarse y la flecha quedaba de 34px en una barra de 43 -medido-.
+
+     Pero el `stretch` va SÓLO en el grupo, no en sus hijos: con
+     `align-items: stretch` se estiraban también la marca y el título, y la
+     caja del título pasaba de 20px a 34, con el texto pegado al borde de
+     arriba. Se veía descentrado porque lo estaba. Los hijos van centrados y
+     la flecha se estira sola con su propio `align-self`. */
   .lead {
     align-self: stretch;
-    align-items: stretch;
+    align-items: center;
   }
 
   .back {
