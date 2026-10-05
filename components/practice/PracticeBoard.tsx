@@ -123,11 +123,11 @@ export function PracticeBoard({
           data={decks.map((d) => ({ value: String(d.id), label: d.name }))}
         />
       </Box>
-      {/* "Seleccionar:" y los dos botones son una sola unidad -si no
-          entran al lado del selector de mazos, bajan los tres juntos a
-          la línea siguiente, nunca separados entre sí-. */}
+      {/* Sin rótulo: con los dos íconos el «Seleccionar:» era repetir en
+          palabras lo que el control ya dice, y le comía 71px a una franja que
+          en teléfono ya está apretada. La palabra sigue estando donde hace
+          falta, en el `aria-label` de cada mitad. */}
       <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
-        <Text className={styles.selectLabel}>Seleccionar:</Text>
         {/* Un solo control soldado, como el par de verbos del pie: son las dos
             salidas de la misma decisión, y sueltos con un hueco se leen como
             dos acciones que no tienen nada que ver.
