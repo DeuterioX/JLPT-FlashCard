@@ -1,4 +1,5 @@
 import { test, expect, type Page } from '@playwright/test';
+import { SELECTION_COOKIE } from '../lib/selection-cookie';
 
 // El botón que arranca la ronda de escribir se llamaba «Comenzar» hasta que
 // entró el segundo verbo («Significados ➜ | Escribir ➜»). Se apunta por id y
@@ -19,9 +20,16 @@ test.beforeEach(async ({ page }) => {
   // El mazo por defecto es Hiragana (PracticeBoard abre en decks[0]); Serie K
   // tiene que estar visible antes de interactuar con él.
   await expect(page.getByRole('switch', { name: 'Practicar Serie K', exact: true })).toBeVisible();
-  // Cada test arranca desde "Ninguno" y prende lo que necesita, así el orden
-  // de ejecución no importa aunque compartan la cookie `grupos` y la DB.
-  await page.getByRole('button', { name: 'Ninguno' }).click();
+  // Cada test arranca sin NINGÚN grupo puesto y prende lo que necesita, así el
+  // orden de ejecución no importa aunque compartan la cookie `grupos` y la DB.
+  //
+  // Se borra la cookie en vez de apretar «Ninguno»: ese atajo existe sólo en
+  // escritorio -en teléfono la franja envuelve y el control se queda solo en un
+  // renglón, así que no se dibuja-, y este `beforeEach` corre en los DOS
+  // proyectos. Además es determinista: no depende de que un control esté
+  // visible ni de en qué estado quedó el test anterior.
+  await page.context().clearCookies({ name: SELECTION_COOKIE });
+  await page.reload();
 });
 
 type StoredCard = { prompt: string; primary: string };
@@ -211,7 +219,9 @@ test.describe('una sesión que falla avisa', () => {
     const option = page.locator('#deck-segmented-control label', { hasText: name });
     await expect(option).toBeVisible();
     await option.click();
-    await page.getByRole('button', { name: 'Todos' }).click();
+    // El grupo se prende por su interruptor y no con «Todos»: ese atajo no
+    // existe en teléfono, y acá el mazo tiene un solo grupo igual.
+    await page.getByRole('switch', { name: 'Practicar Prueba', exact: true }).click();
 
     await page.locator('#begin-meaning-btn').click();
     await page.waitForURL('**/quiz');

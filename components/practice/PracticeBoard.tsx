@@ -2,9 +2,9 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
-import { CheckSquareFill, DashSquare } from 'react-bootstrap-icons';
-import { Icon } from '../Icon';
+import {
+  Stack, Group, SegmentedControl, Button, Text, Box, UnstyledButton,
+} from '@mantine/core';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from '../ActionBar';
 import { Screen } from '../Screen';
@@ -123,34 +123,33 @@ export function PracticeBoard({
           data={decks.map((d) => ({ value: String(d.id), label: d.name }))}
         />
       </Box>
-      {/* Sin rótulo: con los dos íconos el «Seleccionar:» era repetir en
-          palabras lo que el control ya dice, y le comía 71px a una franja que
-          en teléfono ya está apretada. La palabra sigue estando donde hace
-          falta, en el `aria-label` de cada mitad. */}
-      <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
-        {/* Un solo control soldado, como el par de verbos del pie: son las dos
-            salidas de la misma decisión, y sueltos con un hueco se leen como
-            dos acciones que no tienen nada que ver.
+      {/* Dos verbos de texto, sin caja. Antes eran dos botones con marco
+          propio, y eso tenía tres problemas a la vez: competían con el
+          selector de mazos -dos marcos en la misma franja, y el de mazos es el
+          que manda-, el cuadrado tildado repetía el dibujo que en esta
+          pantalla ya significa «grupo puesto», y en tema oscuro el marco y el
+          fondo quedaban a dos pasos de luminosidad, así que la caja flotaba.
 
-            Los rótulos pasan a ícono -cuadrado tildado y cuadrado con guión,
-            que son los dos estados de un grupo en la grilla de abajo-, y la
-            palabra sobrevive en el `aria-label`: ahí no se pierde nada para un
-            lector de pantalla, y además los e2e eligen estos botones por su
-            nombre accesible. */}
-        <Box className={styles.selectGroup}>
-          <Button
-            id="select-all-btn" variant="default" size="compact-xs"
-            aria-label="Todos" title="Todos" onClick={() => setAll(true)}
-          >
-            <Icon glyph={CheckSquareFill} />
-          </Button>
-          <Button
-            id="select-none-btn" variant="default" size="compact-xs"
-            aria-label="Ninguno" title="Ninguno" onClick={() => setAll(false)}
-          >
-            <Icon glyph={DashSquare} />
-          </Button>
-        </Box>
+          Sin caja no hay nada de eso, y encaja con cómo habla el resto de la
+          app, que usa texto apagado para todo lo secundario -«carta 1 de 104»,
+          «26 grupos · 104 cartas»-.
+
+          El `aria-label` en mayúscula aunque se vea en minúscula: es el nombre
+          accesible y es por donde los e2e eligen estos botones. */}
+      <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
+        <UnstyledButton
+          id="select-all-btn" className={styles.selectVerb}
+          aria-label="Todos" onClick={() => setAll(true)}
+        >
+          todos
+        </UnstyledButton>
+        <Text className={styles.selectSep} aria-hidden>·</Text>
+        <UnstyledButton
+          id="select-none-btn" className={styles.selectVerb}
+          aria-label="Ninguno" onClick={() => setAll(false)}
+        >
+          ninguno
+        </UnstyledButton>
       </Group>
     </Group>
   );

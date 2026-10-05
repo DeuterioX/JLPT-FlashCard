@@ -107,32 +107,37 @@
   margin-left: auto;
 }
 
-/* Soldado, con el mismo molde que el par de verbos del pie: el marco lo lleva
-   el contenedor, las mitades pierden el suyo, y la costura es el borde
-   izquierdo de la segunda. El `overflow: hidden` deja rectas solas las
-   esquinas de adentro. */
-.selectGroup {
-  display: inline-flex;
-  flex: none;
-  /* El mismo alto que el selector de mazos de al lado, que es un
-     `SegmentedControl` en su tamaño de fábrica. Van pegados en la misma franja
-     y con alturas distintas se ve que no alinean: medido, el selector mide 33px
-     y este control quedaba en 24 en escritorio. Es un número y no un token
-     porque Mantine no expone el alto del `SegmentedControl` como variable. */
-  height: 2.0625rem;
-  border: 1px solid var(--mantine-color-dark-4);
-  border-radius: var(--mantine-radius-sm);
-  overflow: hidden;
+/* Los dos verbos: texto apagado que se enciende al pasar por encima. Sin caja
+   -ver el comentario del componente-, así que lo único que dice que se tocan es
+   el cursor y el cambio de color. */
+.selectVerb {
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  color: var(--mantine-color-text);
 }
 
-.selectGroup :global(.mantine-Button-root) {
-  height: 100%;
-  border: 0;
-  border-radius: 0;
+.selectSep {
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  color: var(--mantine-color-dark-4);
 }
 
-.selectGroup :global(.mantine-Button-root) + :global(.mantine-Button-root) {
-  border-left: 1px solid var(--mantine-color-dark-4);
+@media (hover: hover) {
+  .selectVerb { transition: color 120ms ease; }
+
+  .selectVerb:hover { color: var(--mantine-color-jade-6); }
+}
+
+/* En teléfono no existe. Ahí la franja envuelve y el control se queda SOLO en
+   un renglón que de otro modo no estaría, así que un atajo secundario termina
+   costando una línea entera de pantalla. La maqueta siempre lo dijo -lo dibuja
+   sólo en escritorio-; la app había derivado.
+
+   Por `[data-phone]` y no por un `@media` de ancho, por lo mismo que la barra
+   de pantalla y la de pestañas: que algo EXISTA o no tiene que contestarse con
+   una sola señal. */
+:root[data-phone] {
+  .selectAll { display: none; }
 }
 
 /* `.count` del diseño: la base atenuada y sólo los números en el color de texto
