@@ -28,18 +28,33 @@
 .title { display: none; }
 
 :root[data-phone] {
-  /* Mismas medidas que la flecha de `MobileNavbar`: es el mismo control en la
-     misma posición, y dos botones de volver de distinto tamaño en pantallas
-     contiguas se notan. */
+  /* Igual que la flecha de `MobileNavbar` -es el mismo control en la misma
+     posición, y dos botones de volver distintos en pantallas contiguas se
+     notan-: sin marco y ocupando el alto entero de la barra, con el blanco
+     llegando hasta el borde de la pantalla. */
+  /* La flecha vive en un `Group` anidado, que de suyo mide lo que su contenido:
+     sin estirar también el grupo, el `stretch` de adentro no tiene contra qué
+     estirarse y la flecha quedaba de 34px en una barra de 43 -medido-. */
+  .lead {
+    align-self: stretch;
+    align-items: stretch;
+  }
+
   .back {
     display: grid;
     place-items: center;
-    width: 1.875rem;
-    height: 1.875rem;
+    align-self: stretch;
     flex: none;
-    border: 1px solid var(--mantine-color-dark-4);
-    border-radius: var(--mantine-radius-sm);
-    background: var(--mantine-color-dark-5);
+    padding-inline: var(--mantine-spacing-md);
+    margin-inline-start: calc(-1 * var(--mantine-spacing-md));
+    /* Los 4px de arriba y abajo son el `py={4}` de la barra. El margen
+       negativo más el relleno del mismo valor hacen que el blanco los cubra
+       sin mover el glifo, igual que con el relleno lateral. */
+    margin-block: -0.25rem;
+    padding-block: 0.25rem;
+    border: 0;
+    border-radius: 0;
+    background: none;
     color: var(--mantine-color-text);
   }
 

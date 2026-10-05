@@ -54,7 +54,7 @@ export function RoundHeader({
          falte lo cede el contexto, que corta con puntos suspensivos. */
       wrap="nowrap"
     >
-      <Group gap="0.5rem" wrap="nowrap">
+      <Group gap="0.5rem" wrap="nowrap" className={styles.lead}>
         {/* Salir de la ronda en teléfono es la MISMA flecha que sube un nivel
             en el resto de la app -`MobileNavbar`-, y no un botón propio a la
             derecha: era inventar un segundo gesto para la misma cosa.

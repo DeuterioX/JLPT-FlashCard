@@ -29,15 +29,26 @@
      Práctica y Estadísticas conservan la marca y el nombre. */
   body:has(.mobileNavbar) :global(#app-header) { display: none; }
 
+  /* Sin marco y de punta a punta en vertical: lo que importa de este control
+     es que sea fácil de acertar con el pulgar, no que se vea como un botón.
+     Dibujado como caja de 30px era un blanco de 30×30 en una barra de 48, con
+     16px de aire muerto arriba y abajo que no hacían nada.
+
+     `align-self: stretch` y no `height: 100%`: la barra centra a sus hijos, y
+     con el alto al 100% el ítem igual queda centrado en una caja de su propio
+     tamaño. El margen negativo con el padding del mismo valor corre el blanco
+     hasta el borde de la pantalla sin mover el glifo ni un píxel: el relleno
+     repone exactamente lo que el margen comió. */
   .navbarBack {
     display: grid;
     place-items: center;
-    width: 1.875rem;
-    height: 1.875rem;
+    align-self: stretch;
     flex: none;
-    border: 1px solid var(--mantine-color-dark-4);
-    border-radius: var(--mantine-radius-sm);
-    background: var(--mantine-color-dark-5);
+    padding-inline: var(--mantine-spacing-md);
+    margin-inline-start: calc(-1 * var(--mantine-spacing-md));
+    border: 0;
+    border-radius: 0;
+    background: none;
     color: var(--mantine-color-text);
   }
 
@@ -48,7 +59,15 @@
     white-space: nowrap;
   }
 
-  .navbarAction { margin-left: auto; flex: none; }
+  /* `stretch` en los dos ejes para que la acción pueda ocupar el alto entero
+     de la barra, por lo mismo que la flecha. */
+  .navbarAction {
+    margin-left: auto;
+    flex: none;
+    align-self: stretch;
+    align-items: stretch;
+    margin-inline-end: calc(-1 * var(--mantine-spacing-md));
+  }
 }
 
 /* La fila de la barra: 8px entre la flecha, el zorro y el título. */

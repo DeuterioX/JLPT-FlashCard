@@ -11,5 +11,15 @@
      caja de texto le sumaría el descendente de la fuente. */
   .renameIcon { display: inline-flex; }
 
-  .renameBtn { padding-inline: 0.5rem; }
+  /* En la barra de teléfono el blanco es el alto entero, sin marco: ver el
+     comentario de `.navbarBack`. El `height: auto` es para pisar el alto fijo
+     que Mantine le pone al tamaño `compact-xs`, que es lo que impedía que
+     `stretch` hiciera algo. */
+  .renameBtn {
+    align-self: stretch;
+    height: auto;
+    padding-inline: var(--mantine-spacing-md);
+    border: 0;
+    border-radius: 0;
+  }
 }
