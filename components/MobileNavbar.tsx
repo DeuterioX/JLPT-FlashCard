@@ -23,8 +23,14 @@ import styles from './MobileNavbar.module.css';
 export function MobileNavbar({
   up, title, action,
 }: {
-  /** El nivel de arriba. Sin esto no hay flecha: es la pantalla raíz. */
-  up?: { href: string; label: string };
+  /**
+   * El nivel de arriba. Sin esto no hay flecha: es la pantalla raíz.
+   *
+   * `replace` para los casos en que volver ABANDONA algo y no sólo sube un
+   * nivel -una ronda de práctica-: con `push`, el Back del sistema devuelve a
+   * una ronda que ya se dejó.
+   */
+  up?: { href: string; label: string; replace?: boolean };
   title: string;
   action?: React.ReactNode;
 }) {
@@ -35,6 +41,7 @@ export function MobileNavbar({
           className={styles.navbarBack}
           component={Link}
           href={up.href}
+          replace={up.replace}
           aria-label={`Volver a ${up.label}`}
           underline="never"
         >

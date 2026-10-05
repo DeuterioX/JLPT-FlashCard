@@ -19,6 +19,10 @@
     align-self: stretch;
     height: auto;
     padding-inline: var(--mantine-spacing-md);
+    /* El blanco llega hasta el borde de la pantalla: el margen negativo se
+       come el relleno de la barra y el relleno de arriba lo repone, así el
+       área crece sin que el ícono se mueva. */
+    margin-inline-end: calc(-1 * var(--mantine-spacing-md));
     border: 0;
     border-radius: 0;
   }

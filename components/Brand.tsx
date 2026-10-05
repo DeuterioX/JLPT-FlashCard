@@ -25,11 +25,7 @@ export function Brand({
     <Group id={id} gap={7} wrap="nowrap">
       <Image src={logo} alt="" width={34} height={34} priority className={styles.brandLogo} />
       {withName && (
-        /* `data-brand-name` es el gancho para esconder el nombre desde otra
-           pantalla sin tener que pasar `withName` -que no se puede decidir en
-           JS sin `useMediaQuery`-. Va como atributo porque las clases de un
-           módulo se renombran y no se pueden nombrar desde afuera. */
-        <Box data-brand-name>
+        <Box>
           <Text id={nameId} fw={700} size="sm" lh={1.25}>{APP_NAME}</Text>
           <Text className={`kana ${styles.brandSub}`} aria-hidden>{APP_NAME_JP}</Text>
         </Box>

@@ -59,14 +59,17 @@
     white-space: nowrap;
   }
 
-  /* `stretch` en los dos ejes para que la acción pueda ocupar el alto entero
-     de la barra, por lo mismo que la flecha. */
+  /* La ranura se estira para que lo que lleve PUEDA ocupar el alto entero,
+     pero sus hijos van centrados: acá adentro no siempre hay un botón -la
+     barra de ronda le pasa el nombre del mazo-, y con `align-items: stretch`
+     a un texto se le estira la caja y queda pegado al borde de arriba. Lo que
+     quiera el alto completo lo pide con su propio `align-self`, como hace el
+     botón de renombrar. */
   .navbarAction {
     margin-left: auto;
     flex: none;
     align-self: stretch;
-    align-items: stretch;
-    margin-inline-end: calc(-1 * var(--mantine-spacing-md));
+    align-items: center;
   }
 }
 

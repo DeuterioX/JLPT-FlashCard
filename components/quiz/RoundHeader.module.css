@@ -19,81 +19,26 @@
   color: var(--mantine-color-text);
 }
 
-/* La flecha de volver sólo existe en teléfono; en escritorio salir es `Esc`. */
-.back { display: none; }
+/* El nombre del mazo, en la ranura de acción de `MobileNavbar`. Mismo tamaño y
+   mismo gris que tiene en la barra de escritorio, y que corte con puntos
+   suspensivos antes que empujar al título fuera de la barra. */
+.navContext {
+  font-size: var(--mantine-font-size-xs);
+  line-height: var(--mantine-line-height-xs);
+  color: var(--mantine-color-dimmed);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-/* El nombre de la ronda, también sólo en teléfono: ahí ocupa el lugar que deja
-   el nombre de la app. En escritorio no hace falta -el nombre de la app se
-   queda, y de qué ronda se trata ya lo dijo el botón que apretaste-. */
-.title { display: none; }
+/* En teléfono manda `MobileNavbar`, que es la misma barra que usan Mazos,
+   Grupos y Palabras: ésta se apaga entera, con todo lo que era su imitación
+   -la flecha, el título, el nombre de la app escondido-.
 
+   `display: none` y no `visibility` porque es lo único que la saca del árbol
+   de accesibilidad: si no, un lector de pantalla anuncia dos veces la misma
+   barra. */
 :root[data-phone] {
-  /* Igual que la flecha de `MobileNavbar` -es el mismo control en la misma
-     posición, y dos botones de volver distintos en pantallas contiguas se
-     notan-: sin marco y ocupando el alto entero de la barra, con el blanco
-     llegando hasta el borde de la pantalla. */
-  /* La flecha vive en un `Group` anidado, que de suyo mide lo que su contenido:
-     sin estirar también el grupo, el `stretch` de adentro no tiene contra qué
-     estirarse y la flecha quedaba de 34px en una barra de 43 -medido-.
-
-     Pero el `stretch` va SÓLO en el grupo, no en sus hijos: con
-     `align-items: stretch` se estiraban también la marca y el título, y la
-     caja del título pasaba de 20px a 34, con el texto pegado al borde de
-     arriba. Se veía descentrado porque lo estaba. Los hijos van centrados y
-     la flecha se estira sola con su propio `align-self`. */
-  .lead {
-    align-self: stretch;
-    align-items: center;
-  }
-
-  .back {
-    display: grid;
-    place-items: center;
-    align-self: stretch;
-    flex: none;
-    padding-inline: var(--mantine-spacing-md);
-    margin-inline-start: calc(-1 * var(--mantine-spacing-md));
-    /* Los 4px de arriba y abajo son el `py={4}` de la barra. El margen
-       negativo más el relleno del mismo valor hacen que el blanco los cubra
-       sin mover el glifo, igual que con el relleno lateral. */
-    margin-block: -0.25rem;
-    padding-block: 0.25rem;
-    border: 0;
-    border-radius: 0;
-    background: none;
-    color: var(--mantine-color-text);
-  }
-
-  /* Lo que acompaña a `Esc` se va con ella: el punto separador, la tecla y el
-     «salir». Queda sólo el contexto -«Hiragana · 26 grupos»-, que es lo único
-     de esa punta que sigue diciendo algo. */
-  .exitAside { display: none; }
-
-  /* Sólo el zorro, sin «Kitsune Cards», por lo mismo que `MobileNavbar`: la
-     flecha, la marca y el contexto compiten por 368px y el que no puede perder
-     es el que dice qué estás practicando. Medido con el mazo de nombre más
-     largo -«Minna no Nihongo I · 26 grupos»- a 390px: con el nombre puesto, el
-     contexto se caía a un segundo renglón, fuera de la barra. */
-  .header [data-brand-name] { display: none; }
-
-  /* Mismas medidas que el título de `MobileNavbar`. */
-  .title {
-    display: block;
-    flex: none;
-    font-size: var(--mantine-font-size-sm);
-    font-weight: 700;
-    line-height: 1.4;
-    white-space: nowrap;
-  }
-
-  /* Y si aun así no entra, que corte con puntos suspensivos en vez de
-     envolver. */
-  .aside { min-width: 0; }
-
-  .context {
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
+  .header { display: none; }
 }
