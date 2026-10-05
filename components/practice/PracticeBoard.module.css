@@ -107,6 +107,27 @@
   margin-left: auto;
 }
 
+/* Soldado, con el mismo molde que el par de verbos del pie: el marco lo lleva
+   el contenedor, las mitades pierden el suyo, y la costura es el borde
+   izquierdo de la segunda. El `overflow: hidden` deja rectas solas las
+   esquinas de adentro. */
+.selectGroup {
+  display: inline-flex;
+  flex: none;
+  border: 1px solid var(--mantine-color-dark-4);
+  border-radius: var(--mantine-radius-sm);
+  overflow: hidden;
+}
+
+.selectGroup :global(.mantine-Button-root) {
+  border: 0;
+  border-radius: 0;
+}
+
+.selectGroup :global(.mantine-Button-root) + :global(.mantine-Button-root) {
+  border-left: 1px solid var(--mantine-color-dark-4);
+}
+
 /* Los `size` con nombre de Mantine fijan tamaño E interlineado; al mudar el
    tamaño a la clase hay que traerse los dos. */
 .selectLabel {

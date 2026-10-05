@@ -3,6 +3,8 @@
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { Stack, Group, SegmentedControl, Button, Text, Box } from '@mantine/core';
+import { CheckSquare, DashSquare } from 'react-bootstrap-icons';
+import { Icon } from '../Icon';
 import { GroupGrid } from './GroupGrid';
 import { ActionBar } from '../ActionBar';
 import { Screen } from '../Screen';
@@ -126,16 +128,29 @@ export function PracticeBoard({
           la línea siguiente, nunca separados entre sí-. */}
       <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
         <Text className={styles.selectLabel}>Seleccionar:</Text>
-        {/* `.btn` en el diseño trae borde SIEMPRE (`.ghost` solo le saca
-            el fondo, no el borde). La variante `default` de Mantine es
-            la que ya viene con borde neutro sin depender del color
-            primario -`subtle` no tiene borde para nada-. */}
-        <Button id="select-all-btn" variant="default" size="compact-xs" onClick={() => setAll(true)}>
-          Todos
-        </Button>
-        <Button id="select-none-btn" variant="default" size="compact-xs" onClick={() => setAll(false)}>
-          Ninguno
-        </Button>
+        {/* Un solo control soldado, como el par de verbos del pie: son las dos
+            salidas de la misma decisión, y sueltos con un hueco se leen como
+            dos acciones que no tienen nada que ver.
+
+            Los rótulos pasan a ícono -cuadrado tildado y cuadrado con guión,
+            que son los dos estados de un grupo en la grilla de abajo-, y la
+            palabra sobrevive en el `aria-label`: ahí no se pierde nada para un
+            lector de pantalla, y además los e2e eligen estos botones por su
+            nombre accesible. */}
+        <Box className={styles.selectGroup}>
+          <Button
+            id="select-all-btn" variant="default" size="compact-xs"
+            aria-label="Todos" title="Todos" onClick={() => setAll(true)}
+          >
+            <Icon glyph={CheckSquare} />
+          </Button>
+          <Button
+            id="select-none-btn" variant="default" size="compact-xs"
+            aria-label="Ninguno" title="Ninguno" onClick={() => setAll(false)}
+          >
+            <Icon glyph={DashSquare} />
+          </Button>
+        </Box>
       </Group>
     </Group>
   );
