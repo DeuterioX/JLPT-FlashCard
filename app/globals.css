@@ -523,22 +523,18 @@ input:-webkit-autofill:active {
      escalón más chica: es una instrucción que se lee una vez y después
      estorba.
 
-     Anclada al piso del escenario, como el caption, y NO en el flujo. En el
-     flujo reservaba 15px más su hueco de 16 aunque estuviera escondida, y el
-     escenario centra a sus hijos: la hoja y la respuesta quedaban 15,5px por
-     encima del centro real, reveladas o no -medido-. Absoluta no participa
-     del centrado y tampoco puede hacer saltar nada al aparecer, que era lo
-     que el `visibility` venía a evitar. */
+     Queda en el flujo, que es lo que el quiz necesita: ahí cuelga de
+     `#quiz-under-kana`, que YA es un bloque absoluto anclado al kana.
+     Posicionarla acá la re-anclaba al `.quizTurn` y la tiraba encima de la
+     carta. Significados la saca del flujo por su cuenta, en su módulo, porque
+     ahí sí es hija directa del escenario. */
   .knd-tap-hint {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 2.75rem;
     font-size: 0.6875rem;
     line-height: 1.4;
     color: var(--mantine-color-dark-3);
     text-align: center;
   }
+  /* Sigue ocupando su lugar, para que la hoja no salte al aparecer. */
   .knd-tap-hint[data-oculto] { visibility: hidden; }
 }
 

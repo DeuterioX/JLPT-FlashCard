@@ -78,6 +78,18 @@
 }
 
 @media (max-width: 767.9px) {
+  /* Acá la pista SÍ sale del flujo, y sólo acá: es hija directa del escenario,
+     que posiciona. En el flujo reservaba 15px más su hueco de 16 aunque
+     estuviera escondida, y como el escenario centra a sus hijos, la hoja y la
+     respuesta quedaban 15,5px por encima del centro -medido-. El quiz no puede
+     hacer esto: ahí la pista cuelga de un bloque que ya es absoluto. */
+  .stage > :global(.knd-tap-hint) {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 2.75rem;
+  }
+
   .meaningFooter {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
