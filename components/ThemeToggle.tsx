@@ -1,7 +1,7 @@
 'use client';
 
 import { Button, useComputedColorScheme, useMantineColorScheme } from '@mantine/core';
-import { MoonStarsFill, SunFill } from 'react-bootstrap-icons';
+import { MoonFill, SunFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 
 /**
@@ -38,7 +38,7 @@ export function ThemeToggle({ id }: { id?: string }) {
       aria-label={target === 'dark' ? 'Cambiar a modo oscuro' : 'Cambiar a modo claro'}
       title={target === 'dark' ? 'Modo oscuro' : 'Modo claro'}
     >
-      <Icon glyph={target === 'dark' ? MoonStarsFill : SunFill} />
+      <Icon glyph={target === 'dark' ? MoonFill : SunFill} />
     </Button>
   );
 }
