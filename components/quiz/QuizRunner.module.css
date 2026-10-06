@@ -182,11 +182,22 @@
      es lo que hace que en cada mitad del giro se vea una sola.
    - Nada de `filter` sobre las caras: aplana el contexto 3D y el giro se ve como
      un aplastado lineal, sin volumen. */
-/* En `rem` y no en px: el resto de la carta escala con la raíz -que pasa de
-   16 a 32px entre 1280 y 3200 de ancho-, y una perspectiva fija en píxeles
-   dejaba la cámara relativamente más cerca a medida que la carta crecía, así
-   que a 4K el 3D se exageraba. 87,5rem son los mismos 1400px a 1440. */
-.quizPersp { perspective: 87.5rem; }
+/* La cámara, lejos. Con perspectiva, al girar sobre un eje horizontal el borde
+   que viene hacia la cámara se mueve más que el que se aleja, y la cara no
+   sólo se achica: se CORRE. Ese corrimiento crece con el alto de la cara al
+   cuadrado y baja con la distancia de la cámara, así que se nota sobre todo
+   con la hoja más alta que hay -un solo kana-: grabado en video, la cara de
+   «け» aparecía 5px por debajo de su lugar y se iba acomodando hacia arriba
+   mientras terminaba de abrir, con un borde quieto y el otro todavía
+   viajando. Medido a 4K: 4,1px de corrimiento a 87,5rem, 1,6 a 220rem.
+
+   No `none`: sin perspectiva el giro es un aplastado plano, sin volumen. A
+   220rem el trapecio de mitad de giro sigue estando, más sutil.
+
+   En `rem` y no en px porque el resto de la carta escala con la raíz -de 16 a
+   32px entre 1280 y 3200 de ancho-: una perspectiva fija en píxeles dejaba la
+   cámara relativamente más cerca a medida que la carta crecía. */
+.quizPersp { perspective: 220rem; }
 
 .quizTurn {
   display: grid;
