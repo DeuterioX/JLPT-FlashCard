@@ -167,12 +167,19 @@
    misma. Sobre X el eje de giro es el lado largo, así que hasta una frase de
    dos renglones gira como una página que se da vuelta.
 
-   Cuatro cosas que no son negociables acá:
+   SIN perspectiva, a propósito. Con perspectiva, al girar sobre un eje
+   horizontal el borde que viene hacia la cámara se mueve más que el que se
+   aleja, así que la cara no sólo se achica: se CORRE. Grabado en video con un
+   solo kana -la hoja más alta-, la cara de «け» aparecía 5px por debajo de su
+   lugar y se iba acomodando mientras terminaba de abrir, con un borde quieto y
+   el otro todavía viajando. Ese corrimiento sale de la geometría: alejar la
+   cámara lo achicaba (6px a 2,4) pero ningún valor lo llevaba a cero, y
+   animarlo con una librería no cambiaba nada, porque es la misma proyección.
+   Sin perspectiva el giro es un aplastado parejo sobre el centro: los dos
+   bordes viajan igual y la cara no se mueve de su lugar.
 
-   - La `perspective` va en el PADRE DIRECTO de lo que gira, y en un div propio:
-     convierte al elemento en bloque contenedor de sus descendientes absolutos,
-     y el layout de emergencia que con el teclado abierto pone `.quizKanaWrap`
-     en `static` dejaría de funcionar si la tuviera el `Box` de afuera.
+   Tres cosas que no son negociables acá:
+
    - El dorso va absoluto y CENTRADO sobre el eje de giro, con su alto natural.
      Con `inset: 0` queda clavado al tamaño del frente y una frase larga se
      derrama fuera del papel; compartiendo la celda de la grilla, la caja pasa a
@@ -180,25 +187,8 @@
      reservado y lo que cuelga abajo queda a 126px en vez de a 14.
    - `backface-visibility: hidden` en las dos caras y el dorso pre-girado 180°:
      es lo que hace que en cada mitad del giro se vea una sola.
-   - Nada de `filter` sobre las caras: aplana el contexto 3D y el giro se ve como
-     un aplastado lineal, sin volumen. */
-/* La cámara, lejos. Con perspectiva, al girar sobre un eje horizontal el borde
-   que viene hacia la cámara se mueve más que el que se aleja, y la cara no
-   sólo se achica: se CORRE. Ese corrimiento crece con el alto de la cara al
-   cuadrado y baja con la distancia de la cámara, así que se nota sobre todo
-   con la hoja más alta que hay -un solo kana-: grabado en video, la cara de
-   «け» aparecía 5px por debajo de su lugar y se iba acomodando hacia arriba
-   mientras terminaba de abrir, con un borde quieto y el otro todavía
-   viajando. Medido a 4K: 4,1px de corrimiento a 87,5rem, 1,6 a 220rem.
-
-   No `none`: sin perspectiva el giro es un aplastado plano, sin volumen. A
-   220rem el trapecio de mitad de giro sigue estando, más sutil.
-
-   En `rem` y no en px porque el resto de la carta escala con la raíz -de 16 a
-   32px entre 1280 y 3200 de ancho-: una perspectiva fija en píxeles dejaba la
-   cámara relativamente más cerca a medida que la carta crecía. */
-.quizPersp { perspective: 220rem; }
-
+   - Nada de `filter` sobre las caras: aplana el contexto 3D, y con él se pierde
+     el `backface-visibility` que decide qué cara se ve en cada mitad. */
 .quizTurn {
   display: grid;
   position: relative;
