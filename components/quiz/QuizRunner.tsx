@@ -417,7 +417,9 @@ function QuizPlay({
       // desapareciera solo, que es justo lo que no se quiere acá-.
       if (e.key === 'Enter') {
         e.preventDefault();
-        nextRound();
+        // Mantener Enter no encadena rondas: el autorrepetir del teclado
+        // mandaría un `keydown` por cada repetición y saltearía varias.
+        if (!e.repeat) nextRound();
       } else if (e.key === ' ') {
         // No hace nada mientras el resumen está arriba, pero igual se
         // previene: si no, Espacio scrollearía la página que quedó debajo
@@ -428,9 +430,15 @@ function QuizPlay({
     }
     // Espacio revela, pero solo si el input está vacío: si no, no se podría
     // escribir una respuesta que empiece con espacio.
+    //
+    // Mantenerlo apretado da vuelta la carta UNA vez. El sistema repite el
+    // `keydown` mientras la tecla sigue abajo, y cada repetición la daba
+    // vuelta de nuevo: la carta iba y venía sin parar. El `preventDefault` va
+    // igual en las repeticiones, si no esas sí escribirían espacios en el
+    // input.
     if (e.key === ' ' && typed === '') {
       e.preventDefault();
-      onReveal();
+      if (!e.repeat) onReveal();
     }
   });
 
@@ -774,6 +782,13 @@ function QuizPlay({
               id="answer-input"
               className={styles.quizAnswer}
               value={typed}
+              // Un Enter mantenido no reenvía el formulario. Después de acertar
+              // el input queda vacío y cada repetición del autorrepetir
+              // mandaba esa respuesta vacía contra la carta SIGUIENTE, que
+              // cuenta como error y se guarda: ensuciaba las estadísticas con
+              // errores que nadie cometió. Cortarlo en el `keydown` es lo que
+              // impide el envío implícito del formulario.
+              onKeyDown={(e) => { if (e.key === 'Enter' && e.repeat) e.preventDefault(); }}
               onChange={(e) => {
                 setTyped(e.currentTarget.value);
                 // Único lugar donde se apaga el aviso de error: recién

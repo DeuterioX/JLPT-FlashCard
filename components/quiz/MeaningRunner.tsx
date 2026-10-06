@@ -107,6 +107,11 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') { router.replace('/'); return; }
       if (finished) return;
+      // Una tecla mantenida no repite la acción. Con el autorrepetir del
+      // teclado, el Espacio daba vuelta la carta sin parar y, peor, el 1 o el 2
+      // calificaban varias cartas seguidas sin que se vieran. El Espacio se
+      // previene igual en las repeticiones para que no scrollee la página.
+      if (e.repeat) { if (e.key === ' ') e.preventDefault(); return; }
       if (e.key === ' ') { e.preventDefault(); setRevelado((v) => !v); return; }
       // 1 y 2 son la POSICIÓN de cada botón, no su respuesta: el 1 es el de
       // la izquierda, que es «La sabía».
