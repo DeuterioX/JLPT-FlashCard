@@ -211,7 +211,17 @@
   /* El orden importa: primero se centra y después se da vuelta, así el eje de
      giro del dorso es el mismo que el de la hoja. */
   transform: translate(-50%, -50%) rotateX(180deg);
-  width: max-content;
+  /* EXACTAMENTE el ancho de la hoja del frente, no el de su propio contenido.
+     Con `max-content` el dorso medía lo que midiera el texto -180px contra los
+     340 de la hoja de さかな, medido-, así que al cruzar los 90° el papel de
+     340 era reemplazado por uno de 180 en el mismo lugar: como los dos son
+     crema sobre el mismo fondo, el ojo no lee «otra cara», lee «la caja se
+     encogió para acomodarse», y se nota justo cuando la carta termina de
+     abrirse. Con `100%` la silueta no cambia en todo el giro.
+
+     Resuelve contra `.quizTurn`, que es una grilla cuyo tamaño lo pone el
+     frente: el dorso es absoluto y no participa de ese cálculo. */
+  width: 100%;
   /* El papel necesita margen propio: el frente es una grilla de celdas que ya
      trae el suyo; el dorso, texto suelto sobre la hoja. */
   padding: 1rem 1.25rem;
@@ -240,7 +250,10 @@
   background: var(--knd-papel);
   border-radius: 3px;
   box-shadow: var(--knd-sombra-hoja);
-  /* Nunca más ancho que la hoja del frente ni que la pantalla. */
+  /* Red de seguridad por si alguna vez la hoja del frente se pasa de la
+     pantalla. El ancho de verdad lo pone el `width: 100%` de arriba: este
+     `max-width` decía «nunca más ancho que la hoja del frente» y no lo hacía,
+     porque mide contra el contenedor y no contra la hoja. */
   max-width: min(100cqw - 3rem, 62rem);
 }
 
