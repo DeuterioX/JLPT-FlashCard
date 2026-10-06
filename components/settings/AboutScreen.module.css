@@ -1,0 +1,106 @@
+/* La misma columna de 760px que Ajustes. */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.125rem;
+  width: 100%;
+  max-width: 47.5rem;
+  margin-inline: auto;
+  padding-block: 1.25rem;
+}
+
+.hero {
+  align-items: center;
+  gap: 0.625rem;
+}
+
+/* Por alto, como el zorro de la barra: atado al ancho, su proporción decidiría
+   cuánto ocupa. */
+.logo {
+  height: 5.25rem;
+  width: auto;
+}
+
+.names {
+  align-items: center;
+  gap: 0.125rem;
+}
+
+.name {
+  margin: 0;
+  font-size: 1.3125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.nameJp {
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--mantine-color-dimmed);
+}
+
+/* La hoja con un lado fijo y no el que calcula el quiz contra su escenario: acá
+   no hay escenario, y el nombre tiene siempre tres caracteres. Con el contenedor
+   adelante para ganarle a `.knd-genko`, que redefine el lado en un `@supports`
+   de globals.css.
+
+   Las columnas, una por carácter: el `auto-fit` del quiz reparte contra el ancho
+   del escenario, y acá la hoja es un ítem flex que mide lo que su contenido, así
+   que no hay ancho del que partir y caía a una columna -medido: キツネ salía
+   vertical-. */
+.sheet {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.sheet :global(.knd-genko) {
+  --knd-genko-lado: 5.75rem;
+  grid-template-columns: repeat(var(--knd-genko-n), var(--knd-genko-lado));
+  max-width: none;
+}
+
+.section { gap: 0.625rem; }
+
+/* Justificado y con cortes de palabra: sin `hyphens`, a 390px una línea con
+   dos palabras largas se estira con huecos de una palabra entera. El `lang` del
+   bloque es el que le dice al navegador con qué diccionario cortar. */
+.prose {
+  gap: 0.5625rem;
+  font-size: 0.84375rem;
+  line-height: 1.65;
+  color: var(--mantine-color-dark-2);
+  text-align: justify;
+  hyphens: auto;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1.5rem;
+  margin: 0;
+}
+
+@media (max-width: 767.9px) {
+  .facts { grid-template-columns: 1fr; }
+}
+
+.fact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.factLabel {
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mantine-color-dark-3);
+}
+
+.factValue {
+  margin: 0;
+  font-size: 0.71875rem;
+  line-height: 1.5;
+  color: var(--mantine-color-dark-2);
+}

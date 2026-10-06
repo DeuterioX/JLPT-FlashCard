@@ -1,0 +1,21 @@
+/* El mismo alto que la píldora del menú de al lado, que le sale de su
+   interlineado `sm` más 5px de relleno arriba y abajo: 30px, medido. El
+   `compact-xs` trae 22 fijos, y pegados en la misma barra la diferencia se ve. */
+.settingsButton {
+  flex: none;
+  margin-left: auto;
+  height: 1.875rem;
+}
+
+/* En teléfono, el mismo blanco que la flecha de volver y que «Renombrar»: sin
+   marco y de punta a punta en vertical, con el margen negativo llevándolo hasta
+   el borde de la pantalla sin mover el ícono. Ver `.navbarBack`. */
+:root[data-phone] .settingsButton {
+  align-self: stretch;
+  height: auto;
+  padding-inline: var(--mantine-spacing-md);
+  margin-inline-end: calc(-1 * var(--mantine-spacing-md));
+  border: 0;
+  border-radius: 0;
+  background: none;
+}

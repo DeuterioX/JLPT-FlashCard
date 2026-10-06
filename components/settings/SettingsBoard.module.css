@@ -1,0 +1,19 @@
+/* Una columna de 760px centrada: a lo ancho de la pantalla, el control de un
+   ajuste quedaba a 1300px de su nombre -medido en el canvas a 1440-. */
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  width: 100%;
+  max-width: 47.5rem;
+  margin-inline: auto;
+}
+
+/* Con la columna adelante para pasar por encima del `display: flex` de la
+   fila, que tiene la misma especificidad y podría cargar después. */
+.column .narrow { display: none; }
+
+@media (max-width: 767.9px) {
+  .column .wide { display: none; }
+  .column .narrow { display: flex; }
+}

@@ -130,50 +130,6 @@ a.inlineLink {
   color: inherit;
 }
 
-/* ------------------------------------------------ opciones de «Mover a…» */
-/* Cada destino es una FILA entera clickeable, no una bolita con un texto al
-   lado: el blanco de un radio de 14px en un teléfono es más chico que la punta
-   de un dedo, y la lista de grupos puede tener cinco o veinte. */
-.moveOpt {
-  padding: 0.5rem 0.625rem;
-  border-radius: var(--mantine-radius-sm);
-}
-
-/* El elegido se pinta con la superficie de control: el círculo solo es un
-   blanco de 14px y en una lista de cinco o veinte no se ve de un vistazo cuál
-   está marcado. El estado se lee del `[data-checked]` que Mantine pone en la
-   raíz del `Radio`, medido: un atributo propio calculado en el componente no
-   llega nunca ahí -Mantine no reenvía atributos sueltos a esa raíz- y la fila
-   elegida quedaba sin pintar. */
-.moveOpt[data-checked] {
-  background: var(--mantine-color-dark-5);
-}
-
-/* Un anillo de 1px con un punto adentro, no el disco lleno con el punto NEGRO
-   de Mantine -su `--radio-icon-color` es el único negro puro que aparecería en
-   la app-. El punto no se puede pintar desde acá, porque Mantine escribe esa
-   variable inline en la raíz del control: va por el prop `iconColor`. */
-.moveOpt :global(.mantine-Radio-radio) {
-  background-color: transparent;
-  border-color: var(--mantine-color-dark-4);
-}
-
-.moveOpt[data-checked] :global(.mantine-Radio-radio) {
-  border-color: var(--mantine-color-jade-6);
-}
-
-/* `label` de Mantine trae su propio `padding-left`; acá el espacio entre la
-   bolita y el nombre lo pone el `gap` del cuerpo. */
-.moveOpt :global(.mantine-Radio-body) { gap: 0.625rem; align-items: center; }
-
-.moveOpt :global(.mantine-Radio-labelWrapper) { flex: 1; min-width: 0; }
-
-.moveOpt :global(.mantine-Radio-label) { padding-left: 0; cursor: pointer; }
-
-/* El `<label>` tapa toda la fila, así que el clic en cualquier parte -el número
-   de cartas incluido- marca ese destino. */
-.moveOpt :global(.mantine-Radio-inner) { cursor: pointer; }
-
 /* El panel de alta de palabra: su aire y el borde suave del diseño. */
 .newWordPanel {
   padding: 0.8125rem;

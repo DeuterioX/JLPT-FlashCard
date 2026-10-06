@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Brand } from './Brand';
 import { DesktopNav } from './DesktopNav';
 import { MobileNav } from './MobileNav';
+import { SettingsButton } from './SettingsButton';
 import { usePhone } from '@/lib/client/screen';
 import styles from './AppShell.module.css';
 
@@ -38,6 +39,7 @@ export function AppShell({ children, phone: phoneUA }: { children: React.ReactNo
         <Group h="100%" px="md" gap="xl" wrap="nowrap">
           <Brand id="app-brand" nameId="app-name" />
           {!phone && <DesktopNav />}
+          <SettingsButton />
         </Group>
       </Box>
 

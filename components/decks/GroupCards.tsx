@@ -3,7 +3,7 @@
 import { useRef, useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import {
-  Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box, Radio,
+  Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box,
   rem,
 } from '@mantine/core';
 import { Screen } from '../Screen';
@@ -18,6 +18,7 @@ import { ModalTitle } from '../ModalTitle';
 import { NameModal } from '../NameModal';
 import { ConfirmModal } from '../ConfirmModal';
 import { ModalActions } from '../ModalActions';
+import { ChoiceList } from '../ChoiceList';
 import { PaperField } from '../PaperField';
 import { toRomaji } from '@/lib/kana/transliterate';
 import { toKana } from '@/lib/kana/to-kana';
@@ -651,37 +652,15 @@ export function GroupCards({
                 lista de destinos posibles no es el lugar para eso -el target
                 que no se puede elegir no es un target-, y el nombre del grupo
                 ya está en la miga de arriba de la pantalla. */}
-            <Radio.Group value={target === null ? '' : String(target)} onChange={(v) => setDestino(Number(v))}>
-              <Stack gap={2}>
-                {deck.groups.filter((g) => g.id !== group.id).map((g) => (
-                  <Radio
-                    key={g.id}
-                    id={`move-to-${g.id}`}
-                    value={String(g.id)}
-                    disabled={moveAction.busy}
-                    className={styles.moveOpt}
-                    /* 16px, el preset más chico: el círculo del diseño mide 14 y
-                       los 20 del default de Mantine, al lado de un nombre de
-                       13px, pesan más que el nombre. */
-                    size="xs"
-                    /* El punto de adentro va en jade, no en el negro que Mantine
-                       mete por default. Y va como PROP y no por CSS: Mantine
-                       escribe `--radio-icon-color` como estilo INLINE en la raíz
-                       del control -medido: `--radio-icon-color:
-                       var(--mantine-color-black)`-, así que una regla de clase
-                       nunca le iba a ganar. La marca queda de un solo color:
-                       anillo y punto en jade. */
-                    iconColor="jade.6"
-                    label={
-                      <Group gap={10} wrap="nowrap" justify="space-between" className="knd-grow">
-                        <Text size={rem(13)}>{g.name}</Text>
-                        <Text size={rem(11)} c="dark.3" className="tabular">{g.cardCount}</Text>
-                      </Group>
-                    }
-                  />
-                ))}
-              </Stack>
-            </Radio.Group>
+            <ChoiceList
+              idPrefix="move-to"
+              value={target === null ? null : String(target)}
+              onChange={(v) => setDestino(Number(v))}
+              disabled={moveAction.busy}
+              options={deck.groups.filter((g) => g.id !== group.id).map((g) => ({
+                value: String(g.id), label: g.name, hint: g.cardCount,
+              }))}
+            />
             {moveAction.error && <Text className="knd-error" size="sm">{moveAction.error}</Text>}
             <ModalActions onCancel={() => setMoving(null)} busy={moveAction.busy}>
               <Button
