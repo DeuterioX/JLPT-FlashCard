@@ -1,5 +1,6 @@
 'use client';
 
+import { Fragment } from 'react';
 import { Overlay, Paper, Stack, Group, Text, Progress, Kbd } from '@mantine/core';
 import { accuracy, type RoundState } from '@/lib/quiz/engine';
 import { SectionLabel } from '../SectionLabel';
@@ -35,12 +36,12 @@ export function RoundSummary({
           asimétrico 20px/24px y gap 14px del mockup -ninguno de los dos
           coincide con un valor nombrado de Mantine (`lg`=20px parejo,
           `xl`=32px), así que van literales en rem-. */}
+      {/* El ancho lo decide el CSS y no `maw`/`w`: Mantine los escribe inline y
+          ninguna regla les podría ganar. Ver `.panel`. */}
       <Paper
         id="round-summary-panel"
         withBorder
         radius="lg"
-        maw={400}
-        w="90%"
         className={styles.panel}
       >
         <Stack gap="0.875rem">
@@ -74,22 +75,29 @@ export function RoundSummary({
           </Group>
 
           {sorted.length > 0 && (
-            <Stack id="round-summary-misses" gap={5}>
+            <div id="round-summary-misses" className={styles.misses}>
               {/* Mismo encabezado de sección que el resto de la app, ahora
                   desde el componente compartido (ver SectionLabel.tsx). */}
-              <SectionLabel>Las que te costaron</SectionLabel>
+              <div className={styles.missesLabel}>
+                <SectionLabel>Las que te costaron</SectionLabel>
+              </div>
+              {/* Una grilla y no una fila por palabra: las columnas son
+                  COMPARTIDAS, así que la palabra más larga ensancha la columna
+                  de todas y las barras arrancan alineadas. Con anchos fijos de
+                  34 y 46px, シャープペンシル se partía en cuatro renglones y su
+                  romaji se metía encima de la barra. */}
               {sorted.map((m) => (
-                <Group key={m.cardId} gap="sm" wrap="nowrap">
-                  <Text className="kana" w={34}>{m.prompt}</Text>
-                  <Text className="romaji" size="xs" c="dimmed" w={46}>{m.primary}</Text>
-                  <Progress value={(m.count / worst) * 100} color="shu.6" size="xs" className="knd-grow" />
+                <Fragment key={m.cardId}>
+                  <Text className={`kana ${styles.cell}`} title={m.prompt}>{m.prompt}</Text>
+                  <Text className={`romaji ${styles.cell}`} size="xs" c="dimmed" title={m.primary}>{m.primary}</Text>
+                  <Progress value={(m.count / worst) * 100} color="shu.6" size="xs" />
                   {/* `dark.3` (--a-dimmer), no `dimmed` (dark.2, el mismo
                       tono que el romaji de al lado): en el diseño es un
                       escalón más apagado que la columna de al lado. */}
                   <Text size="xs" c="dark.3" className="tabular">{m.count}</Text>
-                </Group>
+                </Fragment>
               ))}
-            </Stack>
+            </div>
           )}
 
           {/* `Group` con `gap`, no texto suelto con Kbd/espacios intercalados

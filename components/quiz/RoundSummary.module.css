@@ -1,2 +1,34 @@
-/* El aire del panel del resumen, el del diseño. */
-.panel { padding: 1.25rem 1.5rem; }
+/* El aire del panel del resumen, el del diseño.
+
+   El ancho es el del contenido: crece hasta donde lo pidan la palabra y el
+   romaji más largos de «Las que te costaron», con piso en los 400px del diseño
+   y techo en 640. Pasado el techo no crece más y las dos columnas de texto
+   cortan con elipsis. Los dos límites se miden también contra la pantalla, para
+   que en un teléfono el panel deje su margen. */
+.panel {
+  padding: 1.25rem 1.5rem;
+  width: fit-content;
+  min-width: min(25rem, 90vw);
+  max-width: min(40rem, 90vw);
+}
+
+/* Palabra, romaji, barra y conteo. Las dos de texto miden lo que su contenido
+   pero pueden achicarse hasta cero -el `minmax(0, …)`-, que es lo que deja
+   aparecer la elipsis cuando el panel llega al techo. La barra nunca baja de
+   5rem: es la única que dice cuánto costó cada una. */
+.misses {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(0, max-content) minmax(5rem, 1fr) auto;
+  align-items: center;
+  column-gap: var(--mantine-spacing-sm);
+  row-gap: 0.3125rem;
+}
+
+.missesLabel { grid-column: 1 / -1; }
+
+.cell {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
