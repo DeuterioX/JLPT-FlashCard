@@ -203,11 +203,16 @@
      de un cuadro al otro, la otra cara. No se trababa -60fps clavados-: se
      movía a los saltos.
 
-     Ésta cruza ese tramo en ocho cuadros con un tope de 8,3°/cuadro. Una
-     lineal lo hace en nueve, pero arranca y para en seco, como una máquina:
-     las puntas suaves son lo que le deja el peso de hoja que buscaba la
-     maqueta. */
-  transition: transform 480ms cubic-bezier(0.4, 0.2, 0.6, 0.8);
+     Ésta cruza ese tramo en seis cuadros con un tope de 10,5°/cuadro, en los
+     MISMOS 380ms de antes. La mejora sale de la forma de la curva, no de la
+     duración: estirarla a 480ms la suavizaba más -ocho cuadros, 8,3°- pero
+     la respuesta aparecía 83ms más tarde, y en Revelar lo único que importa es
+     ver la respuesta. Así se ve a los 200ms, contra 167 de la curva vieja.
+
+     Una lineal sería todavía más pareja en el medio, pero arranca y para en
+     seco, como una máquina: las puntas suaves son lo que le deja el peso de
+     hoja que buscaba la maqueta. */
+  transition: transform 380ms cubic-bezier(0.4, 0.2, 0.6, 0.8);
 }
 
 .quizTurn[data-revealed] { transform: rotateX(180deg); }
