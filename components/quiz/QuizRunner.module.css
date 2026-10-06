@@ -193,6 +193,20 @@
   display: grid;
   position: relative;
   transform-style: preserve-3d;
+  /* La carta vive SIEMPRE en su propia capa de GPU, no sólo mientras gira.
+
+     Al arrancar una animación de `transform`, el navegador saca el elemento a
+     una capa propia para animarlo, y esa capa se pinta alineada a píxeles
+     enteros. Con el escalado de Windows al 125% la carta en reposo cae en una
+     posición fraccionaria, así que al pasar a la capa se redondeaba y saltaba
+     un píxel de costado -medido en un video de Opera a 3840x2160 al 125%: 1px
+     a la izquierda justo en el cuadro en que arranca la vuelta, y de regreso
+     al terminar, cuando la capa se suelta-. Dejándola siempre en capa no hay
+     nada que promover ni que soltar, y el redondeo no cambia.
+
+     No se reproduce emulando la densidad 1,25 en Chromium: la emulación no
+     redondea como el escalado real de Windows. */
+  will-change: transform;
   /* Casi lineal en el medio y con freno suave en las dos puntas.
 
      La curva anterior -la de la maqueta, 380ms (.45,.05,.35,1)- arrancaba tan
