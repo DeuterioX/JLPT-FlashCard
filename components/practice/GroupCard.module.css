@@ -21,11 +21,17 @@
 
 .gcHead { padding: 0 0.125rem; }
 
-/* Para un nombre sin espacios más largo que la tarjeta, que en las tres
-   columnas de teléfono desbordaba -probado con «arigatougozaimasu»-. */
+/* El nombre va en UNA línea, con elipsis si no entra. Partido en varios
+   renglones empujaba la hoja hacia abajo, y en una fila de grupos de
+   vocabulario cada hoja arrancaba a otra altura -«Pronombres y formas de
+   dirigirse a alguien» ocupaba cuatro renglones al lado de «Edad»-. El nombre
+   completo queda en el `title` y en el `aria-label` de la tarjeta. */
 .gcName {
-  word-break: break-word;
+  flex: 1;
   min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* Decorativo: quien recibe el click es la tarjeta. */

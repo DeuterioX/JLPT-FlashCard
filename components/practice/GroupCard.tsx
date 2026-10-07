@@ -61,7 +61,7 @@ export function GroupCard({
               que ahora diga "Serie A" no la cambia. `lh` explícito porque con
               un `size` en string libre Mantine devuelve una caja de línea
               MENOR que la letra y los renglones se pisan. */}
-          <Text size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`}>
+          <Text size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`} title={group.name}>
             {group.name}
           </Text>
           <Switch checked={checked} readOnly tabIndex={-1} aria-hidden className={styles.gcSwitch} />
