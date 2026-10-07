@@ -25,7 +25,8 @@
    renglones empujaba la hoja hacia abajo, y en una fila de grupos de
    vocabulario cada hoja arrancaba a otra altura -«Pronombres y formas de
    dirigirse a alguien» ocupaba cuatro renglones al lado de «Edad»-. El nombre
-   completo queda en el `title` y en el `aria-label` de la tarjeta. */
+   completo queda en un tooltip -si está cortado- y en el `aria-label` de la
+   tarjeta. */
 .gcName {
   flex: 1;
   min-width: 0;

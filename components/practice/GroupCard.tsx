@@ -1,6 +1,7 @@
 'use client';
 
-import { Card, Switch, Stack, Group, Text } from '@mantine/core';
+import { useState } from 'react';
+import { Card, Switch, Stack, Group, Text, Tooltip } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 import styles from './GroupCard.module.css';
 
@@ -21,6 +22,7 @@ export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
+  const [nameTip, setNameTip] = useState(false);
   // Cuántas quedan afuera de la previsualización. 0 = el grupo entra entero.
   const hidden = group.cardCount - group.preview.length;
 
@@ -61,9 +63,19 @@ export function GroupCard({
               que ahora diga "Serie A" no la cambia. `lh` explícito porque con
               un `size` en string libre Mantine devuelve una caja de línea
               MENOR que la letra y los renglones se pisan. */}
-          <Text size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`} title={group.name}>
-            {group.name}
-          </Text>
+          {/* El tooltip sólo aparece si el nombre está cortado por la
+              elipsis: entero no tiene nada que agregar. Se mide al entrar el
+              puntero y no al renderizar, porque el corte depende del ancho de
+              la columna, que cambia con la ventana. */}
+          <Tooltip label={group.name} opened={nameTip} withArrow multiline maw={240}>
+            <Text
+              size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`}
+              onMouseEnter={(e) => setNameTip(e.currentTarget.scrollWidth > e.currentTarget.clientWidth)}
+              onMouseLeave={() => setNameTip(false)}
+            >
+              {group.name}
+            </Text>
+          </Tooltip>
           <Switch checked={checked} readOnly tabIndex={-1} aria-hidden className={styles.gcSwitch} />
         </Group>
 
