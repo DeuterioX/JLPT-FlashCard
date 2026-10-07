@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Box, Button, Group, Kbd, Paper, Progress, Stack, Text } from '@mantine/core';
+import { Box, Button, Group, Kbd, Paper, Progress, Text } from '@mantine/core';
 import { GenkoSheet } from './GenkoSheet';
+import { FlipSheet } from './FlipSheet';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { RoundHeader, roundContext } from './RoundHeader';
 import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
@@ -22,10 +23,10 @@ import styles from './MeaningRunner.module.css';
  * texto pueda dar por buenas. Así que la carta se revela y te calificás vos,
  * que es el trato de cualquier flashcard.
  *
- * La hoja NO se da vuelta. El giro del quiz es para cuando el kana se va y
- * entra la respuesta en su lugar; acá querés ver la palabra AL LADO de su
- * significado, porque eso es lo que estás tratando de unir. El hueco donde
- * cae está reservado también sin revelar, así la hoja no salta al aparecer.
+ * Revelar da vuelta la hoja con el mismo giro del quiz (`FlipSheet`): atrás
+ * están la lectura y el significado. Antes la hoja se quedaba quieta y la
+ * respuesta aparecía debajo, para ver la palabra al lado de su significado;
+ * se cambió para que las dos rondas revelen igual.
  *
  * Revelar es un INTERRUPTOR y está siempre: en un repaso querés poder tapar
  * la respuesta y volver a mirarla sin salir de la carta. Y los dos de
@@ -136,7 +137,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
         id="meaning-stage"
         className={`knd-round-stage ${styles.stage}`}
         /* En teléfono el escenario ES el interruptor de revelar: el botón se
-           esconde y el toque sobre la carta muestra y tapa el significado.
+           esconde y el toque sobre la carta la da vuelta, para los dos lados.
            Sigue siendo un interruptor, como el botón que reemplaza. */
         onClick={() => {
           if (finished) return;
@@ -146,29 +147,17 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       >
         {card && (
           <>
-            <GenkoSheet id="meaning-kana" testId="meaning-prompt" text={card.prompt} />
-            {/* El hueco está reservado también sin revelar: si apareciera de
-                la nada, la hoja saltaría hacia arriba al revelar. */}
-            {/* La respuesta está SIEMPRE montada y se esconde con
-                `visibility`, no se agrega al revelar. Montándola, el hueco
-                mide lo que mide ella -y un significado largo mide más que el
-                mínimo reservado-, así que al revelar la columna crecía y la
-                hoja pegaba un salto: medido, 18,5px hacia arriba con
-                «Disculpe (se utiliza al comienzo de una expresión…)». Ahora el
-                hueco ya tiene el alto correcto desde antes y no se mueve nada.
-
-                `visibility` y no `opacity`: saca el texto del árbol de
-                accesibilidad, así un lector de pantalla no canta la respuesta
-                antes de que la pidas. */}
-            <Stack
-              className={styles.meaningSlot} gap={2} align="center" justify="center"
-              data-oculto={!revealed || undefined}
-            >
-              <Text id="meaning-reading" className={`romaji ${styles.meaningReading}`} c="dimmed">
-                {card.primary}
-              </Text>
-              <Text id="meaning-answer" className={styles.meaningAnswer}>{card.meaning}</Text>
-            </Stack>
+            {/* `key` por carta: la carta nueva entra de frente, sin animar. Ver
+                `FlipSheet`. */}
+            <FlipSheet
+              key={i}
+              flipped={revealed}
+              readingId="meaning-reading"
+              meaningId="meaning-answer"
+              reading={card.primary}
+              meaning={card.meaning}
+              front={<GenkoSheet id="meaning-kana" testId="meaning-prompt" text={card.prompt} />}
+            />
             <Text id="meaning-caption" className="knd-quiz-caption tabular">
               {`carta ${i + 1} de ${cards.length}`}
             </Text>

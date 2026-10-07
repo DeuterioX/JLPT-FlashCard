@@ -1,0 +1,173 @@
+/* Revelar da vuelta el kana con un GIRO SOBRE EL EJE X: la hoja cae hacia
+   adelante, pasa de canto y sube por atrás con la lectura. Se maquetó también
+   girando celda por celda con 90ms de diferencia y se descartó: al pasar cada
+   celda por su canto se ve el fondo de la pantalla a través de ella y la hoja
+   deja de ser una superficie.
+
+   Sobre X y no sobre Y: girando sobre Y, una hoja de una o dos celdas queda de
+   canto en una línea vertical de dos píxeles con el glifo estirado y la cruz de
+   guía -que es lo que dice que eso es papel de manuscrito- aplastada contra sí
+   misma. Sobre X el eje de giro es el lado largo, así que hasta una frase de
+   dos renglones gira como una página que se da vuelta.
+
+   SIN perspectiva, a propósito. Con perspectiva, al girar sobre un eje
+   horizontal el borde que viene hacia la cámara se mueve más que el que se
+   aleja, así que la cara no sólo se achica: se CORRE. Grabado en video con un
+   solo kana -la hoja más alta-, la cara de «け» aparecía 5px por debajo de su
+   lugar y se iba acomodando mientras terminaba de abrir, con un borde quieto y
+   el otro todavía viajando. Ese corrimiento sale de la geometría: alejar la
+   cámara lo achicaba (6px a 2,4) pero ningún valor lo llevaba a cero, y
+   animarlo con una librería no cambiaba nada, porque es la misma proyección.
+   Sin perspectiva el giro es un aplastado parejo sobre el centro: los dos
+   bordes viajan igual y la cara no se mueve de su lugar.
+
+   Tres cosas que no son negociables acá:
+
+   - El dorso va absoluto y CENTRADO sobre el eje de giro, con su alto natural.
+     Con `inset: 0` queda clavado al tamaño del frente y una frase larga se
+     derrama fuera del papel; compartiendo la celda de la grilla, la caja pasa a
+     medir lo que mide la cara MÁS ALTA, la hoja flota en el medio de un hueco
+     reservado y lo que cuelga abajo queda a 126px en vez de a 14.
+   - `backface-visibility: hidden` en las dos caras y el dorso pre-girado 180°:
+     es lo que hace que en cada mitad del giro se vea una sola.
+   - Nada de `filter` sobre las caras: aplana el contexto 3D, y con él se pierde
+     el `backface-visibility` que decide qué cara se ve en cada mitad. */
+.turn {
+  display: grid;
+  position: relative;
+  transform-style: preserve-3d;
+  /* La carta vive SIEMPRE en su propia capa de GPU, no sólo mientras gira.
+
+     Al arrancar una animación de `transform`, el navegador saca el elemento a
+     una capa propia para animarlo, y esa capa se pinta alineada a píxeles
+     enteros. Con el escalado de Windows al 125% la carta en reposo cae en una
+     posición fraccionaria, así que al pasar a la capa se redondeaba y saltaba
+     un píxel de costado -medido en un video de Opera a 3840x2160 al 125%: 1px
+     a la izquierda justo en el cuadro en que arranca la vuelta, y de regreso
+     al terminar, cuando la capa se suelta-. Dejándola siempre en capa no hay
+     nada que promover ni que soltar, y el redondeo no cambia.
+
+     No se reproduce emulando la densidad 1,25 en Chromium: la emulación no
+     redondea como el escalado real de Windows. */
+  will-change: transform;
+  /* Casi lineal en el medio y con freno suave en las dos puntas.
+
+     La curva anterior -la de la maqueta, 380ms (.45,.05,.35,1)- arrancaba tan
+     lento que la mitad tenía que correr para alcanzar: medido cuadro a cuadro,
+     la velocidad tope -17,4°/cuadro- caía justo al cruzar los 90°, y el tramo
+     de 60° a 120° pasaba en CUATRO cuadros. Ese tramo es el único que importa:
+     es donde la carta está de canto y cambia de cara, y además donde la altura
+     proyectada cambia más rápido por grado. El ojo veía la carta aplastarse y,
+     de un cuadro al otro, la otra cara. No se trababa -60fps clavados-: se
+     movía a los saltos.
+
+     Ésta cruza ese tramo en seis cuadros con un tope de 10,5°/cuadro, en los
+     MISMOS 380ms de antes. La mejora sale de la forma de la curva, no de la
+     duración: estirarla a 480ms la suavizaba más -ocho cuadros, 8,3°- pero
+     la respuesta aparecía 83ms más tarde, y en Revelar lo único que importa es
+     ver la respuesta. Así se ve a los 200ms, contra 167 de la curva vieja.
+
+     Una lineal sería todavía más pareja en el medio, pero arranca y para en
+     seco, como una máquina: las puntas suaves son lo que le deja el peso de
+     hoja que buscaba la maqueta. */
+  transition: transform 380ms cubic-bezier(0.4, 0.2, 0.6, 0.8);
+}
+
+.turn[data-revealed] { transform: rotateX(180deg); }
+
+.face {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.back {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* El orden importa: primero se centra y después se da vuelta, así el eje de
+     giro del dorso es el mismo que el de la hoja. */
+  transform: translate(-50%, -50%) rotateX(180deg);
+  /* EXACTAMENTE el ancho de la hoja del frente, no el de su propio contenido.
+     Con `max-content` el dorso medía lo que midiera el texto -180px contra los
+     340 de la hoja de さかな, medido-, así que al cruzar los 90° el papel de
+     340 era reemplazado por uno de 180 en el mismo lugar: como los dos son
+     crema sobre el mismo fondo, el ojo no lee «otra cara», lee «la caja se
+     encogió para acomodarse», y se nota justo cuando la carta termina de
+     abrirse. Con `100%` la silueta no cambia en todo el giro.
+
+     Resuelve contra `.turn`, que es una grilla cuyo tamaño lo pone el
+     frente: el dorso es absoluto y no participa de ese cálculo. */
+  width: 100%;
+  /* El papel necesita margen propio: el frente es una grilla de celdas que ya
+     trae el suyo; el dorso, texto suelto sobre la hoja. */
+  padding: 1rem 1.25rem;
+}
+
+/* Con movimiento reducido el giro se cambia por un fundido entre las dos caras:
+   se saca el movimiento, no la función de revelar. */
+
+@media (prefers-reduced-motion: reduce) {
+  .turn { transition: none; }
+
+  .turn[data-revealed] { transform: none; }
+
+  .face { transition: opacity 160ms ease; }
+
+  .back { transform: translate(-50%, -50%); opacity: 0; }
+
+  .turn[data-revealed] .face:not(.back) { opacity: 0; }
+
+  .turn[data-revealed] .back { opacity: 1; }
+}
+
+/* El dorso del giro es la MISMA hoja dada vuelta, no texto flotando sobre el
+   fondo de la app. */
+.back {
+  background: var(--knd-papel);
+  border-radius: 3px;
+  box-shadow: var(--knd-sombra-hoja);
+  /* Red de seguridad por si alguna vez la hoja del frente se pasa de la
+     pantalla. El ancho de verdad lo pone el `width: 100%` de arriba: este
+     `max-width` decía «nunca más ancho que la hoja del frente» y no lo hacía,
+     porque mide contra el contenedor y no contra la hoja. */
+  max-width: min(100cqw - 3rem, 62rem);
+}
+
+/* Y lo de adentro se ata al ancho de la hoja: sin esto el texto se salía por
+   los dos costados, porque el romaji de una frase es UNA sola palabra sin
+   espacios -«korehanihongodenantoiimasuka»- y no tiene dónde cortar solo.
+   `anywhere` le da permiso de cortar en cualquier letra, que para un romaji
+   largo es preferible a que se vaya de la hoja. */
+.back > * { width: 100%; }
+
+.back :global(.mantine-Text-root) {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+/* La lectura del dorso: escala hermana de la del kana, un escalón abajo -el
+   kana usa `min(18vw, 42cqh)` y ésta `min(12vw, 26cqh)`-. El dorso es el premio
+   del giro y tiene que leerse de un vistazo, no ser una nota al pie del signo
+   que reemplaza. El dorso es papel, así que va en tinta y no en el color de
+   texto del tema oscuro. */
+.revealedAnswer {
+  font-size: clamp(1.5rem, min(12vw, 26cqh), 88px);
+  line-height: 1.1;
+  color: var(--knd-sumi);
+}
+
+/* El significado, en verde porque es lo que dice que acertaste, pero no el jade
+   de la app: ése está calibrado contra superficies oscuras y sobre el papel da
+   2,41:1. `--knd-verde-papel` es el mismo verde dos tonos más oscuro, 4,99:1
+   sobre la hoja. El sumi que había antes se leía bien pero no decía nada: era
+   la misma tinta que el resto del papel. */
+.revealedMeaning {
+  font-size: clamp(1.0625rem, min(5.5vw, 11cqh), 32px);
+  line-height: 1.25;
+  color: var(--knd-verde-papel);
+}

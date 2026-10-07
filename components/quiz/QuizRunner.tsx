@@ -15,6 +15,7 @@ import {
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
+import { FlipSheet } from './FlipSheet';
 import { RoundHeader, roundContext } from './RoundHeader';
 import { isPhone } from '@/lib/client/screen';
 import styles from './QuizRunner.module.css';
@@ -624,67 +625,29 @@ function QuizPlay({
           // ancla al borde inferior del kana (más el "shown"/"meaning" si
           // hay), a una distancia fija, sea cual sea el alto real del stage.
           <Box pos="relative" className={styles.quizKanaWrap}>
-            {/* El estado va en un `data-*` y no en una clase: las clases de
-                un módulo se hashean y una escrita a mano deja de matchear. */}
-            <div className={styles.quizTurn} data-revealed={flipped || undefined}>
-              <div className={styles.quizFace}>
-                {/* El kana pasa a vivir en una hoja de 原稿用紙, una celda
-                    por carácter. El tamaño de la celda lo decide el CSS y
-                    sigue achicándose cuando el teclado deja poco alto -el
-                    `42cqh` de `--knd-genko-lado` cumple el papel que hacía
-                    el `clamp` que estaba acá-, pero además ahora una
-                    palabra larga reparte el ancho entre sus caracteres en
-                    vez de encogerse entera. */}
+            {/* `key` por carta: la carta nueva entra de frente, sin animar. Ver
+                `FlipSheet`. */}
+            <FlipSheet
+              key={card.id}
+              flipped={flipped}
+              readingId="quiz-revealed-answer"
+              meaningId="quiz-revealed-meaning"
+              reading={shown ?? card.primary}
+              meaning={card.meaning}
+              front={
+                /* El kana pasa a vivir en una hoja de 原稿用紙, una celda por
+                   carácter. El tamaño de la celda lo decide el CSS y sigue
+                   achicándose cuando el teclado deja poco alto -el `42cqh` de
+                   `--knd-genko-lado`-, y una palabra larga reparte el ancho
+                   entre sus caracteres en vez de encogerse entera. */
                 <GenkoSheet
                   id="quiz-kana"
                   testId="quiz-prompt"
                   text={card.prompt}
                   tone={flash === 'wrong' ? 'var(--mantine-color-shu-6)' : undefined}
                 />
-              </div>
-              {/* El dorso: la lectura y el significado, sin repetir el
-                  kana. El kana no hace falta acá porque volver a verlo
-                  cuesta un toque -«Revelar» alterna y escribir devuelve al
-                  frente solo-, así que duplicarlo sería ruido.
-
-                  Está SIEMPRE renderizado, no sólo una vez revelado:
-                  comparte la celda de la grilla con el frente, así que es él
-                  quien fija el alto de la caja cuando es más alto -y con una
-                  frase y un significado largo lo es-. Agregándolo al
-                  revelar, la caja crecía en el mismo momento del giro:
-                  medido en teléfono con けんきゅうしゃ, de 83 a 308px. Como
-                  está dado vuelta y con `backface-visibility: hidden`, no se
-                  ve hasta que la hoja gira.
-
-                  `aria-hidden` mientras no esté revelado: escondido para el
-                  ojo pero presente en el DOM, un lector de pantalla cantaría
-                  la respuesta antes de que la pidas. */}
-              <div className={`${styles.quizFace} ${styles.quizFaceBack}`} aria-hidden={!flipped}>
-                {/* El hueco entre la lectura y el significado es más grande
-                    que el de un Stack normal a propósito: son dos datos
-                    distintos -cómo se dice y qué quiere decir-, no dos
-                    renglones del mismo. Pegados se leen como una sola cosa
-                    partida en dos. */}
-                {(shown ?? card.primary) && (
-                  <Stack align="center" gap={14}>
-                    <Text
-                      id="quiz-revealed-answer"
-                      className={`romaji ${styles.revealedAnswer}`}
-                    >
-                      {shown ?? card.primary}
-                    </Text>
-                    {card.meaning && (
-                      <Text
-                        id="quiz-revealed-meaning"
-                        className={styles.revealedMeaning}
-                      >
-                        {card.meaning}
-                      </Text>
-                    )}
-                  </Stack>
-                )}
-              </div>
-            </div>
+              }
+            />
             {/* Lo que cuelga del kana va en este bloque de posición absoluta:
                 el significado (que aparece 1200ms al acertar, ya sobre la
                 carta siguiente) y el aviso de error. Adentro del bloque
