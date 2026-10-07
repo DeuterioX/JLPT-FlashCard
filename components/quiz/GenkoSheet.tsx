@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import styles from './GenkoSheet.module.css';
 
 /**
@@ -86,26 +86,38 @@ export function GenkoSheet({
  * nuevo cada vez que la sheet cambia de tamaño -girar el teléfono, abrir el
  * teclado, entrar una carta más larga-.
  *
+ * Se mide en un `useLayoutEffect`, antes de que el navegador pinte, y la
+ * medición se guarda junto con el largo del texto para el que se hizo. Las dos
+ * cosas hacen falta: con un `useEffect` el primer cuadro de cada carta se
+ * pintaba con las columnas de la carta ANTERIOR. Medido pasando de さかな (3
+ * columnas) a けんきゅうしゃ: ese cuadro calculaba 2 celdas de relleno que no
+ * iban, la hoja envolvía a un segundo renglón vacío y pasaba de 255 a 509px de
+ * alto antes de acomodarse -el «pantallazo» de la carta más grande al pasar de
+ * palabra-. Descartar una medición de otro largo garantiza que, si alguna vez
+ * se pinta antes de medir, falta relleno -una fila corta- en vez de sobrar.
+ *
  * Arranca en 0 y se completa después de montar, a propósito: el servidor no
  * tiene layout, así que cualquier número que inventara acá sería distinto del
  * que calcula el cliente y rompería la hidratación. Las celdas de relleno no
  * llevan contenido, así que aparecer un cuadro después no mueve nada.
  */
 function useRowPadding(ref: React.RefObject<HTMLDivElement | null>, n: number) {
-  const [cols, setCols] = useState(0);
-  useEffect(() => {
+  const [measured, setMeasured] = useState({ n: 0, cols: 0 });
+  useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
     const measure = () => {
       const tracks = getComputedStyle(el).gridTemplateColumns;
-      setCols(tracks === 'none' ? 0 : tracks.split(' ').filter(Boolean).length);
+      const cols = tracks === 'none' ? 0 : tracks.split(' ').filter(Boolean).length;
+      setMeasured((m) => (m.n === n && m.cols === cols ? m : { n, cols }));
     };
     measure();
     const observer = new ResizeObserver(measure);
     observer.observe(el);
     return () => observer.disconnect();
   }, [ref, n]);
-  if (cols <= 0 || n <= cols) return 0;
+  const { cols } = measured;
+  if (measured.n !== n || cols <= 0 || n <= cols) return 0;
   const leftover = n % cols;
   return leftover === 0 ? 0 : cols - leftover;
 }
