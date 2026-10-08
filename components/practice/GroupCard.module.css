@@ -147,10 +147,10 @@
    así que usa la escala de la interfaz. Apagada se va al mismo `dark.3` que
    el nombre: la franja de tinta entera se apaga junta. */
 .gcCount {
-  /* Un px más chico que el nombre: es un dato, no el título. Por debajo de
-     `xs` Mantine no tiene tamaño con nombre. Centrado contra la hoja, que es
-     un bloque centrado. */
-  --text-fz: 0.6875rem;
+  /* 9px contra los 12 del nombre: es un dato, no el título, y no tiene que
+     competir con él. Por debajo de `xs` Mantine no tiene tamaño con nombre.
+     Centrado contra la hoja, que es un bloque centrado. */
+  --text-fz: 0.5625rem;
   --text-lh: 1.4;
   text-align: center;
   color: var(--mantine-color-dark-1);
