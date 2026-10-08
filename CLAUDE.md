@@ -83,3 +83,92 @@ Esto es la variante conservadora. Next no opina -su documentación lista tres
 estrategias y no elige-, y la alternativa idiomática de App Router era colocar
 cada grupo al lado de su ruta (`app/decks/_components/`). Se eligió quedarse en
 `components/` para no mezclar componentes con el árbol de rutas.
+
+## Deploy en el LXC
+
+La app corre en el **LXC 118**: `root@192.168.1.86`, en `/opt/kitsune-cards`,
+como el servicio de systemd `kitsune-cards.service`, que la corre con el usuario
+`kitsune` (`npm run start`, puerto 3000, `DATABASE_PATH=/opt/kitsune-cards/database.db`).
+No hay git en el server: se copia un `tar` del repo y se compila allá.
+
+Desde la raíz del repo, en Git Bash:
+
+```bash
+rm -f /tmp/kc.tar.gz && tar czf /tmp/kc.tar.gz \
+  --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='test-results' \
+  --exclude='*.db' --exclude='*.db-wal' --exclude='*.db-shm' --exclude='*.sqlite*' \
+  --exclude='*.bak-before-rename' --exclude='*.mp4' --exclude='tsconfig.tsbuildinfo' \
+  app components lib public scripts e2e tests data docs \
+  package.json package-lock.json next.config.ts tsconfig.json theme.ts \
+  drizzle.config.ts eslint.config.mjs playwright.config.ts vitest.config.mts \
+  AGENTS.md CLAUDE.md README.md \
+&& (tar tzf /tmp/kc.tar.gz | grep -qE '\.db($|-)|\.sqlite' && echo '!!! ABORTAR !!!' && exit 1 || echo 'tar limpio') \
+&& scp -q /tmp/kc.tar.gz root@192.168.1.86:/tmp/kc.tar.gz && ssh root@192.168.1.86 'set -e
+systemctl stop kitsune-cards.service
+cp -a /opt/kitsune-cards/database.db /opt/kitsune-cards/database.db.bak-$(date +%Y%m%d-%H%M%S)
+tar xzf /tmp/kc.tar.gz -C /opt/kitsune-cards --no-same-owner --no-same-permissions
+chown -R kitsune:kitsune /opt/kitsune-cards
+cd /opt/kitsune-cards
+su kitsune -s /bin/bash -c "npm install" >/dev/null 2>&1
+su kitsune -s /bin/bash -c "npm run build" >/dev/null 2>&1
+systemctl start kitsune-cards.service
+sleep 4
+echo -n "servicio: "; systemctl is-active kitsune-cards.service
+curl -s -o /dev/null -w "health: %{http_code}\n" --max-time 8 http://localhost:3000/'
+```
+
+Antes de desplegar: `npx tsc --noEmit -p .`, `npx vitest run` y `npx playwright test`
+en verde, y el cambio commiteado.
+
+Lo que no se negocia, y por qué:
+
+- **Los excludes de SQLite van los cuatro.** `--exclude='*.db'` no matchea
+  `database.db-wal` ni `-shm`. El 2026-09-29 el tar se llevó el WAL local, pisó
+  el del server y el build murió con `SQLITE_CORRUPT`: un WAL de OTRA base
+  aplicado encima. El `grep` después del `tar` es el seguro: si encuentra una
+  base adentro, aborta antes de copiar nada.
+- **El servicio se para ANTES de extraer**, por lo mismo: con el proceso vivo la
+  base tiene su WAL abierto.
+- **`npm install`, nunca `npm ci`.** `npm ci` borra `node_modules` entero y el
+  reinstalado deja `better-sqlite3` sin su binario nativo. El 2026-09-23 quedó
+  `node_modules` vacío y el servicio seguía «activo» sólo porque Next ya tenía
+  todo en memoria: habría muerto en el siguiente reinicio.
+- **El `tar` no borra.** Un archivo que se borró o se movió en el repo sigue en
+  el server. Si el cambio saca archivos, borrarlos a mano en el mismo `ssh`
+  (`rm -f /opt/kitsune-cards/components/Viejo.tsx`).
+- **Migraciones:** el deploy no las corre. Si el cambio trae una migración nueva
+  en `lib/db/migrations`, correr `su kitsune -s /bin/bash -c "npm run db:migrate"`
+  después del `npm install` y antes del `build`, con el backup ya hecho.
+
+Para comprobar que llegó, alcanza con leer: el health de arriba, y si el cambio es
+de estilos, buscar la regla en el CSS servido:
+
+```bash
+for css in $(curl -s http://192.168.1.86:3000/ | grep -o '/_next/static/[^"]*\.css' | sort -u); do
+  curl -s "http://192.168.1.86:3000$css"; done | grep -o 'la-regla-nueva[^}]*}'
+```
+
+**Contra el server, sólo lecturas.** Nada que arranque una ronda, revele o
+califique una carta: cada una escribe una `session` o un `attempt` en la base de
+verdad y ensucia las estadísticas. Lo que haya que probar interactuando se prueba
+en `localhost` o en los e2e. Para probar con los datos reales, copiar la base:
+
+```bash
+ssh root@192.168.1.86 'cd /opt/kitsune-cards && node -e "const D=require(\"better-sqlite3\");
+  new D(\"database.db\",{readonly:true}).backup(\"/tmp/copia.db\")"'
+scp root@192.168.1.86:/tmp/copia.db ./copia.db
+DATABASE_PATH=./copia.db npx next dev
+```
+
+`backup()` y no `cp`: con el servicio corriendo, un `cp` del `.db` solo se lleva
+una base sin lo que todavía está en el WAL.
+
+**Cambios de datos en el server** -importar un mazo, renombrar grupos- se corren
+con el usuario `kitsune` y con un backup previo en una carpeta que sea suya:
+
+```bash
+B=backup-antes-de-X-$(date +%Y%m%d-%H%M%S); mkdir -p $B; chown kitsune:kitsune $B
+su kitsune -s /bin/bash -c "node -e '...db.backup(\"$B/database.db\")...'"
+```
+
+Creada por `root` y sin el `chown`, el backup falla con `SQLITE_CANTOPEN`.
