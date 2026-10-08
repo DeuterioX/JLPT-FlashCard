@@ -1,14 +1,19 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, Switch, Stack, Group, Text, Tooltip } from '@mantine/core';
+import { Card, Switch, Text, Tooltip } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 import styles from './GroupCard.module.css';
 
 /**
- * La regla de las seis cartas: si el grupo trae preview, se muestran las cartas
- * (y か行 se ve como la columna de kana); si no, se muestra el conteo.
+ * La regla de las seis cartas: la hoja muestra las primeras seis del grupo
+ * (y か行 se ve como la columna de kana), y abajo va el total.
  * Es presentación pura, no hay ninguna condición en el modelo de datos.
+ *
+ * Todo lo visual está en `GroupCard.module.css`, también lo que Mantine deja
+ * pasar como prop -`gap`, `justify`, `maw`-: acá sólo queda estructura. Por
+ * eso el cuerpo y la cabecera son `div` y no `Stack`/`Group`: sin `gap`,
+ * ésos escriben igual su default como estilo inline, y le gana a la clase.
  *
  * El control es la tarjeta entera (rol `switch`), y el `Switch` de abajo es
  * puramente visual. Si los dos fueran interactivos, un click dispararía DOS
@@ -23,8 +28,6 @@ export function GroupCard({
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
   const toggle = () => onToggle(group.id, !checked);
   const [nameTip, setNameTip] = useState(false);
-  // Cuántas quedan afuera de la previsualización. 0 = el grupo entra entero.
-  const hidden = group.cardCount - group.preview.length;
 
   /**
    * El kana baja de 15 a 13px cuando el grupo tiene PALABRAS. Lo decide el
@@ -57,19 +60,21 @@ export function GroupCard({
       // colores y el papel, que antes eran tres ternarios en el JSX.
       data-off={checked ? undefined : ''}
     >
-      <Stack gap={6} className={styles.gcBody}>
-        <Group gap={6} wrap="nowrap" justify="space-between" className={styles.gcHead}>
+      <div className={styles.gcBody}>
+        <div className={styles.gcHead}>
           {/* El nombre va en la letra del kana: el diseño decía ahí "あ行", y
-              que ahora diga "Serie A" no la cambia. `lh` explícito porque con
-              un `size` en string libre Mantine devuelve una caja de línea
-              MENOR que la letra y los renglones se pisan. */}
+              que ahora diga "Serie A" no la cambia. Tamaño, peso e
+              interlineado están en `.gcName`. */}
           {/* El tooltip sólo aparece si el nombre está cortado por la
               elipsis: entero no tiene nada que agregar. Se mide al entrar el
               puntero y no al renderizar, porque el corte depende del ancho de
               la columna, que cambia con la ventana. */}
-          <Tooltip label={group.name} opened={nameTip} withArrow multiline maw={240}>
+          <Tooltip
+            label={group.name} opened={nameTip} withArrow multiline
+            classNames={{ tooltip: styles.gcTip }}
+          >
             <Text
-              size="11.5px" lh={1.4} fw={500} className={`kana ${styles.gcName}`}
+              className={`kana ${styles.gcName}`}
               onMouseEnter={(e) => setNameTip(e.currentTarget.scrollWidth > e.currentTarget.clientWidth)}
               onMouseLeave={() => setNameTip(false)}
             >
@@ -77,7 +82,7 @@ export function GroupCard({
             </Text>
           </Tooltip>
           <Switch checked={checked} readOnly tabIndex={-1} aria-hidden className={styles.gcSwitch} />
-        </Group>
+        </div>
 
         {/* Una línea por carta, recortada y nunca partida: con el kana
             envuelto, un yōon chico -el ゃ de けんきゅうしゃ- puede quedar solo
@@ -91,22 +96,23 @@ export function GroupCard({
         >
           {group.preview.map((p) => (
             <div key={p.prompt} className={styles.gcRow}>
-              <Text className={`kana ${styles.gcCut} ${styles.gcKana}`} lh={1.2}>
+              <Text className={`kana ${styles.gcCut} ${styles.gcKana}`}>
                 {p.prompt}
               </Text>
-              <Text className={`romaji ${styles.gcCut} ${styles.gcRomaji}`} lh={1.2}>
+              <Text className={`romaji ${styles.gcCut} ${styles.gcRomaji}`}>
                 {p.romaji}
               </Text>
             </div>
           ))}
         </div>
-        {hidden > 0 && (
-          // Centrado contra la hoja, que es un bloque centrado.
-          <Text size="xs" className={`tabular ${styles.gcMore}`} ta="center">
-            {hidden === 1 ? '1 palabra más' : `${hidden} palabras más`}
-          </Text>
-        )}
-      </Stack>
+        {/* El total del grupo, en TODAS las tarjetas. Antes era «N palabras
+            más» y sólo en las que no entraban enteras: le restaba alto al
+            papel a ésas y no a las otras, y en una fila las hojas terminaban
+            a distinta altura. */}
+        <Text className={`tabular ${styles.gcCount}`}>
+          {group.cardCount === 1 ? '1 palabra' : `${group.cardCount} palabras`}
+        </Text>
+      </div>
     </Card>
   );
 }

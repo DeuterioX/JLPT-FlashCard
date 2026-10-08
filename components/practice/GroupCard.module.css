@@ -17,9 +17,24 @@
 .gcBody {
   flex: 1;
   min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
 }
 
-.gcHead { padding: 0 0.125rem; }
+/* El nombre a la izquierda y el switch a la derecha, siempre en una línea:
+   partida, la cabecera empujaba la hoja hacia abajo. */
+.gcHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.375rem;
+  padding: 0 0.125rem;
+}
+
+/* El tooltip con el nombre completo vive en un portal, fuera de la tarjeta,
+   pero lleva esta clase igual. 240px de antes, en rem. */
+.gcTip { max-width: 15rem; }
 
 /* El nombre va en UNA línea, con elipsis si no entra. Partido en varios
    renglones empujaba la hoja hacia abajo, y en una fila de grupos de
@@ -28,6 +43,14 @@
    completo queda en un tooltip -si está cortado- y en el `aria-label` de la
    tarjeta. */
 .gcName {
+  /* Por las variables de `Text` y no `font-size` a secas: así no depende de
+     qué hoja de estilos cargue última, la de Mantine o ésta. `lh` explícito
+     porque con un tamaño libre Mantine deja una caja de línea MENOR que la
+     letra y los renglones se pisan. En `rem`, que crece con la raíz en
+     pantallas anchas: en px fijo el pie terminaba casi al doble. */
+  --text-fz: var(--mantine-font-size-xs);
+  --text-lh: 1.4;
+  font-weight: 500;
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -58,6 +81,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: center;
+  --text-lh: 1.2;
 }
 
 /* La hoja de la tarjeta: el estado del grupo lo dice el PAPEL -crema cuando
@@ -114,12 +138,24 @@
 .groupCard[data-off] .gcKana { color: var(--knd-papel-ink); }
 .groupCard[data-off] .gcRomaji { color: var(--knd-papel-ink-dim); }
 
-/* El nombre y el conteo van sobre la franja de tinta, no sobre el papel, así
-   que ésos sí usan la escala de la interfaz. */
-.gcName,
-.gcMore { color: var(--mantine-color-dark-0); }
-.groupCard[data-off] .gcName,
-.groupCard[data-off] .gcMore { color: var(--mantine-color-dark-3); }
+/* El nombre va sobre la franja de tinta, no sobre el papel, así que ése sí
+   usa la escala de la interfaz. */
+.gcName { color: var(--mantine-color-dark-0); }
+.groupCard[data-off] .gcName { color: var(--mantine-color-dark-3); }
+
+/* El pie con el total del grupo. Va sobre la tarjeta y no sobre el papel,
+   así que usa la escala de la interfaz. Apagada se va al mismo `dark.3` que
+   el nombre: la franja de tinta entera se apaga junta. */
+.gcCount {
+  /* Un px más chico que el nombre: es un dato, no el título. Por debajo de
+     `xs` Mantine no tiene tamaño con nombre. Centrado contra la hoja, que es
+     un bloque centrado. */
+  --text-fz: 0.6875rem;
+  --text-lh: 1.4;
+  text-align: center;
+  color: var(--mantine-color-dark-1);
+}
+.groupCard[data-off] .gcCount { color: var(--mantine-color-dark-3); }
 
 .gcRow {
   height: var(--knd-gc-paso);

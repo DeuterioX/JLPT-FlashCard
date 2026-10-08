@@ -271,8 +271,7 @@ describe('preview de seis cartas', () => {
   });
 
   it('un grupo con 7 cartas previsualiza las primeras seis', () => {
-    // La tarjeta muestra estas seis y abajo «1 palabras más», que sale de
-    // restar. Antes acá no se previsualizaba NADA y una Unidad de 30 palabras
+    // La tarjeta muestra estas seis y abajo el total, «7 palabras». Antes acá no se previsualizaba NADA y una Unidad de 30 palabras
     // quedaba como una tarjeta vacía al lado de las de kana.
     const d = createDeck(db, { name: 'Siete' });
     for (let i = 0; i < 7; i++) {
