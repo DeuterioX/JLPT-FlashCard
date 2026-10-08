@@ -195,28 +195,28 @@ export function StatsBoard({
               <Text className={styles.panelNote}>errores / veces vista</Text>
             </Group>
             {worst.length === 0 && <Text className={styles.panelEmpty}>Todavía no hay datos suficientes.</Text>}
-            {worst.slice(0, 8).map((w) => (
-              // Mismos anchos que la lista equivalente del resumen de ronda
-              // (34/46): antes acá eran 44/54 y las dos listas, que son la
-              // misma fila del diseño, no coincidían entre sí.
-              // Las cuatro columnas tienen ancho FIJO menos la barra, que se
-              // queda con lo que sobre. El «3/10» de la derecha no lo tenía, y
-              // como cada fila trae un número de distinto largo -«3/10»
-              // contra «12/100»- esa columna medía distinto en cada fila y la
-              // barra, que es la que reparte el sobrante, quedaba más corta o
-              // más larga por fila: se leían como barras de distinto largo
-              // comparando cosas distintas, cuando lo único que tiene que
-              // variar es lo PINTADO de adentro.
-              <Group key={w.cardId} id={`worst-row-${w.cardId}`} wrap="nowrap" className={styles.panelRow}>
-                <Text className={`kana ${styles.worstKana}`}>{w.prompt}</Text>
-                <Text className={`romaji ${styles.worstRom}`}>{w.primary}</Text>
-                <Progress
-                  value={w.rate * 100} color="shu.6" size={4} radius={2}
-                  className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
-                />
-                <Text className={`${styles.worstNum} tabular`}>{w.errors}/{w.seen}</Text>
-              </Group>
-            ))}
+            {/* Una grilla y no una fila con anchos fijos, como «Las que te
+                costaron» del resumen de ronda: las columnas son COMPARTIDAS,
+                así que la palabra más larga ensancha la de todas, las barras
+                arrancan alineadas y miden lo mismo en cada fila. Con anchos
+                fijos pensados para un kana suelto, これはにほんごで… se partía
+                en renglones de dos caracteres y su romaji se montaba sobre la
+                barra. */}
+            {worst.length > 0 && (
+              <div className={styles.worstGrid}>
+                {worst.slice(0, 8).map((w) => (
+                  <div key={w.cardId} id={`worst-row-${w.cardId}`} className={styles.statRow}>
+                    <Text className={`kana ${styles.statCell} ${styles.worstKana}`} title={w.prompt}>{w.prompt}</Text>
+                    <Text className={`romaji ${styles.statCell} ${styles.worstRom}`} title={w.primary}>{w.primary}</Text>
+                    <Progress
+                      value={w.rate * 100} color="shu.6" size={4} radius={2}
+                      styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
+                    />
+                    <Text className={`${styles.worstNum} tabular`}>{w.errors}/{w.seen}</Text>
+                  </div>
+                ))}
+              </div>
+            )}
           </Stack>
         </Paper>
 
@@ -231,18 +231,26 @@ export function StatsBoard({
               </Text>
             </Group>
             {o.byGroup.length === 0 && <Text className={styles.panelEmpty}>Todavía no practicaste nada.</Text>}
-            {o.byGroup.slice(0, 10).map((g) => (
-              <Group key={g.groupId} id={`group-row-${g.groupId}`} wrap="nowrap" className={styles.panelRow}>
-                <Text className={styles.groupName}>{g.name}</Text>
-                <Progress
-                  value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
-                  className="knd-grow" styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
-                />
-                <Text className={`tabular ${styles.groupPct}`}>
-                  {Math.round(g.accuracy * 100)}%
-                </Text>
-              </Group>
-            ))}
+            {/* La misma grilla que «Las que más errás»: el nombre toma el
+                largo del más largo y sólo corta con elipsis si no entra. Con
+                ancho fijo, «Pronombres y formas de dirigirse a alguien» quedaba
+                en «Pronombres y f…» aunque la barra ocupara medio panel. */}
+            {o.byGroup.length > 0 && (
+              <div className={styles.groupGrid}>
+                {o.byGroup.slice(0, 10).map((g) => (
+                  <div key={g.groupId} id={`group-row-${g.groupId}`} className={styles.statRow}>
+                    <Text className={`${styles.statCell} ${styles.groupName}`} title={g.name}>{g.name}</Text>
+                    <Progress
+                      value={g.accuracy * 100} color={tone(g.accuracy, 'var(--knd-ambar)')} size={6} radius={3}
+                      styles={{ root: { backgroundColor: 'var(--knd-border-soft)' } }}
+                    />
+                    <Text className={`tabular ${styles.groupPct}`}>
+                      {Math.round(g.accuracy * 100)}%
+                    </Text>
+                  </div>
+                ))}
+              </div>
+            )}
           </Stack>
         </Paper>
       </SimpleGrid>
