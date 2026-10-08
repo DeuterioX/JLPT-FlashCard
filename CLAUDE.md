@@ -91,31 +91,18 @@ como el servicio de systemd `kitsune-cards.service`, que la corre con el usuario
 `kitsune` (`npm run start`, puerto 3000, `DATABASE_PATH=/opt/kitsune-cards/database.db`).
 No hay git en el server: se copia un `tar` del repo y se compila allá.
 
-Desde la raíz del repo, en Git Bash:
+En Git Bash, desde la raíz del repo:
 
 ```bash
-rm -f /tmp/kc.tar.gz && tar czf /tmp/kc.tar.gz \
-  --exclude='.git' --exclude='node_modules' --exclude='.next' --exclude='test-results' \
-  --exclude='*.db' --exclude='*.db-wal' --exclude='*.db-shm' --exclude='*.sqlite*' \
-  --exclude='*.bak-before-rename' --exclude='*.mp4' --exclude='tsconfig.tsbuildinfo' \
-  app components lib public scripts e2e tests data docs \
-  package.json package-lock.json next.config.ts tsconfig.json theme.ts \
-  drizzle.config.ts eslint.config.mjs playwright.config.ts vitest.config.mts \
-  AGENTS.md CLAUDE.md README.md \
-&& (tar tzf /tmp/kc.tar.gz | grep -qE '\.db($|-)|\.sqlite' && echo '!!! ABORTAR !!!' && exit 1 || echo 'tar limpio') \
-&& scp -q /tmp/kc.tar.gz root@192.168.1.86:/tmp/kc.tar.gz && ssh root@192.168.1.86 'set -e
-systemctl stop kitsune-cards.service
-cp -a /opt/kitsune-cards/database.db /opt/kitsune-cards/database.db.bak-$(date +%Y%m%d-%H%M%S)
-tar xzf /tmp/kc.tar.gz -C /opt/kitsune-cards --no-same-owner --no-same-permissions
-chown -R kitsune:kitsune /opt/kitsune-cards
-cd /opt/kitsune-cards
-su kitsune -s /bin/bash -c "npm install" >/dev/null 2>&1
-su kitsune -s /bin/bash -c "npm run build" >/dev/null 2>&1
-systemctl start kitsune-cards.service
-sleep 4
-echo -n "servicio: "; systemctl is-active kitsune-cards.service
-curl -s -o /dev/null -w "health: %{http_code}\n" --max-time 8 http://localhost:3000/'
+bash scripts/deploy.sh
 ```
+
+El script ([scripts/deploy.sh](scripts/deploy.sh)) arma el `tar`, aborta si se
+lleva una base, lo copia, para el servicio, hace backup de la base, extrae,
+corre `npm install` y `npm run build`, levanta el servicio y muestra el health.
+Es el único camino de deploy: cambiar un paso es cambiar el script, y queda en
+git. Claude tiene permiso para correr exactamente ese comando y nada más contra
+el server.
 
 Antes de desplegar: `npx tsc --noEmit -p .`, `npx vitest run` y `npx playwright test`
 en verde, y el cambio commiteado.
@@ -125,8 +112,8 @@ Lo que no se negocia, y por qué:
 - **Los excludes de SQLite van los cuatro.** `--exclude='*.db'` no matchea
   `database.db-wal` ni `-shm`. El 2026-09-29 el tar se llevó el WAL local, pisó
   el del server y el build murió con `SQLITE_CORRUPT`: un WAL de OTRA base
-  aplicado encima. El `grep` después del `tar` es el seguro: si encuentra una
-  base adentro, aborta antes de copiar nada.
+  aplicado encima. El `grep` del script después del `tar` es el seguro: si
+  encuentra una base adentro, aborta antes de copiar nada.
 - **El servicio se para ANTES de extraer**, por lo mismo: con el proceso vivo la
   base tiene su WAL abierto.
 - **`npm install`, nunca `npm ci`.** `npm ci` borra `node_modules` entero y el
@@ -134,11 +121,12 @@ Lo que no se negocia, y por qué:
   `node_modules` vacío y el servicio seguía «activo» sólo porque Next ya tenía
   todo en memoria: habría muerto en el siguiente reinicio.
 - **El `tar` no borra.** Un archivo que se borró o se movió en el repo sigue en
-  el server. Si el cambio saca archivos, borrarlos a mano en el mismo `ssh`
+  el server. Si el cambio saca archivos, borrarlos a mano con un `ssh` aparte
   (`rm -f /opt/kitsune-cards/components/Viejo.tsx`).
-- **Migraciones:** el deploy no las corre. Si el cambio trae una migración nueva
-  en `lib/db/migrations`, correr `su kitsune -s /bin/bash -c "npm run db:migrate"`
-  después del `npm install` y antes del `build`, con el backup ya hecho.
+- **Migraciones:** el script no las corre. Si el cambio trae una migración nueva
+  en `lib/db/migrations`, el deploy se hace a mano siguiendo los pasos del script
+  y agregando `su kitsune -s /bin/bash -c "npm run db:migrate"` después del
+  `npm install` y antes del `build`, con el backup ya hecho.
 
 Para comprobar que llegó, alcanza con leer: el health de arriba, y si el cambio es
 de estilos, buscar la regla en el CSS servido:
