@@ -53,3 +53,10 @@ next-env.d.ts
 e2e.db*
 /test-results/
 /playwright-report/
+
+# backups de la base, capturas de pruebas, videos y cachés de Python: nada de
+# esto es del repo.
+*.db.bak*
+/.qa-scratch/
+*.mp4
+__pycache__/
