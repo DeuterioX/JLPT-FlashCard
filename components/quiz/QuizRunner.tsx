@@ -19,6 +19,7 @@ import { FlipSheet } from './FlipSheet';
 import { RoundHeader, roundContext } from './RoundHeader';
 import { isPhone } from '@/lib/client/screen';
 import { readConfirmQuizExit } from '@/lib/client/preferences';
+import { celebrate } from '@/lib/client/confetti';
 import { ConfirmModal } from '../ConfirmModal';
 import styles from './QuizRunner.module.css';
 
@@ -213,6 +214,7 @@ function QuizPlay({
         setElapsedMs(Date.now() - roundStart.current);
         continued.current = false;
         void recorder().finish();
+        if (r.state.incorrect === 0) void celebrate();
       }
     } else {
       setState(r.state);
