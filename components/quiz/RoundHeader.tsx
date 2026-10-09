@@ -70,7 +70,7 @@ export function RoundHeader({
             ancho CERO -pasó de verdad, confirmado midiendo en vivo-, y ajustar
             «cuánto» espacio con más espacios o `nbsp` no es un valor real, es
             adivinar. El `gap` va en rem y no en un número pelado, que Mantine
-            interpreta en px y no escala en 2K/4K con el resto de la app. */}
+            interpreta en px y no crece con el resto de la app. */}
         <Group gap="0.5rem" wrap="nowrap">
           {context && <Text size="xs" c="dimmed">{`${context} ·`}</Text>}
           <Kbd>Esc</Kbd>

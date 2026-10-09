@@ -116,8 +116,7 @@
   .quizAnswerForm {
     grid-column: 2;
     flex: none;
-    /* 300px del diseño, en rem para que escale con el resto de la app en
-       2K/4K. */
+    /* 300px del diseño, en rem para que crezca con el resto de la app. */
     width: 18.75rem;
     justify-self: center;
   }

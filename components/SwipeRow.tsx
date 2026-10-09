@@ -84,8 +84,8 @@ export function SwipeRow({
     // un hueco. Sin panel derecho el ancho lo da el izquierdo. El 96 de reserva
     // es el `6rem` del CSS a tamaño de raíz normal, y sólo se usa si no hay
     // ninguno de los dos, que es cuando tampoco hay gesto.
-    // `getBoundingClientRect` y no `offsetWidth`, que redondea a entero: en
-    // las pantallas grandes la raíz escala y `6rem` deja de ser entero.
+    // `getBoundingClientRect` y no `offsetWidth`, que redondea a entero: con
+    // otra letra o zoom en el navegador, `6rem` deja de ser entero.
     const button = (rightRef.current ?? leftRef.current)?.querySelector('button');
     return button?.getBoundingClientRect().width ?? 96;
   }

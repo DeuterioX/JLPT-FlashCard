@@ -1,28 +1,11 @@
 /* El tema de Mantine controla colores y tipografías (ver theme.ts). */
 
-/* Mantine construye casi todos sus tamaños en `rem`, así que subir el
-   font-size de la raíz por media query escala toda la app de forma pareja
-   -textos, paddings, gaps- sin tocar un tamaño componente por componente. Hasta
-   2000px de ancho CSS real -no la resolución nominal del monitor: el escalado
-   de Windows la desvincula del `window.innerWidth` que ve el navegador, medido
-   en vivo- queda en el 100%, y de ahí sube 20% cada 300px, el mismo paso que la
-   grilla de tarjetas, hasta el doble justo a los 3200. */
+/* La raíz queda en el tamaño del navegador, sin escalar por ancho de
+   pantalla. Hubo un escalado automático -la raíz subía 20% cada 300px desde
+   los 2000 hasta el doble a los 3200- y se sacó: el tamaño de la app lo decide
+   quien la usa, con el zoom o la letra del navegador. Como casi todo está en
+   `rem`, eso agranda la app entera de forma pareja. */
 html { font-size: 100%; }
-@media (min-width: 2000px) {
-  html { font-size: 120%; }
-}
-@media (min-width: 2300px) {
-  html { font-size: 140%; }
-}
-@media (min-width: 2600px) {
-  html { font-size: 160%; }
-}
-@media (min-width: 2900px) {
-  html { font-size: 180%; }
-}
-@media (min-width: 3200px) {
-  html { font-size: 200%; }
-}
 
 /* Mantine resuelve el estado de error de CUALQUIER input contra
    `--mantine-color-error`, y su rojo de fábrica no es el `shu` del diseño

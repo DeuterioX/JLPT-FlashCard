@@ -1,8 +1,8 @@
 /* La tarjeta es el control entero, de ahí el puntero, y 44px es el objetivo
    táctil mínimo. El padding va como VARIABLE y no por el prop `padding` de
    Card: ese prop se resuelve a esta misma variable con el `varsResolver` de
-   Mantine y ahí gana el que se calcula último. En rem, que era el único
-   padding de la app que no escalaba en 2K/4K. */
+   Mantine y ahí gana el que se calcula último. En rem, como el resto de la
+   app, para que acompañe la letra del navegador. */
 .groupCard {
   cursor: pointer;
   min-height: 44px;
@@ -46,8 +46,8 @@
   /* Por las variables de `Text` y no `font-size` a secas: así no depende de
      qué hoja de estilos cargue última, la de Mantine o ésta. `lh` explícito
      porque con un tamaño libre Mantine deja una caja de línea MENOR que la
-     letra y los renglones se pisan. En `rem`, que crece con la raíz en
-     pantallas anchas: en px fijo el pie terminaba casi al doble. */
+     letra y los renglones se pisan. En `rem`, igual que el pie, para que los
+     dos crezcan juntos con la letra del navegador. */
   --text-fz: var(--mantine-font-size-xs);
   --text-lh: 1.4;
   font-weight: 500;
