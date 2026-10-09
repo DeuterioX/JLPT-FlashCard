@@ -1,9 +1,10 @@
 'use client';
 
-import { Button, Modal, Stack, Text } from '@mantine/core';
+import { Button, Modal, Text } from '@mantine/core';
 import { ModalTitle } from './ModalTitle';
 import { ModalActions } from './ModalActions';
 import { useAction } from '@/lib/client/action';
+import styles from './ConfirmModal.module.css';
 
 /**
  * El modal que confirma algo que no se puede deshacer.
@@ -14,18 +15,24 @@ import { useAction } from '@/lib/client/action';
  * `children` y no un prop de texto: lleva negritas y plurales propios.
  */
 export function ConfirmModal({
-  id, opened, onClose, jp, title, confirm, confirmId, onConfirm, children,
+  id, opened, onClose, onClosed, jp, title, confirm, confirmId, onConfirm, enterConfirms, lockScroll, children,
 }: {
   /** El id del modal, tal cual: los tres existentes no comparten un patrón. */
   id: string;
   opened: boolean;
   onClose: () => void;
+  /** Cuando terminó de cerrarse: recién ahí se puede mover el foco afuera. */
+  onClosed?: () => void;
   jp: string;
   title: string;
   /** El verbo del botón rojo: «Borrar el mazo». */
   confirm: string;
   confirmId?: string;
   onConfirm: () => Promise<string | void>;
+  /** Enter confirma y Esc cancela. Sólo para lo que no borra nada. */
+  enterConfirms?: boolean;
+  /** `false` si la pantalla de abajo ya bloquea el scroll por su cuenta. */
+  lockScroll?: boolean;
   /** La advertencia, con sus negritas. */
   children: React.ReactNode;
 }) {
@@ -34,12 +41,14 @@ export function ConfirmModal({
       id={id}
       opened={opened}
       onClose={onClose}
+      lockScroll={lockScroll}
+      onExitTransitionEnd={onClosed}
       title={<ModalTitle jp={jp}>{title}</ModalTitle>}
     >
       {/* Sólo mientras está abierto: así el error de un intento fallido no
           sigue ahí la próxima vez que se abra. */}
       {opened && (
-        <Body confirm={confirm} confirmId={confirmId} onConfirm={onConfirm} onClose={onClose}>
+        <Body confirm={confirm} confirmId={confirmId} onConfirm={onConfirm} onClose={onClose} enterConfirms={enterConfirms}>
           {children}
         </Body>
       )}
@@ -48,20 +57,31 @@ export function ConfirmModal({
 }
 
 function Body({
-  confirm, confirmId, onConfirm, onClose, children,
+  confirm, confirmId, onConfirm, onClose, enterConfirms, children,
 }: {
   confirm: string;
   confirmId?: string;
   onConfirm: () => Promise<string | void>;
   onClose: () => void;
+  enterConfirms?: boolean;
   children: React.ReactNode;
 }) {
   const action = useAction();
 
   return (
-    <Stack gap={14}>
+    // Con `enterConfirms` el foco va al cuerpo y no a un botón: un botón
+    // enfocado se activa también con Espacio, que en el quiz es revelar.
+    <div
+      className={styles.body}
+      tabIndex={enterConfirms ? -1 : undefined}
+      data-autofocus={enterConfirms || undefined}
+      onKeyDown={enterConfirms ? (e) => {
+        if (e.key === 'Enter') void action.run(onConfirm);
+        if (e.key === ' ') e.preventDefault();
+      } : undefined}
+    >
       <Text className="knd-delete-note">{children}</Text>
-      {action.error && <Text className="knd-error" size="sm">{action.error}</Text>}
+      {action.error && <Text className={`knd-error ${styles.error}`}>{action.error}</Text>}
       <ModalActions onCancel={onClose} busy={action.busy}>
         <Button
           id={confirmId}
@@ -73,6 +93,6 @@ function Body({
           {confirm}
         </Button>
       </ModalActions>
-    </Stack>
+    </div>
   );
 }

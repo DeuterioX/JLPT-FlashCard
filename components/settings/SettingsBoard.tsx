@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useSyncExternalStore } from 'react';
-import { Paper, SegmentedControl } from '@mantine/core';
+import { Paper, SegmentedControl, Switch } from '@mantine/core';
 import { useMantineColorScheme, type MantineColorScheme } from '@mantine/core';
 import { Screen } from '../Screen';
 import { MobileNavbar } from '../MobileNavbar';
@@ -9,6 +9,7 @@ import { SectionLabel } from '../SectionLabel';
 import { SettingRow } from './SettingRow';
 import { ChoiceModal } from './ChoiceModal';
 import { APP_NAME } from '@/lib/app-meta';
+import { useConfirmQuizExit, writeConfirmQuizExit } from '@/lib/client/preferences';
 import styles from './SettingsBoard.module.css';
 
 const THEMES: { value: MantineColorScheme; label: string }[] = [
@@ -31,7 +32,8 @@ function useMounted(): boolean {
 }
 
 /**
- * Ajustes: el tema, el idioma -todavía apagado- y la entrada a Acerca de.
+ * Ajustes: el tema, la confirmación al salir del quiz, el idioma -todavía
+ * apagado- y la entrada a Acerca de.
  *
  * El tema tiene tres estados y no dos: automático, que sigue al sistema y es
  * el valor por omisión, claro y oscuro. Con un interruptor, volver a «seguir al
@@ -40,6 +42,7 @@ function useMounted(): boolean {
 export function SettingsBoard() {
   const { colorScheme, setColorScheme } = useMantineColorScheme();
   const mounted = useMounted();
+  const confirmQuizExit = useConfirmQuizExit();
   const [editing, setEditing] = useState<'theme' | 'language' | null>(null);
   const close = () => setEditing(null);
 
@@ -78,6 +81,23 @@ export function SettingsBoard() {
             description="Usar el del sistema, o fijar uno."
             value={mounted ? themeLabel : undefined}
             onClick={() => setEditing('theme')}
+          />
+        </Paper>
+
+        <SectionLabel jp="練習">práctica</SectionLabel>
+        <Paper withBorder className="knd-list">
+          <SettingRow
+            glyph="退"
+            title="Confirmar al salir del quiz"
+            description="En escritorio, Esc pregunta antes de dejar una ronda a medias."
+            control={
+              <Switch
+                id="confirm-quiz-exit"
+                aria-label="Confirmar al salir del quiz"
+                checked={confirmQuizExit}
+                onChange={(e) => writeConfirmQuizExit(e.currentTarget.checked)}
+              />
+            }
           />
         </Paper>
 

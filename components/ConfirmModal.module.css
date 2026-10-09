@@ -1,0 +1,12 @@
+/* El cuerpo del modal: la advertencia, el error si lo hay y los botones, con
+   14px entre cada uno. Un `div` con flex y no `Stack`: sin `gap`, `Stack`
+   escribe igual su default como variable inline y le gana a la clase. */
+.body {
+  display: flex;
+  outline: none;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* El error de un intento fallido, un escalón más chico que la advertencia. */
+.error { --text-fz: var(--mantine-font-size-sm); }
