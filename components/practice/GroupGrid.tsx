@@ -3,7 +3,7 @@
 import { Stack, Box } from '@mantine/core';
 import { SectionLabel } from '../SectionLabel';
 import type { GroupSummary } from '@/lib/services/decks';
-import { GroupCard } from './GroupCard';
+import { GroupCard, isVocabGroup } from './GroupCard';
 import styles from './GroupGrid.module.css';
 
 /** Agrupa por `section` conservando el orden de aparición. NULL = un solo bloque sin título. */
@@ -64,11 +64,14 @@ export function GroupGrid({
               {SECTION_SUFFIX[section.label] ?? section.label}
             </SectionLabel>
           )}
-          {/* 8 columnas en escritorio, 5 en tablet, 3 en teléfono (ver
-              `.${styles.groupGrid}` en app/globals.css). No se usa `SimpleGrid`
-              porque sus breakpoints de tema (`sm`/`md`) no coinciden con el
-              breakpoint fijo de 640px del resto de la navegación. */}
-          <Box className={styles.groupGrid}>
+          {/* El ancho de las tarjetas depende de qué hay adentro: un kana
+              entra en una tarjeta angosta y una palabra pide más. Se decide
+              por sección, con la misma regla que usa la tarjeta para achicar
+              la letra (ver GroupGrid.module.css). */}
+          <Box
+            className={styles.groupGrid}
+            data-vocab={section.items.some(isVocabGroup) ? '' : undefined}
+          >
             {section.items.map((g) => (
               <GroupCard
                 key={g.id}

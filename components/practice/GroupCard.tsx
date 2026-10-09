@@ -23,6 +23,17 @@ import styles from './GroupCard.module.css';
  * pero eran dos efectos, y `stopPropagation` no lo evita: el camino que
  * importa es el del label.
  */
+/**
+ * Si un grupo es de PALABRAS y no de kana sueltos. Lo decide el contenido
+ * porque nada en el modelo dice «este mazo es de vocabulario»: el kana trae uno
+ * o dos caracteres -あ, きゃ- y una palabra arranca en tres. La usan la tarjeta,
+ * para el tamaño de letra, y la grilla, para el ancho de las tarjetas: las dos
+ * tienen que contestar lo mismo.
+ */
+export function isVocabGroup(group: GroupSummary): boolean {
+  return group.preview.some((p) => [...p.prompt].length > 2);
+}
+
 export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
@@ -30,15 +41,13 @@ export function GroupCard({
   const [nameTip, setNameTip] = useState(false);
 
   /**
-   * El kana baja de 15 a 13px cuando el grupo tiene PALABRAS. Lo decide el
-   * contenido porque nada en el modelo dice «este mazo es de vocabulario»: el
-   * kana trae uno o dos caracteres -あ, きゃ- y una palabra arranca en tres.
+   * El kana baja de 15 a 13px cuando el grupo tiene PALABRAS.
    *
    * Esos 2px compran una letra por línea en la tarjeta de teléfono, que deja
    * 101px de contenido: de seis a siete. Medido con el mazo: alcanza para
    * けんきゅうしゃ y las tres ましょう, que son el grueso.
    */
-  const isVocab = group.preview.some((p) => [...p.prompt].length > 2);
+  const isVocab = isVocabGroup(group);
 
   return (
     <Card

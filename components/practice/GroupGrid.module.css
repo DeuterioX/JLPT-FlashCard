@@ -1,9 +1,14 @@
-/* Escalera pareja de columnas: 3 hasta 800px y de ahí una más cada 300px,
-   hasta 12 a los 3200. Los cortes son contra el ancho CSS real -no la
-   resolución nominal del monitor, que el escalado de Windows desvincula del
-   `window.innerWidth`, medido en vivo-. Cascada de `min-width` ascendente para
-   que cada regla sólo tenga que pisar a la anterior. No se usa `SimpleGrid`
-   porque sus breakpoints del tema no coinciden con ninguno de estos. */
+/* En teléfono, 3 columnas que se reparten el ancho. Desde 800px, las tarjetas
+   tienen un ancho propio según lo que llevan y entran tantas como haya lugar,
+   alineadas a la izquierda: un kana -el más ancho mide 38px con su romaji-
+   entra en 8 a 10rem, y una palabra pide 11 a 14rem, donde entra el 95% de
+   las de Minna sin cortar. Antes eran nueve cortes que sumaban una columna cada
+   300px hasta 12, y en una pantalla ancha cada tarjeta medía 263px aunque
+   llevara un solo kana.
+
+   En `rem` para que acompañen la letra y el zoom del navegador: con la página
+   al 150% las tarjetas crecen junto con el texto y entran menos por fila. No se
+   usa `SimpleGrid` porque sus columnas son fijas por breakpoint. */
 .groupGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -11,37 +16,7 @@
 }
 
 @media (min-width: 800px) {
-  .groupGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-}
+  .groupGrid { grid-template-columns: repeat(auto-fill, minmax(8rem, 10rem)); }
 
-@media (min-width: 1100px) {
-  .groupGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-}
-
-@media (min-width: 1400px) {
-  .groupGrid { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-}
-
-@media (min-width: 1700px) {
-  .groupGrid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
-}
-
-@media (min-width: 2000px) {
-  .groupGrid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-}
-
-@media (min-width: 2300px) {
-  .groupGrid { grid-template-columns: repeat(9, minmax(0, 1fr)); }
-}
-
-@media (min-width: 2600px) {
-  .groupGrid { grid-template-columns: repeat(10, minmax(0, 1fr)); }
-}
-
-@media (min-width: 2900px) {
-  .groupGrid { grid-template-columns: repeat(11, minmax(0, 1fr)); }
-}
-
-@media (min-width: 3200px) {
-  .groupGrid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .groupGrid[data-vocab] { grid-template-columns: repeat(auto-fill, minmax(11rem, 14rem)); }
 }
