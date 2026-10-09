@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useEffectEvent } from 'react';
 import { Button, Modal, Text } from '@mantine/core';
 import { ModalTitle } from './ModalTitle';
 import { ModalActions } from './ModalActions';
@@ -68,6 +69,20 @@ function Body({
 }) {
   const action = useAction();
 
+  // En la ventana y no en el modal: Enter tiene que confirmar aunque el foco
+  // todavía no haya llegado.
+  const onKey = useEffectEvent((e: KeyboardEvent) => {
+    // `preventDefault` también para Enter: si el foco sigue en un input de
+    // abajo, su formulario se enviaría.
+    if (e.key === 'Enter' || e.key === ' ') e.preventDefault();
+    if (e.key === 'Enter' && !e.repeat) void action.run(onConfirm);
+  });
+  useEffect(() => {
+    if (!enterConfirms) return;
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [enterConfirms]);
+
   return (
     // Con `enterConfirms` el foco va al cuerpo y no a un botón: un botón
     // enfocado se activa también con Espacio, que en el quiz es revelar.
@@ -75,10 +90,6 @@ function Body({
       className={styles.body}
       tabIndex={enterConfirms ? -1 : undefined}
       data-autofocus={enterConfirms || undefined}
-      onKeyDown={enterConfirms ? (e) => {
-        if (e.key === 'Enter') void action.run(onConfirm);
-        if (e.key === ' ') e.preventDefault();
-      } : undefined}
     >
       <Text className="knd-delete-note">{children}</Text>
       {action.error && <Text className={`knd-error ${styles.error}`}>{action.error}</Text>}

@@ -149,15 +149,35 @@ test('recargar una ronda ya jugada abre una sesión nueva y no escribe en la cer
   expect(statuses.filter((s) => s.url.endsWith(`/api/sessions/${first}`))).toHaveLength(1);
 });
 
-test('Esc sale del quiz sin dejar /quiz en el historial', async ({ page }) => {
+test('Esc sale del quiz sin dejar /quiz en el historial', async ({ page, isMobile }) => {
+  await toggleGroup(page, 'Serie K');
+  await page.locator('#begin-round-btn').click();
+  await expect(page.locator('#answer-input')).toBeFocused();
+
+  await page.keyboard.press('Escape');
+  if (!isMobile) {
+    // En escritorio pregunta antes: otro Esc vuelve a la ronda, Enter sale.
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toBeHidden();
+    await expect(page.locator('#answer-input')).toBeFocused();
+    await page.keyboard.press('Escape');
+    await expect(page.getByRole('dialog')).toBeVisible();
+    await page.keyboard.press('Enter');
+  }
+  await expect(page).toHaveURL(/\/$/);
+  await page.goBack();
+  await expect(page).not.toHaveURL(/\/quiz/);
+});
+
+test('con la confirmación apagada en Ajustes, Esc sale directo', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('kitsune.confirmQuizExit', 'false'));
   await toggleGroup(page, 'Serie K');
   await page.locator('#begin-round-btn').click();
   await expect(page.locator('#answer-input')).toBeFocused();
 
   await page.keyboard.press('Escape');
   await expect(page).toHaveURL(/\/$/);
-  await page.goBack();
-  await expect(page).not.toHaveURL(/\/quiz/);
 });
 
 test('el botón queda deshabilitado sin ningún grupo', async ({ page }) => {
