@@ -1,28 +1,36 @@
-import { Stack, Text } from '@mantine/core';
+import { useLayoutEffect, useRef } from 'react';
+import { Text } from '@mantine/core';
 import styles from './FlipSheet.module.css';
 
+let canvas: HTMLCanvasElement | null = null;
+
 /**
- * La hoja de la carta con sus dos caras: el kana adelante y, al revelar, la
- * lectura y el significado atrás. Revelar la da vuelta con un giro sobre X.
+ * Cuánto correr el texto, en `em`, para que su TINTA quede en el centro de la
+ * línea y no su caja: «se» no tiene letras altas y se veía baja, «gyo» aún más.
+ * En dos o más renglones no se corre.
+ */
+function inkShift(el: HTMLElement): number {
+  const cs = getComputedStyle(el);
+  const size = parseFloat(cs.fontSize);
+  if (el.getBoundingClientRect().height > parseFloat(cs.lineHeight) * 1.5) return 0;
+  canvas ??= document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return 0;
+  ctx.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+  const m = ctx.measureText(el.textContent ?? '');
+  // Centros relativos a la línea de base, positivos hacia abajo.
+  const line = (m.fontBoundingBoxDescent - m.fontBoundingBoxAscent) / 2;
+  const ink = (m.actualBoundingBoxDescent - m.actualBoundingBoxAscent) / 2;
+  return (line - ink) / size;
+}
+
+/**
+ * La hoja de la carta: el kana adelante y, al revelar, la lectura y el
+ * significado atrás, con un giro sobre X. La usan Escribir y Significados.
  *
- * Es un componente y no marcado copiado porque la usan las dos rondas,
- * Escribir y Significados, y el giro tiene detalles que costó medir -la capa
- * de GPU permanente, la curva, la falta de perspectiva, el dorso del ancho
- * exacto del frente-. Copiado, la segunda copia los iba a ir perdiendo.
- *
- * El dorso está SIEMPRE renderizado, no sólo una vez revelado: agregándolo al
- * revelar, la caja crecía en el mismo momento del giro -medido en teléfono con
- * けんきゅうしゃ, de 83 a 308px-. Como está dado vuelta y con
- * `backface-visibility: hidden`, no se ve hasta que la hoja gira.
- *
- * Quien la usa le pone un `key` por carta. Sin eso, calificar una carta
- * revelada pasaba a la siguiente con la hoja todavía dada vuelta, y el giro de
- * regreso mostraba durante su primera mitad el dorso de la carta NUEVA: su
- * respuesta, antes de que la intentaras. Remontada, la carta nueva arranca de
- * frente y sin transición.
- *
- * `aria-hidden` mientras no esté revelado: escondido para el ojo pero presente
- * en el DOM, un lector de pantalla cantaría la respuesta antes de que la pidas.
+ * El dorso está siempre renderizado: agregarlo al revelar hacía crecer la caja
+ * en pleno giro. Quien la usa le pone un `key` por carta, para que la nueva
+ * arranque de frente y no muestre su respuesta en el giro de regreso.
  */
 export function FlipSheet({
   flipped, front, reading, meaning, readingId, meaningId,
@@ -35,20 +43,31 @@ export function FlipSheet({
   readingId?: string;
   meaningId?: string;
 }) {
+  const readingRef = useRef<HTMLParagraphElement>(null);
+
+  useLayoutEffect(() => {
+    const el = readingRef.current;
+    if (!el) return;
+    const apply = () => el.style.setProperty('--knd-ink-shift', `${inkShift(el)}em`);
+    apply();
+    // Con la fuente de respaldo las métricas son otras.
+    void document.fonts.ready.then(apply);
+  }, [reading]);
+
   return (
-    // El estado va en un `data-*` y no en una clase: las clases de un módulo
-    // se hashean y una escrita a mano deja de matchear.
     <div className={styles.turn} data-revealed={flipped || undefined}>
       <div className={styles.face}>{front}</div>
+      {/* `aria-hidden` sin revelar: si no, un lector de pantalla canta la respuesta. */}
       <div className={`${styles.face} ${styles.back}`} aria-hidden={!flipped}>
-        {/* El hueco entre la lectura y el significado es más grande que el de
-            un Stack normal a propósito: son dos datos distintos -cómo se dice
-            y qué quiere decir-, no dos renglones del mismo. */}
         {(reading || meaning) && (
-          <Stack align="center" gap={14}>
-            {reading && <Text id={readingId} className={`romaji ${styles.revealedAnswer}`}>{reading}</Text>}
+          <div className={styles.backContent}>
+            {reading && (
+              <Text ref={readingRef} id={readingId} className={`romaji ${styles.revealedAnswer}`}>
+                {reading}
+              </Text>
+            )}
             {meaning && <Text id={meaningId} className={styles.revealedMeaning}>{meaning}</Text>}
-          </Stack>
+          </div>
         )}
       </div>
     </div>

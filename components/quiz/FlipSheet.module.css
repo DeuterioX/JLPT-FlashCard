@@ -144,6 +144,14 @@
    largo es preferible a que se vaya de la hoja. */
 .back > * { width: 100%; }
 
+/* La lectura y el significado, con más aire que dos renglones del mismo dato. */
+.backContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.875rem;
+}
+
 .back :global(.mantine-Text-root) {
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -159,6 +167,8 @@
   font-size: clamp(1.5rem, min(12vw, 26cqh), 88px);
   line-height: 1.1;
   color: var(--knd-sumi);
+  /* Centra la tinta y no la caja de la línea: el valor lo mide FlipSheet.tsx. */
+  translate: 0 var(--knd-ink-shift, 0);
 }
 
 /* El significado, en verde porque es lo que dice que acertaste, pero no el jade
