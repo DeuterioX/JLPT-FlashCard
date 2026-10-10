@@ -87,7 +87,7 @@
 /* El porcentaje de cada ronda del historial: ancho fijo para que la columna
    quede alineada, y el mismo semáforo que las tiles de arriba. */
 .historyPct {
-  width: 44px;
+  text-align: right;
   font-size: 0.71875rem;
   line-height: 1.4;
   font-weight: 500;
@@ -143,9 +143,24 @@
   text-align: right;
 }
 
-.historyRow {
-  gap: var(--mantine-spacing-sm);
-  padding-block: 0.375rem;
+/* Fecha, etiqueta, duración y porcentaje, con las columnas compartidas como las
+   otras dos listas: la fecha mide lo que la más larga -«06/10/26 22:10»- y no
+   se parte, y la etiqueta se queda con el resto. */
+.historyGrid {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content max-content;
+  align-items: center;
+  column-gap: var(--mantine-spacing-sm);
+}
+
+.historyRow { padding-block: 0.375rem; }
+
+/* El dato más apagado de la fila, en `dark.3` como en el diseño. */
+.historyDate {
+  white-space: nowrap;
+  --text-fz: 0.6875rem;
+  --text-lh: 1.4;
+  color: var(--mantine-color-dark-3);
 }
 
 .historyLabel {

@@ -80,7 +80,7 @@ function formatRoundDate(iso: string, locale: string, t: ReturnType<typeof useTr
   const time = date.toLocaleTimeString(locale, HOUR_24);
   if (days === 0) return t('history.today', { time });
   if (days === 1) return t('history.yesterday', { time });
-  return `${date.toLocaleDateString(locale)} ${time}`;
+  return `${date.toLocaleDateString(locale, { day: 'numeric', month: 'numeric', year: '2-digit' })} ${time}`;
 }
 
 function HistoryDate({ iso }: { iso: string }) {
@@ -89,11 +89,8 @@ function HistoryDate({ iso }: { iso: string }) {
   // El castellano rioplatense para las fechas en castellano: día/mes/año.
   const locale = useLocale();
   const dateLocale = locale === 'es' ? 'es-AR' : locale;
-  // 96px y `dark.3` (`--a-dimmer`) del diseño, no los 130px y el `dimmed`
-  // (`--a-dim`) de antes: la fecha es el dato más apagado de la fila.
-  const props = { size: '0.6875rem', lh: 1.4, c: 'dark.3', w: 96 } as const;
-  if (!mounted) return <Text {...props}>&nbsp;</Text>;
-  return <Text {...props}>{formatRoundDate(iso, dateLocale, t)}</Text>;
+  if (!mounted) return <Text className={styles.historyDate}>&nbsp;</Text>;
+  return <Text className={styles.historyDate}>{formatRoundDate(iso, dateLocale, t)}</Text>;
 }
 
 const REVIEW_LIMIT = 20;
@@ -279,13 +276,15 @@ export function StatsBoard({
           {/* Sin `Divider` entre filas: en el diseño esta lista va sin
               líneas (`border: none`), separada solo por el padding de cada
               fila. Las líneas las tiene la lista de mazos, no esta. */}
+          {o.history.length > 0 && (
+          <div className={styles.historyGrid}>
           {o.history.map((h) => (
-            <Group key={h.id} id={`history-row-${h.id}`} wrap="nowrap" className={styles.historyRow}>
+            <div key={h.id} id={`history-row-${h.id}`} className={`${styles.statRow} ${styles.historyRow}`}>
               <HistoryDate iso={h.startedAt} />
-              <Text className={`knd-fill ${styles.historyLabel}`}>
+              <Text className={`${styles.statCell} ${styles.historyLabel}`}>
                 {h.review
                   ? t('history.review', { cards: h.total })
-                  : [h.deckName, t('history.groups', { count: h.groupCount }), t('history.cards', { count: h.total })]
+                  : [h.deckName, h.groupCount > 0 && t('history.groups', { count: h.groupCount }), t('history.cards', { count: h.total })]
                     .filter(Boolean).join(' · ')}
               </Text>
               {/* Columna de duración del diseño, que faltaba entera. El dato
@@ -296,11 +295,13 @@ export function StatsBoard({
               {/* El porcentaje de cada ronda va en el semáforo, como en el
                   diseño: es lo único de la fila que dice si la ronda salió
                   bien, y sin color había que leer el número para saberlo. */}
-              <Text className={`tabular ${styles.historyPct}`} ta="right" data-tone={toneOf(h.accuracy)}>
+              <Text className={`tabular ${styles.historyPct}`} data-tone={toneOf(h.accuracy)}>
                 {Math.round(h.accuracy * 100)}%
               </Text>
-            </Group>
+            </div>
           ))}
+          </div>
+          )}
         </Stack>
       </Paper>
     </Stack>
