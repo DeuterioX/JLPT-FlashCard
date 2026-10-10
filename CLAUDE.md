@@ -129,9 +129,13 @@ Lo que no se negocia, y por qué:
   reinstalado deja `better-sqlite3` sin su binario nativo. El 2026-09-23 quedó
   `node_modules` vacío y el servicio seguía «activo» sólo porque Next ya tenía
   todo en memoria: habría muerto en el siguiente reinicio.
-- **El `tar` no borra.** Un archivo que se borró o se movió en el repo sigue en
-  el server. Si el cambio saca archivos, borrarlos a mano con un `ssh` aparte
-  (`rm -f /opt/kitsune-cards/components/Viejo.tsx`).
+- **El `tar` no borra**, así que el script borra antes las carpetas de código
+  (`app`, `components`, `lib`, `public`, `scripts`, `e2e`, `tests`). El
+  2026-10-10 un `lib/client/accion.ts` de antes de un renombre seguía en el
+  server y rompió el build.
+- **Un build fallido no deja la app caída**: el script guarda el `.next`
+  anterior, lo restaura si el build falla y levanta el servicio igual. Antes
+  el build roto borraba el `.next` y el servicio no arrancaba.
 - **Migraciones:** el script no las corre. Si el cambio trae una migración nueva
   en `lib/db/migrations`, el deploy se hace a mano siguiendo los pasos del script
   y agregando `su kitsune -s /bin/bash -c "npm run db:migrate"` después del
