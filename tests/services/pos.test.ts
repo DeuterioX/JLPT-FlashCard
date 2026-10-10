@@ -1,32 +1,32 @@
 import { describe, it, expect } from 'vitest';
-import { posInSpanish } from '../../lib/services/pos';
+import { posCategory } from '../../lib/services/pos';
 
-describe('posInSpanish', () => {
+describe('posCategory', () => {
   it('traduce los códigos más frecuentes', () => {
-    expect(posInSpanish('n')).toBe('sustantivo');
-    expect(posInSpanish('exp')).toBe('expresión');
-    expect(posInSpanish('adv')).toBe('adverbio');
-    expect(posInSpanish('prt')).toBe('partícula');
+    expect(posCategory('n')).toBe('noun');
+    expect(posCategory('exp')).toBe('expression');
+    expect(posCategory('adv')).toBe('adverb');
+    expect(posCategory('prt')).toBe('particle');
   });
 
   it('junta todas las clases de verbo en una sola label', () => {
     for (const c of ['v1', 'v5r', 'v5s', 'vs-i', 'vk', 'vz', 'v2a-s', 'v4r', 'v5k-s']) {
-      expect(posInSpanish(c)).toBe('verbo');
+      expect(posCategory(c)).toBe('verb');
     }
   });
 
   it('conserva la distinción -i / -na de los adjetivos', () => {
-    expect(posInSpanish('adj-i')).toBe('adjetivo -i');
-    expect(posInSpanish('adj-na')).toBe('adjetivo -na');
+    expect(posCategory('adj-i')).toBe('adjI');
+    expect(posCategory('adj-na')).toBe('adjNa');
     // El resto de las familias de adjetivo no cambian cómo se usa la palabra.
-    expect(posInSpanish('adj-no')).toBe('adjetivo');
-    expect(posInSpanish('adj-nari')).toBe('adjetivo');
+    expect(posCategory('adj-no')).toBe('adjective');
+    expect(posCategory('adj-nari')).toBe('adjective');
   });
 
   it('no inventa una label cuando el código no dice nada', () => {
-    expect(posInSpanish('unc')).toBeNull();
-    expect(posInSpanish(null)).toBeNull();
-    expect(posInSpanish('')).toBeNull();
-    expect(posInSpanish('xyz')).toBeNull();
+    expect(posCategory('unc')).toBeNull();
+    expect(posCategory(null)).toBeNull();
+    expect(posCategory('')).toBeNull();
+    expect(posCategory('xyz')).toBeNull();
   });
 });

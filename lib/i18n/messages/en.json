@@ -1,0 +1,307 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "settings": {
+    "title": "Settings",
+    "back": "Practice",
+    "sections": {
+      "appearance": "appearance",
+      "practice": "practice",
+      "language": "language",
+      "info": "information"
+    },
+    "theme": {
+      "title": "Theme",
+      "description": "Follow the system, or pick one.",
+      "autoHint": "follow the system",
+      "options": {
+        "auto": "Automatic",
+        "light": "Light",
+        "dark": "Dark"
+      }
+    },
+    "confirmQuizExit": {
+      "title": "Confirm before leaving the quiz",
+      "description": "On desktop, Esc asks before you leave a round halfway."
+    },
+    "language": {
+      "title": "Interface language",
+      "description": "Cards don't change: they stay in Japanese.",
+      "modalTitle": "Language"
+    },
+    "about": {
+      "title": "About {app}",
+      "description": "Version, fonts and licenses."
+    }
+  },
+  "nav": {
+    "practice": "Practice",
+    "decks": "Decks",
+    "stats": "Statistics",
+    "settings": "Settings"
+  },
+  "navbar": {
+    "back": "Back to {label}"
+  },
+  "practice": {
+    "startError": "Couldn't start the round. Try again.",
+    "empty": "There are no decks to practice yet.",
+    "selectAll": {
+      "label": "All",
+      "text": "all"
+    },
+    "selectNone": {
+      "label": "None",
+      "text": "none"
+    },
+    "count": {
+      "groups": "{count, plural, one {group} other {groups}}",
+      "cards": "{count, plural, one {card} other {cards}}"
+    },
+    "noMeanings": "These cards have no meanings to review",
+    "beginMeaning": "Review meanings",
+    "beginWriting": "Review writing",
+    "cardLabel": "Practice {name}",
+    "cardCount": "{count, plural, one {# word} other {# words}}"
+  },
+  "round": {
+    "back": "Practice",
+    "exit": "exit",
+    "groups": "{count, plural, one {# group} other {# groups}}",
+    "sessionError": "Couldn't save this round. Your answers aren't being recorded.",
+    "exitModal": {
+      "title": "Leave the round",
+      "confirm": "Leave",
+      "body": "What you've answered so far is already saved. {remaining, plural, one {# card is left unanswered.} other {# cards are left unanswered.}}"
+    }
+  },
+  "summary": {
+    "title": "Round complete",
+    "stats": {
+      "accuracy": "Accuracy",
+      "cards": "Cards",
+      "errors": "Errors",
+      "time": "Time"
+    },
+    "misses": "The ones you struggled with",
+    "hint": {
+      "toStats": "to go back to statistics",
+      "nextRound": "to start another round",
+      "exit": "to exit"
+    }
+  },
+  "keys": {
+    "space": "Space"
+  },
+  "quiz": {
+    "metrics": {
+      "accuracy": "Accuracy",
+      "remaining": "Remaining",
+      "errors": "Errors"
+    },
+    "tapToReveal": "tap the card to reveal",
+    "wrong": "Not that one, try again",
+    "caption": "card {n} of {total}",
+    "placeholder": "type in romaji",
+    "hide": "Hide",
+    "reveal": "Reveal"
+  },
+  "meaning": {
+    "metrics": {
+      "known": "Known",
+      "unknown": "Not known"
+    },
+    "knew": "I knew it",
+    "didntKnow": "I didn't know it"
+  },
+  "stats": {
+    "range": {
+      "7d": "7 days",
+      "30d": "30 days",
+      "all": "all time",
+      "allOption": "All time"
+    },
+    "tiles": {
+      "accuracy": "Accuracy",
+      "accuracyHint": "{correct} of {attempts}",
+      "errors": "Errors",
+      "errorsTotal": "in total",
+      "errorsIn": "in {range}",
+      "rounds": "Rounds",
+      "perDay": "{value} per day",
+      "mastered": "Mastered",
+      "masteredHint": "of {total} cards"
+    },
+    "review": "{count, plural, =0 {Practice my weakest} other {Practice my # weakest}}",
+    "worst": {
+      "title": "Your most missed",
+      "note": "errors / times seen",
+      "empty": "Not enough data yet."
+    },
+    "byGroup": {
+      "title": "Accuracy by group",
+      "last": "last {range}",
+      "empty": "You haven't practiced anything yet."
+    },
+    "history": {
+      "title": "Round history",
+      "note": "{count, plural, one {last round} other {last #}}",
+      "empty": "No finished rounds.",
+      "today": "Today {time}",
+      "yesterday": "Yesterday {time}",
+      "review": "Review · {cards, plural, one {# card} other {# cards}}",
+      "groups": "{count, plural, one {# group} other {# groups}}",
+      "cards": "{count, plural, one {# card} other {# cards}}"
+    }
+  },
+  "errors": {
+    "network": "Can't reach the server. Try again.",
+    "generic": "Couldn't complete the action. Try again.",
+    "notFound": {
+      "deck": "Deck not found",
+      "group": "Group not found",
+      "card": "Card not found",
+      "round": "Round not found",
+      "someGroup": "One of the groups wasn't found"
+    },
+    "server": {
+      "invalidId": "Invalid id",
+      "invalidJson": "The request body isn't valid JSON",
+      "invalidData": "Invalid data",
+      "internal": "Internal error",
+      "deckNameRequired": "The deck needs a name",
+      "groupNameRequired": "The group needs a name",
+      "builtinNoEdit": "Hiragana and Katakana come with the app and can't be edited",
+      "builtinNoDelete": "Hiragana and Katakana come with the app and can't be deleted",
+      "cardNeedsRomaji": "The card needs at least one romanization",
+      "cardNeedsPrompt": "The card needs Japanese text",
+      "pickGroup": "Pick at least one group to practice",
+      "noCards": "The selected groups have no cards",
+      "noMeanings": "None of those cards has a meaning to review",
+      "roundFinished": "The round is already over",
+      "notEnoughErrors": "There aren't enough errors to review yet"
+    }
+  },
+  "decks": {
+    "title": "Decks",
+    "new": "+ New deck",
+    "practice": "Practice",
+    "delete": "Delete",
+    "decks": "{count, plural, one {# deck} other {# decks}}",
+    "groups": "{count, plural, one {# group} other {# groups}}",
+    "cards": "{count, plural, one {# card} other {# cards}}",
+    "newModal": {
+      "title": "New deck",
+      "name": "Name",
+      "namePlaceholder": "Food",
+      "groups": "Groups",
+      "groupsPlaceholder": "Fish, Vegetables, Fruit",
+      "groupsNote": "Comma-separated, and optional: if you leave it empty, a single group called “General” is created.",
+      "create": "Create"
+    },
+    "deleteModal": {
+      "title": "Delete the deck?",
+      "confirm": "Delete the deck",
+      "body": "This will delete <b>“{name}”</b>, its <b>{groups, plural, one {# group} other {# groups}}</b> and its <b>{cards, plural, one {# card} other {# cards}}</b>. This can't be undone."
+    },
+    "readOnly": "read only",
+    "newGroup": "+ New group",
+    "rename": "Rename",
+    "lastGroup": "The deck needs at least one group",
+    "renameDeck": "Rename deck",
+    "renameGroup": "Rename group",
+    "newGroupModal": {
+      "title": "New group",
+      "placeholder": "Vegetables"
+    },
+    "deleteGroupModal": {
+      "title": "Delete the group?",
+      "confirm": "Delete the group",
+      "body": "This will delete <b>“{name}”</b> and its <b>{cards, plural, one {# card} other {# cards}}</b>. This can't be undone."
+    },
+    "builtin": "Comes with the app · can't be deleted"
+  },
+  "dict": {
+    "title": "Dictionary",
+    "placeholder": "fish",
+    "searchError": "Couldn't search the dictionary.",
+    "notLoaded": "The dictionary isn't loaded, so the search won't find anything. To import it, follow the “Dictionary” section of the project README.",
+    "inEnglish": "in English",
+    "added": "Added",
+    "add": "Add",
+    "noResults": "No results. JMdict has about 39,000 entries translated into Spanish; uncommon terms may be missing.",
+    "foot": "It's added to the group <b>{group}</b>. You can edit the kana, romaji and meaning later.",
+    "pos": {
+      "noun": "noun",
+      "suffix": "suffix",
+      "prefix": "prefix",
+      "expression": "expression",
+      "adverb": "adverb",
+      "interjection": "interjection",
+      "pronoun": "pronoun",
+      "conjunction": "conjunction",
+      "numeral": "numeral",
+      "counter": "counter",
+      "particle": "particle",
+      "copula": "copula",
+      "auxiliary": "auxiliary",
+      "adjI": "i-adjective",
+      "adjNa": "na-adjective",
+      "adjective": "adjective",
+      "verb": "verb"
+    }
+  },
+  "cards": {
+    "editModal": {
+      "title": "Edit word"
+    },
+    "meaning": "Meaning",
+    "meaningPlaceholder": "shrimp",
+    "romajiNote": "The romaji fills in from the kana. Edit it if needed.",
+    "addAlt": "+ alternative romanization",
+    "altLabel": "Alternative romanization {n}",
+    "removeAlt": "Remove alternative romanization {n}",
+    "newWord": "New word in “{group}”",
+    "dictSearch": "Search the dictionary",
+    "dictShort": "Dictionary",
+    "add": "Add",
+    "move": "Move",
+    "empty": "There are no cards in this group yet.",
+    "deleteModal": {
+      "title": "Delete the word?",
+      "confirm": "Delete the word",
+      "body": "This will delete <b>“{word}”</b> and its <b>recorded attempts</b>. This can't be undone.",
+      "bodyWithMeaning": "This will delete <b>“{word}”</b> ({meaning}) and its <b>recorded attempts</b>. This can't be undone."
+    },
+    "moveModal": {
+      "title": "Move word",
+      "body": "Move <b>{word}</b> to:"
+    }
+  },
+  "about": {
+    "settings": "Settings",
+    "title": "About",
+    "sections": {
+      "project": "about the project",
+      "info": "information"
+    },
+    "story": {
+      "p1": "This project was born from a personal need: I wanted a simple tool to study Japanese with flashcards.",
+      "p2": "While using another app to learn hiragana, I wanted to start practicing katakana and found out that feature was behind a paid subscription. Instead of paying for something I didn't need to be that complex, I decided to build my own.",
+      "p3": "The app lets you practice hiragana and katakana, recognize Japanese words and phrases, and train writing them in romaji. You can also add your own content to tailor practice to whatever you want to learn.",
+      "p4": "The idea isn't to reinvent learning Japanese, but to make a simple, useful and free tool, born from a real need.",
+      "p5": "I originally built it for myself. If it can also help other people learning Japanese, even better."
+    },
+    "facts": {
+      "version": "Version",
+      "builtWith": "Built with",
+      "builtWithValue": "Next.js, Mantine and SQLite",
+      "fonts": "Typefaces",
+      "fontsValue": "M PLUS 2, M PLUS 1 Code, Zen Kaku Gothic New and Zen Old Mincho — SIL Open Font License",
+      "dictionary": "Dictionary",
+      "dictionaryBy": ", by the Electronic Dictionary Research and Development Group — "
+    }
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Stack, Group, Text, Button, Paper, Divider, Anchor, rem,
@@ -30,6 +31,9 @@ import type { DeckSummary } from '@/lib/services/decks';
  * `disabled` de más abajo no es una rama muerta.
  */
 export function DeckGroups({ deck }: { deck: DeckSummary }) {
+  const t = useTranslations('decks');
+  const tc = useTranslations('common');
+  const tErrors = useTranslations('errors');
   const router = useRouter();
   const readOnly = deck.isBuiltin;
 
@@ -44,7 +48,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setRenameOpen(false);
     router.refresh();
   };
@@ -55,7 +59,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setNewOpen(false);
     router.refresh();
   };
@@ -67,7 +71,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setGRename(null);
     router.refresh();
   };
@@ -75,7 +79,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
   const deleteGroup = async () => {
     if (!confirm) return;
     const res = await fetch(`/api/groups/${confirm.id}`, { method: 'DELETE' });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setConfirm(null);
     router.refresh();
   };
@@ -83,7 +87,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
   return (
     <Screen nav={{
       id: 'deck-header',
-      levels: [{ label: 'Mazos', href: '/decks' }, { label: deck.name }],
+      levels: [{ label: t('title'), href: '/decks' }, { label: deck.name }],
       currentId: 'deck-name',
       action: readOnly ? <BuiltinDot /> : (
         <RenameButton id="rename-deck-btn" onClick={() => setRenameOpen(true)} />
@@ -92,13 +96,13 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
       <Stack id="deck-groups-screen" gap="md">
         <Group className="knd-sect-row" gap={10} wrap="nowrap">
           <SectionLabel id="groups-count" jp="組">
-            {`${deck.groups.length} grupos · ${deck.cardCount} cartas`}
+            {`${t('groups', { count: deck.groups.length })} · ${t('cards', { count: deck.cardCount })}`}
           </SectionLabel>
           {readOnly
-            ? <Text className="romaji knd-tag" size={rem(9)} tt="uppercase" c="dark.3">sólo lectura</Text>
+            ? <Text className="romaji knd-tag" size={rem(9)} tt="uppercase" c="dark.3">{t('readOnly')}</Text>
             : (
               <Button id="new-group-btn" size="compact-sm" onClick={() => setNewOpen(true)}>
-                + Nuevo grupo
+                {t('newGroup')}
               </Button>
             )}
         </Group>
@@ -116,10 +120,10 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                 onTap={() => router.push(`/decks/${deck.id}/groups/${g.id}`)}
                 leading={readOnly
                   ? undefined
-                  : { label: 'Renombrar', onAction: () => setGRename(g) }}
+                  : { label: t('rename'), onAction: () => setGRename(g) }}
                 trailing={readOnly || deck.groups.length === 1
                   ? undefined
-                  : { label: 'Borrar', onAction: () => setConfirm(g) }}
+                  : { label: t('delete'), onAction: () => setConfirm(g) }}
               >
               <Group
                 wrap="nowrap"
@@ -145,7 +149,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                     {g.name}
                   </Anchor>
                   <Text size={rem(11)} lh={1.45} c="dark.3">
-                    {g.cardCount === 1 ? '1 carta' : `${g.cardCount} cartas`}
+                    {t('cards', { count: g.cardCount })}
                   </Text>
                 </Stack>
                 <Group className="knd-row-actions" wrap="nowrap">
@@ -156,10 +160,10 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                       id={`group-delete-${g.id}`}
                       variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete"
                       disabled={deck.groups.length === 1}
-                      title={deck.groups.length === 1 ? 'El mazo necesita al menos un grupo' : undefined}
+                      title={deck.groups.length === 1 ? t('lastGroup') : undefined}
                       onClick={() => setConfirm(g)}
                     >
-                      Borrar
+                      {t('delete')}
                     </Button>
                   )}
                   {!readOnly && (
@@ -168,7 +172,7 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
                       variant="default" size="compact-xs"
                       onClick={() => setGRename(g)}
                     >
-                      Renombrar
+                      {t('rename')}
                     </Button>
                   )}
                 </Group>
@@ -180,33 +184,33 @@ export function DeckGroups({ deck }: { deck: DeckSummary }) {
 
         <NameModal
           id="rename-deck" opened={renameOpen} onClose={() => setRenameOpen(false)}
-          jp="改" title="Renombrar mazo" label="Nombre"
-          initial={deck.name} submit="Guardar" onSubmit={renameDeck}
+          jp="改" title={t('renameDeck')} label={t('newModal.name')}
+          initial={deck.name} submit={tc('save')} onSubmit={renameDeck}
         />
 
         <NameModal
           id="rename-group-row" opened={!!gRename} onClose={() => setGRename(null)}
-          jp="改" title="Renombrar grupo" label="Nombre"
-          initial={gRename?.name ?? ''} submit="Guardar" onSubmit={renameGroupName}
+          jp="改" title={t('renameGroup')} label={t('newModal.name')}
+          initial={gRename?.name ?? ''} submit={tc('save')} onSubmit={renameGroupName}
         />
 
         <NameModal
           id="new-group" opened={newOpen} onClose={() => setNewOpen(false)}
-          jp="新" title="Nuevo grupo" label="Nombre" placeholder="Verdura"
-          submit="Crear" onSubmit={createGroup}
+          jp="新" title={t('newGroupModal.title')} label={t('newModal.name')} placeholder={t('newGroupModal.placeholder')}
+          submit={t('newModal.create')} onSubmit={createGroup}
         />
 
         <ConfirmModal
           id="delete-group-modal" opened={!!confirm} onClose={() => setConfirm(null)}
-          jp="削" title="¿Borrar el grupo?" confirm="Borrar el grupo" onConfirm={deleteGroup}
+          jp="削" title={t('deleteGroupModal.title')} confirm={t('deleteGroupModal.confirm')} onConfirm={deleteGroup}
         >
           {/* `deleteGroup` borra en cascada, así que el número de cartas es
               parte de la advertencia y no un dato de color. */}
-          {'Se va a borrar '}
-          <b>{`«${confirm?.name ?? ''}»`}</b>
-          {' y sus '}
-          <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
-          {'. No se puede deshacer.'}
+          {t.rich('deleteGroupModal.body', {
+            name: confirm?.name ?? '',
+            cards: confirm?.cardCount ?? 0,
+            b: (chunks) => <b>{chunks}</b>,
+          })}
         </ConfirmModal>
       </Stack>
     </Screen>

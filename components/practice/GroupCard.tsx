@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Card, Switch, Text, Tooltip } from '@mantine/core';
 import type { GroupSummary } from '@/lib/services/decks';
 import styles from './GroupCard.module.css';
@@ -37,6 +38,7 @@ export function isVocabGroup(group: GroupSummary): boolean {
 export function GroupCard({
   group, checked, onToggle,
 }: { group: GroupSummary; checked: boolean; onToggle: (id: number, on: boolean) => void }) {
+  const t = useTranslations('practice');
   const toggle = () => onToggle(group.id, !checked);
   const [nameTip, setNameTip] = useState(false);
 
@@ -54,7 +56,7 @@ export function GroupCard({
       withBorder
       role="switch"
       aria-checked={checked}
-      aria-label={`Practicar ${group.name}`}
+      aria-label={t('cardLabel', { name: group.name })}
       tabIndex={0}
       onClick={toggle}
       onKeyDown={(e) => {
@@ -119,7 +121,7 @@ export function GroupCard({
             papel a ésas y no a las otras, y en una fila las hojas terminaban
             a distinta altura. */}
         <Text className={`tabular ${styles.gcCount}`}>
-          {group.cardCount === 1 ? '1 palabra' : `${group.cardCount} palabras`}
+          {t('cardCount', { count: group.cardCount })}
         </Text>
       </div>
     </Card>

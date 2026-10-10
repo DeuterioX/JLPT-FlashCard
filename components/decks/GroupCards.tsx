@@ -2,6 +2,7 @@
 
 import { useRef, useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Stack, Group, Text, Button, Paper, Divider, Modal, Anchor, Box,
   rem,
@@ -49,6 +50,8 @@ function EditCardModal({
   onClose: () => void;
   onSave: (v: { prompt: string; romaji: string; meaning: string; alts: string[] }) => void;
 }) {
+  const t = useTranslations('cards');
+  const tc = useTranslations('common');
   const [prompt, setPrompt] = useState('');
   // La primaria va en su campo y el resto como alternativas, para no
   // perderlas al guardar (el PATCH reemplaza la lista entera).
@@ -90,7 +93,7 @@ function EditCardModal({
       opened={opened}
       keepMounted
       onClose={onClose}
-      title={<ModalTitle jp="編">Editar palabra</ModalTitle>}
+      title={<ModalTitle jp="編">{t('editModal.title')}</ModalTitle>}
     >
       <Stack
         component="form"
@@ -131,26 +134,26 @@ function EditCardModal({
             <div className="knd-grow">
               <PaperField
                 label="Alt"
-                aria-label={`Romanización alternativa ${i + 1}`}
+                aria-label={t('altLabel', { n: i + 1 })}
                 value={a}
                 onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
               />
             </div>
             <Button
               variant="subtle" className="knd-error" size="compact-sm"
-              aria-label={`Quitar romanización alternativa ${i + 1}`}
+              aria-label={t('removeAlt', { n: i + 1 })}
               onClick={() => setAlts(alts.filter((_, j) => j !== i))}
             >
               <Icon glyph={X} />
             </Button>
           </Group>
         ))}
-        <PaperField id="edit-meaning" label="Significado" value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
+        <PaperField id="edit-meaning" label={t('meaning')} value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)} />
         {/* La nota del diseño, debajo del último campo: dice qué hace el
             formulario solo, así los dos botones de arriba no necesitan
             explicarse. */}
         <Text className="knd-field-note">
-          El romaji se completa solo desde el kana. Editalo si hace falta.
+          {t('romajiNote')}
         </Text>
         {/* Al final, después de los campos, como en el formulario de alta:
             es una acción sobre el formulario, no un campo más. */}
@@ -158,7 +161,7 @@ function EditCardModal({
           className={styles.inlineLink} component="button" type="button"
           size="xs" underline="always" onClick={() => setAlts([...alts, ''])}
         >
-          + romanización alternativa
+          {t('addAlt')}
         </Anchor>
         {error && <Text className="knd-error" size="sm">{error}</Text>}
         {/* `type="submit"` y no un `onClick`: sin un botón de submit, un form
@@ -171,7 +174,7 @@ function EditCardModal({
             disabled={!prompt.trim() || !romaji.trim() || busy}
             loading={busy}
           >
-            Guardar
+            {tc('save')}
           </Button>
         </ModalActions>
       </Stack>
@@ -196,6 +199,10 @@ export function GroupCards({
   cards: EditorCard[];
   dictionaryLoaded: boolean;
 }) {
+  const t = useTranslations('cards');
+  const td = useTranslations('decks');
+  const tc = useTranslations('common');
+  const tErrors = useTranslations('errors');
   const router = useRouter();
   const readOnly = deck.isBuiltin;
   const manyGroups = deck.groups.length > 1;
@@ -259,7 +266,7 @@ export function GroupCards({
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ name }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setRenameOpen(false);
     router.refresh();
   };
@@ -274,7 +281,7 @@ export function GroupCards({
         answers: [romaji, ...alts].map((a) => a.trim()).filter(Boolean),
       }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setPrompt('');
     setRomaji('');
     setMeaning('');
@@ -289,7 +296,7 @@ export function GroupCards({
   const removeCard = async () => {
     if (!deleting) return;
     const res = await fetch(`/api/cards/${deleting.id}`, { method: 'DELETE' });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setDeleting(null);
     router.refresh();
   };
@@ -306,7 +313,7 @@ export function GroupCards({
           answers: [next.romaji, ...next.alts].map((a) => a.trim()).filter(Boolean),
         }),
       });
-      if (!res.ok) return errorFrom(res);
+      if (!res.ok) return errorFrom(res, tErrors('generic'));
       setEditOpen(false);
       router.refresh();
     });
@@ -319,7 +326,7 @@ export function GroupCards({
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ groupId: targetGroupId }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setMoving(null);
     router.refresh();
   });
@@ -328,7 +335,7 @@ export function GroupCards({
     <Screen nav={{
       id: 'group-header',
       levels: [
-        { label: 'Mazos', href: '/decks' },
+        { label: td('title'), href: '/decks' },
         { label: deck.name, href: `/decks/${deck.id}` },
         { label: group.name },
       ],
@@ -363,7 +370,7 @@ export function GroupCards({
                   del título estaba entera libre. */}
               <Group gap={10} wrap="nowrap">
                 <Text id="new-word-title" className={styles.addformTitle} size="0.71875rem" lh={1.4} fw={600}>
-                  {`Nueva palabra en «${group.name}»`}
+                  {t('newWord', { group: group.name })}
                 </Text>
                 <Button
                   id="dict-search-btn"
@@ -371,7 +378,7 @@ export function GroupCards({
                   variant="default"
                   size="compact-sm"
                   type="button"
-                  aria-label="Buscar en el diccionario"
+                  aria-label={t('dictSearch')}
                   onClick={() => setDictOpen(true)}
                   leftSection={(
                     /* 18px y no 14: a 14 la lupa quedaba más chica que la
@@ -386,8 +393,8 @@ export function GroupCards({
                   {/* Dos etiquetas y el CSS elige cuál se ve, como en
                       `RenameButton`: en 390px «Buscar en el diccionario» se
                       come el ancho que necesita el nombre del grupo. */}
-                  <span className={styles.dictLabelFull}>Buscar en el diccionario</span>
-                  <span className={styles.dictLabelShort}>Diccionario</span>
+                  <span className={styles.dictLabelFull}>{t('dictSearch')}</span>
+                  <span className={styles.dictLabelShort}>{t('dictShort')}</span>
                 </Button>
               </Group>
               {/* `.field` del diseño: el rótulo va ADENTRO de la caja. Es el
@@ -456,7 +463,7 @@ export function GroupCards({
                   </div>
                 </div>
                 <PaperField
-                  id="nueva-meaning" label="Significado" placeholder="camarón"
+                  id="nueva-meaning" label={t('meaning')} placeholder={t('meaningPlaceholder')}
                   value={meaning} onChange={(e) => setMeaning(e.currentTarget.value)}
                 />
                 {/* `default` y no el primario: en el canvas el alta de palabra
@@ -466,7 +473,7 @@ export function GroupCards({
                     final de un formulario que ya estás completando, no la acción
                     que te invita a empezar algo. */}
                 <Button variant="default" type="submit" disabled={!prompt.trim() || !romaji.trim() || addAction.busy} loading={addAction.busy}>
-                  Agregar
+                  {t('add')}
                 </Button>
               </div>
               {alts.length > 0 && (
@@ -476,7 +483,7 @@ export function GroupCards({
                       <div className={styles.altCol}>
                         <PaperField
                           label="Alt"
-                          aria-label={`Romanización alternativa ${i + 1}`}
+                          aria-label={t('altLabel', { n: i + 1 })}
                           placeholder="sūpā"
                           value={a}
                           onChange={(e) => setAlts(alts.map((x, j) => (j === i ? e.currentTarget.value : x)))}
@@ -484,7 +491,7 @@ export function GroupCards({
                       </div>
                       <Button
                         variant="subtle" className="knd-error" size="compact-xs"
-                        aria-label={`Quitar romanización alternativa ${i + 1}`}
+                        aria-label={t('removeAlt', { n: i + 1 })}
                         onClick={() => setAlts(alts.filter((_, j) => j !== i))}
                       >
                         <Icon glyph={X} />
@@ -500,13 +507,13 @@ export function GroupCards({
                   distingue solo -color y subrayado-, así que el separador no
                   estaba aportando nada que se pierda. */}
               <Group gap="0.375rem" wrap="wrap">
-                <Text size="xs" c="dimmed">El romaji se completa solo desde el kana. Editalo si hace falta.</Text>
+                <Text size="xs" c="dimmed">{t('romajiNote')}</Text>
                 <Anchor
                   id="add-alt-romaji" className={styles.inlineLink} component="button" type="button"
                   size="xs" underline="always"
                   onClick={() => setAlts([...alts, ''])}
                 >
-                  + romanización alternativa
+                  {t('addAlt')}
                 </Anchor>
               </Group>
             </Stack>
@@ -515,11 +522,11 @@ export function GroupCards({
 
         <Group className="knd-sect-row" gap={10} wrap="nowrap">
           <SectionLabel id="cards-count" jp="語">
-            {cards.length === 1 ? '1 carta' : `${cards.length} cartas`}
+            {td('cards', { count: cards.length })}
           </SectionLabel>
           {readOnly && !manyGroups && (
             <Text className="romaji knd-tag" size={rem(9)} tt="uppercase" c="dark.3">
-              sólo lectura
+              {td('readOnly')}
             </Text>
           )}
         </Group>
@@ -533,10 +540,10 @@ export function GroupCards({
                 tappable={!readOnly}
                 onTap={() => { editAction.setError(null); setEditCard(c); setEditOpen(true); }}
                 leading={!readOnly && manyGroups
-                  ? { label: 'Mover', onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
+                  ? { label: t('move'), onAction: () => { moveAction.setError(null); setDestino(null); setMoving(c); } }
                   : undefined}
                 trailing={!readOnly
-                  ? { label: 'Borrar', onAction: () => setDeleting(c) }
+                  ? { label: td('delete'), onAction: () => setDeleting(c) }
                   : undefined}
               >
                 {/* Los anchos viven en globals.css y no acá porque tienen que
@@ -585,7 +592,7 @@ export function GroupCards({
                         // se estaba borrando; con la acción compartida eso sería
                         // hacer girar todas las filas a la vez.
                       >
-                        Borrar
+                        {td('delete')}
                       </Button>
                       {manyGroups && (
                         <Button
@@ -593,7 +600,7 @@ export function GroupCards({
                           variant="default" bg="transparent" size="compact-xs"
                           onClick={() => { moveAction.setError(null); setDestino(null); setMoving(c); }}
                         >
-                          Mover
+                          {t('move')}
                         </Button>
                       )}
                     </Group>
@@ -602,37 +609,36 @@ export function GroupCards({
               </SwipeRow>
             </Box>
           ))}
-          {cards.length === 0 && <Text p="md" size="sm" c="dimmed">Todavía no hay cartas en este grupo.</Text>}
+          {cards.length === 0 && <Text p="md" size="sm" c="dimmed">{t('empty')}</Text>}
         </Paper>
 
         <NameModal
           id="rename-group" opened={renameOpen} onClose={() => setRenameOpen(false)}
-          jp="改" title="Renombrar grupo" label="Nombre"
-          initial={group.name} submit="Guardar" onSubmit={renameGroup}
+          jp="改" title={td('renameGroup')} label={td('newModal.name')}
+          initial={group.name} submit={tc('save')} onSubmit={renameGroup}
         />
 
         {/* El grupo actual aparece deshabilitado en vez de ausente: dice dónde
             estás parado sin necesidad de otra label. */}
         <ConfirmModal
           id="delete-card-modal" opened={!!deleting} onClose={() => setDeleting(null)}
-          jp="削" title="¿Borrar la palabra?" confirm="Borrar la palabra"
+          jp="削" title={t('deleteModal.title')} confirm={t('deleteModal.confirm')}
           confirmId="confirm-delete-card" onConfirm={removeCard}
         >
           {/* Los intentos de esa carta se borran con ella, así que la
               estadística cambia y el diálogo lo dice. */}
-          {'Se va a borrar '}
-          <b>{`«${deleting?.prompt ?? ''}»`}</b>
-          {deleting?.meaning ? ` (${deleting.meaning})` : ''}
-          {' y sus '}
-          <b>intentos registrados</b>
-          {'. No se puede deshacer.'}
+          {t.rich(deleting?.meaning ? 'deleteModal.bodyWithMeaning' : 'deleteModal.body', {
+            word: deleting?.prompt ?? '',
+            meaning: deleting?.meaning ?? '',
+            b: (chunks) => <b>{chunks}</b>,
+          })}
         </ConfirmModal>
 
         <Modal
           id="move-card-modal"
           opened={!!moving}
           onClose={() => { setMoving(null); setDestino(null); }}
-          title={<ModalTitle jp="移">Mover palabra</ModalTitle>}
+          title={<ModalTitle jp="移">{t('moveModal.title')}</ModalTitle>}
         >
           {/* Una lista de opciones con su confirmación, no un botón por grupo
               que mueve al tocarlo. Mover es una acción con target: elegir el
@@ -641,11 +647,10 @@ export function GroupCards({
               antes no existía -salías por la ✕ o por Esc-. */}
           <Stack gap={10}>
             <Text size="sm" c="dimmed">
-              {'Mover '}
-              <Text component="b" className="kana knd-strong" inherit>
-                {moving?.prompt}
-              </Text>
-              {' a:'}
+              {t.rich('moveModal.body', {
+                word: moving?.prompt ?? '',
+                b: (chunks) => <Text component="b" className="kana knd-strong" inherit>{chunks}</Text>,
+              })}
             </Text>
             {/* El grupo actual NO aparece. Estaba listado y deshabilitado, con un
                 «· acá está» al lado, para decir dónde estabas parado; pero una
@@ -669,7 +674,7 @@ export function GroupCards({
                 disabled={target === null || moveAction.busy}
                 loading={moveAction.busy}
               >
-                Mover
+                {t('move')}
               </Button>
             </ModalActions>
           </Stack>

@@ -1,5 +1,6 @@
 import { Group, Text, Anchor } from '@mantine/core';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { ChevronLeft } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import { Brand } from './Brand';
@@ -34,6 +35,7 @@ export function MobileNavbar({
   title: string;
   action?: React.ReactNode;
 }) {
+  const t = useTranslations('navbar');
   return (
     <Group className={`${styles.mobileNavbar} ${styles.navbarRow}`} wrap="nowrap">
       {up && (
@@ -42,7 +44,7 @@ export function MobileNavbar({
           component={Link}
           href={up.href}
           replace={up.replace}
-          aria-label={`Volver a ${up.label}`}
+          aria-label={t('back', { label: up.label })}
           underline="never"
         >
           <Icon glyph={ChevronLeft} />

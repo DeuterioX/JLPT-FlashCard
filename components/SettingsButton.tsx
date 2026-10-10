@@ -1,5 +1,6 @@
 import { Button } from '@mantine/core';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { GearFill } from 'react-bootstrap-icons';
 import { Icon } from './Icon';
 import styles from './SettingsButton.module.css';
@@ -19,6 +20,7 @@ import styles from './SettingsButton.module.css';
  * que está a un toque.
  */
 export function SettingsButton() {
+  const t = useTranslations('nav');
   return (
     <Button
       id="settings-button"
@@ -27,8 +29,8 @@ export function SettingsButton() {
       className={styles.settingsButton}
       variant="default"
       size="compact-xs"
-      aria-label="Ajustes"
-      title="Ajustes"
+      aria-label={t('settings')}
+      title={t('settings')}
     >
       <Icon glyph={GearFill} />
     </Button>

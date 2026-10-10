@@ -5,14 +5,14 @@ import { ModalTitle } from '../ModalTitle';
 import { useRouter } from 'next/navigation';
 import { Modal, TextInput, Group, Text, Button, Badge, Divider } from '@mantine/core';
 import type { DictHit } from '@/lib/services/dict';
-import { posInSpanish } from '@/lib/services/pos';
-import { errorFrom, NETWORK_ERROR } from '@/lib/client/errors';
+import { posCategory } from '@/lib/services/pos';
+import { useTranslations } from 'next-intl';
+import { errorFrom } from '@/lib/client/errors';
 import { useAction } from '@/lib/client/action';
 import styles from './DictSearchPanel.module.css';
 
 const MIN_QUERY = 2;
 const DEBOUNCE_MS = 200;
-const SEARCH_ERROR = 'No se pudo buscar en el diccionario.';
 
 export function DictSearchPanel({
   opened, onClose, groupId, groupName, dictionaryLoaded,
@@ -21,6 +21,8 @@ export function DictSearchPanel({
   /** Si hay algún diccionario importado; lo calcula el servidor (ver app/decks/[id]/page.tsx). */
   dictionaryLoaded: boolean;
 }) {
+  const t = useTranslations('dict');
+  const tErrors = useTranslations('errors');
   const router = useRouter();
   const [q, setQ] = useState('');
   const [rawHits, setRawHits] = useState<DictHit[]>([]);
@@ -54,7 +56,7 @@ export function DictSearchPanel({
       fetch(`/api/dict/search?q=${encodeURIComponent(trimmed)}`, { signal: controller.signal })
         .then(async (res) => {
           if (!res.ok) {
-            setSearchError(await errorFrom(res, SEARCH_ERROR));
+            setSearchError(await errorFrom(res, t('searchError')));
             setRawHits([]);
             return;
           }
@@ -62,7 +64,7 @@ export function DictSearchPanel({
         })
         .catch((e: unknown) => {
           if (e instanceof DOMException && e.name === 'AbortError') return;
-          setSearchError(NETWORK_ERROR);
+          setSearchError(tErrors('network'));
         })
         .finally(() => setLoading(false));
     }, DEBOUNCE_MS);
@@ -71,7 +73,7 @@ export function DictSearchPanel({
       clearTimeout(timer);
       controller.abort();
     };
-  }, [trimmed]);
+  }, [trimmed, t, tErrors]);
 
   const addHit = (h: DictHit) => addAction.run(async () => {
     setAddingId(h.id);
@@ -86,7 +88,7 @@ export function DictSearchPanel({
           answers: [h.romaji],
         }),
       });
-      if (!res.ok) return errorFrom(res);
+      if (!res.ok) return errorFrom(res, tErrors('generic'));
       setAddedIds((prev) => new Set(prev).add(h.id));
       router.refresh();
     } finally {
@@ -117,7 +119,7 @@ export function DictSearchPanel({
       // Centrado, cada tecleo lo reacomoda vertical y el campo de búsqueda
       // se mueve solo bajo el cursor.
       centered={false}
-      title={<ModalTitle jp="辞">Diccionario</ModalTitle>}
+      title={<ModalTitle jp="辞">{t('title')}</ModalTitle>}
     >
       {/* Tres bandas: el buscador arriba, los resultados con su propio
           scroll en el medio, y el pie abajo. Antes scrolleaba el cuerpo
@@ -127,7 +129,7 @@ export function DictSearchPanel({
       <div className={styles.dictHead}>
         <TextInput
           id="dict-q"
-          placeholder="pescado"
+          placeholder={t('placeholder')}
           value={q}
           onChange={(e) => setQ(e.currentTarget.value)}
           autoFocus
@@ -144,9 +146,7 @@ export function DictSearchPanel({
 
         {!dictionaryLoaded && (
           <Text size="sm" c="dimmed">
-            El diccionario no está cargado, así que la búsqueda no va a
-            encontrar nada. Para importarlo, seguí la sección «Diccionario» del
-            README del proyecto.
+            {t('notLoaded')}
           </Text>
         )}
 
@@ -162,19 +162,19 @@ export function DictSearchPanel({
               <Text className={`romaji ${styles.dictRomaji}`} size="sm" c="dimmed">{h.romaji}</Text>
               <Group className={styles.dictGloss} gap={6}>
                 <Text size="sm" c="dimmed" truncate>{h.gloss}</Text>
-                {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">en inglés</Badge>}
+                {h.lang === 'eng' && <Badge size="xs" variant="outline" color="gray">{t('inEnglish')}</Badge>}
               </Group>
               {/* La categoría gramatical, que el diseño muestra (`.pos`).
                   Traducida: JMdict la guarda como código -`n`, `v5s`,
                   `adj-na`- y así salía a la pantalla, donde no le dice nada
                   a nadie que no conozca el formato. */}
-              {posInSpanish(h.pos) && (
+              {posCategory(h.pos) && (
                 <Text className={styles.dictPos} size="xs" c="dark.3" fs="italic">
-                  {posInSpanish(h.pos)}
+                  {t(`pos.${posCategory(h.pos)!}`)}
                 </Text>
               )}
               {addedIds.has(h.id) ? (
-                <Text className={styles.dictAdd} size="xs" c="jade.6">Agregada</Text>
+                <Text className={styles.dictAdd} size="xs" c="jade.6">{t('added')}</Text>
               ) : (
                 <Button
                   className={styles.dictAdd}
@@ -183,7 +183,7 @@ export function DictSearchPanel({
                   loading={addingId === h.id}
                   disabled={addAction.busy}
                 >
-                  Agregar
+                  {t('add')}
                 </Button>
               )}
             </Group>
@@ -192,8 +192,7 @@ export function DictSearchPanel({
 
         {dictionaryLoaded && !tooShort && !loading && hits.length === 0 && !searchError && (
           <Text size="sm" c="dimmed">
-            Sin resultados. JMdict tiene unas 39.000 entradas con traducción al
-            castellano; para términos poco comunes puede no haber.
+            {t('noResults')}
           </Text>
         )}
 
@@ -202,7 +201,7 @@ export function DictSearchPanel({
       </div>
 
       <Text className={styles.dictFoot} size="xs" c="dimmed">
-        Se agrega al grupo <b>{groupName}</b>. Podés editar kana, romaji y significado después.
+        {t.rich('foot', { group: groupName, b: (chunks) => <b>{chunks}</b> })}
       </Text>
     </Modal>
   );

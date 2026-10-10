@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useRef, useState } from 'react';
-import { NETWORK_ERROR } from './errors';
+import { useTranslations } from 'next-intl';
 
 /**
  * Una acción contra la API: guarda de reentrada, estado de ocupado y el error
@@ -35,6 +35,7 @@ export function useAction(opts: {
    */
   keepLockedOnSuccess?: boolean;
 } = {}) {
+  const t = useTranslations('errors');
   const running = useRef(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -51,14 +52,14 @@ export function useAction(opts: {
       else succeeded = true;
     } catch {
       // `fetch` tiró (sin red, DNS, CORS): no hubo respuesta que leer.
-      setError(NETWORK_ERROR);
+      setError(t('network'));
     } finally {
       if (!(succeeded && opts.keepLockedOnSuccess)) {
         running.current = false;
         setBusy(false);
       }
     }
-  }, [opts.keepLockedOnSuccess]);
+  }, [opts.keepLockedOnSuccess, t]);
 
   return { busy, error, setError, run };
 }

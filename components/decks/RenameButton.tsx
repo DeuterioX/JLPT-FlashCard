@@ -1,4 +1,5 @@
 import { Button } from '@mantine/core';
+import { useTranslations } from 'next-intl';
 import { PencilFill } from 'react-bootstrap-icons';
 import { Icon } from '../Icon';
 import styles from './RenameButton.module.css';
@@ -20,6 +21,7 @@ import styles from './RenameButton.module.css';
  * precio de tener el mismo marcado copiado en varias (ver `Breadcrumb`).
  */
 export function RenameButton({ id, onClick }: { id: string; onClick: () => void }) {
+  const t = useTranslations('decks');
   return (
     <Button
       id={id}
@@ -27,10 +29,10 @@ export function RenameButton({ id, onClick }: { id: string; onClick: () => void 
       variant="default"
       bg="transparent"
       size="compact-xs"
-      aria-label="Renombrar"
+      aria-label={t('rename')}
       onClick={onClick}
     >
-      <span className={styles.renameLabel}>Renombrar</span>
+      <span className={styles.renameLabel}>{t('rename')}</span>
       {/* El ícono va envuelto en un span y la clase que lo prende y apaga va
           en el SPAN, no en el SVG: `Icon` escribe su `display` como estilo
           inline, y un estilo inline le gana a la hoja de estilos. Con la

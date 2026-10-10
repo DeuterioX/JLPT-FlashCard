@@ -1,0 +1,307 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar"
+  },
+  "settings": {
+    "title": "Ajustes",
+    "back": "Práctica",
+    "sections": {
+      "appearance": "apariencia",
+      "practice": "práctica",
+      "language": "idioma",
+      "info": "información"
+    },
+    "theme": {
+      "title": "Tema",
+      "description": "Usar el del sistema, o fijar uno.",
+      "autoHint": "usar el del sistema",
+      "options": {
+        "auto": "Automático",
+        "light": "Claro",
+        "dark": "Oscuro"
+      }
+    },
+    "confirmQuizExit": {
+      "title": "Confirmar al salir del quiz",
+      "description": "En escritorio, Esc pregunta antes de dejar una ronda a medias."
+    },
+    "language": {
+      "title": "Idioma de la interfaz",
+      "description": "Las cartas no cambian: siguen en japonés.",
+      "modalTitle": "Idioma"
+    },
+    "about": {
+      "title": "Acerca de {app}",
+      "description": "Versión, fuentes y licencias."
+    }
+  },
+  "nav": {
+    "practice": "Práctica",
+    "decks": "Mazos",
+    "stats": "Estadísticas",
+    "settings": "Ajustes"
+  },
+  "navbar": {
+    "back": "Volver a {label}"
+  },
+  "practice": {
+    "startError": "No se pudo empezar la ronda. Probá de nuevo.",
+    "empty": "Todavía no hay mazos para practicar.",
+    "selectAll": {
+      "label": "Todos",
+      "text": "todos"
+    },
+    "selectNone": {
+      "label": "Ninguno",
+      "text": "ninguno"
+    },
+    "count": {
+      "groups": "{count, plural, one {grupo} other {grupos}}",
+      "cards": "{count, plural, one {carta} other {cartas}}"
+    },
+    "noMeanings": "Estas cartas no tienen significado que repasar",
+    "beginMeaning": "Repasar significados",
+    "beginWriting": "Repasar escritura",
+    "cardLabel": "Practicar {name}",
+    "cardCount": "{count, plural, one {# palabra} other {# palabras}}"
+  },
+  "round": {
+    "back": "Práctica",
+    "exit": "salir",
+    "groups": "{count, plural, one {# grupo} other {# grupos}}",
+    "sessionError": "No se pudo guardar esta ronda. Tus respuestas no se están registrando.",
+    "exitModal": {
+      "title": "Salir de la ronda",
+      "confirm": "Salir",
+      "body": "Lo que respondiste hasta acá ya quedó guardado. {remaining, plural, one {Queda # carta sin responder.} other {Quedan # cartas sin responder.}}"
+    }
+  },
+  "summary": {
+    "title": "Ronda completa",
+    "stats": {
+      "accuracy": "Aciertos",
+      "cards": "Cartas",
+      "errors": "Errores",
+      "time": "Tiempo"
+    },
+    "misses": "Las que te costaron",
+    "hint": {
+      "toStats": "para volver a estadísticas",
+      "nextRound": "para seguir con otra ronda",
+      "exit": "para salir"
+    }
+  },
+  "keys": {
+    "space": "Espacio"
+  },
+  "quiz": {
+    "metrics": {
+      "accuracy": "Aciertos",
+      "remaining": "Restantes",
+      "errors": "Errores"
+    },
+    "tapToReveal": "tocá la carta para revelar",
+    "wrong": "Esa no es, probá de nuevo",
+    "caption": "carta {n} de {total}",
+    "placeholder": "escribí en romaji",
+    "hide": "Ocultar",
+    "reveal": "Revelar"
+  },
+  "meaning": {
+    "metrics": {
+      "known": "Sabidas",
+      "unknown": "No sabidas"
+    },
+    "knew": "La sabía",
+    "didntKnow": "No la sabía"
+  },
+  "stats": {
+    "range": {
+      "7d": "7 días",
+      "30d": "30 días",
+      "all": "siempre",
+      "allOption": "Siempre"
+    },
+    "tiles": {
+      "accuracy": "Aciertos",
+      "accuracyHint": "{correct} de {attempts}",
+      "errors": "Errores",
+      "errorsTotal": "en total",
+      "errorsIn": "en {range}",
+      "rounds": "Rondas",
+      "perDay": "{value} por día",
+      "mastered": "Dominadas",
+      "masteredHint": "de {total} cartas"
+    },
+    "review": "{count, plural, =0 {Practicar mis peores} other {Practicar mis # peores}}",
+    "worst": {
+      "title": "Las que más errás",
+      "note": "errores / veces vista",
+      "empty": "Todavía no hay datos suficientes."
+    },
+    "byGroup": {
+      "title": "Aciertos por grupo",
+      "last": "últimos {range}",
+      "empty": "Todavía no practicaste nada."
+    },
+    "history": {
+      "title": "Historial de rondas",
+      "note": "{count, plural, one {última ronda} other {últimas #}}",
+      "empty": "Sin rondas terminadas.",
+      "today": "Hoy {time}",
+      "yesterday": "Ayer {time}",
+      "review": "Repaso · {cards, plural, one {# carta} other {# cartas}}",
+      "groups": "{count, plural, one {# grupo} other {# grupos}}",
+      "cards": "{count, plural, one {# carta} other {# cartas}}"
+    }
+  },
+  "errors": {
+    "network": "No hay conexión con el servidor. Probá de nuevo.",
+    "generic": "No se pudo completar la acción. Probá de nuevo.",
+    "notFound": {
+      "deck": "No se encontró el mazo",
+      "group": "No se encontró el grupo",
+      "card": "No se encontró la carta",
+      "round": "No se encontró la ronda",
+      "someGroup": "No se encontró alguno de los grupos"
+    },
+    "server": {
+      "invalidId": "Id inválido",
+      "invalidJson": "El cuerpo de la solicitud no es JSON válido",
+      "invalidData": "Datos inválidos",
+      "internal": "Error interno",
+      "deckNameRequired": "El mazo necesita un nombre",
+      "groupNameRequired": "El grupo necesita un nombre",
+      "builtinNoEdit": "Hiragana y Katakana vienen con la app y no se pueden editar",
+      "builtinNoDelete": "Hiragana y Katakana vienen con la app y no se pueden borrar",
+      "cardNeedsRomaji": "La carta necesita al menos una romanización",
+      "cardNeedsPrompt": "La carta necesita un texto en japonés",
+      "pickGroup": "Elegí al menos un grupo para practicar",
+      "noCards": "Los grupos elegidos no tienen cartas",
+      "noMeanings": "Ninguna de esas cartas tiene significado para repasar",
+      "roundFinished": "La ronda ya terminó",
+      "notEnoughErrors": "Todavía no hay errores suficientes para repasar"
+    }
+  },
+  "decks": {
+    "title": "Mazos",
+    "new": "+ Nuevo mazo",
+    "practice": "Practicar",
+    "delete": "Borrar",
+    "decks": "{count, plural, one {# mazo} other {# mazos}}",
+    "groups": "{count, plural, one {# grupo} other {# grupos}}",
+    "cards": "{count, plural, one {# carta} other {# cartas}}",
+    "newModal": {
+      "title": "Nuevo mazo",
+      "name": "Nombre",
+      "namePlaceholder": "Comidas",
+      "groups": "Grupos",
+      "groupsPlaceholder": "Pescado, Verdura, Frutas",
+      "groupsNote": "Separados por coma, y opcional: si lo dejás vacío se crea un grupo solo, llamado «General».",
+      "create": "Crear"
+    },
+    "deleteModal": {
+      "title": "¿Borrar el mazo?",
+      "confirm": "Borrar el mazo",
+      "body": "Se va a borrar <b>«{name}»</b>, sus <b>{groups, plural, one {# grupo} other {# grupos}}</b> y sus <b>{cards, plural, one {# carta} other {# cartas}}</b>. No se puede deshacer."
+    },
+    "readOnly": "sólo lectura",
+    "newGroup": "+ Nuevo grupo",
+    "rename": "Renombrar",
+    "lastGroup": "El mazo necesita al menos un grupo",
+    "renameDeck": "Renombrar mazo",
+    "renameGroup": "Renombrar grupo",
+    "newGroupModal": {
+      "title": "Nuevo grupo",
+      "placeholder": "Verdura"
+    },
+    "deleteGroupModal": {
+      "title": "¿Borrar el grupo?",
+      "confirm": "Borrar el grupo",
+      "body": "Se va a borrar <b>«{name}»</b> y sus <b>{cards, plural, one {# carta} other {# cartas}}</b>. No se puede deshacer."
+    },
+    "builtin": "Incluido en la app · no se puede borrar"
+  },
+  "dict": {
+    "title": "Diccionario",
+    "placeholder": "pescado",
+    "searchError": "No se pudo buscar en el diccionario.",
+    "notLoaded": "El diccionario no está cargado, así que la búsqueda no va a encontrar nada. Para importarlo, seguí la sección «Diccionario» del README del proyecto.",
+    "inEnglish": "en inglés",
+    "added": "Agregada",
+    "add": "Agregar",
+    "noResults": "Sin resultados. JMdict tiene unas 39.000 entradas con traducción al castellano; para términos poco comunes puede no haber.",
+    "foot": "Se agrega al grupo <b>{group}</b>. Podés editar kana, romaji y significado después.",
+    "pos": {
+      "noun": "sustantivo",
+      "suffix": "sufijo",
+      "prefix": "prefijo",
+      "expression": "expresión",
+      "adverb": "adverbio",
+      "interjection": "interjección",
+      "pronoun": "pronombre",
+      "conjunction": "conjunción",
+      "numeral": "numeral",
+      "counter": "contador",
+      "particle": "partícula",
+      "copula": "cópula",
+      "auxiliary": "auxiliar",
+      "adjI": "adjetivo -i",
+      "adjNa": "adjetivo -na",
+      "adjective": "adjetivo",
+      "verb": "verbo"
+    }
+  },
+  "cards": {
+    "editModal": {
+      "title": "Editar palabra"
+    },
+    "meaning": "Significado",
+    "meaningPlaceholder": "camarón",
+    "romajiNote": "El romaji se completa solo desde el kana. Editalo si hace falta.",
+    "addAlt": "+ romanización alternativa",
+    "altLabel": "Romanización alternativa {n}",
+    "removeAlt": "Quitar romanización alternativa {n}",
+    "newWord": "Nueva palabra en «{group}»",
+    "dictSearch": "Buscar en el diccionario",
+    "dictShort": "Diccionario",
+    "add": "Agregar",
+    "move": "Mover",
+    "empty": "Todavía no hay cartas en este grupo.",
+    "deleteModal": {
+      "title": "¿Borrar la palabra?",
+      "confirm": "Borrar la palabra",
+      "body": "Se va a borrar <b>«{word}»</b> y sus <b>intentos registrados</b>. No se puede deshacer.",
+      "bodyWithMeaning": "Se va a borrar <b>«{word}»</b> ({meaning}) y sus <b>intentos registrados</b>. No se puede deshacer."
+    },
+    "moveModal": {
+      "title": "Mover palabra",
+      "body": "Mover <b>{word}</b> a:"
+    }
+  },
+  "about": {
+    "settings": "Ajustes",
+    "title": "Acerca de",
+    "sections": {
+      "project": "sobre el proyecto",
+      "info": "información"
+    },
+    "story": {
+      "p1": "Este proyecto nació de una necesidad personal: quería una herramienta sencilla para estudiar japonés usando flashcards.",
+      "p2": "Mientras utilizaba otra aplicación para aprender hiragana, quise empezar a practicar katakana y descubrí que esa funcionalidad estaba detrás de una suscripción paga. En lugar de pagar por algo que no necesitaba que fuera tan complejo, decidí crear mi propia solución.",
+      "p3": "La aplicación permite practicar hiragana y katakana, reconocer palabras y frases en japonés y entrenar su escritura en romaji. También permite cargar contenido propio para adaptar la práctica a lo que cada uno quiera aprender.",
+      "p4": "La idea no es reinventar el aprendizaje del japonés, sino crear una herramienta simple, útil y libre, basada en una necesidad real.",
+      "p5": "La desarrollé originalmente para mí. Si además puede ser útil para otras personas que estén aprendiendo japonés, mucho mejor."
+    },
+    "facts": {
+      "version": "Versión",
+      "builtWith": "Hecha con",
+      "builtWithValue": "Next.js, Mantine y SQLite",
+      "fonts": "Tipografía",
+      "fontsValue": "M PLUS 2, M PLUS 1 Code, Zen Kaku Gothic New y Zen Old Mincho — SIL Open Font License",
+      "dictionary": "Diccionario",
+      "dictionaryBy": ", del Electronic Dictionary Research and Development Group — "
+    }
+  }
+}

@@ -1,6 +1,7 @@
 'use client';
 
 import { Fragment } from 'react';
+import { useTranslations } from 'next-intl';
 import { Overlay, Paper, Stack, Group, Text, Progress, Kbd } from '@mantine/core';
 import { accuracy, type RoundState } from '@/lib/quiz/engine';
 import { SectionLabel } from '../SectionLabel';
@@ -25,6 +26,7 @@ export function RoundSummary({
   misses: MissEntry[];
   mode: 'normal' | 'review' | 'meaning';
 }) {
+  const t = useTranslations('summary');
   const sorted = [...misses].sort((a, b) => b.count - a.count).slice(0, 5);
   const mins = Math.floor(elapsedMs / 60000);
   const secs = Math.floor((elapsedMs % 60000) / 1000);
@@ -51,26 +53,26 @@ export function RoundSummary({
               fuera de la escala y devuelve un line-height menor que la
               propia letra-. */}
           <Text id="round-summary-title" fw={700} size="0.9375rem" lh={1.3} className="kana">
-            Ronda completa
+            {t('title')}
           </Text>
 
           {/* 22px del mockup, no el `xl` (32px) del tema. */}
           <Group id="round-summary-stats" gap="1.375rem">
             <Stack id="round-summary-accuracy" gap={0}>
               <Text size="xl" fw={600} className="tabular">{Math.round(accuracy(state) * 100)}%</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Aciertos</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">{t('stats.accuracy')}</Text>
             </Stack>
             <Stack id="round-summary-correct" gap={0}>
               <Text size="xl" fw={600} className="tabular">{state.correct}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Cartas</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">{t('stats.cards')}</Text>
             </Stack>
             <Stack id="round-summary-errors" gap={0}>
               <Text size="xl" fw={600} className="tabular knd-error">{state.incorrect}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Errores</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">{t('stats.errors')}</Text>
             </Stack>
             <Stack id="round-summary-time" gap={0}>
               <Text size="xl" fw={600} className="tabular">{mins}:{String(secs).padStart(2, '0')}</Text>
-              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">Tiempo</Text>
+              <Text size="xs" c="dimmed" tt="uppercase" className="knd-metric-label">{t('stats.time')}</Text>
             </Stack>
           </Group>
 
@@ -79,7 +81,7 @@ export function RoundSummary({
               {/* Mismo encabezado de sección que el resto de la app, ahora
                   desde el componente compartido (ver SectionLabel.tsx). */}
               <div className={styles.missesLabel}>
-                <SectionLabel>Las que te costaron</SectionLabel>
+                <SectionLabel>{t('misses')}</SectionLabel>
               </div>
               {/* Una grilla y no una fila por palabra: las columnas son
                   COMPARTIDAS, así que la palabra más larga ensancha la columna
@@ -106,11 +108,11 @@ export function RoundSummary({
           <Group id="round-summary-hint" gap="0.5rem">
             <Kbd>Enter</Kbd>
             <Text size="xs" c="dimmed">
-              {mode === 'review' ? 'para volver a estadísticas' : 'para seguir con otra ronda'}
+              {mode === 'review' ? t('hint.toStats') : t('hint.nextRound')}
             </Text>
             <Text size="xs" c="dimmed">·</Text>
             <Kbd>Esc</Kbd>
-            <Text size="xs" c="dimmed">para salir</Text>
+            <Text size="xs" c="dimmed">{t('hint.exit')}</Text>
           </Group>
         </Stack>
       </Paper>

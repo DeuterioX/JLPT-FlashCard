@@ -1,0 +1,307 @@
+{
+  "common": {
+    "save": "Salvar",
+    "cancel": "Cancelar"
+  },
+  "settings": {
+    "title": "Configurações",
+    "back": "Prática",
+    "sections": {
+      "appearance": "aparência",
+      "practice": "prática",
+      "language": "idioma",
+      "info": "informações"
+    },
+    "theme": {
+      "title": "Tema",
+      "description": "Usar o do sistema, ou escolher um.",
+      "autoHint": "usar o do sistema",
+      "options": {
+        "auto": "Automático",
+        "light": "Claro",
+        "dark": "Escuro"
+      }
+    },
+    "confirmQuizExit": {
+      "title": "Confirmar ao sair do quiz",
+      "description": "No computador, Esc pergunta antes de você sair de uma rodada pela metade."
+    },
+    "language": {
+      "title": "Idioma da interface",
+      "description": "Os cartões não mudam: continuam em japonês.",
+      "modalTitle": "Idioma"
+    },
+    "about": {
+      "title": "Sobre o {app}",
+      "description": "Versão, fontes e licenças."
+    }
+  },
+  "nav": {
+    "practice": "Prática",
+    "decks": "Baralhos",
+    "stats": "Estatísticas",
+    "settings": "Configurações"
+  },
+  "navbar": {
+    "back": "Voltar para {label}"
+  },
+  "practice": {
+    "startError": "Não foi possível começar a rodada. Tente de novo.",
+    "empty": "Ainda não há baralhos para praticar.",
+    "selectAll": {
+      "label": "Todos",
+      "text": "todos"
+    },
+    "selectNone": {
+      "label": "Nenhum",
+      "text": "nenhum"
+    },
+    "count": {
+      "groups": "{count, plural, =0 {grupos} one {grupo} other {grupos}}",
+      "cards": "{count, plural, =0 {cartões} one {cartão} other {cartões}}"
+    },
+    "noMeanings": "Esses cartões não têm significado para revisar",
+    "beginMeaning": "Revisar significados",
+    "beginWriting": "Revisar escrita",
+    "cardLabel": "Praticar {name}",
+    "cardCount": "{count, plural, =0 {# palavras} one {# palavra} other {# palavras}}"
+  },
+  "round": {
+    "back": "Prática",
+    "exit": "sair",
+    "groups": "{count, plural, =0 {# grupos} one {# grupo} other {# grupos}}",
+    "sessionError": "Não foi possível salvar esta rodada. Suas respostas não estão sendo registradas.",
+    "exitModal": {
+      "title": "Sair da rodada",
+      "confirm": "Sair",
+      "body": "O que você respondeu até aqui já foi salvo. {remaining, plural, one {Falta # cartão sem resposta.} other {Faltam # cartões sem resposta.}}"
+    }
+  },
+  "summary": {
+    "title": "Rodada completa",
+    "stats": {
+      "accuracy": "Acertos",
+      "cards": "Cartões",
+      "errors": "Erros",
+      "time": "Tempo"
+    },
+    "misses": "Os que deram mais trabalho",
+    "hint": {
+      "toStats": "para voltar às estatísticas",
+      "nextRound": "para seguir com outra rodada",
+      "exit": "para sair"
+    }
+  },
+  "keys": {
+    "space": "Espaço"
+  },
+  "quiz": {
+    "metrics": {
+      "accuracy": "Acertos",
+      "remaining": "Restantes",
+      "errors": "Erros"
+    },
+    "tapToReveal": "toque no cartão para revelar",
+    "wrong": "Não é essa, tente de novo",
+    "caption": "cartão {n} de {total}",
+    "placeholder": "escreva em romaji",
+    "hide": "Ocultar",
+    "reveal": "Revelar"
+  },
+  "meaning": {
+    "metrics": {
+      "known": "Sabidas",
+      "unknown": "Não sabidas"
+    },
+    "knew": "Eu sabia",
+    "didntKnow": "Não sabia"
+  },
+  "stats": {
+    "range": {
+      "7d": "7 dias",
+      "30d": "30 dias",
+      "all": "sempre",
+      "allOption": "Sempre"
+    },
+    "tiles": {
+      "accuracy": "Acertos",
+      "accuracyHint": "{correct} de {attempts}",
+      "errors": "Erros",
+      "errorsTotal": "no total",
+      "errorsIn": "em {range}",
+      "rounds": "Rodadas",
+      "perDay": "{value} por dia",
+      "mastered": "Dominados",
+      "masteredHint": "de {total} cartões"
+    },
+    "review": "{count, plural, =0 {Praticar os que mais erro} other {Praticar os # que mais erro}}",
+    "worst": {
+      "title": "Os que você mais erra",
+      "note": "erros / vezes vistos",
+      "empty": "Ainda não há dados suficientes."
+    },
+    "byGroup": {
+      "title": "Acertos por grupo",
+      "last": "últimos {range}",
+      "empty": "Você ainda não praticou nada."
+    },
+    "history": {
+      "title": "Histórico de rodadas",
+      "note": "{count, plural, one {última rodada} other {últimas #}}",
+      "empty": "Nenhuma rodada terminada.",
+      "today": "Hoje {time}",
+      "yesterday": "Ontem {time}",
+      "review": "Revisão · {cards, plural, =0 {# cartões} one {# cartão} other {# cartões}}",
+      "groups": "{count, plural, =0 {# grupos} one {# grupo} other {# grupos}}",
+      "cards": "{count, plural, =0 {# cartões} one {# cartão} other {# cartões}}"
+    }
+  },
+  "errors": {
+    "network": "Sem conexão com o servidor. Tente de novo.",
+    "generic": "Não foi possível concluir a ação. Tente de novo.",
+    "notFound": {
+      "deck": "Baralho não encontrado",
+      "group": "Grupo não encontrado",
+      "card": "Cartão não encontrado",
+      "round": "Rodada não encontrada",
+      "someGroup": "Algum dos grupos não foi encontrado"
+    },
+    "server": {
+      "invalidId": "Id inválido",
+      "invalidJson": "O corpo da requisição não é um JSON válido",
+      "invalidData": "Dados inválidos",
+      "internal": "Erro interno",
+      "deckNameRequired": "O baralho precisa de um nome",
+      "groupNameRequired": "O grupo precisa de um nome",
+      "builtinNoEdit": "Hiragana e Katakana vêm com o app e não podem ser editados",
+      "builtinNoDelete": "Hiragana e Katakana vêm com o app e não podem ser excluídos",
+      "cardNeedsRomaji": "O cartão precisa de pelo menos uma romanização",
+      "cardNeedsPrompt": "O cartão precisa de um texto em japonês",
+      "pickGroup": "Escolha pelo menos um grupo para praticar",
+      "noCards": "Os grupos escolhidos não têm cartões",
+      "noMeanings": "Nenhum desses cartões tem significado para revisar",
+      "roundFinished": "A rodada já terminou",
+      "notEnoughErrors": "Ainda não há erros suficientes para revisar"
+    }
+  },
+  "decks": {
+    "title": "Baralhos",
+    "new": "+ Novo baralho",
+    "practice": "Praticar",
+    "delete": "Excluir",
+    "decks": "{count, plural, =0 {# baralhos} one {# baralho} other {# baralhos}}",
+    "groups": "{count, plural, =0 {# grupos} one {# grupo} other {# grupos}}",
+    "cards": "{count, plural, =0 {# cartões} one {# cartão} other {# cartões}}",
+    "newModal": {
+      "title": "Novo baralho",
+      "name": "Nome",
+      "namePlaceholder": "Comidas",
+      "groups": "Grupos",
+      "groupsPlaceholder": "Peixe, Verdura, Frutas",
+      "groupsNote": "Separados por vírgula, e opcional: se você deixar vazio, é criado um único grupo chamado “General”.",
+      "create": "Criar"
+    },
+    "deleteModal": {
+      "title": "Excluir o baralho?",
+      "confirm": "Excluir o baralho",
+      "body": "Vai ser excluído <b>“{name}”</b>, seus <b>{groups, plural, =0 {# grupos} one {# grupo} other {# grupos}}</b> e seus <b>{cards, plural, =0 {# cartões} one {# cartão} other {# cartões}}</b>. Não dá para desfazer."
+    },
+    "readOnly": "somente leitura",
+    "newGroup": "+ Novo grupo",
+    "rename": "Renomear",
+    "lastGroup": "O baralho precisa de pelo menos um grupo",
+    "renameDeck": "Renomear baralho",
+    "renameGroup": "Renomear grupo",
+    "newGroupModal": {
+      "title": "Novo grupo",
+      "placeholder": "Verdura"
+    },
+    "deleteGroupModal": {
+      "title": "Excluir o grupo?",
+      "confirm": "Excluir o grupo",
+      "body": "Vai ser excluído <b>“{name}”</b> e seus <b>{cards, plural, =0 {# cartões} one {# cartão} other {# cartões}}</b>. Não dá para desfazer."
+    },
+    "builtin": "Vem com o app · não pode ser excluído"
+  },
+  "dict": {
+    "title": "Dicionário",
+    "placeholder": "peixe",
+    "searchError": "Não foi possível buscar no dicionário.",
+    "notLoaded": "O dicionário não está carregado, então a busca não vai encontrar nada. Para importá-lo, siga a seção “Diccionario” do README do projeto.",
+    "inEnglish": "em inglês",
+    "added": "Adicionada",
+    "add": "Adicionar",
+    "noResults": "Sem resultados. O JMdict tem umas 39.000 entradas com tradução para o espanhol; termos pouco comuns podem não estar.",
+    "foot": "É adicionada ao grupo <b>{group}</b>. Você pode editar kana, romaji e significado depois.",
+    "pos": {
+      "noun": "substantivo",
+      "suffix": "sufixo",
+      "prefix": "prefixo",
+      "expression": "expressão",
+      "adverb": "advérbio",
+      "interjection": "interjeição",
+      "pronoun": "pronome",
+      "conjunction": "conjunção",
+      "numeral": "numeral",
+      "counter": "contador",
+      "particle": "partícula",
+      "copula": "cópula",
+      "auxiliary": "auxiliar",
+      "adjI": "adjetivo -i",
+      "adjNa": "adjetivo -na",
+      "adjective": "adjetivo",
+      "verb": "verbo"
+    }
+  },
+  "cards": {
+    "editModal": {
+      "title": "Editar palavra"
+    },
+    "meaning": "Significado",
+    "meaningPlaceholder": "camarão",
+    "romajiNote": "O romaji é preenchido a partir do kana. Edite se precisar.",
+    "addAlt": "+ romanização alternativa",
+    "altLabel": "Romanização alternativa {n}",
+    "removeAlt": "Remover romanização alternativa {n}",
+    "newWord": "Nova palavra em “{group}”",
+    "dictSearch": "Buscar no dicionário",
+    "dictShort": "Dicionário",
+    "add": "Adicionar",
+    "move": "Mover",
+    "empty": "Ainda não há cartões neste grupo.",
+    "deleteModal": {
+      "title": "Excluir a palavra?",
+      "confirm": "Excluir a palavra",
+      "body": "Vai ser excluída <b>“{word}”</b> e suas <b>tentativas registradas</b>. Não dá para desfazer.",
+      "bodyWithMeaning": "Vai ser excluída <b>“{word}”</b> ({meaning}) e suas <b>tentativas registradas</b>. Não dá para desfazer."
+    },
+    "moveModal": {
+      "title": "Mover palavra",
+      "body": "Mover <b>{word}</b> para:"
+    }
+  },
+  "about": {
+    "settings": "Configurações",
+    "title": "Sobre",
+    "sections": {
+      "project": "sobre o projeto",
+      "info": "informações"
+    },
+    "story": {
+      "p1": "Este projeto nasceu de uma necessidade pessoal: eu queria uma ferramenta simples para estudar japonês com flashcards.",
+      "p2": "Enquanto usava outro aplicativo para aprender hiragana, quis começar a praticar katakana e descobri que esse recurso estava atrás de uma assinatura paga. Em vez de pagar por algo que eu não precisava que fosse tão complexo, decidi criar minha própria solução.",
+      "p3": "O aplicativo permite praticar hiragana e katakana, reconhecer palavras e frases em japonês e treinar a escrita delas em romaji. Também permite carregar conteúdo próprio para adaptar a prática ao que cada um quiser aprender.",
+      "p4": "A ideia não é reinventar o aprendizado do japonês, e sim criar uma ferramenta simples, útil e livre, baseada em uma necessidade real.",
+      "p5": "Eu a desenvolvi originalmente para mim. Se ela também puder ser útil para outras pessoas que estejam aprendendo japonês, melhor ainda."
+    },
+    "facts": {
+      "version": "Versão",
+      "builtWith": "Feito com",
+      "builtWithValue": "Next.js, Mantine e SQLite",
+      "fonts": "Tipografia",
+      "fontsValue": "M PLUS 2, M PLUS 1 Code, Zen Kaku Gothic New e Zen Old Mincho — SIL Open Font License",
+      "dictionary": "Dicionário",
+      "dictionaryBy": ", do Electronic Dictionary Research and Development Group — "
+    }
+  }
+}

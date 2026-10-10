@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { Button, Modal, Stack } from '@mantine/core';
 import { ModalTitle } from '../ModalTitle';
 import { ModalActions } from '../ModalActions';
@@ -42,13 +43,14 @@ function Body({
   onClose: () => void;
   onSave: (value: string) => void;
 }) {
+  const t = useTranslations('common');
   const [draft, setDraft] = useState(value);
   return (
     <Stack gap={10}>
       <ChoiceList idPrefix={id} value={draft} onChange={setDraft} options={options} />
       <ModalActions onCancel={onClose}>
         <Button id={`${id}-save`} onClick={() => { onSave(draft); onClose(); }}>
-          Guardar
+          {t('save')}
         </Button>
       </ModalActions>
     </Stack>

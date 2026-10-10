@@ -3,6 +3,7 @@
 import { Anchor, Group } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { LINKS, isActive } from '@/lib/nav';
 import styles from './DesktopNav.module.css';
 
@@ -12,6 +13,7 @@ import styles from './DesktopNav.module.css';
  */
 export function DesktopNav() {
   const path = usePathname();
+  const t = useTranslations('nav');
 
   return (
     <Group id="nav-desktop" gap={4}>
@@ -32,7 +34,7 @@ export function DesktopNav() {
             className={active ? `${styles.navLink} ${styles.navLinkOn}` : styles.navLink}
             underline="never"
           >
-            {l.label}
+            {t(l.id)}
           </Anchor>
         );
       })}

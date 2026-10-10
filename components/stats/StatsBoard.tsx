@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import {
   Stack, Group, SegmentedControl, Button, SimpleGrid, Paper, Text, Progress,
 } from '@mantine/core';
@@ -47,7 +48,6 @@ function formatDuration(ms: number | null) {
 }
 
 const RANGE_DAYS: Record<string, number | null> = { '7d': 7, '30d': 30, all: null };
-const RANGE_LABEL: Record<string, string> = { '7d': '7 días', '30d': '30 días', all: 'siempre' };
 
 function subscribeNoop() {
   return () => {};
@@ -72,24 +72,28 @@ const HOUR_24 = { hour: '2-digit', minute: '2-digit', hour12: false } as const;
 /** "Hoy 18:30", "Ayer 09:05" o "17/9/26 18:30" según qué tan lejos esté `iso`
  * del día de hoy. Siempre en formato 24 horas -nunca a. m./p. m., en ningún
  * lado de la app. */
-function formatRoundDate(iso: string): string {
+function formatRoundDate(iso: string, locale: string, t: ReturnType<typeof useTranslations<'stats'>>): string {
   const date = new Date(iso);
   const now = new Date();
   const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const days = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
-  const time = date.toLocaleTimeString('es-AR', HOUR_24);
-  if (days === 0) return `Hoy ${time}`;
-  if (days === 1) return `Ayer ${time}`;
-  return `${date.toLocaleDateString('es-AR')} ${time}`;
+  const time = date.toLocaleTimeString(locale, HOUR_24);
+  if (days === 0) return t('history.today', { time });
+  if (days === 1) return t('history.yesterday', { time });
+  return `${date.toLocaleDateString(locale)} ${time}`;
 }
 
 function HistoryDate({ iso }: { iso: string }) {
   const mounted = useMounted();
+  const t = useTranslations('stats');
+  // El castellano rioplatense para las fechas en castellano: día/mes/año.
+  const locale = useLocale();
+  const dateLocale = locale === 'es' ? 'es-AR' : locale;
   // 96px y `dark.3` (`--a-dimmer`) del diseño, no los 130px y el `dimmed`
   // (`--a-dim`) de antes: la fecha es el dato más apagado de la fila.
   const props = { size: '0.6875rem', lh: 1.4, c: 'dark.3', w: 96 } as const;
   if (!mounted) return <Text {...props}>&nbsp;</Text>;
-  return <Text {...props}>{formatRoundDate(iso)}</Text>;
+  return <Text {...props}>{formatRoundDate(iso, dateLocale, t)}</Text>;
 }
 
 const REVIEW_LIMIT = 20;
@@ -97,6 +101,9 @@ const REVIEW_LIMIT = 20;
 export function StatsBoard({
   overview: o, worst, range,
 }: { overview: Overview; worst: WorstCard[]; range: StatsRange }) {
+  const t = useTranslations('stats');
+  const tErrors = useTranslations('errors');
+  const locale = useLocale();
   const router = useRouter();
   // `keepLockedOnSuccess`: en el camino feliz la guarda NO se libera. `router.push`
   // deja el componente montado mientras navega, y un segundo click en esa
@@ -113,7 +120,7 @@ export function StatsBoard({
       // sobre ese mismo rango y no sobre los 30 días por defecto del service.
       body: JSON.stringify({ limit: REVIEW_LIMIT, range }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     sessionStorage.setItem(ROUND_KEY, JSON.stringify(await res.json()));
     // Ronda nueva sin jugar: cualquier marca de "ya usada" es de otra.
     sessionStorage.removeItem(USED_ROUND_KEY);
@@ -122,12 +129,12 @@ export function StatsBoard({
 
   const reviewCount = Math.min(REVIEW_LIMIT, worst.length);
   const rangeDays = RANGE_DAYS[range];
-  const rangeLabel = RANGE_LABEL[range];
+  const rangeLabel = t(`range.${range}`);
   // "1,4 por día" del diseño. Con el rango "Siempre" no hay denominador
   // honesto -no se sabe sobre cuántos días-, así que la línea no se muestra.
   const roundsPerDay = rangeDays === null
     ? null
-    : `${(o.rounds / rangeDays).toFixed(1).replace('.', ',')} por día`;
+    : t('tiles.perDay', { value: new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(o.rounds / rangeDays) });
 
   return (
     <Stack id="stats-screen" gap="md">
@@ -144,9 +151,9 @@ export function StatsBoard({
             value={range}
             onChange={(v) => router.push(`/stats?window=${v}`)}
             data={[
-              { value: '7d', label: '7 días' },
-              { value: '30d', label: '30 días' },
-              { value: 'all', label: 'Siempre' },
+              { value: '7d', label: t('range.7d') },
+              { value: '30d', label: t('range.30d') },
+              { value: 'all', label: t('range.allOption') },
             ]}
           />
         </div>
@@ -155,18 +162,18 @@ export function StatsBoard({
           {/* La cifra de Aciertos va en el semáforo, como en el diseño: es el
               número que resume la pantalla, así que dice cómo vas con el color
               antes de que lo leas. */}
-          <MetricTile id="stat-accuracy" label="Aciertos" value={`${Math.round(o.accuracy * 100)}%`}
+          <MetricTile id="stat-accuracy" label={t('tiles.accuracy')} value={`${Math.round(o.accuracy * 100)}%`}
             tone={toneOf(o.accuracy)}
-            hint={`${o.correct} de ${o.attempts}`} />
+            hint={t('tiles.accuracyHint', { correct: o.correct, attempts: o.attempts })} />
           {/* "Errores" y "Rondas" no tenían la línea de abajo que el diseño
               sí les da, así que quedaban truncadas al lado de las otras dos.
               Las dos dependen del rango elegido, no de un "30 días" fijo. */}
-          <MetricTile id="stat-errors" label="Errores" value={o.incorrect} tone="bad"
-            hint={rangeDays === null ? 'en total' : `en ${rangeLabel}`} />
-          <MetricTile id="stat-rounds" label="Rondas" value={o.rounds}
+          <MetricTile id="stat-errors" label={t('tiles.errors')} value={o.incorrect} tone="bad"
+            hint={rangeDays === null ? t('tiles.errorsTotal') : t('tiles.errorsIn', { range: rangeLabel })} />
+          <MetricTile id="stat-rounds" label={t('tiles.rounds')} value={o.rounds}
             hint={roundsPerDay ?? undefined} />
-          <MetricTile id="stat-mastered" label="Dominadas" value={o.mastered}
-            hint={`de ${o.totalCards} cartas`} />
+          <MetricTile id="stat-mastered" label={t('tiles.mastered')} value={o.mastered}
+            hint={t('tiles.masteredHint', { total: o.totalCards })} />
         </SimpleGrid>
 
         <Stack id="stats-review" className={styles.statsReview}>
@@ -177,7 +184,7 @@ export function StatsBoard({
             loading={reviewAction.busy}
             disabled={reviewAction.busy || worst.length === 0}
           >
-            {worst.length === 0 ? 'Practicar mis peores' : `Practicar mis ${reviewCount} peores`}
+            {t('review', { count: worst.length === 0 ? 0 : reviewCount })}
           </Button>
           {reviewAction.error && <Text className={`knd-error ${styles.reviewError}`}>{reviewAction.error}</Text>}
         </Stack>
@@ -191,10 +198,10 @@ export function StatsBoard({
         <Paper id="worst-panel" withBorder className={styles.panel}>
           <Stack id="worst-list" className={styles.panelList}>
             <Group wrap="nowrap" className={styles.panelHead}>
-              <Text id="worst-title" className={styles.panelTitle}>Las que más errás</Text>
-              <Text className={styles.panelNote}>errores / veces vista</Text>
+              <Text id="worst-title" className={styles.panelTitle}>{t('worst.title')}</Text>
+              <Text className={styles.panelNote}>{t('worst.note')}</Text>
             </Group>
-            {worst.length === 0 && <Text className={styles.panelEmpty}>Todavía no hay datos suficientes.</Text>}
+            {worst.length === 0 && <Text className={styles.panelEmpty}>{t('worst.empty')}</Text>}
             {/* Una grilla y no una fila con anchos fijos, como «Las que te
                 costaron» del resumen de ronda: las columnas son COMPARTIDAS,
                 así que la palabra más larga ensancha la de todas, las barras
@@ -223,14 +230,14 @@ export function StatsBoard({
         <Paper id="by-group-panel" withBorder className={styles.panel}>
           <Stack id="by-group-list" className={styles.panelList}>
             <Group wrap="nowrap" className={styles.panelHead}>
-              <Text id="by-group-title" className={styles.panelTitle}>Aciertos por grupo</Text>
+              <Text id="by-group-title" className={styles.panelTitle}>{t('byGroup.title')}</Text>
               {/* Esta aclaración faltaba por completo. Sigue al rango
                   elegido en vez de decir siempre "últimos 30 días". */}
               <Text className={styles.panelNote}>
-                {rangeDays === null ? 'siempre' : `últimos ${rangeLabel}`}
+                {rangeDays === null ? t('range.all') : t('byGroup.last', { range: rangeLabel })}
               </Text>
             </Group>
-            {o.byGroup.length === 0 && <Text className={styles.panelEmpty}>Todavía no practicaste nada.</Text>}
+            {o.byGroup.length === 0 && <Text className={styles.panelEmpty}>{t('byGroup.empty')}</Text>}
             {/* La misma grilla que «Las que más errás»: el nombre toma el
                 largo del más largo y sólo corta con elipsis si no entra. Con
                 ancho fijo, «Pronombres y formas de dirigirse a alguien» quedaba
@@ -261,21 +268,26 @@ export function StatsBoard({
               éste no tenía ninguna: el diseño le pone cuántas rondas está
               mostrando, que acá es lo que el servicio devuelve. */}
           <Group wrap="nowrap" className={styles.panelHead}>
-            <Text id="history-title" className={styles.panelTitle}>Historial de rondas</Text>
+            <Text id="history-title" className={styles.panelTitle}>{t('history.title')}</Text>
             {o.history.length > 0 && (
               <Text className={styles.panelNote}>
-                {o.history.length === 1 ? 'última ronda' : `últimas ${o.history.length}`}
+                {t('history.note', { count: o.history.length })}
               </Text>
             )}
           </Group>
-          {o.history.length === 0 && <Text className={styles.panelEmpty}>Sin rondas terminadas.</Text>}
+          {o.history.length === 0 && <Text className={styles.panelEmpty}>{t('history.empty')}</Text>}
           {/* Sin `Divider` entre filas: en el diseño esta lista va sin
               líneas (`border: none`), separada solo por el padding de cada
               fila. Las líneas las tiene la lista de mazos, no esta. */}
           {o.history.map((h) => (
             <Group key={h.id} id={`history-row-${h.id}`} wrap="nowrap" className={styles.historyRow}>
               <HistoryDate iso={h.startedAt} />
-              <Text className={`knd-fill ${styles.historyLabel}`}>{h.label}</Text>
+              <Text className={`knd-fill ${styles.historyLabel}`}>
+                {h.review
+                  ? t('history.review', { cards: h.total })
+                  : [h.deckName, t('history.groups', { count: h.groupCount }), t('history.cards', { count: h.total })]
+                    .filter(Boolean).join(' · ')}
+              </Text>
               {/* Columna de duración del diseño, que faltaba entera. El dato
                   sale de `finishedAt - startedAt` en el servicio. */}
               <Text className={`romaji ${styles.historyLabel}`}>

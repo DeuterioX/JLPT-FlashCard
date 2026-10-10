@@ -1,4 +1,5 @@
 import { Anchor, Stack, Text } from '@mantine/core';
+import { useLocale, useTranslations } from 'next-intl';
 import Image from 'next/image';
 import logo from '../../public/logo.png';
 import { Screen } from '../Screen';
@@ -20,11 +21,13 @@ import styles from './AboutScreen.module.css';
  * cumple.
  */
 export function AboutScreen({ version, buildDate }: { version: string; buildDate?: string }) {
+  const t = useTranslations('about');
+  const locale = useLocale();
   return (
     <Screen
       nav={{
         id: 'about-crumb',
-        levels: [{ label: 'Ajustes', href: '/settings' }, { label: 'Acerca de' }],
+        levels: [{ label: t('settings'), href: '/settings' }, { label: t('title') }],
       }}
     >
       <div id="about" className={styles.column}>
@@ -40,51 +43,29 @@ export function AboutScreen({ version, buildDate }: { version: string; buildDate
         </Stack>
 
         <Stack className={styles.section}>
-          <SectionLabel jp="由">sobre el proyecto</SectionLabel>
+          <SectionLabel jp="由">{t('sections.project')}</SectionLabel>
           <Stack className={styles.prose} lang="es">
-            <Text inherit>
-              Este proyecto nació de una necesidad personal: quería una herramienta
-              sencilla para estudiar japonés usando flashcards.
-            </Text>
-            <Text inherit>
-              Mientras utilizaba otra aplicación para aprender hiragana, quise empezar
-              a practicar katakana y descubrí que esa funcionalidad estaba detrás de
-              una suscripción paga. En lugar de pagar por algo que no necesitaba que
-              fuera tan complejo, decidí crear mi propia solución.
-            </Text>
-            <Text inherit>
-              La aplicación permite practicar hiragana y katakana, reconocer palabras
-              y frases en japonés y entrenar su escritura en romaji. También permite
-              cargar contenido propio para adaptar la práctica a lo que cada uno
-              quiera aprender.
-            </Text>
-            <Text inherit>
-              La idea no es reinventar el aprendizaje del japonés, sino crear una
-              herramienta simple, útil y libre, basada en una necesidad real.
-            </Text>
-            <Text inherit>
-              La desarrollé originalmente para mí. Si además puede ser útil para otras
-              personas que estén aprendiendo japonés, mucho mejor.
-            </Text>
+            {(['p1', 'p2', 'p3', 'p4', 'p5'] as const).map((k) => (
+              <Text key={k} inherit>{t(`story.${k}`)}</Text>
+            ))}
           </Stack>
         </Stack>
 
         <Stack className={styles.section}>
-          <SectionLabel jp="情報">información</SectionLabel>
+          <SectionLabel jp="情報">{t('sections.info')}</SectionLabel>
           <dl className={styles.facts}>
-            <Fact label="Versión">
-              {buildDate ? `${version} · ${formatDate(buildDate)}` : version}
+            <Fact label={t('facts.version')}>
+              {buildDate ? `${version} · ${formatDate(buildDate, locale)}` : version}
             </Fact>
-            <Fact label="Hecha con">Next.js, Mantine y SQLite</Fact>
-            <Fact label="Tipografía">
-              M PLUS 2, M PLUS 1 Code, Zen Kaku Gothic New y Zen Old Mincho — SIL Open
-              Font License
+            <Fact label={t('facts.builtWith')}>{t('facts.builtWithValue')}</Fact>
+            <Fact label={t('facts.fonts')}>
+              {t('facts.fontsValue')}
             </Fact>
-            <Fact label="Diccionario">
+            <Fact label={t('facts.dictionary')}>
               <Anchor href="https://www.edrdg.org/wiki/index.php/JMdict-EDICT_Dictionary_Project" target="_blank" rel="noreferrer" inherit>
                 JMdict
               </Anchor>
-              {', del Electronic Dictionary Research and Development Group — '}
+              {t('facts.dictionaryBy')}
               <Anchor href="https://www.edrdg.org/edrdg/licence.html" target="_blank" rel="noreferrer" inherit>
                 CC BY-SA 4.0
               </Anchor>
@@ -106,8 +87,8 @@ function Fact({ label, children }: { label: string; children: React.ReactNode })
 }
 
 /** `2026-10-05` → «5 de octubre de 2026». En UTC, que es como se anotó. */
-function formatDate(iso: string) {
-  return new Date(`${iso}T00:00:00Z`).toLocaleDateString('es-AR', {
+function formatDate(iso: string, locale: string) {
+  return new Date(`${iso}T00:00:00Z`).toLocaleDateString(locale === 'es' ? 'es-AR' : locale, {
     day: 'numeric', month: 'long', year: 'numeric', timeZone: 'UTC',
   });
 }

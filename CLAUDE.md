@@ -45,6 +45,15 @@ Formulario`, `data-palabras` ni `.gcFila`.
 comentarios, los textos de la interfaz, los mensajes de error y los mensajes de
 commit.
 
+**Los textos de la interfaz no van en los componentes**: van en
+`lib/i18n/messages/es.json` y se leen con `useTranslations` de `next-intl`.
+`es.json` es la referencia; `en.json` y `pt-BR.json` tienen que tener las mismas
+claves, y `tests/i18n/messages.test.ts` falla si a alguno le falta una. Los
+plurales van en ICU (`{count, plural, one {# carta} other {# cartas}}`), no con
+un ternario. Los errores del server llevan su clave (`notFound('card')`,
+`badRequest('pickGroup')`) y la API los traduce. Lo que es dato -los nombres de
+los mazos de fábrica, los significados de las cartas- no se traduce.
+
 La mezcla no es arbitraria. El código se lee junto a React, Mantine y el DOM,
 que están en inglés, y un `onToggle` al lado de un `onApretar` obliga a traducir
 mentalmente en cada línea. Los comentarios y la interfaz, en cambio, no tienen

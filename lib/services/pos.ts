@@ -1,5 +1,6 @@
 /**
- * Los códigos de categoría gramatical de JMdict, en castellano.
+ * Los códigos de categoría gramatical de JMdict, llevados a una categoría que
+ * la pantalla traduce.
  *
  * El diccionario los guarda crudos -`n`, `v5s`, `adj-na`, `exp`- porque son
  * los del archivo original, y así salían a la pantalla: nadie que no conozca
@@ -11,36 +12,42 @@
  * la distinción -i / -na de los adjetivos SÍ se conserva, porque cambia cómo
  * se usa la palabra en la frase.
  */
-const EXACT: Record<string, string> = {
-  n: 'sustantivo',
-  'n-suf': 'sufijo',
-  'n-pref': 'prefijo',
-  exp: 'expresión',
-  adv: 'adverbio',
-  'adv-to': 'adverbio',
-  int: 'interjección',
-  pn: 'pronombre',
-  conj: 'conjunción',
-  pref: 'prefijo',
-  suf: 'sufijo',
+/** La clave de la categoría en los mensajes (`dict.pos.…`). */
+export type PosCategory =
+  | 'noun' | 'suffix' | 'prefix' | 'expression' | 'adverb' | 'interjection' | 'pronoun'
+  | 'conjunction' | 'numeral' | 'counter' | 'particle' | 'copula' | 'auxiliary'
+  | 'adjI' | 'adjNa' | 'adjective' | 'verb';
+
+const EXACT: Record<string, PosCategory> = {
+  n: 'noun',
+  'n-suf': 'suffix',
+  'n-pref': 'prefix',
+  exp: 'expression',
+  adv: 'adverb',
+  'adv-to': 'adverb',
+  int: 'interjection',
+  pn: 'pronoun',
+  conj: 'conjunction',
+  pref: 'prefix',
+  suf: 'suffix',
   num: 'numeral',
-  ctr: 'contador',
-  prt: 'partícula',
-  cop: 'cópula',
-  aux: 'auxiliar',
-  'aux-v': 'auxiliar',
-  'aux-adj': 'auxiliar',
-  'adj-i': 'adjetivo -i',
-  'adj-ix': 'adjetivo -i',
-  'adj-na': 'adjetivo -na',
+  ctr: 'counter',
+  prt: 'particle',
+  cop: 'copula',
+  aux: 'auxiliary',
+  'aux-v': 'auxiliary',
+  'aux-adj': 'auxiliary',
+  'adj-i': 'adjI',
+  'adj-ix': 'adjI',
+  'adj-na': 'adjNa',
 };
 
 /**
- * Devuelve la etiqueta en castellano, o `null` si el código no dice nada
+ * Devuelve la categoría, o `null` si el código no dice nada
  * útil -`unc` es «sin clasificar», y una etiqueta que dice eso es peor que
  * ninguna-.
  */
-export function posInSpanish(pos: string | null): string | null {
+export function posCategory(pos: string | null): PosCategory | null {
   if (!pos) return null;
   const code = pos.trim();
   if (!code || code === 'unc') return null;
@@ -48,7 +55,7 @@ export function posInSpanish(pos: string | null): string | null {
   // Las familias cubren de una los 30 y pico de códigos restantes: todas las
   // clases de verbo (v1, v5r, vs-i, vk, v2a-s...) y los adjetivos arcaicos
   // (adj-t, adj-nari, adj-ku...).
-  if (/^v[0-9krsz]/.test(code)) return 'verbo';
-  if (code.startsWith('adj')) return 'adjetivo';
+  if (/^v[0-9krsz]/.test(code)) return 'verb';
+  if (code.startsWith('adj')) return 'adjective';
   return null;
 }

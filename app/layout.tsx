@@ -6,6 +6,8 @@ import { Providers } from '@/components/Providers';
 import { AppShell } from '@/components/AppShell';
 import { headers } from 'next/headers';
 import { userAgent } from 'next/server';
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import { M_PLUS_2, M_PLUS_1_Code, Zen_Kaku_Gothic_New, Zen_Old_Mincho } from 'next/font/google';
 import { APP_NAME, APP_DESCRIPTION } from '../lib/app-meta';
 
@@ -102,16 +104,19 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   // móvil, así que emular un teléfono ahí sigue mostrando el teléfono.
   const { device } = userAgent({ headers: await headers() });
   const phone = device.type === 'mobile';
+  const locale = await getLocale();
 
   return (
-    <html lang="es" className={FONTS} data-phone={phone || undefined} {...mantineHtmlProps}>
+    <html lang={locale} className={FONTS} data-phone={phone || undefined} {...mantineHtmlProps}>
       <head>
         <ColorSchemeScript defaultColorScheme="auto" />
       </head>
       <body>
-        <Providers>
-          <AppShell phone={phone}>{children}</AppShell>
-        </Providers>
+        <NextIntlClientProvider>
+          <Providers>
+            <AppShell phone={phone}>{children}</AppShell>
+          </Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

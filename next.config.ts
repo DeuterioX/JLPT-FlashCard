@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
   // better-sqlite3 es un módulo nativo: no puede pasar por el bundler.
@@ -9,4 +10,4 @@ const nextConfig: NextConfig = {
   env: { BUILD_DATE: new Date().toISOString().slice(0, 10) },
 };
 
-export default nextConfig;
+export default createNextIntlPlugin('./lib/i18n/request.ts')(nextConfig);

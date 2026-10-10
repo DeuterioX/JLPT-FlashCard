@@ -80,7 +80,10 @@ export type Overview = {
   rounds: number; mastered: number; totalCards: number;
   byGroup: GroupAccuracy[];
   history: { id: number; startedAt: string; total: number; correct: number;
-             incorrect: number; accuracy: number; label: string;
+             incorrect: number; accuracy: number;
+             // Para la etiqueta, que arma la pantalla en el idioma elegido:
+             // «Hiragana · 2 grupos · 10 cartas», o «Repaso · 10 cartas».
+             review: boolean; deckName: string | null; groupCount: number;
              // Duración de la ronda. Sale de `finishedAt - startedAt`, que ya
              // se consultaba acá para filtrar las rondas cerradas; faltaba
              // exponerlo. `null` solo si las fechas no parsean.
@@ -167,13 +170,9 @@ export function overview(db: Db, range: StatsRange, attempts?: Attempts): Overvi
       correct: s.correct, incorrect: s.incorrect,
       accuracy: n === 0 ? 0 : s.correct / n,
       durationMs: Number.isNaN(started) || Number.isNaN(finished) ? null : finished - started,
-      label: s.mode === 'review'
-        ? `Repaso · ${s.total} cartas`
-        : [
-          deckName,
-          `${gids.length} ${gids.length === 1 ? 'grupo' : 'grupos'}`,
-          `${s.total} cartas`,
-        ].filter(Boolean).join(' · '),
+      review: s.mode === 'review',
+      deckName: deckName ?? null,
+      groupCount: gids.length,
     };
   });
 
@@ -202,7 +201,7 @@ export function overview(db: Db, range: StatsRange, attempts?: Attempts): Overvi
  */
 export function openReviewRound(db: Db, limit: number, range: StatsRange = '30d'): RoundPayload {
   const worst = worstCards(db, range, limit);
-  if (worst.length === 0) throw badRequest('Todavía no hay errores suficientes para repasar');
+  if (worst.length === 0) throw badRequest('notEnoughErrors');
 
   const ids = new Set(worst.map((w) => w.cardId));
   const cards = db.select().from(card).where(inArray(card.id, [...ids])).all();

@@ -2,6 +2,7 @@
 
 import { useState, type SubmitEvent } from 'react';
 import { useRouter } from 'next/navigation';
+import { useLocale, useTranslations } from 'next-intl';
 import Link from 'next/link';
 import {
   Anchor, Button, Divider, Group, Modal, Paper, Stack, Text,
@@ -32,17 +33,16 @@ import type { DeckSummary } from '@/lib/services/decks';
 // respetan tal cual porque son nombres propios.
 const SUBTITLE_PARTS = 4;
 
-function subtitleFor(d: DeckSummary): string {
+function subtitleFor(d: DeckSummary, t: ReturnType<typeof useTranslations<'decks'>>, locale: string): string {
   const sections = [...new Set(d.groups.map((g) => g.section).filter((x): x is string => !!x))];
   const parts = sections.length > 0
-    ? sections.map((x) => x.toLocaleLowerCase('es'))
+    ? sections.map((x) => x.toLocaleLowerCase(locale))
     : d.groups.map((g) => g.name);
   const shown = parts.slice(0, SUBTITLE_PARTS).join(', ');
   const detail = parts.length > SUBTITLE_PARTS ? `${shown}…` : shown;
   return [
-    // "1 grupos" decía antes: el plural estaba fijo.
-    `${d.groupCount} ${d.groupCount === 1 ? 'grupo' : 'grupos'}`,
-    `${d.cardCount} cartas`,
+    t('groups', { count: d.groupCount }),
+    t('cards', { count: d.cardCount }),
     detail,
   ].filter(Boolean).join(' · ');
 }
@@ -63,6 +63,9 @@ function iconFor(d: DeckSummary): React.ReactNode {
 }
 
 export function DeckList({ decks }: { decks: DeckSummary[] }) {
+  const t = useTranslations('decks');
+  const tErrors = useTranslations('errors');
+  const locale = useLocale();
   const router = useRouter();
 
   const [creating, setCreating] = useState(false);
@@ -89,7 +92,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
         groups: groups.split(',').map((g) => g.trim()).filter(Boolean),
       }),
     });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setCreating(false);
     setName('');
     setGroups('');
@@ -98,7 +101,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
   const remove = async (d: DeckSummary) => {
     const res = await fetch(`/api/decks/${d.id}`, { method: 'DELETE' });
-    if (!res.ok) return errorFrom(res);
+    if (!res.ok) return errorFrom(res, tErrors('generic'));
     setConfirm(null);
     router.refresh();
   };
@@ -106,14 +109,14 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
   const totalCards = decks.reduce((n, d) => n + d.cardCount, 0);
 
   return (
-    <Screen nav={{ id: 'decks-header-crumb', currentId: 'decks-title', levels: [{ label: 'Mazos' }] }}>
+    <Screen nav={{ id: 'decks-header-crumb', currentId: 'decks-title', levels: [{ label: t('title') }] }}>
       <Stack id="decks-screen" gap="md">
         <Group id="decks-header" gap={10} wrap="nowrap">
           <SectionLabel id="decks-count" jp="冊">
-            {`${decks.length} mazos · ${totalCards} cartas`}
+            {`${t('decks', { count: decks.length })} · ${t('cards', { count: totalCards })}`}
           </SectionLabel>
           <Button id="new-deck-btn" size="compact-sm" onClick={openCreate}>
-            + Nuevo mazo
+            {t('new')}
           </Button>
         </Group>
 
@@ -134,10 +137,10 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                 label={d.name}
                 tappable
                 onTap={() => router.push(`/decks/${d.id}`)}
-                leading={{ label: 'Practicar', onAction: () => router.push('/') }}
+                leading={{ label: t('practice'), onAction: () => router.push('/') }}
                 trailing={d.isBuiltin
                   ? undefined
-                  : { label: 'Borrar', onAction: () => setConfirm(d) }}
+                  : { label: t('delete'), onAction: () => setConfirm(d) }}
               >
               <ListRow
                 icon={iconFor(d)}
@@ -159,7 +162,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                     {d.isBuiltin && <BuiltinDot />}
                   </>
                 }
-                subtitle={subtitleFor(d)}
+                subtitle={subtitleFor(d, t, locale)}
                 actions={
                   <>
                     {/* Los incluidos no muestran Borrar: eso ya dice que no se pueden borrar. */}
@@ -168,14 +171,14 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
                         id={`deck-delete-${d.id}`}
                         variant="subtle" color="shu.6" size="compact-xs" className="knd-row-delete" onClick={() => setConfirm(d)}
                       >
-                        Borrar
+                        {t('delete')}
                       </Button>
                     )}
                     <Button
                       id={`deck-practice-${d.id}`}
                       variant="default" size="compact-xs" onClick={() => router.push('/')}
                     >
-                      Practicar
+                      {t('practice')}
                     </Button>
                   </>
                 }
@@ -185,7 +188,7 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
           ))}
         </Paper>
 
-        <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title={<ModalTitle jp="新">Nuevo mazo</ModalTitle>}>
+        <Modal id="new-deck-modal" opened={creating} onClose={() => setCreating(false)} title={<ModalTitle jp="新">{t('newModal.title')}</ModalTitle>}>
           <Stack
             component="form"
             onSubmit={(e: SubmitEvent) => {
@@ -195,25 +198,24 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
             }}
           >
             <PaperField
-              id="deck-name" label="Nombre" placeholder="Comidas"
+              id="deck-name" label={t('newModal.name')} placeholder={t('newModal.namePlaceholder')}
               value={name} onChange={(e) => setName(e.currentTarget.value)}
             />
             {/* El rótulo de adentro tiene que ser corto -son versalitas de 9px
                 en la misma línea que el texto-, así que la aclaración larga baja
                 a la nota, que es donde el diseño pone lo que hay que explicar. */}
             <PaperField
-              id="deck-groups" label="Grupos"
-              placeholder="Pescado, Verdura, Frutas"
+              id="deck-groups" label={t('newModal.groups')}
+              placeholder={t('newModal.groupsPlaceholder')}
               value={groups} onChange={(e) => setGroups(e.currentTarget.value)}
             />
             <Text className="knd-field-note">
-              Separados por coma, y opcional: si lo dejás vacío se crea un grupo
-              solo, llamado «General».
+              {t('newModal.groupsNote')}
             </Text>
             {createAction.error && <Text className="knd-error" size="sm">{createAction.error}</Text>}
             <ModalActions onCancel={() => setCreating(false)} busy={createAction.busy}>
               <Button id="create-deck-btn" type="submit" disabled={!name.trim() || createAction.busy} loading={createAction.busy}>
-                Crear
+                {t('newModal.create')}
               </Button>
             </ModalActions>
           </Stack>
@@ -221,18 +223,17 @@ export function DeckList({ decks }: { decks: DeckSummary[] }) {
 
         <ConfirmModal
           id="delete-deck-modal" opened={!!confirm} onClose={() => setConfirm(null)}
-          jp="削" title="¿Borrar el mazo?" confirm="Borrar el mazo"
+          jp="削" title={t('deleteModal.title')} confirm={t('deleteModal.confirm')}
           onConfirm={() => remove(confirm!)}
         >
           {/* Las cascadas son reales: hay que mostrarlas antes de ejecutarlas,
               con los dos niveles que se lleva un mazo. */}
-          {'Se va a borrar '}
-          <b>{`«${confirm?.name ?? ''}»`}</b>
-          {', sus '}
-          <b>{confirm?.groupCount === 1 ? '1 grupo' : `${confirm?.groupCount ?? 0} grupos`}</b>
-          {' y sus '}
-          <b>{confirm?.cardCount === 1 ? '1 carta' : `${confirm?.cardCount ?? 0} cartas`}</b>
-          {'. No se puede deshacer.'}
+          {t.rich('deleteModal.body', {
+            name: confirm?.name ?? '',
+            groups: confirm?.groupCount ?? 0,
+            cards: confirm?.cardCount ?? 0,
+            b: (chunks) => <b>{chunks}</b>,
+          })}
         </ConfirmModal>
       </Stack>
     </Screen>

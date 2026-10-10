@@ -1,4 +1,5 @@
 import { Group, Kbd, Text, UnstyledButton } from '@mantine/core';
+import { useTranslations } from 'next-intl';
 import { Brand } from '../Brand';
 import { MobileNavbar } from '../MobileNavbar';
 import styles from './RoundHeader.module.css';
@@ -45,12 +46,13 @@ export function RoundHeader({
   /** Abandonar la ronda desde el «salir» de escritorio. Lo mismo que `Esc`. */
   onExit: () => void;
 }) {
+  const t = useTranslations('round');
   return (
     <>
       {/* `replace` y no `push`: con `push`, el Back del sistema devuelve a una
           ronda que ya se abandonó. Es lo mismo que hace `Esc`. */}
       <MobileNavbar
-        up={{ href: '/', label: 'Práctica', replace: true }}
+        up={{ href: '/', label: t('back'), replace: true }}
         title={title}
         action={context ? <Text className={styles.navContext}>{context}</Text> : undefined}
       />
@@ -75,7 +77,7 @@ export function RoundHeader({
           {context && <Text size="xs" c="dimmed">{`${context} ·`}</Text>}
           <Kbd>Esc</Kbd>
           <UnstyledButton id={`${id}-exit`} className={styles.exitText} onClick={onExit}>
-            salir
+            {t('exit')}
           </UnstyledButton>
         </Group>
       </Group>
@@ -83,11 +85,8 @@ export function RoundHeader({
   );
 }
 
-/**
- * «Minna no Nihongo I · 3 grupos», el rótulo de contexto de una ronda.
- *
- * Lo arman las dos pantallas y lo armaban igual, cada una por su cuenta.
- */
-export function roundContext(deckName: string | undefined, groups: number) {
-  return [deckName, `${groups} ${groups === 1 ? 'grupo' : 'grupos'}`].filter(Boolean).join(' · ');
+/** «Hiragana · 1 grupo»: el mazo -si hay uno, un repaso puede mezclar- y los grupos. */
+export function useRoundContext(deckName: string | undefined, groups: number) {
+  const t = useTranslations('round');
+  return [deckName, t('groups', { count: groups })].filter(Boolean).join(' · ');
 }

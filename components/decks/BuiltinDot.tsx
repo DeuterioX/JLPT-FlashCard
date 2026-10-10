@@ -1,4 +1,5 @@
 import { Tooltip } from '@mantine/core';
+import { useTranslations } from 'next-intl';
 import styles from './BuiltinDot.module.css';
 
 /**
@@ -7,8 +8,9 @@ import styles from './BuiltinDot.module.css';
  * para decir algo que el botón Borrar ausente ya comunica.
  */
 export function BuiltinDot() {
+  const t = useTranslations('decks');
   return (
-    <Tooltip label="Incluido en la app · no se puede borrar" withArrow>
+    <Tooltip label={t('builtin')} withArrow>
       <span className={styles.builtinDot} />
     </Tooltip>
   );

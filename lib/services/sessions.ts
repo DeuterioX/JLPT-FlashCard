@@ -2,7 +2,7 @@ import { eq, inArray, asc } from 'drizzle-orm';
 import type { Db } from '../db/client';
 import { cardGroup, card, cardAnswer, session, sessionGroup, attempt } from '../db/schema';
 import { normalizeAnswer } from '../kana/normalize';
-import { AppError, badRequest, notFound } from './errors';
+import { appError, badRequest, notFound } from './errors';
 
 export type RoundCard = {
   id: number; prompt: string; meaning: string | null;
@@ -50,19 +50,19 @@ export function cardsForGroups(db: Db, groupIds: number[]): RoundCard[] {
 export function openRound(
   db: Db, groupIds: number[], mode: 'normal' | 'review' | 'meaning' = 'normal',
 ): RoundPayload {
-  if (groupIds.length === 0) throw badRequest('Elegí al menos un grupo para practicar');
+  if (groupIds.length === 0) throw badRequest('pickGroup');
 
   const found = db.select().from(cardGroup).where(inArray(cardGroup.id, groupIds)).all();
-  if (found.length !== new Set(groupIds).size) throw notFound('alguno de los grupos');
+  if (found.length !== new Set(groupIds).size) throw notFound('someGroup');
 
   const all = cardsForGroups(db, groupIds);
   // Una ronda de significados sólo puede correr sobre cartas que TENGAN uno.
   // El filtro va acá y no en la consulta para que el mensaje de error pueda
   // distinguir «no hay cartas» de «no hay significados», que no es lo mismo.
   const cards = mode === 'meaning' ? all.filter((c) => c.meaning) : all;
-  if (all.length === 0) throw badRequest('Los grupos elegidos no tienen cartas');
+  if (all.length === 0) throw badRequest('noCards');
   if (cards.length === 0) {
-    throw badRequest('Ninguna de esas cartas tiene significado para repasar');
+    throw badRequest('noMeanings');
   }
 
   let sessionId = 0;
@@ -86,11 +86,11 @@ export function openRound(
  * no reusa una ronda consumida (ver lib/quiz/stored-round.ts), pero el
  * server lo rechaza igual: defensa en profundidad.
  */
-const roundFinished = () => new AppError('La ronda ya terminó', 409);
+const roundFinished = () => appError('roundFinished', 409);
 
 function openSession(db: Db, sessionId: number) {
   const [s] = db.select().from(session).where(eq(session.id, sessionId)).all();
-  if (!s) throw notFound('la ronda');
+  if (!s) throw notFound('round');
   if (s.finishedAt !== null) throw roundFinished();
   return s;
 }
@@ -104,7 +104,7 @@ export function recordAttempt(db: Db, input: {
   // Sin este chequeo, una carta borrada (o un id cualquiera) llegaba al
   // INSERT y la foreign key lo rechazaba como un 500 genérico.
   const [c] = db.select({ id: card.id }).from(card).where(eq(card.id, input.cardId)).all();
-  if (!c) throw notFound('la carta');
+  if (!c) throw notFound('card');
 
   db.insert(attempt).values({
     sessionId: input.sessionId,

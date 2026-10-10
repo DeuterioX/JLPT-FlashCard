@@ -6,8 +6,9 @@ import { Box, Button, Group, Kbd, Paper, Progress, Text } from '@mantine/core';
 import { GenkoSheet } from './GenkoSheet';
 import { FlipSheet } from './FlipSheet';
 import { RoundSummary, type MissEntry } from './RoundSummary';
-import { RoundHeader, roundContext } from './RoundHeader';
-import { createRoundRecorder, SESSION_ERROR_MSG } from '@/lib/quiz/recorder';
+import { RoundHeader, useRoundContext } from './RoundHeader';
+import { createRoundRecorder } from '@/lib/quiz/recorder';
+import { useTranslations } from 'next-intl';
 import {
   decideRoundStart, markRoundUsed, readUsedRound, type StoredRound,
 } from '@/lib/quiz/stored-round';
@@ -34,6 +35,7 @@ import styles from './MeaningRunner.module.css';
  * revelar nada.
  */
 export function MeaningRunner({ round }: { round: StoredRound }) {
+  const t = useTranslations();
   const router = useRouter();
 
   // Una carta ya vista no vuelve: acá no hay «la carta se queda hasta que
@@ -46,7 +48,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
   const [unknown, setUnknown] = useState(0);
   const [startedAt] = useState(() => Date.now());
   const [endedAt, setFin] = useState<number | null>(null);
-  const [sessionError, setSessionError] = useState<string | null>(null);
+  const [sessionFailed, setSessionFailed] = useState(false);
   const sinceRef = useRef(Date.now());
 
   const recorder = useMemo(() => {
@@ -67,7 +69,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       // que calificabas la ronda entera y no se guardaba nada. El quiz sí lo
       // pasaba desde el principio; acá faltaba, y faltaba porque las dos
       // pantallas comparten esta parte por copia y no por abstracción.
-      onFailure: () => setSessionError(SESSION_ERROR_MSG),
+      onFailure: () => setSessionFailed(true),
     });
     // `round` entera y no dos campos sueltos: `decideRoundStart` también mira
     // el modo. Es un objeto estable -viene de `sessionStorage`, parseado una
@@ -123,13 +125,13 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
     return () => window.removeEventListener('keydown', onKey);
   });
 
-  const context = roundContext(round.deckName, round.groupIds.length);
+  const context = useRoundContext(round.deckName, round.groupIds.length);
   const progress = cards.length === 0 ? 0 : (i / cards.length) * 100;
 
   return (
     <Box className={styles.round}>
       <RoundHeader
-        id="meaning-header" title="Repasar significados" context={context}
+        id="meaning-header" title={t('practice.beginMeaning')} context={context}
         onExit={() => router.replace('/')}
       />
 
@@ -159,7 +161,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
               front={<GenkoSheet id="meaning-kana" testId="meaning-prompt" text={card.prompt} />}
             />
             <Text id="meaning-caption" className="knd-quiz-caption tabular">
-              {`carta ${i + 1} de ${cards.length}`}
+              {t('quiz.caption', { n: i + 1, total: cards.length })}
             </Text>
             {/* El botón de revelar no está en teléfono, así que algo tiene que
                 decir que la carta se toca. Sólo mientras está tapada: una vez
@@ -174,7 +176,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
                 que es lo que importa para que no se lea una instrucción que ya
                 no aplica. */}
             <Text className="knd-tap-hint knd-phone-only" data-oculto={revealed || undefined}>
-              tocá la carta para revelar
+              {t('quiz.tapToReveal')}
             </Text>
           </>
         )}
@@ -188,9 +190,9 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
         )}
       </Box>
 
-      {sessionError && (
+      {sessionFailed && (
         <Text id="meaning-session-error" size="xs" className="knd-error" ta="center" py={4}>
-          {sessionError}
+          {t('round.sessionError')}
         </Text>
       )}
 
@@ -199,7 +201,7 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
       <Paper id="meaning-footer-paper" withBorder radius={0} p="sm" className={styles.footerPaper}>
         <Box className={styles.meaningFooter}>
           <Group id="meaning-metrics" className="knd-quiz-metrics" gap={0} wrap="nowrap">
-            {[['Sabidas', known, false], ['Restantes', remaining, false], ['No sabidas', unknown, true]]
+            {[[t('meaning.metrics.known'), known, false], [t('quiz.metrics.remaining'), remaining, false], [t('meaning.metrics.unknown'), unknown, true]]
               .map(([lab, val, bad]) => (
                 <Box key={lab as string} className="knd-quiz-metric">
                   <Text className="knd-quiz-metric-label">{lab as string}</Text>
@@ -223,25 +225,25 @@ export function MeaningRunner({ round }: { round: StoredRound }) {
           <Group className={styles.meaningActions} gap="xs" wrap="nowrap">
             <Kbd className="knd-desktop-only">1</Kbd>
             <Button id="meaning-si" onClick={() => grade(true)} disabled={finished}>
-              La sabía
+              {t('meaning.knew')}
             </Button>
             <Kbd className="knd-desktop-only">2</Kbd>
             <Button
               id="meaning-no" color="shu" onClick={() => grade(false)}
               disabled={finished}
             >
-              No la sabía
+              {t('meaning.didntKnow')}
             </Button>
           </Group>
 
           <Group className={styles.meaningReveal} gap="xs" wrap="nowrap">
-            <Kbd className="knd-desktop-only">Espacio</Kbd>
+            <Kbd className="knd-desktop-only">{t('keys.space')}</Kbd>
             <Button
               id="meaning-reveal" variant="default"
               onClick={() => setRevelado((v) => !v)}
               disabled={finished}
             >
-              {revealed ? 'Ocultar' : 'Revelar'}
+              {revealed ? t('quiz.hide') : t('quiz.reveal')}
             </Button>
           </Group>
         </Box>

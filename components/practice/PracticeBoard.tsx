@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   Stack, Group, SegmentedControl, Button, Text, Box, UnstyledButton,
 } from '@mantine/core';
@@ -15,11 +16,10 @@ import { ROUND_KEY, USED_ROUND_KEY } from '@/lib/quiz/stored-round';
 import type { DeckSummary } from '@/lib/services/decks';
 import styles from './PracticeBoard.module.css';
 
-const START_ROUND_ERROR = 'No se pudo empezar la ronda. Probá de nuevo.';
-
 export function PracticeBoard({
   decks, initialSelection,
 }: { decks: DeckSummary[]; initialSelection: number[] }) {
+  const t = useTranslations('practice');
   const router = useRouter();
   const [pending, start] = useTransition();
   const [deckId, setDeckId] = useState(String(decks[0]?.id ?? ''));
@@ -75,7 +75,7 @@ export function PracticeBoard({
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ groupIds: chosen.map((g) => g.id), mode }),
     });
-    if (!res.ok) return errorFrom(res, START_ROUND_ERROR);
+    if (!res.ok) return errorFrom(res, t('startError'));
     const round = await res.json();
     // `deckName` viaja aparte del `round` que devuelve el server: la API de
     // sesiones no conoce el mazo, solo los `groupIds` -acá sí se sabe, es el
@@ -90,7 +90,7 @@ export function PracticeBoard({
   if (!deck) {
     return (
       <Stack className={styles.empty}>
-        <Text c="dimmed">Todavía no hay mazos para practicar.</Text>
+        <Text c="dimmed">{t('empty')}</Text>
       </Stack>
     );
   }
@@ -139,16 +139,16 @@ export function PracticeBoard({
       <Group id="select-all-controls" wrap="nowrap" className={styles.selectAll}>
         <UnstyledButton
           id="select-all-btn" className={styles.selectVerb}
-          aria-label="Todos" onClick={() => setAll(true)}
+          aria-label={t('selectAll.label')} onClick={() => setAll(true)}
         >
-          todos
+          {t('selectAll.text')}
         </UnstyledButton>
         <Text className={styles.selectSep} aria-hidden>·</Text>
         <UnstyledButton
           id="select-none-btn" className={styles.selectVerb}
-          aria-label="Ninguno" onClick={() => setAll(false)}
+          aria-label={t('selectNone.label')} onClick={() => setAll(false)}
         >
-          ninguno
+          {t('selectNone.text')}
         </UnstyledButton>
       </Group>
     </Group>
@@ -165,10 +165,10 @@ export function PracticeBoard({
             del quiz). */}
         <Group id="selection-count" wrap="wrap" className={styles.count}>
           <Text component="span" className={`knd-strong ${styles.countNum}`}>{chosen.length}</Text>
-          <Text component="span" className={styles.countWord}>grupos</Text>
+          <Text component="span" className={styles.countWord}>{t('count.groups', { count: chosen.length })}</Text>
           <Text component="span" className={styles.countWord}>·</Text>
           <Text component="span" className={`knd-strong ${styles.countNum}`}>{cardCount}</Text>
-          <Text component="span" className={styles.countWord}>cartas</Text>
+          <Text component="span" className={styles.countWord}>{t('count.cards', { count: cardCount })}</Text>
         </Group>
         {roundAction.error && (
           <Text size="sm" className="knd-error">
@@ -192,9 +192,9 @@ export function PracticeBoard({
             onClick={() => begin('meaning')}
             loading={roundAction.busy || pending}
             disabled={chosen.length === 0 || meaningCount === 0 || roundAction.busy || pending}
-            title={meaningCount === 0 ? 'Estas cartas no tienen significado que repasar' : undefined}
+            title={meaningCount === 0 ? t('noMeanings') : undefined}
           >
-            Repasar significados
+            {t('beginMeaning')}
           </Button>
           <Button
             id="begin-round-btn"
@@ -202,7 +202,7 @@ export function PracticeBoard({
             loading={roundAction.busy || pending}
             disabled={chosen.length === 0 || roundAction.busy || pending}
           >
-            Repasar escritura
+            {t('beginWriting')}
           </Button>
         </Box>
       </ActionBar>

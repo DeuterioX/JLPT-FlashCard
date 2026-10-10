@@ -1,4 +1,5 @@
 import { Button, Group } from '@mantine/core';
+import { useTranslations } from 'next-intl';
 
 /**
  * El pie de un modal: Cancelar y después la acción, en una fila pegada a la
@@ -22,10 +23,11 @@ export function ModalActions({
   /** El botón que ejecuta. */
   children: React.ReactNode;
 }) {
+  const t = useTranslations('common');
   return (
     <Group justify="flex-end" gap="xs" wrap="nowrap">
       <Button variant="default" onClick={onCancel} disabled={busy}>
-        Cancelar
+        {t('cancel')}
       </Button>
       {children}
     </Group>

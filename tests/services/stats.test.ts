@@ -179,11 +179,10 @@ describe('overview', () => {
     const two = openRound(db, [kaGroupId, saGroupId]);
     closeRound(db, two.sessionId);
 
-    const labels = new Map(overview(db, 'all').history.map((h) => [h.id, h.label]));
-    // El mazo encabeza la label, como en el diseño ("Hiragana · 6 grupos
-    // · 28 cartas"); antes empezaba directamente por la cuenta de grupos.
-    expect(labels.get(one.sessionId)).toBe('Hiragana · 1 grupo · 5 cartas');
-    expect(labels.get(two.sessionId)).toBe('Hiragana · 2 grupos · 10 cartas');
+    const rows = new Map(overview(db, 'all').history.map((h) => [h.id, h]));
+    // Lo que la pantalla necesita para «Hiragana · 2 grupos · 10 cartas».
+    expect(rows.get(one.sessionId)).toMatchObject({ review: false, deckName: 'Hiragana', groupCount: 1, total: 5 });
+    expect(rows.get(two.sessionId)).toMatchObject({ review: false, deckName: 'Hiragana', groupCount: 2, total: 10 });
   });
 
   it('expone la duración de cada ronda del historial', () => {

@@ -3,6 +3,7 @@
 import { Anchor, Box, Text } from '@mantine/core';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
 import { LINKS, isActive } from '@/lib/nav';
 import styles from './MobileNav.module.css';
 
@@ -14,6 +15,7 @@ import styles from './MobileNav.module.css';
  */
 export function MobileNav() {
   const path = usePathname();
+  const t = useTranslations('nav');
 
   return (
     <Box component="nav" id="nav-mobile" className="knd-nav-mobile">
@@ -30,7 +32,7 @@ export function MobileNav() {
           className={isActive(path, l.href) ? `${styles.tab} ${styles.tabOn}` : styles.tab}
         >
           <Text className={`mincho ${styles.tabGlyph}`}>{l.jp}</Text>
-          <Text className={styles.tabLabel}>{l.label}</Text>
+          <Text className={styles.tabLabel}>{t(l.id)}</Text>
         </Anchor>
       ))}
     </Box>

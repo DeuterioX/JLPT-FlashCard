@@ -1,5 +1,6 @@
 import { ZodError } from 'zod';
-import { AppError } from '../services/errors';
+import es from '../i18n/messages/es.json';
+import { AppError, appError } from '../services/errors';
 // Efecto de lado: configura los mensajes por defecto de Zod en castellano.
 // Tiene que importarse antes de que cualquier schema haga `.parse(...)`.
 import './zod';
@@ -20,17 +21,32 @@ export async function route<T>(fn: () => T | Promise<T>, status = 200): Promise<
     return ok(await fn(), status);
   } catch (e) {
     if (e instanceof AppError) {
-      return Response.json({ error: e.message }, { status: e.status });
+      return Response.json({ error: await translate(e.key, e.message) }, { status: e.status });
     }
     if (e instanceof ZodError) {
       return Response.json(
-        { error: 'Datos inválidos', issues: e.issues.map((i) => i.message) },
+        { error: await translate('server.invalidData', es.errors.server.invalidData), issues: e.issues.map((i) => i.message) },
         { status: 400 },
       );
     }
     // No se filtra el detalle al cliente, pero sí al log del servidor.
     console.error(e);
-    return Response.json({ error: 'Error interno' }, { status: 500 });
+    return Response.json({ error: await translate('server.internal', es.errors.server.internal) }, { status: 500 });
+  }
+}
+
+/**
+ * El mensaje de un error en el idioma de quien pidió. Fuera de una request de
+ * Next -los tests- no hay idioma que leer, y queda el castellano.
+ */
+async function translate(key: string | undefined, fallback: string): Promise<string> {
+  if (!key) return fallback;
+  try {
+    const { getTranslations } = await import('next-intl/server');
+    const t = await getTranslations('errors');
+    return t(key as Parameters<typeof t>[0]);
+  } catch {
+    return fallback;
   }
 }
 
@@ -38,7 +54,7 @@ export async function route<T>(fn: () => T | Promise<T>, status = 200): Promise<
 export async function idFrom(ctx: RouteCtx): Promise<number> {
   const { id } = await ctx.params;
   const n = Number(id);
-  if (!Number.isInteger(n) || n <= 0) throw new AppError('Id inválido', 400);
+  if (!Number.isInteger(n) || n <= 0) throw appError('invalidId', 400);
   return n;
 }
 
@@ -55,7 +71,7 @@ export async function readJson(req: Request): Promise<unknown> {
   try {
     return await req.json();
   } catch {
-    throw new AppError('El cuerpo de la solicitud no es JSON válido', 400);
+    throw appError('invalidJson', 400);
   }
 }
 
@@ -73,6 +89,6 @@ export async function readOptionalJson(req: Request): Promise<unknown> {
   try {
     return JSON.parse(text);
   } catch {
-    throw new AppError('El cuerpo de la solicitud no es JSON válido', 400);
+    throw appError('invalidJson', 400);
   }
 }

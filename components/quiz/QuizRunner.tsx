@@ -9,14 +9,15 @@ import {
   startRound, submit, reveal, currentCard, isFinished, accuracy,
   type RoundState,
 } from '@/lib/quiz/engine';
-import { createRoundRecorder, SESSION_ERROR_MSG, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
+import { createRoundRecorder, type AttemptBody, type RoundRecorder } from '@/lib/quiz/recorder';
+import { useTranslations } from 'next-intl';
 import {
   decideRoundStart, markRoundUsed, readUsedRound, type RoundStart, type StoredRound,
 } from '@/lib/quiz/stored-round';
 import { RoundSummary, type MissEntry } from './RoundSummary';
 import { GenkoSheet } from './GenkoSheet';
 import { FlipSheet } from './FlipSheet';
-import { RoundHeader, roundContext } from './RoundHeader';
+import { RoundHeader, useRoundContext } from './RoundHeader';
 import { isPhone } from '@/lib/client/screen';
 import { readConfirmQuizExit } from '@/lib/client/preferences';
 import { celebrate } from '@/lib/client/confetti';
@@ -60,6 +61,7 @@ function ReplaceTo({ href }: { href: string }) {
 function QuizPlay({
   round, start,
 }: { round: Round; start: Exclude<RoundStart, { kind: 'redirect' }> }) {
+  const t = useTranslations();
   const router = useRouter();
   const [state, setState] = useState<RoundState>(() => startRound(round.cards));
   const [typed, setTyped] = useState('');
@@ -92,7 +94,7 @@ function QuizPlay({
           fetch: (u, i) => fetch(u, i),
           groupIds: start.groupIds,
           onFailure: () => {
-            if (recorderRef.current === r) setSessionError(SESSION_ERROR_MSG);
+            if (recorderRef.current === r) setSessionError(t('round.sessionError'));
           },
         });
       recorderRef.current = r;
@@ -272,7 +274,7 @@ function QuizPlay({
       fetch: (u, i) => fetch(u, i),
       groupIds: round.groupIds,
       onFailure: () => {
-        if (recorderRef.current === next) setSessionError(SESSION_ERROR_MSG);
+        if (recorderRef.current === next) setSessionError(t('round.sessionError'));
       },
     });
     recorderRef.current = next;
@@ -319,17 +321,17 @@ function QuizPlay({
     return (
       <Box id={withSuffix('quiz-metrics')} className="knd-quiz-metrics">
         <Box id={withSuffix('quiz-accuracy')} className="knd-quiz-metric">
-          <Text component="span" className="knd-quiz-metric-label">Aciertos</Text>
+          <Text component="span" className="knd-quiz-metric-label">{t('quiz.metrics.accuracy')}</Text>
           <Text component="span" className="knd-quiz-metric-value tabular">
             {Math.round(accuracy(state) * 100)}%
           </Text>
         </Box>
         <Box id={withSuffix('quiz-remaining')} className="knd-quiz-metric">
-          <Text component="span" className="knd-quiz-metric-label">Restantes</Text>
+          <Text component="span" className="knd-quiz-metric-label">{t('quiz.metrics.remaining')}</Text>
           <Text component="span" className="knd-quiz-metric-value tabular">{remaining}</Text>
         </Box>
         <Box id={withSuffix('quiz-errors')} className="knd-quiz-metric">
-          <Text component="span" className="knd-quiz-metric-label">Errores</Text>
+          <Text component="span" className="knd-quiz-metric-label">{t('quiz.metrics.errors')}</Text>
           <Text component="span" className="knd-quiz-metric-value tabular knd-error">
             {state.incorrect}
           </Text>
@@ -338,7 +340,7 @@ function QuizPlay({
     );
   }
 
-  const contextLabel = roundContext(round.deckName, round.groupIds.length);
+  const contextLabel = useRoundContext(round.deckName, round.groupIds.length);
 
   function keepInputFocused(e: MouseEvent) {
     const target = e.target as HTMLElement;
@@ -356,7 +358,7 @@ function QuizPlay({
     >
       <RoundHeader
         id="quiz-header" brandId="quiz-brand" nameId="quiz-app-name"
-        title="Repasar escritura"
+        title={t('practice.beginWriting')}
         context={contextLabel}
         onExit={() => router.replace('/')}
       />
@@ -400,12 +402,12 @@ function QuizPlay({
             {/* Significado y aviso de error, en absoluto para no correr el kana. */}
             <Stack id="quiz-under-kana" className={styles.quizUnder} align="center" gap={5}>
               {!flipped && (
-                <Text className="knd-tap-hint knd-phone-only">tocá la carta para revelar</Text>
+                <Text className="knd-tap-hint knd-phone-only">{t('quiz.tapToReveal')}</Text>
               )}
               {meaning && <Text id="quiz-meaning" size="sm" c="jade.6">{meaning}</Text>}
               {flash === 'wrong' && (
                 <Text id="quiz-wrong-hint" className={styles.quizToast}>
-                  Esa no es, probá de nuevo
+                  {t('quiz.wrong')}
                 </Text>
               )}
             </Stack>
@@ -413,7 +415,7 @@ function QuizPlay({
         )}
         {card && (
           <Text id="quiz-caption" className="knd-quiz-caption tabular">
-            {`carta ${total - remaining + 1} de ${total}`}
+            {t('quiz.caption', { n: total - remaining + 1, total })}
           </Text>
         )}
         {finished && (
@@ -460,7 +462,7 @@ function QuizPlay({
                 // Escribir vuelve al kana: se escribe mirando el signo.
                 if (flipped) setFlipped(false);
               }}
-              placeholder="escribí en romaji"
+              placeholder={t('quiz.placeholder')}
               // El centrado del texto está en `.quizAnswer` (`--input-text-align`).
               error={flash === 'wrong'}
               // Sin autocorrección: iOS cambiaría «ka» por «Ka».
@@ -474,10 +476,10 @@ function QuizPlay({
 
           <Group className={styles.quizReveal} gap="0.375rem" wrap="nowrap">
             <Text size="0.59375rem" c="dark.3">
-              <Kbd>Espacio</Kbd>
+              <Kbd>{t('keys.space')}</Kbd>
             </Text>
             <Button id="reveal-btn" variant="default" size="compact-sm" onClick={onReveal}>
-              {flipped ? 'Ocultar' : 'Revelar'}
+              {flipped ? t('quiz.hide') : t('quiz.reveal')}
             </Button>
           </Group>
         </Box>
@@ -493,17 +495,15 @@ function QuizPlay({
         }}
         onClosed={() => inputRef.current?.focus()}
         jp="退"
-        title="Salir de la ronda"
-        confirm="Salir"
+        title={t('round.exitModal.title')}
+        confirm={t('round.exitModal.confirm')}
         confirmId="quiz-exit-confirm"
         enterConfirms
         // El quiz ya bloquea el scroll; el del modal le cambiaba el ancho.
         lockScroll={false}
         onConfirm={async () => { router.replace('/'); }}
       >
-        {`Lo que respondiste hasta acá ya quedó guardado. ${
-          remaining === 1 ? 'Queda 1 carta sin responder.' : `Quedan ${remaining} cartas sin responder.`
-        }`}
+        {t('round.exitModal.body', { remaining })}
       </ConfirmModal>
     </Stack>
   );
