@@ -1,0 +1,23 @@
+{
+ "TarjetasA.dc.html": {
+  "x": 0,
+  "y": 16060,
+  "w": 1760,
+  "h": 760,
+  "title": "Tarjetas · A, sin interruptor"
+ },
+ "TarjetasB.dc.html": {
+  "x": 1840,
+  "y": 16060,
+  "w": 1760,
+  "h": 760,
+  "title": "Tarjetas · B, hoja primero"
+ },
+ "TarjetasC.dc.html": {
+  "x": 3680,
+  "y": 16060,
+  "w": 1760,
+  "h": 760,
+  "title": "Tarjetas · C, lista"
+ }
+}

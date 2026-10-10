@@ -1,0 +1,44 @@
+{
+ "TelAjustesSel.dc.html": {
+  "x": 7500,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · A, caja desplegable"
+ },
+ "ClTelAjustesSel.dc.html": {
+  "x": 7920,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · A, caja desplegable · claro"
+ },
+ "TelAjustesVal.dc.html": {
+  "x": 8490,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · B, valor y chevrón"
+ },
+ "ClTelAjustesVal.dc.html": {
+  "x": 8910,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · B, valor y chevrón · claro"
+ },
+ "TelAjustesMenu.dc.html": {
+  "x": 9480,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · A, desplegado"
+ },
+ "ClTelAjustesMenu.dc.html": {
+  "x": 9900,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Ajustes · teléfono · A, desplegado · claro"
+ }
+}

@@ -1,0 +1,44 @@
+{
+ "TelAjustesTema.dc.html": {
+  "x": 7500,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Elegir tema · teléfono"
+ },
+ "ClTelAjustesTema.dc.html": {
+  "x": 7920,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Elegir tema · teléfono · claro"
+ },
+ "TelAjustesIdioma.dc.html": {
+  "x": 8490,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Elegir idioma · teléfono"
+ },
+ "ClTelAjustesIdioma.dc.html": {
+  "x": 8910,
+  "y": 12160,
+  "w": 390,
+  "h": 844,
+  "title": "Elegir idioma · teléfono · claro"
+ },
+ "EscAjustesIdioma.dc.html": {
+  "x": 9480,
+  "y": 12160,
+  "w": 1440,
+  "h": 900,
+  "title": "Elegir idioma · escritorio"
+ },
+ "ClEscAjustesIdioma.dc.html": {
+  "x": 10950,
+  "y": 12160,
+  "w": 1440,
+  "h": 900,
+  "title": "Elegir idioma · escritorio · claro"
+ }
+}

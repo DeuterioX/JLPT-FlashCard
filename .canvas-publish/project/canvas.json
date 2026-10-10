@@ -1,0 +1,868 @@
+{
+ "v": 3,
+ "attachments": {},
+ "boards": {
+  "AnimError.dc.html": {
+   "h": 620,
+   "title": "Corrección y entrada",
+   "w": 1240,
+   "x": 0,
+   "y": 9688
+  },
+  "AnimGiro.dc.html": {
+   "h": 600,
+   "title": "Revelar · 380 ms",
+   "w": 1240,
+   "x": 0,
+   "y": 8708
+  },
+  "AnimGiroX.dc.html": {
+   "h": 700,
+   "title": "Revelar · giro sobre X · mock 1",
+   "w": 1240,
+   "x": 0,
+   "y": 11100
+  },
+  "AnimGiroXCelda.dc.html": {
+   "h": 700,
+   "title": "Revelar · celda por celda · mock 2",
+   "w": 1240,
+   "x": 1270,
+   "y": 11100
+  },
+  "AnimSwipe.dc.html": {
+   "h": 620,
+   "title": "Gesto de fila",
+   "w": 1240,
+   "x": 5200,
+   "y": 8708
+  },
+  "ClAnimError.dc.html": {
+   "h": 620,
+   "title": "Corrección y entrada · claro",
+   "w": 1240,
+   "x": 1270,
+   "y": 9688
+  },
+  "ClAnimGiro.dc.html": {
+   "h": 600,
+   "title": "Revelar · 380 ms · claro",
+   "w": 1240,
+   "x": 1270,
+   "y": 8708
+  },
+  "ClAnimSwipe.dc.html": {
+   "h": 620,
+   "title": "Gesto de fila · claro",
+   "w": 1240,
+   "x": 6470,
+   "y": 8708
+  },
+  "ClEscAcerca.dc.html": {
+   "h": 900,
+   "title": "Acerca de · claro",
+   "w": 1440,
+   "x": 10620,
+   "y": 12160
+  },
+  "ClEscAjustes.dc.html": {
+   "h": 900,
+   "title": "Ajustes · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 12160
+  },
+  "ClEscAjustesIdioma.dc.html": {
+   "h": 900,
+   "title": "Elegir idioma · escritorio · claro",
+   "w": 1440,
+   "x": 7530,
+   "y": 12160
+  },
+  "ClEscCartas.dc.html": {
+   "h": 900,
+   "title": "Cartas · escritorio · claro",
+   "w": 1440,
+   "x": 10470,
+   "y": 0
+  },
+  "ClEscGrupos.dc.html": {
+   "h": 900,
+   "title": "Grupos · escritorio · claro",
+   "w": 1440,
+   "x": 7470,
+   "y": 0
+  },
+  "ClEscMazos.dc.html": {
+   "h": 900,
+   "title": "Mazos · escritorio · claro",
+   "w": 1440,
+   "x": 4470,
+   "y": 0
+  },
+  "ClEscPracticaPal.dc.html": {
+   "h": 900,
+   "title": "Práctica con palabras · escritorio · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 3724
+  },
+  "ClEscQuiz.dc.html": {
+   "h": 900,
+   "title": "Quiz · escritorio · claro",
+   "w": 1440,
+   "x": 13470,
+   "y": 0
+  },
+  "ClEscQuizFrase.dc.html": {
+   "h": 900,
+   "title": "Quiz con frase · escritorio · claro",
+   "w": 1440,
+   "x": 5370,
+   "y": 2464
+  },
+  "ClEscQuizPalabra.dc.html": {
+   "h": 900,
+   "title": "Quiz con palabra · escritorio · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 2464
+  },
+  "ClEscSignif.dc.html": {
+   "h": 900,
+   "title": "Significados · escritorio · claro",
+   "w": 1440,
+   "x": 5370,
+   "y": 3724
+  },
+  "ClEscSignifRev.dc.html": {
+   "h": 900,
+   "title": "Significados revelado · escritorio · claro",
+   "w": 1440,
+   "x": 8370,
+   "y": 3724
+  },
+  "ClEscStats.dc.html": {
+   "h": 900,
+   "title": "Estadísticas · escritorio · claro",
+   "w": 1440,
+   "x": 16470,
+   "y": 0
+  },
+  "ClMain.dc.html": {
+   "h": 900,
+   "title": "Práctica · escritorio · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 0
+  },
+  "ClModBorrar.dc.html": {
+   "h": 900,
+   "title": "Borrar grupo · claro",
+   "w": 1440,
+   "x": 7470,
+   "y": 4984
+  },
+  "ClModCrear.dc.html": {
+   "h": 900,
+   "title": "Nuevo mazo · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 4984
+  },
+  "ClModDict.dc.html": {
+   "h": 900,
+   "title": "Diccionario · escritorio · claro",
+   "w": 1440,
+   "x": 7470,
+   "y": 6244
+  },
+  "ClModEditar.dc.html": {
+   "h": 900,
+   "title": "Editar palabra · claro",
+   "w": 1440,
+   "x": 1470,
+   "y": 6244
+  },
+  "ClModMover.dc.html": {
+   "h": 900,
+   "title": "Mover palabra · claro",
+   "w": 1440,
+   "x": 4470,
+   "y": 6244
+  },
+  "ClModRenombrar.dc.html": {
+   "h": 900,
+   "title": "Renombrar grupo · claro",
+   "w": 1440,
+   "x": 4470,
+   "y": 4984
+  },
+  "ClTelAcerca.dc.html": {
+   "h": 844,
+   "title": "Acerca de · teléfono · claro",
+   "w": 390,
+   "x": 12660,
+   "y": 12160
+  },
+  "ClTelAjustes.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · claro",
+   "w": 390,
+   "x": 3510,
+   "y": 12160
+  },
+  "ClTelAjustesIdioma.dc.html": {
+   "h": 844,
+   "title": "Elegir idioma · teléfono · claro",
+   "w": 390,
+   "x": 5490,
+   "y": 12160
+  },
+  "ClTelAjustesMenu.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · A, desplegado · claro",
+   "w": 390,
+   "x": 16230,
+   "y": 12160
+  },
+  "ClTelAjustesSel.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · A, caja desplegable · claro",
+   "w": 390,
+   "x": 14250,
+   "y": 12160
+  },
+  "ClTelAjustesTema.dc.html": {
+   "h": 844,
+   "title": "Elegir tema · teléfono · claro",
+   "w": 390,
+   "x": 4500,
+   "y": 12160
+  },
+  "ClTelAjustesVal.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · B, valor y chevrón · claro",
+   "w": 390,
+   "x": 15240,
+   "y": 12160
+  },
+  "ClTelCartas.dc.html": {
+   "h": 844,
+   "title": "Cartas · teléfono · claro",
+   "w": 390,
+   "x": 3120,
+   "y": 1260
+  },
+  "ClTelGrupos.dc.html": {
+   "h": 844,
+   "title": "Grupos · teléfono · claro",
+   "w": 390,
+   "x": 2220,
+   "y": 1260
+  },
+  "ClTelMazos.dc.html": {
+   "h": 844,
+   "title": "Mazos · teléfono · claro",
+   "w": 390,
+   "x": 1320,
+   "y": 1260
+  },
+  "ClTelModBorrar.dc.html": {
+   "h": 844,
+   "title": "Borrar · teléfono · claro",
+   "w": 390,
+   "x": 2220,
+   "y": 7504
+  },
+  "ClTelModDict.dc.html": {
+   "h": 844,
+   "title": "Diccionario · teléfono · claro",
+   "w": 390,
+   "x": 420,
+   "y": 7504
+  },
+  "ClTelModEditar.dc.html": {
+   "h": 844,
+   "title": "Editar palabra · teléfono · claro",
+   "w": 390,
+   "x": 1320,
+   "y": 7504
+  },
+  "ClTelPractica.dc.html": {
+   "h": 844,
+   "title": "Práctica · teléfono · claro",
+   "w": 390,
+   "x": 420,
+   "y": 1260
+  },
+  "ClTelPracticaPal.dc.html": {
+   "h": 844,
+   "title": "Práctica con palabras · teléfono · claro",
+   "w": 390,
+   "x": 3420,
+   "y": 3724
+  },
+  "ClTelQuiz.dc.html": {
+   "h": 844,
+   "title": "Quiz · teléfono · claro",
+   "w": 390,
+   "x": 4020,
+   "y": 1260
+  },
+  "ClTelQuizFrase.dc.html": {
+   "h": 844,
+   "title": "Quiz con frase · teléfono · claro",
+   "w": 390,
+   "x": 7320,
+   "y": 2464
+  },
+  "ClTelQuizPalabra.dc.html": {
+   "h": 844,
+   "title": "Quiz con palabra · teléfono · claro",
+   "w": 390,
+   "x": 3420,
+   "y": 2464
+  },
+  "ClTelSignif.dc.html": {
+   "h": 844,
+   "title": "Significados · teléfono · claro",
+   "w": 390,
+   "x": 10320,
+   "y": 3724
+  },
+  "ClTelSignifRev.dc.html": {
+   "h": 844,
+   "title": "Significados revelado · teléfono · claro",
+   "w": 390,
+   "x": 11220,
+   "y": 3724
+  },
+  "ClTelStats.dc.html": {
+   "h": 844,
+   "title": "Estadísticas · teléfono · claro",
+   "w": 390,
+   "x": 4920,
+   "y": 1260
+  },
+  "ClTokens.dc.html": {
+   "h": 900,
+   "title": "Tokens · claro",
+   "w": 1240,
+   "x": 3870,
+   "y": 9688
+  },
+  "EscAcerca.dc.html": {
+   "h": 900,
+   "title": "Acerca de",
+   "w": 1440,
+   "x": 9150,
+   "y": 12160
+  },
+  "EscAjustes.dc.html": {
+   "h": 900,
+   "title": "Ajustes",
+   "w": 1440,
+   "x": 0,
+   "y": 12160
+  },
+  "EscAjustesIdioma.dc.html": {
+   "h": 900,
+   "title": "Elegir idioma · escritorio",
+   "w": 1440,
+   "x": 6060,
+   "y": 12160
+  },
+  "EscCartas.dc.html": {
+   "h": 900,
+   "title": "Cartas · escritorio",
+   "w": 1440,
+   "x": 9000,
+   "y": 0
+  },
+  "EscGrupos.dc.html": {
+   "h": 900,
+   "title": "Grupos · escritorio",
+   "w": 1440,
+   "x": 6000,
+   "y": 0
+  },
+  "EscMazos.dc.html": {
+   "h": 900,
+   "title": "Mazos · escritorio",
+   "w": 1440,
+   "x": 3000,
+   "y": 0
+  },
+  "EscPracticaPal.dc.html": {
+   "h": 900,
+   "title": "Práctica con palabras · escritorio",
+   "w": 1440,
+   "x": 0,
+   "y": 3724
+  },
+  "EscQuiz.dc.html": {
+   "h": 900,
+   "title": "Quiz · escritorio",
+   "w": 1440,
+   "x": 12000,
+   "y": 0
+  },
+  "EscQuizFrase.dc.html": {
+   "h": 900,
+   "title": "Quiz con frase · escritorio",
+   "w": 1440,
+   "x": 3900,
+   "y": 2464
+  },
+  "EscQuizPalabra.dc.html": {
+   "h": 900,
+   "title": "Quiz con palabra · escritorio",
+   "w": 1440,
+   "x": 0,
+   "y": 2464
+  },
+  "EscSignif.dc.html": {
+   "h": 900,
+   "title": "Significados · escritorio",
+   "w": 1440,
+   "x": 3900,
+   "y": 3724
+  },
+  "EscSignifRev.dc.html": {
+   "h": 900,
+   "title": "Significados revelado · escritorio",
+   "w": 1440,
+   "x": 6900,
+   "y": 3724
+  },
+  "EscStats.dc.html": {
+   "h": 900,
+   "title": "Estadísticas · escritorio",
+   "w": 1440,
+   "x": 15000,
+   "y": 0
+  },
+  "Main.dc.html": {
+   "h": 900,
+   "title": "Práctica · escritorio",
+   "w": 1440,
+   "x": 0,
+   "y": 0
+  },
+  "ModBorrar.dc.html": {
+   "h": 900,
+   "title": "Borrar grupo",
+   "w": 1440,
+   "x": 6000,
+   "y": 4984
+  },
+  "ModCrear.dc.html": {
+   "h": 900,
+   "title": "Nuevo mazo",
+   "w": 1440,
+   "x": 0,
+   "y": 4984
+  },
+  "ModDict.dc.html": {
+   "h": 900,
+   "title": "Diccionario · escritorio",
+   "w": 1440,
+   "x": 6000,
+   "y": 6244
+  },
+  "ModEditar.dc.html": {
+   "h": 900,
+   "title": "Editar palabra",
+   "w": 1440,
+   "x": 0,
+   "y": 6244
+  },
+  "ModMover.dc.html": {
+   "h": 900,
+   "title": "Mover palabra",
+   "w": 1440,
+   "x": 3000,
+   "y": 6244
+  },
+  "ModRenombrar.dc.html": {
+   "h": 900,
+   "title": "Renombrar grupo",
+   "w": 1440,
+   "x": 3000,
+   "y": 4984
+  },
+  "TelAcerca.dc.html": {
+   "h": 844,
+   "title": "Acerca de · teléfono",
+   "w": 390,
+   "x": 12240,
+   "y": 12160
+  },
+  "TelAjustes.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono",
+   "w": 390,
+   "x": 3090,
+   "y": 12160
+  },
+  "TelAjustesIdioma.dc.html": {
+   "h": 844,
+   "title": "Elegir idioma · teléfono",
+   "w": 390,
+   "x": 5070,
+   "y": 12160
+  },
+  "TelAjustesMenu.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · A, desplegado",
+   "w": 390,
+   "x": 15810,
+   "y": 12160
+  },
+  "TelAjustesSel.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · A, caja desplegable",
+   "w": 390,
+   "x": 13830,
+   "y": 12160
+  },
+  "TelAjustesTema.dc.html": {
+   "h": 844,
+   "title": "Elegir tema · teléfono",
+   "w": 390,
+   "x": 4080,
+   "y": 12160
+  },
+  "TelAjustesVal.dc.html": {
+   "h": 844,
+   "title": "Ajustes · teléfono · B, valor y chevrón",
+   "w": 390,
+   "x": 14820,
+   "y": 12160
+  },
+  "TelCartas.dc.html": {
+   "h": 844,
+   "title": "Cartas · teléfono",
+   "w": 390,
+   "x": 2700,
+   "y": 1260
+  },
+  "TelGrupos.dc.html": {
+   "h": 844,
+   "title": "Grupos · teléfono",
+   "w": 390,
+   "x": 1800,
+   "y": 1260
+  },
+  "TelMazos.dc.html": {
+   "h": 844,
+   "title": "Mazos · teléfono",
+   "w": 390,
+   "x": 900,
+   "y": 1260
+  },
+  "TelModBorrar.dc.html": {
+   "h": 844,
+   "title": "Borrar · teléfono",
+   "w": 390,
+   "x": 1800,
+   "y": 7504
+  },
+  "TelModDict.dc.html": {
+   "h": 844,
+   "title": "Diccionario · teléfono",
+   "w": 390,
+   "x": 0,
+   "y": 7504
+  },
+  "TelModEditar.dc.html": {
+   "h": 844,
+   "title": "Editar palabra · teléfono",
+   "w": 390,
+   "x": 900,
+   "y": 7504
+  },
+  "TelPractica.dc.html": {
+   "h": 844,
+   "title": "Práctica · teléfono",
+   "w": 390,
+   "x": 0,
+   "y": 1260
+  },
+  "TelPracticaPal.dc.html": {
+   "h": 844,
+   "title": "Práctica con palabras · teléfono",
+   "w": 390,
+   "x": 3000,
+   "y": 3724
+  },
+  "TelQuiz.dc.html": {
+   "h": 844,
+   "title": "Quiz · teléfono",
+   "w": 390,
+   "x": 3600,
+   "y": 1260
+  },
+  "TelQuizFrase.dc.html": {
+   "h": 844,
+   "title": "Quiz con frase · teléfono",
+   "w": 390,
+   "x": 6900,
+   "y": 2464
+  },
+  "TelQuizPalabra.dc.html": {
+   "h": 844,
+   "title": "Quiz con palabra · teléfono",
+   "w": 390,
+   "x": 3000,
+   "y": 2464
+  },
+  "TelSignif.dc.html": {
+   "h": 844,
+   "title": "Significados · teléfono",
+   "w": 390,
+   "x": 9900,
+   "y": 3724
+  },
+  "TelSignifRev.dc.html": {
+   "h": 844,
+   "title": "Significados revelado · teléfono",
+   "w": 390,
+   "x": 10800,
+   "y": 3724
+  },
+  "TelStats.dc.html": {
+   "h": 844,
+   "title": "Estadísticas · teléfono",
+   "w": 390,
+   "x": 4500,
+   "y": 1260
+  },
+  "Tokens.dc.html": {
+   "h": 900,
+   "title": "Tokens",
+   "w": 1240,
+   "x": 2600,
+   "y": 9688
+  },
+  "Cambios.dc.html": {
+   "x": 0,
+   "y": 13600,
+   "w": 1240,
+   "h": 920,
+   "title": "Registro de cambios"
+  },
+  "ClCambios.dc.html": {
+   "x": 1270,
+   "y": 13600,
+   "w": 1240,
+   "h": 920,
+   "title": "Registro de cambios · claro"
+  }
+ },
+ "createdOnFiles": {
+  "at": "2026-09-25T00:00:00Z",
+  "v": 1
+ },
+ "designSystems": [],
+ "launch": {
+  "view": "canvas"
+ },
+ "notes": {
+  "n0": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Escritorio · 1440×900",
+   "w": 240,
+   "x": 0,
+   "y": -250
+  },
+  "n1": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Teléfono · 390×844",
+   "w": 240,
+   "x": 0,
+   "y": 1010
+  },
+  "n10": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Ajustes y Acerca de",
+   "w": 240,
+   "x": 0,
+   "y": 11910
+  },
+  "n2": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "El quiz con una palabra y con una frase, no sólo con un kana",
+   "w": 240,
+   "x": 0,
+   "y": 2214
+  },
+  "n3": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Repasar el significado, sin escribir",
+   "w": 240,
+   "x": 0,
+   "y": 3474
+  },
+  "n4": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Modales · crear, renombrar, borrar",
+   "w": 240,
+   "x": 0,
+   "y": 4734
+  },
+  "n5": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Modales · editar, mover, diccionario",
+   "w": 240,
+   "x": 0,
+   "y": 5994
+  },
+  "n6": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Modales en teléfono",
+   "w": 240,
+   "x": 0,
+   "y": 7254
+  },
+  "n7": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Animaciones",
+   "w": 240,
+   "x": 0,
+   "y": 8458
+  },
+  "n8": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Corrección, entrada y tokens",
+   "w": 240,
+   "x": 0,
+   "y": 9438
+  },
+  "n9": {
+   "kind": "title1",
+   "maxW": 3000,
+   "text": "Revelar · dos maquetas para elegir",
+   "w": 240,
+   "x": 0,
+   "y": 10850
+  },
+  "n11": {
+   "kind": "title1",
+   "maxW": 2600,
+   "text": "Registro de cambios",
+   "w": 240,
+   "x": 0,
+   "y": 13350
+  }
+ },
+ "order": [
+  "Main.dc.html",
+  "ClMain.dc.html",
+  "EscMazos.dc.html",
+  "ClEscMazos.dc.html",
+  "EscGrupos.dc.html",
+  "ClEscGrupos.dc.html",
+  "EscCartas.dc.html",
+  "ClEscCartas.dc.html",
+  "EscQuiz.dc.html",
+  "ClEscQuiz.dc.html",
+  "EscStats.dc.html",
+  "ClEscStats.dc.html",
+  "TelPractica.dc.html",
+  "ClTelPractica.dc.html",
+  "TelMazos.dc.html",
+  "ClTelMazos.dc.html",
+  "TelGrupos.dc.html",
+  "ClTelGrupos.dc.html",
+  "TelCartas.dc.html",
+  "ClTelCartas.dc.html",
+  "TelQuiz.dc.html",
+  "ClTelQuiz.dc.html",
+  "TelStats.dc.html",
+  "ClTelStats.dc.html",
+  "EscQuizPalabra.dc.html",
+  "ClEscQuizPalabra.dc.html",
+  "TelQuizPalabra.dc.html",
+  "ClTelQuizPalabra.dc.html",
+  "EscQuizFrase.dc.html",
+  "ClEscQuizFrase.dc.html",
+  "TelQuizFrase.dc.html",
+  "ClTelQuizFrase.dc.html",
+  "EscPracticaPal.dc.html",
+  "ClEscPracticaPal.dc.html",
+  "TelPracticaPal.dc.html",
+  "ClTelPracticaPal.dc.html",
+  "EscSignif.dc.html",
+  "ClEscSignif.dc.html",
+  "EscSignifRev.dc.html",
+  "ClEscSignifRev.dc.html",
+  "TelSignif.dc.html",
+  "ClTelSignif.dc.html",
+  "TelSignifRev.dc.html",
+  "ClTelSignifRev.dc.html",
+  "ModCrear.dc.html",
+  "ClModCrear.dc.html",
+  "ModRenombrar.dc.html",
+  "ClModRenombrar.dc.html",
+  "ModBorrar.dc.html",
+  "ClModBorrar.dc.html",
+  "ModEditar.dc.html",
+  "ClModEditar.dc.html",
+  "ModMover.dc.html",
+  "ClModMover.dc.html",
+  "ModDict.dc.html",
+  "ClModDict.dc.html",
+  "TelModDict.dc.html",
+  "ClTelModDict.dc.html",
+  "TelModEditar.dc.html",
+  "ClTelModEditar.dc.html",
+  "TelModBorrar.dc.html",
+  "ClTelModBorrar.dc.html",
+  "AnimGiro.dc.html",
+  "ClAnimGiro.dc.html",
+  "AnimSwipe.dc.html",
+  "ClAnimSwipe.dc.html",
+  "AnimError.dc.html",
+  "ClAnimError.dc.html",
+  "Tokens.dc.html",
+  "ClTokens.dc.html",
+  "AnimGiroX.dc.html",
+  "AnimGiroXCelda.dc.html",
+  "EscAjustes.dc.html",
+  "ClEscAjustes.dc.html",
+  "TelAjustes.dc.html",
+  "ClTelAjustes.dc.html",
+  "EscAcerca.dc.html",
+  "ClEscAcerca.dc.html",
+  "TelAcerca.dc.html",
+  "ClTelAcerca.dc.html",
+  "TelAjustesSel.dc.html",
+  "ClTelAjustesSel.dc.html",
+  "TelAjustesVal.dc.html",
+  "ClTelAjustesVal.dc.html",
+  "TelAjustesMenu.dc.html",
+  "ClTelAjustesMenu.dc.html",
+  "TelAjustesTema.dc.html",
+  "ClTelAjustesTema.dc.html",
+  "TelAjustesIdioma.dc.html",
+  "ClTelAjustesIdioma.dc.html",
+  "EscAjustesIdioma.dc.html",
+  "ClEscAjustesIdioma.dc.html",
+  "Cambios.dc.html",
+  "ClCambios.dc.html"
+ ],
+ "pages": [],
+ "title": "Kitsune Cards · tinta y papel"
+}

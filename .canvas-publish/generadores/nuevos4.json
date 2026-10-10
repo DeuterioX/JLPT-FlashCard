@@ -1,0 +1,16 @@
+{
+ "TarjetasAlto.dc.html": {
+  "x": 0,
+  "y": 14700,
+  "w": 1640,
+  "h": 1240,
+  "title": "Tarjetas del mismo alto"
+ },
+ "ClTarjetasAlto.dc.html": {
+  "x": 1670,
+  "y": 14700,
+  "w": 1640,
+  "h": 1240,
+  "title": "Tarjetas del mismo alto · claro"
+ }
+}

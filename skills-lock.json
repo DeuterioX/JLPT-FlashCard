@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "auth-implementation-patterns": {
+      "source": "wshobson/agents",
+      "sourceType": "github",
+      "skillPath": "plugins/developer-essentials/skills/auth-implementation-patterns/SKILL.md",
+      "computedHash": "43b53312c6bbc9ca6d4a7f1ae97804cb2520a9aec7d7903004eed3b622d7e0d9"
+    },
     "mantine-combobox": {
       "source": "mantinedev/skills",
       "sourceType": "github",

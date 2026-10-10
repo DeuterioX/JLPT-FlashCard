@@ -1,0 +1,30 @@
+{
+ "SelProp.dc.html": {
+  "x": 0,
+  "y": 13600,
+  "w": 1240,
+  "h": 980,
+  "title": "Seleccionar · propuestas"
+ },
+ "ClSelProp.dc.html": {
+  "x": 1270,
+  "y": 13600,
+  "w": 1240,
+  "h": 980,
+  "title": "Seleccionar · propuestas · claro"
+ },
+ "SelPropTel.dc.html": {
+  "x": 2690,
+  "y": 13600,
+  "w": 1340,
+  "h": 790,
+  "title": "Seleccionar · en teléfono"
+ },
+ "ClSelPropTel.dc.html": {
+  "x": 4060,
+  "y": 13600,
+  "w": 1340,
+  "h": 790,
+  "title": "Seleccionar · en teléfono · claro"
+ }
+}
